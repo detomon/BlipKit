@@ -1,0 +1,18 @@
+Changes in BlipKit 0.3:
+
+* Added support for instrument envelopes
+
+Changes in BlipKit 0.2:
+
+* Added macro BKAbs
+* Added function BKDataNormalize
+* Improved quality when changing duty cycle
+* Effect value are now set with BKTrackGet/SetPtr
+* Single-argument effects can now be set with BKTrackGet/SetAttr
+* Fixed bug when updating BKData
+* Fixed instrument sequence bug
+* Fixed track attribute bug
+
+BlipKit 0.1.4:
+
+First public release
