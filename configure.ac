@@ -33,6 +33,7 @@ AC_CONFIG_FILES([
  Makefile
  src/Makefile
  examples/Makefile
+ dev/bliplay/Makefile
 ])
 
 # Flags

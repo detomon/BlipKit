@@ -4938,7 +4938,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile examples/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile examples/Makefile dev/bliplay/Makefile"
 
 
 # Flags
@@ -5802,6 +5802,7 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
+    "dev/bliplay/Makefile") CONFIG_FILES="$CONFIG_FILES dev/bliplay/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

@@ -1,13 +1,8 @@
+#include <getopt.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
-#include <getopt.h>
 #include "BKSDLTrack.h"
-#include <term.h>
-#include <termcap.h>
-#include <ncurses.h>
-#include <menu.h>
-#include <sys/ioctl.h>
 
 enum
 {
@@ -352,193 +347,12 @@ static void play (void)
 	SDL_CloseAudio ();
 }
 
-void handle_winch(int sig)
-{
-	signal (SIGWINCH, SIG_IGN);
-
-	// Reinitialize the window to update data structures.
-	endwin();
-	initscr();
-	refresh();
-	clear();
-
-	char tmp[128];
-	sprintf(tmp, "%dx%d", COLS, LINES);
-
-	// Approximate the center
-	int x = COLS / 2 - strlen(tmp) / 2;
-	int y = LINES / 2 - 1;
-
-	mvaddstr(y, x, tmp);
-	refresh();
-
-	signal (SIGWINCH, handle_winch);
-}
-
-#define WIDTH 30
-#define HEIGHT 10
-
-int startx = 0;
-int starty = 0;
-
-char *choices[] = {
-	"Choice 1",
-	"Choice 2",
-	"Choice 3",
-	"Choice 4",
-	"Exit",
-};
-int n_choices = sizeof(choices) / sizeof(char *);
-void print_menu(WINDOW *menu_win, int highlight);
-
-void print_menu(WINDOW *menu_win, int highlight)
-{
-	int x, y, i;
-	
-	x = 2;
-	y = 2;
-	box(menu_win, 0, 0);
-
-	for(i = 0; i < n_choices; ++i)
-	{	if(highlight == i + 1) /* High light the present choice */
-	{	wattron(menu_win, A_REVERSE /*| COLOR_PAIR (1)*/);
-		mvwprintw(menu_win, y, x, "%s", choices[i]);
-		wattroff(menu_win, A_REVERSE);
-	}
-	else
-		mvwprintw(menu_win, y, x, "%s", choices[i]);
-		++y;
-	}
-	wrefresh(menu_win);
-}
-
-static void screen (void)
-{
-	/*struct winsize w;
-    ioctl (STDOUT_FILENO, TIOCGWINSZ, &w);
-
-    printf ("lines %d\n", w.ws_row);
-    printf ("columns %d\n", w.ws_col);*/
-
-	signal(SIGWINCH, handle_winch);
-
-	WINDOW *menu_win;
-	
-	
-		int highlight = 1;
-		int choice = 0;
-		int c;
-		
-		initscr();
-		clear();
-		noecho();
-		cbreak();	/* Line buffering disabled. pass on everything */
-		
-	start_color ();
-	use_default_colors ();
-	
-		//init_pair(1, COLOR_YELLOW, COLOR_BLUE);
-		//init_pair(2, COLOR_WHITE, COLOR_BLACK);
-		//bkgd (COLOR_PAIR (2));
-
-	
-	ITEM *it [5];
-	MENU *me;
-	
-	it[0] = new_item("M1", "jkh");
-	it[1] = new_item("M2", "jkh");
-	it[2] = new_item("M3", "kjh");
-	it[3] = new_item("Ende", "kjh");
-	it[4] = 0;
-	
-	me = new_menu(it);
-	curs_set (0);
-	
-	move (0, 10);
-	post_menu(me);
-	
-	
-		int startx = (80 - WIDTH) / 2;
-		int starty = (24 - HEIGHT) / 2;
-		
-		menu_win = newwin(HEIGHT, WIDTH, starty, startx);
-		keypad(menu_win, TRUE);
-		mvprintw(0, 0, "Use arrow keys to go up and down, Press enter to select a choice");
-		refresh();
-		print_menu(menu_win, highlight);
-		while(1)
-		{
-			c = wgetch(menu_win);
-			switch(c)
-			{	case KEY_UP:
-					menu_driver(me, REQ_UP_ITEM);
-					
-					if(highlight == 1)
-						highlight = n_choices;
-					else
-						--highlight;
-					break;
-				case KEY_DOWN:
-					menu_driver(me, REQ_DOWN_ITEM);
-					
-					if(highlight == n_choices)
-						highlight = 1;
-					else
-						++highlight;
-					break;
-				case 10:
-					choice = highlight;
-					break;
-				default:
-					mvprintw(24, 0, "Charcter pressed is = %3d Hopefully it can be printed as '%c'", c, c);
-					refresh();
-					break;
-			}
-			//print_menu(menu_win, highlight);
-			if(choice != 0)	/* User did a choice come out of the infinite loop */
-				break;
-			
-			refresh ();
-		}
-		mvprintw(23, 0, "You chose choice %d with choice string %s\n", choice, choices[choice - 1]);
-		clrtoeol();
-		refresh();
-		endwin();
-
-}
-
 #ifdef main
 #undef main
 #endif
 
 int main (int argc, const char * argv [])
 {
-	char buf [8192];
-	char * str = buf;
-
-	setenv ("TERM", "xterm-256color", 1);
-
-	//tgetent (buf, getenv ("TERM"));
-
-	
-	//printf ("*%ld\n", cur_term);
-	//printf (">%u\n", cur_term->type.num_Strings);
-	
-	//setupterm (NULL, 1, NULL);
-
-//	fd_set in;
-//	FD_ZERO (& in);
-//	FD_SET (STDIN_FILENO, & in);
-//	select (2, & in, NULL, NULL, NULL);
-	
-	//screen ();
-	
-	//printf ("%s\n", cursor_down);
-
-	//char * s = tgetstr (cursor_down, & str);
-		
-	//printf ("[%d %d %d %d]\n", c [0], c [1], c [2], c [3]);
-	
 	if (handleOptions (& ctx, argc, argv) == 0) {
 		play ();
 	}
