@@ -524,14 +524,14 @@ int main (int argc, const char * argv [])
 	//printf ("*%ld\n", cur_term);
 	//printf (">%u\n", cur_term->type.num_Strings);
 	
-	setupterm (NULL, 1, NULL);
+	//setupterm (NULL, 1, NULL);
 
 //	fd_set in;
 //	FD_ZERO (& in);
 //	FD_SET (STDIN_FILENO, & in);
 //	select (2, & in, NULL, NULL, NULL);
 	
-	screen ();
+	//screen ();
 	
 	//printf ("%s\n", cursor_down);
 
