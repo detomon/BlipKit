@@ -33,6 +33,7 @@ enum
 	DISPLAY_FLAG     = 1 << 1, // only in terminal
 	PLAY_FLAG        = 1 << 2,
 	CHECK_FLAG       = 1 << 3,
+	OUTPUT_FLAG      = 1 << 4,
 };
 
 enum
@@ -86,9 +87,9 @@ static int getchar_nocanon (unsigned tcflags) {
 static void printOptionHelp (void)
 {
 	printf (
-		"usage: SDLTest [-d | --display] [-s speed | --speed speed] [-p | --play] [-r | --samplerate] file\n"
-		"       SDLTest [-c | --check] file\n"
-		"       SDLTest [-h | --help]\n"
+		"usage: bliplay [-d | --display] [-s speed | --speed speed] [-p | --play] [-r | --samplerate] file\n"
+		"       bliplay [-c | --check] file\n"
+		"       bliplay [-h | --help]\n"
 	);
 }
 
@@ -139,15 +140,18 @@ static int interactiveMode (BKSDLContext * ctx)
 
 	printf ("Entering interactive mode... (\"help\" for help, \"quit\" to quit)\n");
 
-	while (1) {
+	/*while (1) {
 		int c = getchar_nocanon (0);
 		printf ("[%u]\n", c);
-	}
+	}*/
 
 	do {
 		printf ("blip> ");
 		fgets (line, sizeof (line), stdin);
-				
+
+		strcpy (name, "");
+		strcpy (args, "");
+
 		if (sscanf (line, "%63s %255[^\n]", name, args) >= 1) {
 			command = getCommand (name);
 			
@@ -233,7 +237,7 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 
 	opterr = 0;
 
-	while ((opt = getopt_long (argc, (void *) argv, "cdhps:r:", options, & longoptind)) != -1) {
+	while ((opt = getopt_long (argc, (void *) argv, "cdhpos:r:", options, & longoptind)) != -1) {
 		switch (opt) {
 			case 's': {
 				speed = atoi (optarg);
@@ -254,6 +258,10 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 			}
 			case 'c': {
 				flags |= CHECK_FLAG;
+				break;
+			}
+			case 'o': {
+				flags |= OUTPUT_FLAG;
 				break;
 			}
 			case 'r': {
