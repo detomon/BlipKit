@@ -41,6 +41,8 @@ All examples use SDL (<http://www.libsdl.org>) to output sound, so you have to i
 	blipkit/examples$ make divider
 	blipkit/examples$ make stereo
 	blipkit/examples$ make scratch
+	blipkit/examples$ make waveform
+	blipkit/examples$ make envelope
 
 Finally, run examples like this:
 
