@@ -1,4 +1,5 @@
-AM_CFLAGS = @BK_STD_CFLAGS@
+AM_CFLAGS = @BK_STD_CFLAGS@  -I$(srcdir)/../../src
+AM_LDFLAGS = -L$(srcdir)/../../src -lblipkit @SDL_CFLAGS@
 
 pkginclude_HEADERS = \
 	BKSDLTrack.h \
@@ -20,8 +21,4 @@ bliplay_SOURCES = \
 	BKInterpreter.c \
 	bliplay.c
 
-COMPILER_FLAGS = $(AM_CFLAGS) -I$(srcdir)/../../src -L$(srcdir)/../../src -lblipkit
-LINKER_FLAGS = @SDL_CFLAGS@
-
-bliplay_CFLAGS = $(COMPILER_FLAGS)
-bliplay_LDFLAGS = $(LINKER_FLAGS)
+bliplay_CFLAGS = $(AM_CFLAGS) -DPROGRAM_NAME=\"bliplay\"

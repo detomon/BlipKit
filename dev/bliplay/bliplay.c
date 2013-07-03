@@ -87,9 +87,10 @@ static int getchar_nocanon (unsigned tcflags) {
 static void printOptionHelp (void)
 {
 	printf (
-		"usage: bliplay [-d | --display] [-s speed | --speed speed] [-p | --play] [-r | --samplerate] file\n"
-		"       bliplay [-c | --check] file\n"
-		"       bliplay [-h | --help]\n"
+		"usage: %1$s [-d | --display] [-s speed | --speed speed] [-p | --play] [-r | --samplerate] file\n"
+		"       %1$s [-c | --check] file\n"
+		"       %1$s [-h | --help]\n",
+		PROGRAM_NAME
 	);
 }
 
@@ -146,7 +147,7 @@ static int interactiveMode (BKSDLContext * ctx)
 	}*/
 
 	do {
-		printf ("blip> ");
+		printf ("%s> ", PROGRAM_NAME);
 		fgets (line, sizeof (line), stdin);
 
 		strcpy (name, "");
