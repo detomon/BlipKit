@@ -47,16 +47,8 @@ extern BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState * stat
 extern void BKInstrumentStateTick (BKInstrumentState * state, BKInt level);
 
 /**
- * BK_INSTR_STATE_ATTACK
- *   Attack note
- *   Play attack sequence and repeat loop sequence
- * BK_INSTR_STATE_RELEASE
- *   Release note
- *   Play release sequence
- * BK_INSTR_STATE_MUTE
- *   Mute note
- *   End all sequences
+ * Set sequence phase
  */
-void BKInstrumentStateSet (BKInstrumentState * state, BKEnum type);
+void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase);
 
 #endif /* ! _BK_INSTRUMENT_INTERNAL_H_ */
