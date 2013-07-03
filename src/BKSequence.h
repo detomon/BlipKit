@@ -92,6 +92,7 @@ struct BKSequencePhase
 struct BKSequence
 {
 	BKSequenceFuncs const * funcs;
+	BKSequenceState       * stateList;
 	BKInt                   length;
 	BKInt                   sustainOffset;
 	BKInt                   sustainLength;
@@ -106,14 +107,16 @@ struct BKSequence
  */
 struct BKSequenceState
 {
-	BKSequence * sequence;
-	BKEnum       phase;
-	BKInt        steps;
-	BKInt        delta;
-	BKInt        offset;
-	BKInt        value;
-	BKInt        shiftedValue;
-	BKInt        endValue;
+	BKSequence      * sequence;
+	BKSequenceState * prevState;
+	BKSequenceState * nextState;
+	BKEnum            phase;
+	BKInt             steps;
+	BKInt             delta;
+	BKInt             offset;
+	BKInt             value;
+	BKInt             shiftedValue;
+	BKInt             endValue;
 };
 
 /**

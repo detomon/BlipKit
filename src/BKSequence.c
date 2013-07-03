@@ -9,11 +9,12 @@ static BKInt BKSequenceFuncSimpleCreate (BKSequence ** outSequence, BKSequenceFu
 	sequence = malloc (sizeof (* sequence) + size);
 
 	if (sequence) {
-		sequence -> values = (void *) sequence + sizeof (* sequence);
-
 		memset (sequence, 0, sizeof ( * sequence));
+		
+		sequence -> values = (void *) sequence + sizeof (* sequence);
+		
 		memcpy (sequence -> values, values, size);
-
+		
 		sequence -> funcs         = funcs;
 		sequence -> length        = length;
 		sequence -> sustainOffset = BKClamp (sustainOffset, 0, length);
@@ -368,9 +369,49 @@ BKInt BKSequenceCreate (BKSequence ** outSequence, BKSequenceFuncs const * funcs
 	return funcs -> create (outSequence, funcs, values, length, sustainOffset, sustainLength);
 }
 
+static void BKSequenceStateAddToSequence (BKSequenceState * state, BKSequence * sequence)
+{
+	if (state -> sequence == NULL) {
+		state -> sequence   = sequence;
+		state -> prevState  = NULL;
+		state -> nextState  = sequence -> stateList;
+		
+		if (sequence -> stateList)
+			sequence -> stateList -> prevState = state;
+		
+		sequence -> stateList = state;
+	}
+}
+
+static void BKSequenceStateRemoveFromSequence (BKSequenceState * state)
+{
+	BKSequence * sequence = state -> sequence;
+
+	if (sequence != NULL) {
+		if (state -> prevState)
+			state -> prevState -> nextState = state -> nextState;
+		
+		if (state -> nextState)
+			state -> nextState -> prevState = state -> prevState;
+		
+		if (sequence -> stateList == state)
+			sequence -> stateList = state -> nextState;
+		
+		state -> sequence   = NULL;
+		state -> prevState  = NULL;
+		state -> nextState  = NULL;
+	}
+}
+
 BKInt BKSequenceStateSetSequence (BKSequenceState * state, BKSequence * sequence)
 {
 	if (state -> sequence != sequence) {
+		if (state -> sequence)
+			BKSequenceStateRemoveFromSequence (state);
+
+		if (sequence)
+			BKSequenceStateAddToSequence (state, sequence);
+
 		state -> sequence = sequence;
 
 		return sequence -> funcs -> setPhase (state, state -> phase);

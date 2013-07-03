@@ -429,7 +429,7 @@ static void BKTrackSetInstrumentInitValues (BKTrack * track)
 {
 	if (track -> flags & BKInstrumentFlag) {
 		if (track -> instrState.instrument -> sequences [BK_SEQUENCE_DUTY_CYCLE])
-			BKSequenceStateSetValue (track -> instrState.instrument -> sequences [BK_SEQUENCE_DUTY_CYCLE], track -> dutyCycle);
+			BKSequenceStateSetValue (& track -> instrState.states [BK_SEQUENCE_DUTY_CYCLE], track -> dutyCycle);
 	}
 }
 

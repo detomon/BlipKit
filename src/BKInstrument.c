@@ -134,6 +134,14 @@ static void BKInstrumentUpdateNumSequences (BKInstrument * instr)
 	instr -> numSequences = numSequences;
 }
 
+static void BKInstrumentStateSetSequence (BKInstrument * instr, BKEnum slot, BKSequence * sequence)
+{
+	instr -> sequences [slot] = sequence;
+
+	for (BKInstrumentState * state = instr -> stateList; state; state = state -> nextState)
+		state -> states [slot].sequence = sequence;
+}
+
 static BKInt BKInstrumentSetSequenceValues (BKInstrument * instr, BKSequenceFuncs const * funcs, BKEnum slot, void const * values, BKUInt length, BKInt sustainOffset, BKInt sustainLength)
 {
 	BKInt error = 0;
@@ -154,7 +162,7 @@ static BKInt BKInstrumentSetSequenceValues (BKInstrument * instr, BKSequenceFunc
 				return error;
 		}
 
-		instr -> sequences [slot] = sequence;
+		BKInstrumentStateSetSequence (instr, slot, sequence);
 
 		BKInstrumentUpdateNumSequences (instr);
 
@@ -180,10 +188,10 @@ BKInt BKInstrumentSetEnvelope (BKInstrument * instr, BKEnum slot, BKSequencePhas
 BKInt BKInstrumentSetEnvelopeADSR (BKInstrument * instr, BKUInt attack, BKUInt decay, BKInt sustain, BKUInt release)
 {
 	BKSequencePhase phases [4] = {
-		{BK_MAX_VOLUME, attack},
-		{sustain, decay},
-		{sustain, 1},
-		{0, release},
+		{attack, BK_MAX_VOLUME},
+		{decay, sustain},
+		{1, sustain},
+		{release, 0},
 	};
 
 	return BKInstrumentSetEnvelope (instr, BK_SEQUENCE_VOLUME, phases, 4, 2, 1);
@@ -238,12 +246,19 @@ BKInt BKInstrumentStateInit (BKInstrumentState * state)
 	return 0;
 }
 
+static void BKInstrumentUpdateState (BKInstrumentState * state)
+{
+	for (BKInt i = 0; i < BK_MAX_SEQUENCES; i ++)
+		state -> states [i].sequence = state -> instrument -> sequences [i];
+}
+
 BKInt BKInstrumentStateSetInstrument (BKInstrumentState * state, BKInstrument * instr)
 {
 	BKInstrumentStateRemoveFromInstrument (state);
 	BKInstrumentStateAddToInstrument (state, instr);
 
 	if (instr) {
+		BKInstrumentUpdateState (state);
 		BKInstrumentStateSetDefaultValues (state);
 		BKInstrumentStateSetPhase (state, BK_SEQUENCE_PHASE_ATTACK);
 	}

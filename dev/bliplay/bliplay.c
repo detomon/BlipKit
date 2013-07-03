@@ -27,6 +27,10 @@
 #include <unistd.h>
 #include "BKSDLTrack.h"
 
+#ifndef PROGRAM_NAME
+#define PROGRAM_NAME "bliplay"
+#endif
+
 enum
 {
 	INTERACTIVE_FLAG = 1 << 0,
