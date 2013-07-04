@@ -98,7 +98,7 @@ static void BKTrackUpdateUnitVolume (BKTrack * track)
 
 	if (track -> flags & BKInstrumentFlag) {
 		value = track -> instrState.states[BK_SEQUENCE_VOLUME].value;
-		
+
 		if ((track -> flags & BKIgnoreVolumeFlag) == 0 || value == 0)
 			volume = (volume * value) >> BK_VOLUME_SHIFT;
 

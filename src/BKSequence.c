@@ -163,10 +163,12 @@ static BKUInt BKSequencePhaseGetFracShift (BKSequencePhase const * phases, BKUIn
 	BKInt shift    = 0;
 	BKInt maxValue = BKSequencePhaseGetMaxAbsValue (phases, length);
 
-	while ((1 << shift) < maxValue && shift < 31)
+	// shift must be smaller than maximum value
+	// reduce by one bit to allow enough delta to slide from maximum to minimum
+	while ((1 << shift) < maxValue && shift < 30)
 		shift ++;
 
-	shift = 31 - shift;
+	shift = 30 - shift;
 
 	return shift;
 }
@@ -196,9 +198,10 @@ static BKInt BKSequenceFuncEnvelopeCreate (BKSequence ** outSequence, BKSequence
 	BKSequence * sequence = malloc (sizeof (* sequence) + size);
 
 	if (sequence) {
-		sequence -> values = (void *) sequence + sizeof (* sequence);
-
 		memset (sequence, 0, sizeof ( * sequence));
+		
+		sequence -> values = (void *) sequence + sizeof (* sequence);
+		
 		memcpy (sequence -> values, values, size);
 
 		sequence -> funcs         = funcs;
@@ -234,16 +237,16 @@ static BKEnum BKSequenceFuncEnvelopeStep (BKSequenceState * state, BKEnum level)
 			
 			if (state -> steps > 0) {
 				state -> shiftedValue += state -> delta;
+				state -> value = (state -> shiftedValue >> sequence -> fracShift);
 				break;
 			}
 			else {
 				state -> shiftedValue = state -> endValue;
+				state -> value = (state -> shiftedValue >> sequence -> fracShift);
 				state -> offset ++;
 			}
-
-			state -> value = (state -> shiftedValue >> sequence -> fracShift);
 		}
-		
+
 		// reset sustain phase
 		if (state -> phase == BK_SEQUENCE_PHASE_ATTACK) {
 			if (state -> offset >= sustainEnd) {
@@ -251,18 +254,19 @@ static BKEnum BKSequenceFuncEnvelopeStep (BKSequenceState * state, BKEnum level)
 				result = BK_SEQUENCE_RETURN_REPEAT;
 			}
 		}
-		
+
 		if (state -> offset < sequence -> length) {
 			BKSequencePhase * phase = & phases [state -> offset];
 
 			if (phase -> steps) {
 				state -> steps = phase -> steps;
-				state -> delta = ((state -> shiftedValue << sequence -> fracShift) - state -> value) / phase -> steps;
-				state -> endValue = phase -> value;
+				state -> endValue = phase -> value << sequence -> fracShift;
+				state -> delta = (state -> endValue - state -> shiftedValue) / (BKInt) phase -> steps;
 			}
 			else {
 				state -> shiftedValue = (phase -> value << sequence -> fracShift);
 				state -> steps = 0;
+				state -> offset ++;
 			}
 
 			state -> value = (state -> shiftedValue >> sequence -> fracShift);

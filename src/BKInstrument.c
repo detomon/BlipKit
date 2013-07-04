@@ -42,8 +42,18 @@ static void BKInstrumentStateRemoveFromInstrument (BKInstrumentState * state);
 
 static void BKInstrumentStateSetDefaultValues (BKInstrumentState * state)
 {
-	for (BKInt i = 0; i < BK_MAX_SEQUENCES; i ++)
-		BKSequenceStateSetValue (& state -> states [i], sequenceDefaultValue [i]);
+	BKSequence * sequence;
+
+	for (BKInt i = 0; i < BK_MAX_SEQUENCES; i ++) {
+		sequence = state -> states [i].sequence;
+
+		if (sequence) {
+			BKSequenceStateSetValue (& state -> states [i], 0);
+		}
+		else {
+			BKSequenceStateSetValue (& state -> states [i], sequenceDefaultValue [i]);
+		}
+	}
 }
 
 /**
