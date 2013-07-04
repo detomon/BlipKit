@@ -209,8 +209,10 @@ static void BKInstrumentStateAddToInstrument (BKInstrumentState * state, BKInstr
 
 		if (instr -> stateList)
 			instr -> stateList -> prevState = state;
-		
+
 		instr -> stateList = state;
+
+		BKInstrumentStateSetDefaultValues (state);
 	}
 }
 
@@ -269,9 +271,18 @@ BKInt BKInstrumentStateSetInstrument (BKInstrumentState * state, BKInstrument * 
 BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState * state, BKEnum slot, BKInt offset)
 {
 	BKInt value = 0;
+	BKSequenceState * sequenceState;
 
-	if (slot < BK_MAX_SEQUENCES)
-		value = state -> states [slot].value;
+	if (slot < BK_MAX_SEQUENCES) {
+		sequenceState = & state -> states [slot];
+
+		if (sequenceState -> sequence) {
+			value = state -> states [slot].value;
+		}
+		else {
+			value = sequenceDefaultValue [slot];
+		}
+	}
 
 	return value;
 }
@@ -279,7 +290,7 @@ BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState * state, BKEn
 void BKInstrumentStateTick (BKInstrumentState * state, BKInt level)
 {
 	for (BKInt i = 0; i < state -> instrument -> numSequences; i ++) {
-		BKSequenceState * sequenceState = state -> states;
+		BKSequenceState * sequenceState = & state -> states [i];
 
 		// should only happen once per sequence
 		if (BKSequenceStateStep (sequenceState, level) == BK_SEQUENCE_RETURN_FINISH) {
@@ -300,24 +311,36 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 		return;
 
 	state -> numActiveSequences = 0;
-
-	for (BKInt i = 0; i < instr -> numSequences; i ++) {
-		sequence = instr -> sequences [i];
-
-		if (sequence) {
-			if (BKSequenceStateSetPhase (& state -> states [i], phase) != BK_SEQUENCE_RETURN_FINISH)
-				state -> numActiveSequences ++;
+	
+	switch (phase) {
+		case BK_SEQUENCE_PHASE_ATTACK:
+		case BK_SEQUENCE_PHASE_RELEASE: {
+			for (BKInt i = 0; i < instr -> numSequences; i ++) {
+				sequence = instr -> sequences [i];
+				
+				if (sequence) {
+					//if (BKSequenceStateSetPhase (& state -> states [i], phase) == 0)
+					//	state -> numActiveSequences ++;
+					
+					BKSequenceStateSetPhase (& state -> states [i], phase);
+					state -> numActiveSequences ++;
+				}
+			}
+			
+			break;
 		}
 	}
 
 #warning Set current duty cycle value from track!
 
 	if (state -> numActiveSequences == 0)
-		BKInstrumentStateSetPhase (state, BK_SEQUENCE_PHASE_MUTE);
+		phase = BK_SEQUENCE_PHASE_MUTE;
+		//BKInstrumentStateSetPhase (state, BK_SEQUENCE_PHASE_MUTE);
 
 	switch (phase) {
 		case BK_SEQUENCE_PHASE_ATTACK:
 		case BK_SEQUENCE_PHASE_RELEASE: {
+			state -> phase = phase;
 			break;
 		}
 		case BK_SEQUENCE_PHASE_MUTE: {
@@ -332,6 +355,5 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 			return;
 			break;
 		}
-
 	}
 }

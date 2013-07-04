@@ -97,7 +97,7 @@ struct BKSequence
 	BKInt                   sustainOffset;
 	BKInt                   sustainLength;
 	BKInt                   fracShift;
-	BKInt                   defaultValue;
+	//BKInt                   defaultValue;
 	BKEnum                  state;
 	void                  * values;
 };
