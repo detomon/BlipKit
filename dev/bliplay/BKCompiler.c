@@ -357,9 +357,9 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 				// set arpeggio
 				if (instr -> argCount > 1) {
 					item_list_add (cmds, BKIntrArpeggio);
-					item_list_add (cmds, (BKInt) instr -> argCount - 1);
+					item_list_add (cmds, (BKInt) instr -> argCount);
 					
-					for (BKInt j = 1; j < instr -> argCount; j ++) {
+					for (BKInt j = 0; j < instr -> argCount; j ++) {
 						value1 = BKCompilerLookupNote (instr -> args [j]);
 
 						if (value1 < 0)
