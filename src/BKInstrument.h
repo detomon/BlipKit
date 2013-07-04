@@ -26,6 +26,7 @@
 
 #include "BKBase.h"
 #include "BKContext.h"
+#include "BKSequence.h"
 
 enum
 {
@@ -38,29 +39,13 @@ enum
 
 enum
 {
-	BK_INSTR_STATE_ATTACK,
-	BK_INSTR_STATE_RELEASE,
-	BK_INSTR_STATE_MUTE,
-};
-
-enum
-{
 	BK_INSTR_STATE_EVENT_RESET,
 	BK_INSTR_STATE_EVENT_DISPOSE,
 	BK_INSTR_STATE_EVENT_MUTE,
 };
 
-enum
-{
-	BK_INSTR_SEQ_TYPE_SEQ,
-	BK_INSTR_SEQ_TYPE_ENVELOP,
-};
-
-typedef struct BKInstrumentState    BKInstrumentState;
-typedef struct BKInstrument         BKInstrument;
-typedef struct BKInstrumentSequence BKInstrumentSequence;
-typedef struct BKInstrumentSeqState BKInstrumentSeqState;
-typedef struct BKEnvelopeValue      BKEnvelopeValue;
+typedef struct BKInstrumentState BKInstrumentState;
+typedef struct BKInstrument      BKInstrument;
 
 typedef BKInt (* BKInstrumentStateCallback) (BKEnum event, void * userInfo);
 
@@ -69,33 +54,11 @@ struct BKInstrumentState
 	BKInstrument            * instrument;
 	BKInstrumentState       * prevState;
 	BKInstrumentState       * nextState;
-	BKUInt                    state;
+	BKUInt                    phase;
 	BKInt                     numActiveSequences;
 	BKInstrumentStateCallback callback;  // called when disposing
 	void                    * callbackUserInfo;
-	struct BKInstrumentSeqState {
-		BKInt step;
-		BKInt delta;
-		BKInt offset;
-		BKInt value;
-		BKInt fullValue;
-		BKInt endValue;
-	} sequences [BK_MAX_SEQUENCES];
-};
-
-struct BKInstrumentSequence
-{
-	BKUInt length;
-	BKInt  sustainOffset;
-	BKInt  sustainLength;
-	BKInt  fracShift;
-	BKInt  values [];
-};
-
-struct BKEnvelopeValue
-{
-	BKInt steps;
-	BKInt value;
+	BKSequenceState           states [BK_MAX_SEQUENCES];
 };
 
 struct BKInstrument
@@ -103,10 +66,7 @@ struct BKInstrument
 	BKUInt              flags;
 	BKUInt              numSequences;
 	BKInstrumentState * stateList;
-	struct {
-		BKInt  type;
-		void * sequence;
-	} sequences [BK_MAX_SEQUENCES];
+	BKSequence        * sequences [BK_MAX_SEQUENCES];
 };
 
 /**
@@ -133,7 +93,7 @@ extern BKInt BKInstrumentSetSequence (BKInstrument * instr, BKEnum sequence, BKI
 /**
  * Set envelope sequence
  */
-extern BKInt BKInstrumentSetEnvelope (BKInstrument * instr, BKEnum sequence, BKEnvelopeValue const * phases, BKUInt length, BKInt sustainOffset, BKInt sustainLength);
+extern BKInt BKInstrumentSetEnvelope (BKInstrument * instr, BKEnum sequence, BKSequencePhase const * phases, BKUInt length, BKInt sustainOffset, BKInt sustainLength);
 
 /**
  * Set ADSR envelope sequence in BK_SEQUENCE_VOLUME slot
@@ -143,6 +103,6 @@ extern BKInt BKInstrumentSetEnvelopeADSR (BKInstrument * instr, BKUInt attack, B
 /**
  * Get sequence
  */
-extern BKInstrumentSequence const * BKInstrumentGetSequence (BKInstrument const * instr, BKUInt slot);
+extern BKSequence const * BKInstrumentGetSequence (BKInstrument const * instr, BKEnum sequence);
 
 #endif /* ! _BK_INSTRUMENT_H_ */

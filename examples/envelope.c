@@ -118,13 +118,13 @@ int main (int argc, char * argv [])
 	
 	BKInstrumentSetEnvelopeADSR (& instrument, 30, 10, 0.5 * BK_MAX_VOLUME, 80);
 
-	BKEnvelopeValue const panning [] = {
+	BKSequencePhase const panning [] = {
 		{10, 0},
-		{20, -BK_MAX_VOLUME},
-		{20, +BK_MAX_VOLUME},
+		{50, -BK_MAX_VOLUME},
+		{50, +BK_MAX_VOLUME},
 		{10, 0},
 	};
-	
+
 	BKInstrumentSetEnvelope (& instrument, BK_SEQUENCE_PANNING, panning, 4, 1, 2);
 	
 	BKTrackSetPtr (& track, BK_INSTRUMENT, & instrument);

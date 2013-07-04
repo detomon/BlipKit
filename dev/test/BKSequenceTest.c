@@ -21,34 +21,59 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef _BK_INSTRUMENT_INTERNAL_H_
-#define _BK_INSTRUMENT_INTERNAL_H_
 
-#include "BKInstrument.h"
+#include <stdio.h>
+#include "BKSequence.h"
 
-/**
- * Initialize instrument state
- */
-extern BKInt BKInstrumentStateInit (BKInstrumentState * state);
+int main (int argc, char const * argv [])
+{
+	/*BKInt max = 100;
+	BKInt attack = 10;
+	BKInt decay = 10;
+	BKInt sustain = max * 0.5;
+	BKInt release = 10;
+	
+	BKSequencePhase const phases [4] = {
+		{attack, max},
+		{decay, sustain},
+		{1, sustain},
+		{release, 0},
+	};*/
+	
+	BKSequencePhase const phases [4] = {
+		{5, 0},
+		{10, -100},
+		{10, +100},
+		{5, 0},
+	};
 
-/**
- * Set instrument
- */
-extern BKInt BKInstrumentStateSetInstrument (BKInstrumentState * state, BKInstrument * instr);
+	
+	BKInt values [] = {
+		24, 32, 64, 48, 32, 24, 16, 8,
+	};
 
-/**
- * Get sequence value at offset
- */
-extern BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState * state, BKEnum slot, BKInt offset);
+	BKSequence * sequence;
+	BKSequenceState state;
+	
+	BKSequenceCreate (& sequence, & BKSequenceFuncsEnvelope, phases, 4, 1, 2);
+	
+	memset (& state, 0, sizeof (state));
 
-/**
- * Advance state
- */
-extern void BKInstrumentStateTick (BKInstrumentState * state, BKInt level);
+	BKSequenceStateSetSequence (& state, sequence);
 
-/**
- * Set sequence phase
- */
-void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase);
-
-#endif /* ! _BK_INSTRUMENT_INTERNAL_H_ */
+	BKSequenceStateSetPhase (& state, BK_SEQUENCE_PHASE_ATTACK);
+	
+	for (BKInt i = 0; ; i ++) {
+		printf ("%d\n", state.value);
+		
+		if (BKSequenceStateStep (& state, 1) == BK_SEQUENCE_RETURN_FINISH)
+			break;
+		
+		if (i == 30)
+			BKSequenceStateSetPhase (& state, BK_SEQUENCE_PHASE_RELEASE);
+	}
+	
+	BKSequenceDispose (sequence);
+	
+	return 0;
+}

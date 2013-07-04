@@ -81,8 +81,8 @@ struct BKSequenceFuncs
  */
 struct BKSequencePhase
 {
-	BKInt value;
-	BKInt steps;
+	BKUInt steps;
+	BKInt  value;
 };
 
 /**
@@ -92,11 +92,12 @@ struct BKSequencePhase
 struct BKSequence
 {
 	BKSequenceFuncs const * funcs;
+	BKSequenceState       * stateList;
 	BKInt                   length;
 	BKInt                   sustainOffset;
 	BKInt                   sustainLength;
 	BKInt                   fracShift;
-	BKInt                   defaultValue;
+	//BKInt                   defaultValue;
 	BKEnum                  state;
 	void                  * values;
 };
@@ -106,14 +107,16 @@ struct BKSequence
  */
 struct BKSequenceState
 {
-	BKSequence * sequence;
-	BKEnum       phase;
-	BKInt        steps;
-	BKInt        delta;
-	BKInt        offset;
-	BKInt        value;
-	BKInt        shiftedValue;
-	BKInt        endValue;
+	BKSequence      * sequence;
+	BKSequenceState * prevState;
+	BKSequenceState * nextState;
+	BKEnum            phase;
+	BKInt             steps;
+	BKInt             delta;
+	BKInt             offset;
+	BKInt             value;
+	BKInt             shiftedValue;
+	BKInt             endValue;
 };
 
 /**
@@ -126,5 +129,35 @@ extern BKSequenceFuncs const BKSequenceFuncsEnvelope;
  * Create a sequence or envelope
  */
 extern BKInt BKSequenceCreate (BKSequence ** outSequence, BKSequenceFuncs const * funcs, void const * values, BKUInt length, BKUInt sustainOffset, BKUInt sustainLength);
+
+/**
+ * Create copy of sequence
+ */
+extern BKInt BKSequenceCopy (BKSequence ** outSequence, BKSequence * sequence);
+
+/**
+ * Dispose sequence
+ */
+extern void BKSequenceDispose (BKSequence * sequence);
+
+/**
+ * Set new sequence
+ */
+extern BKInt BKSequenceStateSetSequence (BKSequenceState * state, BKSequence * sequence);
+
+/**
+ * Set phase
+ */
+extern BKInt BKSequenceStateSetPhase (BKSequenceState * state, BKEnum phase);
+
+/**
+ * Call step function
+ */
+extern BKInt BKSequenceStateStep (BKSequenceState * state, BKEnum level);
+
+/**
+ * Call setValue function
+ */
+extern BKInt BKSequenceStateSetValue (BKSequenceState * state, BKInt value);
 
 #endif /* ! _BK_SEQUENCE_H_ */

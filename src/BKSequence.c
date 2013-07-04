@@ -9,11 +9,12 @@ static BKInt BKSequenceFuncSimpleCreate (BKSequence ** outSequence, BKSequenceFu
 	sequence = malloc (sizeof (* sequence) + size);
 
 	if (sequence) {
-		sequence -> values = (void *) sequence + sizeof (* sequence);
-
 		memset (sequence, 0, sizeof ( * sequence));
+		
+		sequence -> values = (void *) sequence + sizeof (* sequence);
+		
 		memcpy (sequence -> values, values, size);
-
+		
 		sequence -> funcs         = funcs;
 		sequence -> length        = length;
 		sequence -> sustainOffset = BKClamp (sustainOffset, 0, length);
@@ -25,17 +26,18 @@ static BKInt BKSequenceFuncSimpleCreate (BKSequence ** outSequence, BKSequenceFu
 		return 0;
 	}
 
-	return -1;
+	return BK_ALLOCATION_ERROR;
 }
 
 static BKInt BKSequenceFuncSimpleSetPhase (BKSequenceState * state, BKEnum phase)
 {
+	BKInt        result   = 0;
 	BKSequence * sequence = state -> sequence;
 	BKInt      * values   = sequence -> values;
-	
+
 	switch (phase) {
 		case BK_SEQUENCE_PHASE_MUTE: {
-			state -> offset = BK_INT_MAX;
+			state -> offset = sequence -> length;
 			break;
 		}
 		case BK_SEQUENCE_PHASE_ATTACK: {
@@ -47,7 +49,7 @@ static BKInt BKSequenceFuncSimpleSetPhase (BKSequenceState * state, BKEnum phase
 			break;
 		}
 		default: {
-			return -1;
+			return BK_INVALID_ATTRIBUTE;
 			break;
 		}
 	}
@@ -56,13 +58,14 @@ static BKInt BKSequenceFuncSimpleSetPhase (BKSequenceState * state, BKEnum phase
 		state -> value = values [state -> offset];
 	}
 	else {
-		state -> value  = sequence -> defaultValue;
-		state -> offset = BK_INT_MAX;
+		//state -> value  = sequence -> defaultValue;
+		state -> offset = sequence -> length;
+		result = BK_SEQUENCE_RETURN_FINISH;
 	}
-	
+
 	state -> phase = phase;
-	
-	return 0;
+
+	return result;
 }
 
 static BKEnum BKSequenceFuncSimpleStep (BKSequenceState * state, BKEnum level)
@@ -73,7 +76,7 @@ static BKEnum BKSequenceFuncSimpleStep (BKSequenceState * state, BKEnum level)
 	if (state -> offset == BK_INT_MAX)
 		return BK_SEQUENCE_RETURN_NONE;
 	
-	BKInt        ret        = BK_SEQUENCE_RETURN_STEP;
+	BKInt        result     = BK_SEQUENCE_RETURN_STEP;
 	BKSequence * sequence   = state -> sequence;
 	BKInt        sustainEnd = sequence -> sustainOffset + sequence -> sustainLength;
 	BKInt      * phases     = sequence -> values;
@@ -82,20 +85,20 @@ static BKEnum BKSequenceFuncSimpleStep (BKSequenceState * state, BKEnum level)
 	if (state -> phase == BK_SEQUENCE_PHASE_ATTACK) {
 		if (state -> offset >= sustainEnd) {
 			state -> offset = sequence -> sustainOffset;
-			ret = BK_SEQUENCE_RETURN_REPEAT;
+			result = BK_SEQUENCE_RETURN_REPEAT;
 		}
 	}
 	
-	if (state -> offset < sustainEnd) {
+	if (state -> offset < sequence -> length) {
 		state -> value = phases [state -> offset];
 		state -> offset ++;
 	}
 	else {
 		state -> offset = BK_INT_MAX;
-		ret = BK_SEQUENCE_RETURN_FINISH;
+		result = BK_SEQUENCE_RETURN_FINISH;
 	}
 
-	return ret;
+	return result;
 }
 
 static BKInt BKSequenceFuncSimpleSetValue (BKSequenceState * state, BKInt value)
@@ -126,7 +129,7 @@ static BKInt BKSequenceFuncSimpleCopy (BKSequence ** outCopy, BKSequence const *
 		return 0;
 	}
 
-	return -1;
+	return BK_ALLOCATION_ERROR;
 }
 
 BKSequenceFuncs const BKSequenceFuncsSimple =
@@ -160,26 +163,45 @@ static BKUInt BKSequencePhaseGetFracShift (BKSequencePhase const * phases, BKUIn
 	BKInt shift    = 0;
 	BKInt maxValue = BKSequencePhaseGetMaxAbsValue (phases, length);
 
-	while ((1 << shift) < maxValue && shift < 31)
+	// shift must be smaller than maximum value
+	// reduce by one bit to allow enough delta to slide from maximum to minimum
+	while ((1 << shift) < maxValue && shift < 30)
 		shift ++;
 
-	shift = 31 - shift;
+	shift = 30 - shift;
 
 	return shift;
 }
 
+/**
+ * Check step sum of envelope values
+ */
+static BKInt BKSequenceEnvelopeCheckValues (BKSequencePhase const * values, BKUInt length)
+{
+	BKInt steps = 0;
+
+	for (BKInt i = 0; i < length; i ++)
+		steps += values [i].steps;
+
+	if (steps == 0)
+		return BK_INVALID_VALUE;
+
+	return 0;
+}
+
 static BKInt BKSequenceFuncEnvelopeCreate (BKSequence ** outSequence, BKSequenceFuncs const * funcs, void const * values, BKUInt length, BKUInt sustainOffset, BKUInt sustainLength)
 {
-	BKInt        size;
-	BKSequence * sequence;
+	if (BKSequenceEnvelopeCheckValues (values, length) != 0)
+		return BK_INVALID_VALUE;
 
-	size = sizeof (BKSequencePhase) * length;
-	sequence = malloc (sizeof (* sequence) + size);
+	BKInt        size     = sizeof (BKSequencePhase) * length;
+	BKSequence * sequence = malloc (sizeof (* sequence) + size);
 
 	if (sequence) {
-		sequence -> values = (void *) sequence + sizeof (* sequence);
-
 		memset (sequence, 0, sizeof ( * sequence));
+		
+		sequence -> values = (void *) sequence + sizeof (* sequence);
+		
 		memcpy (sequence -> values, values, size);
 
 		sequence -> funcs         = funcs;
@@ -193,46 +215,7 @@ static BKInt BKSequenceFuncEnvelopeCreate (BKSequence ** outSequence, BKSequence
 		return 0;
 	}
 
-	return -1;
-}
-
-static BKEnum BKSequenceFuncEnvelopeStep (BKSequenceState * state, BKEnum level);
-
-static BKInt BKSequenceFuncEnvelopeSetPhase (BKSequenceState * state, BKEnum phase)
-{
-	BKSequence * sequence = state -> sequence;
-	
-	switch (phase) {
-		case BK_SEQUENCE_PHASE_MUTE: {
-			state -> steps        = 0;
-			state -> delta        = 0;
-			state -> offset       = BK_INT_MAX;
-			state -> value        = sequence -> defaultValue;
-			state -> shiftedValue = (state -> value << sequence -> fracShift);
-			state -> endValue     = 0;
-			break;
-		}
-		case BK_SEQUENCE_PHASE_ATTACK: {
-			state -> steps  = 0;
-			state -> offset = 0;
-			BKSequenceFuncEnvelopeStep (state, 0);  // make first step
-			break;
-		}
-		case BK_SEQUENCE_PHASE_RELEASE: {
-			state -> steps  = 0;
-			state -> offset = sequence -> sustainOffset + sequence -> sustainLength;
-			BKSequenceFuncEnvelopeStep (state, 0);  // make first step
-			break;
-		}
-		default: {
-			return -1;
-			break;
-		}
-	}
-	
-	state -> phase = phase;
-	
-	return 0;
+	return BK_ALLOCATION_ERROR;
 }
 
 static BKEnum BKSequenceFuncEnvelopeStep (BKSequenceState * state, BKEnum level)
@@ -243,7 +226,7 @@ static BKEnum BKSequenceFuncEnvelopeStep (BKSequenceState * state, BKEnum level)
 	if (state -> offset == BK_INT_MAX)
 		return BK_SEQUENCE_RETURN_NONE;
 
-	BKEnum            ret        = BK_SEQUENCE_RETURN_STEP;
+	BKEnum            result      = BK_SEQUENCE_RETURN_STEP;
 	BKSequence      * sequence   = state -> sequence;
 	BKSequencePhase * phases     = sequence -> values;
 	BKInt             sustainEnd = sequence -> sustainOffset + sequence -> sustainLength;
@@ -254,48 +237,98 @@ static BKEnum BKSequenceFuncEnvelopeStep (BKSequenceState * state, BKEnum level)
 			
 			if (state -> steps > 0) {
 				state -> shiftedValue += state -> delta;
+				state -> value = (state -> shiftedValue >> sequence -> fracShift);
 				break;
 			}
 			else {
 				state -> shiftedValue = state -> endValue;
+				state -> value = (state -> shiftedValue >> sequence -> fracShift);
 				state -> offset ++;
 			}
-
-			state -> value = (state -> shiftedValue >> sequence -> fracShift);
 		}
-		
+
 		// reset sustain phase
 		if (state -> phase == BK_SEQUENCE_PHASE_ATTACK) {
 			if (state -> offset >= sustainEnd) {
 				state -> offset = sequence -> sustainOffset;
-				ret = BK_SEQUENCE_RETURN_REPEAT;
+				result = BK_SEQUENCE_RETURN_REPEAT;
 			}
 		}
-		
-		if (state -> offset < sustainEnd) {
+
+		if (state -> offset < sequence -> length) {
 			BKSequencePhase * phase = & phases [state -> offset];
 
 			if (phase -> steps) {
 				state -> steps = phase -> steps;
-				state -> delta = ((state -> shiftedValue << sequence -> fracShift) - state -> value) / phase -> steps;
-				state -> endValue = phase -> value;
+				state -> endValue = phase -> value << sequence -> fracShift;
+				state -> delta = (state -> endValue - state -> shiftedValue) / (BKInt) phase -> steps;
 			}
 			else {
 				state -> shiftedValue = (phase -> value << sequence -> fracShift);
 				state -> steps = 0;
+				state -> offset ++;
 			}
 
 			state -> value = (state -> shiftedValue >> sequence -> fracShift);
 		}
 		else {
 			state -> offset = BK_INT_MAX;
-			ret = BK_SEQUENCE_RETURN_FINISH;
+			result = BK_SEQUENCE_RETURN_FINISH;
 			break;
 		}
 	}
 	while (state -> steps == 0);
 	
-	return ret;
+	return result;
+}
+
+static BKInt BKSequenceFuncEnvelopeSetPhase (BKSequenceState * state, BKEnum phase)
+{
+	BKInt        result   = 0;
+	BKSequence * sequence = state -> sequence;
+	
+	switch (phase) {
+		case BK_SEQUENCE_PHASE_MUTE: {
+			state -> steps        = 0;
+			state -> delta        = 0;
+			state -> offset       = sequence -> length;
+			//state -> value        = sequence -> defaultValue;
+			state -> shiftedValue = (state -> value << sequence -> fracShift);
+			state -> endValue     = 0;
+			break;
+		}
+		case BK_SEQUENCE_PHASE_ATTACK: {
+			state -> steps  = 0;
+			state -> offset = 0;
+			
+			result = BKSequenceFuncEnvelopeStep (state, 0);  // make first step
+			
+			break;
+		}
+		case BK_SEQUENCE_PHASE_RELEASE: {
+			state -> steps  = 0;
+			state -> offset = sequence -> sustainOffset + sequence -> sustainLength;
+			
+			result = BKSequenceFuncEnvelopeStep (state, 0);  // make first step
+			
+			break;
+		}
+		default: {
+			return BK_INVALID_ATTRIBUTE;
+			break;
+		}
+	}
+
+	if (result == 0) {
+		if (state -> offset >= sequence -> length) {
+			state -> offset = sequence -> length;
+			result = BK_SEQUENCE_RETURN_FINISH;
+		}
+	}
+
+	state -> phase = phase;
+	
+	return result;
 }
 
 static BKInt BKSequenceFuncEnvelopeSetValue (BKSequenceState * state, BKInt value)
@@ -332,7 +365,7 @@ static BKInt BKSequenceFuncEnvelopeCopy (BKSequence ** outCopy, BKSequence const
 		return 0;
 	}
 
-	return -1;
+	return BK_ALLOCATION_ERROR;
 }
 
 BKSequenceFuncs const BKSequenceFuncsEnvelope =
@@ -347,4 +380,92 @@ BKSequenceFuncs const BKSequenceFuncsEnvelope =
 BKInt BKSequenceCreate (BKSequence ** outSequence, BKSequenceFuncs const * funcs, void const * values, BKUInt length, BKUInt sustainOffset, BKUInt sustainLength)
 {
 	return funcs -> create (outSequence, funcs, values, length, sustainOffset, sustainLength);
+}
+
+static void BKSequenceStateAddToSequence (BKSequenceState * state, BKSequence * sequence)
+{
+	if (state -> sequence == NULL) {
+		state -> sequence   = sequence;
+		state -> prevState  = NULL;
+		state -> nextState  = sequence -> stateList;
+		
+		if (sequence -> stateList)
+			sequence -> stateList -> prevState = state;
+		
+		sequence -> stateList = state;
+	}
+}
+
+static void BKSequenceStateRemoveFromSequence (BKSequenceState * state)
+{
+	BKSequence * sequence = state -> sequence;
+
+	if (sequence != NULL) {
+		if (state -> prevState)
+			state -> prevState -> nextState = state -> nextState;
+		
+		if (state -> nextState)
+			state -> nextState -> prevState = state -> prevState;
+		
+		if (sequence -> stateList == state)
+			sequence -> stateList = state -> nextState;
+		
+		state -> sequence   = NULL;
+		state -> prevState  = NULL;
+		state -> nextState  = NULL;
+	}
+}
+
+BKInt BKSequenceStateSetSequence (BKSequenceState * state, BKSequence * sequence)
+{
+	if (state -> sequence != sequence) {
+		if (state -> sequence)
+			BKSequenceStateRemoveFromSequence (state);
+
+		if (sequence)
+			BKSequenceStateAddToSequence (state, sequence);
+
+		state -> sequence = sequence;
+
+		return sequence -> funcs -> setPhase (state, state -> phase);
+	}
+
+	return 0;
+}
+
+BKInt BKSequenceCopy (BKSequence ** outSequence, BKSequence * sequence)
+{
+	return sequence -> funcs -> copy (outSequence, sequence);
+}
+
+void BKSequenceDispose (BKSequence * sequence)
+{
+	if (sequence)
+		free (sequence);
+}
+
+BKInt BKSequenceStateSetPhase (BKSequenceState * state, BKEnum phase)
+{
+	if (state -> sequence == NULL)
+		return BK_INVALID_STATE;
+
+	return state -> sequence -> funcs -> setPhase (state, phase);
+}
+
+BKInt BKSequenceStateStep (BKSequenceState * state, BKEnum level)
+{
+	if (state -> sequence == NULL)
+		return BK_INVALID_STATE;
+
+	return state -> sequence -> funcs -> step (state, level);
+}
+
+BKInt BKSequenceStateSetValue (BKSequenceState * state, BKInt value)
+{
+	if (state -> sequence)		
+		state -> sequence -> funcs -> setValue (state, value);
+
+	state -> value = value;
+	
+	return 0;
 }

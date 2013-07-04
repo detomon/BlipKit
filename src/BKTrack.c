@@ -97,12 +97,12 @@ static void BKTrackUpdateUnitVolume (BKTrack * track)
 	panning = track -> panning.value >> BK_FINT16_SHIFT;
 
 	if (track -> flags & BKInstrumentFlag) {
-		value = track -> instrState.sequences[BK_SEQUENCE_VOLUME].value;
-		
+		value = track -> instrState.states[BK_SEQUENCE_VOLUME].value;
+
 		if ((track -> flags & BKIgnoreVolumeFlag) == 0 || value == 0)
 			volume = (volume * value) >> BK_VOLUME_SHIFT;
 
-		panning += track -> instrState.sequences[BK_SEQUENCE_PANNING].value;
+		panning += track -> instrState.states[BK_SEQUENCE_PANNING].value;
 	}
 
 	if (track -> flags & BKTremoloFlag) {
@@ -138,7 +138,7 @@ static void BKTrackUpdateUnitNote (BKTrack * track)
 		note += track -> arpeggio.delta;
 
 	if (track -> flags & BKInstrumentFlag)
-		note += track -> instrState.sequences[BK_SEQUENCE_ARPEGGIO].value;
+		note += track -> instrState.states[BK_SEQUENCE_ARPEGGIO].value;
 
 	if (track -> flags & BKVibratoFlag)
 		note += track -> vibrato.value;
@@ -159,8 +159,8 @@ static void BKTrackUpdateUnitDutyCycle (BKTrack * track)
 	BKInt dutyCycle = track -> dutyCycle;
 
 	if (track -> flags & BKInstrumentFlag) {
-		if (track -> instrState.sequences[BK_SEQUENCE_DUTY_CYCLE].value)
-			dutyCycle = track -> instrState.sequences[BK_SEQUENCE_DUTY_CYCLE].value;
+		if (track -> instrState.states[BK_SEQUENCE_DUTY_CYCLE].value)
+			dutyCycle = track -> instrState.states[BK_SEQUENCE_DUTY_CYCLE].value;
 	}
 
 	BKUnitSetAttr (& track -> unit, BK_DUTY_CYCLE, dutyCycle);
@@ -425,20 +425,30 @@ static void BKTrackSetPanning (BKTrack * track, BKInt panning)
 	BKTrackUpdateUnitVolume (track);
 }
 
+static void BKTrackSetInstrumentInitValues (BKTrack * track)
+{
+	if (track -> flags & BKInstrumentFlag) {
+		if (track -> instrState.instrument -> sequences [BK_SEQUENCE_DUTY_CYCLE])
+			BKSequenceStateSetValue (& track -> instrState.states [BK_SEQUENCE_DUTY_CYCLE], track -> dutyCycle);
+	}
+}
+
 static void BKTrackInstrumentAttack (BKTrack * track)
 {
+	BKTrackSetInstrumentInitValues (track);
+
 	track -> instrDivider.counter = 0;
-	BKInstrumentStateSet (& track ->  instrState, BK_INSTR_STATE_ATTACK);
+	BKInstrumentStateSetPhase (& track -> instrState, BK_SEQUENCE_PHASE_ATTACK);
 }
 
 static void BKTrackInstrumentRelease (BKTrack * track)
 {
-	BKInstrumentStateSet (& track ->  instrState, BK_INSTR_STATE_RELEASE);
+	BKInstrumentStateSetPhase (& track -> instrState, BK_SEQUENCE_PHASE_RELEASE);
 }
 
 static void BKTrackInstrumentMute (BKTrack * track)
 {
-	BKInstrumentStateSet (& track -> instrState, BK_INSTR_STATE_MUTE);
+	BKInstrumentStateSetPhase (& track -> instrState, BK_SEQUENCE_PHASE_MUTE);
 }
 
 static void BKTrackSetNote (BKTrack * track, BKInt note)
@@ -487,12 +497,6 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 	}
 }
 
-static void BKTrackResetInstrumentValues (BKTrack * track)
-{
-	for (BKInt i = 0; i < BK_MAX_SEQUENCES; i ++)
-		track -> instrState.sequences[i].value = sequenceDefaultValue [i];
-}
-
 static void BKTrackSetInstrument (BKTrack * track, BKInstrument * instrument)
 {
 	BKInstrumentStateSetInstrument (& track -> instrState, instrument);
@@ -501,7 +505,8 @@ static void BKTrackSetInstrument (BKTrack * track, BKInstrument * instrument)
 		track -> flags |= BKInstrumentFlag;
 		track -> instrDivider.counter = 0;
 
-		BKTrackResetInstrumentValues (track);
+		BKTrackSetInstrumentInitValues (track);
+
 		BKTrackInstrumentMute (track);
 		BKTrackUpdateUnit (track);
 	}
