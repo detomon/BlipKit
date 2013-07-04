@@ -22,6 +22,7 @@
  */
 
 #include <getopt.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
@@ -33,11 +34,11 @@
 
 enum
 {
-	INTERACTIVE_FLAG = 1 << 0,
-	DISPLAY_FLAG     = 1 << 1, // only in terminal
-	PLAY_FLAG        = 1 << 2,
-	CHECK_FLAG       = 1 << 3,
-	OUTPUT_FLAG      = 1 << 4,
+	INTERACTIVE_FLAG  = 1 << 0,
+	DISPLAY_FLAG      = 1 << 1, // only in terminal
+	PLAY_FLAG         = 1 << 2,
+	CHECK_FLAG        = 1 << 3,
+	TRUNC_OUTPUT_FLAG = 1 << 5,
 };
 
 enum
@@ -70,6 +71,8 @@ static const struct commandDef commands [] =
 
 static int          flags;
 static char const * filename;
+static char const * outputFilename;
+static FILE       * outputFile;
 static BKSDLContext ctx;
 
 static int getchar_nocanon (unsigned tcflags) {
@@ -197,13 +200,15 @@ static int interactiveMode (BKSDLContext * ctx)
 }
 
 struct option const options [] = {
-	{"speed", 1, NULL, 's'},
-	{"samplerate", 1, NULL, 'r'},
-	{"display", 0, NULL, 'd'},
-	{"help", 0, NULL, 'h'},
-	{"play", 0, NULL, 'p'},
-	{"check", 0, NULL, 'c'},
-	{NULL, 0, NULL, 0}
+	{"speed",        required_argument, NULL, 's'},
+	{"samplerate",   required_argument, NULL, 'r'},
+	{"display",      no_argument,       NULL, 'd'},
+	{"help",         no_argument,       NULL, 'h'},
+	{"play",         optional_argument, NULL, 'p'},
+	{"check",        no_argument,       NULL, 'c'},
+	{"output",       required_argument, NULL, 'o'},
+	{"trunc-output", no_argument      , NULL, 'q'},
+	{NULL,           0,                 NULL, 0},
 };
 
 static void fillAudio (BKSDLContext * ctx, Uint8 * stream, int len)
@@ -212,6 +217,9 @@ static void fillAudio (BKSDLContext * ctx, Uint8 * stream, int len)
 	BKUInt numFrames   = len / sizeof (BKFrame) / numChannels;
 	
 	BKContextGenerate (& ctx -> ctx, (BKFrame *) stream, numFrames);
+
+	if (outputFile)
+		fwrite (stream, len / sizeof (BKFrame), sizeof (BKFrame), outputFile);
 }
 
 static BKInt initSDL (BKSDLContext * ctx)
@@ -242,7 +250,7 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 
 	opterr = 0;
 
-	while ((opt = getopt_long (argc, (void *) argv, "cdhpos:r:", options, & longoptind)) != -1) {
+	while ((opt = getopt_long (argc, (void *) argv, "cdhpo:qs:r:", options, & longoptind)) != -1) {
 		switch (opt) {
 			case 's': {
 				speed = atoi (optarg);
@@ -266,7 +274,11 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 				break;
 			}
 			case 'o': {
-				flags |= OUTPUT_FLAG;
+				outputFilename = optarg;
+				break;
+			}
+			case 'q': {
+				flags |= TRUNC_OUTPUT_FLAG;
 				break;
 			}
 			case 'r': {
@@ -274,7 +286,7 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 				break;
 			}
 			default:
-				fprintf (stderr, "Unknown option -- %c\n", opt);
+				fprintf (stderr, "Unknown option %c near %s\n", opt, argv [longoptind]);
 				printOptionHelp ();
 				exit (1);
 				break;
@@ -287,6 +299,23 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 	else {
 		printOptionHelp ();
 		exit (1);
+	}
+
+	if (outputFilename) {
+		char const * mode;
+		
+		if (flags & TRUNC_OUTPUT_FLAG) {
+			mode = "wb+";
+		} else {
+			mode = "ab+";
+		}
+
+		outputFile = fopen (outputFilename, mode);
+
+		if (outputFile == NULL) {
+			fprintf (stderr, "Couldn't open file for raw output: %s\n", outputFilename);
+			return -1;
+		}
 	}
 
 	if (BKSDLContextInit (ctx, 2, sampleRate) < 0) {
@@ -383,6 +412,12 @@ static void play (void)
 	SDL_CloseAudio ();
 }
 
+static void cleanup ()
+{
+	if (outputFile)
+		fclose (outputFile);
+}
+
 #ifdef main
 #undef main
 #endif
@@ -392,6 +427,8 @@ int main (int argc, const char * argv [])
 	if (handleOptions (& ctx, argc, argv) == 0) {
 		play ();
 	}
+	
+	cleanup ();
 
     return 0;
 }
