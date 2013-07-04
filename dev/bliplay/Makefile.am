@@ -22,3 +22,11 @@ bliplay_SOURCES = \
 	bliplay.c
 
 bliplay_CFLAGS = $(AM_CFLAGS) -DPROGRAM_NAME=\"bliplay\"
+
+EXTRA_DIST = \
+	examples/test1.blip \
+	examples/test2.blip \
+	examples/test3.blip \
+	examples/test4.blip \
+	examples/test5.blip \
+	examples/test6.blip
