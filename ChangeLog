@@ -1,6 +1,8 @@
 Changes in BlipKit 0.3:
 
 * Added support for instrument envelopes
+* Rewritten instrument sequences
+* Added bliplay program
 
 Changes in BlipKit 0.2:
 
