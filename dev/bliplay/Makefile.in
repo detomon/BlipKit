@@ -89,12 +89,20 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am_bliplay_OBJECTS = bliplay-BKSDLTrack.$(OBJEXT) \
-	bliplay-BKParser.$(OBJEXT) bliplay-BKBlipReader.$(OBJEXT) \
-	bliplay-BKBlipWriter.$(OBJEXT) bliplay-BKCompiler.$(OBJEXT) \
-	bliplay-BKInterpreter.$(OBJEXT) bliplay-bliplay.$(OBJEXT)
+ARFLAGS = cru
+AM_V_AR = $(am__v_AR_@AM_V@)
+am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
+am__v_AR_0 = @echo "  AR      " $@;
+am__v_AR_1 = 
+libbliparser_a_AR = $(AR) $(ARFLAGS)
+libbliparser_a_LIBADD =
+am_libbliparser_a_OBJECTS = BKSDLTrack.$(OBJEXT) BKParser.$(OBJEXT) \
+	BKBlipReader.$(OBJEXT) BKBlipWriter.$(OBJEXT) \
+	BKCompiler.$(OBJEXT) BKInterpreter.$(OBJEXT)
+libbliparser_a_OBJECTS = $(am_libbliparser_a_OBJECTS)
+am_bliplay_OBJECTS = bliplay-bliplay.$(OBJEXT)
 bliplay_OBJECTS = $(am_bliplay_OBJECTS)
-bliplay_LDADD = $(LDADD)
+bliplay_DEPENDENCIES = libbliparser.a
 bliplay_LINK = $(CCLD) $(bliplay_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
@@ -129,8 +137,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(bliplay_SOURCES)
-DIST_SOURCES = $(bliplay_SOURCES)
+SOURCES = $(libbliparser_a_SOURCES) $(bliplay_SOURCES)
+DIST_SOURCES = $(libbliparser_a_SOURCES) $(bliplay_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -296,16 +304,28 @@ pkginclude_HEADERS = \
 	BKInterpreter.h \
 	item_list.h
 
-bliplay_SOURCES = \
+EXTRA_LIBRARIES = libbliparser.a
+libbliparser_a_SOURCES = \
 	BKSDLTrack.c \
 	BKParser.c \
 	BKBlipReader.c \
 	BKBlipWriter.c \
 	BKCompiler.c \
-	BKInterpreter.c \
+	BKInterpreter.c
+
+bliplay_SOURCES = \
 	bliplay.c
 
 bliplay_CFLAGS = $(AM_CFLAGS) -DPROGRAM_NAME=\"bliplay\"
+bliplay_LDADD = libbliparser.a
+EXTRA_DIST = \
+	examples/test1.blip \
+	examples/test2.blip \
+	examples/test3.blip \
+	examples/test4.blip \
+	examples/test5.blip \
+	examples/test6.blip
+
 all: all-am
 
 .SUFFIXES:
@@ -341,6 +361,11 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
+libbliparser.a: $(libbliparser_a_OBJECTS) $(libbliparser_a_DEPENDENCIES) $(EXTRA_libbliparser_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libbliparser.a
+	$(AM_V_AR)$(libbliparser_a_AR) libbliparser.a $(libbliparser_a_OBJECTS) $(libbliparser_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libbliparser.a
+
 bliplay$(EXEEXT): $(bliplay_OBJECTS) $(bliplay_DEPENDENCIES) $(EXTRA_bliplay_DEPENDENCIES) 
 	@rm -f bliplay$(EXEEXT)
 	$(AM_V_CCLD)$(bliplay_LINK) $(bliplay_OBJECTS) $(bliplay_LDADD) $(LIBS)
@@ -351,12 +376,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bliplay-BKBlipReader.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bliplay-BKBlipWriter.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bliplay-BKCompiler.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bliplay-BKInterpreter.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bliplay-BKParser.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bliplay-BKSDLTrack.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKBlipReader.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKBlipWriter.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKCompiler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKInterpreter.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKParser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKSDLTrack.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bliplay-bliplay.Po@am__quote@
 
 .c.o:
@@ -372,90 +397,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-bliplay-BKSDLTrack.o: BKSDLTrack.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKSDLTrack.o -MD -MP -MF $(DEPDIR)/bliplay-BKSDLTrack.Tpo -c -o bliplay-BKSDLTrack.o `test -f 'BKSDLTrack.c' || echo '$(srcdir)/'`BKSDLTrack.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKSDLTrack.Tpo $(DEPDIR)/bliplay-BKSDLTrack.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKSDLTrack.c' object='bliplay-BKSDLTrack.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKSDLTrack.o `test -f 'BKSDLTrack.c' || echo '$(srcdir)/'`BKSDLTrack.c
-
-bliplay-BKSDLTrack.obj: BKSDLTrack.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKSDLTrack.obj -MD -MP -MF $(DEPDIR)/bliplay-BKSDLTrack.Tpo -c -o bliplay-BKSDLTrack.obj `if test -f 'BKSDLTrack.c'; then $(CYGPATH_W) 'BKSDLTrack.c'; else $(CYGPATH_W) '$(srcdir)/BKSDLTrack.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKSDLTrack.Tpo $(DEPDIR)/bliplay-BKSDLTrack.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKSDLTrack.c' object='bliplay-BKSDLTrack.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKSDLTrack.obj `if test -f 'BKSDLTrack.c'; then $(CYGPATH_W) 'BKSDLTrack.c'; else $(CYGPATH_W) '$(srcdir)/BKSDLTrack.c'; fi`
-
-bliplay-BKParser.o: BKParser.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKParser.o -MD -MP -MF $(DEPDIR)/bliplay-BKParser.Tpo -c -o bliplay-BKParser.o `test -f 'BKParser.c' || echo '$(srcdir)/'`BKParser.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKParser.Tpo $(DEPDIR)/bliplay-BKParser.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKParser.c' object='bliplay-BKParser.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKParser.o `test -f 'BKParser.c' || echo '$(srcdir)/'`BKParser.c
-
-bliplay-BKParser.obj: BKParser.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKParser.obj -MD -MP -MF $(DEPDIR)/bliplay-BKParser.Tpo -c -o bliplay-BKParser.obj `if test -f 'BKParser.c'; then $(CYGPATH_W) 'BKParser.c'; else $(CYGPATH_W) '$(srcdir)/BKParser.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKParser.Tpo $(DEPDIR)/bliplay-BKParser.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKParser.c' object='bliplay-BKParser.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKParser.obj `if test -f 'BKParser.c'; then $(CYGPATH_W) 'BKParser.c'; else $(CYGPATH_W) '$(srcdir)/BKParser.c'; fi`
-
-bliplay-BKBlipReader.o: BKBlipReader.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKBlipReader.o -MD -MP -MF $(DEPDIR)/bliplay-BKBlipReader.Tpo -c -o bliplay-BKBlipReader.o `test -f 'BKBlipReader.c' || echo '$(srcdir)/'`BKBlipReader.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKBlipReader.Tpo $(DEPDIR)/bliplay-BKBlipReader.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKBlipReader.c' object='bliplay-BKBlipReader.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKBlipReader.o `test -f 'BKBlipReader.c' || echo '$(srcdir)/'`BKBlipReader.c
-
-bliplay-BKBlipReader.obj: BKBlipReader.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKBlipReader.obj -MD -MP -MF $(DEPDIR)/bliplay-BKBlipReader.Tpo -c -o bliplay-BKBlipReader.obj `if test -f 'BKBlipReader.c'; then $(CYGPATH_W) 'BKBlipReader.c'; else $(CYGPATH_W) '$(srcdir)/BKBlipReader.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKBlipReader.Tpo $(DEPDIR)/bliplay-BKBlipReader.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKBlipReader.c' object='bliplay-BKBlipReader.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKBlipReader.obj `if test -f 'BKBlipReader.c'; then $(CYGPATH_W) 'BKBlipReader.c'; else $(CYGPATH_W) '$(srcdir)/BKBlipReader.c'; fi`
-
-bliplay-BKBlipWriter.o: BKBlipWriter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKBlipWriter.o -MD -MP -MF $(DEPDIR)/bliplay-BKBlipWriter.Tpo -c -o bliplay-BKBlipWriter.o `test -f 'BKBlipWriter.c' || echo '$(srcdir)/'`BKBlipWriter.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKBlipWriter.Tpo $(DEPDIR)/bliplay-BKBlipWriter.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKBlipWriter.c' object='bliplay-BKBlipWriter.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKBlipWriter.o `test -f 'BKBlipWriter.c' || echo '$(srcdir)/'`BKBlipWriter.c
-
-bliplay-BKBlipWriter.obj: BKBlipWriter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKBlipWriter.obj -MD -MP -MF $(DEPDIR)/bliplay-BKBlipWriter.Tpo -c -o bliplay-BKBlipWriter.obj `if test -f 'BKBlipWriter.c'; then $(CYGPATH_W) 'BKBlipWriter.c'; else $(CYGPATH_W) '$(srcdir)/BKBlipWriter.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKBlipWriter.Tpo $(DEPDIR)/bliplay-BKBlipWriter.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKBlipWriter.c' object='bliplay-BKBlipWriter.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKBlipWriter.obj `if test -f 'BKBlipWriter.c'; then $(CYGPATH_W) 'BKBlipWriter.c'; else $(CYGPATH_W) '$(srcdir)/BKBlipWriter.c'; fi`
-
-bliplay-BKCompiler.o: BKCompiler.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKCompiler.o -MD -MP -MF $(DEPDIR)/bliplay-BKCompiler.Tpo -c -o bliplay-BKCompiler.o `test -f 'BKCompiler.c' || echo '$(srcdir)/'`BKCompiler.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKCompiler.Tpo $(DEPDIR)/bliplay-BKCompiler.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKCompiler.c' object='bliplay-BKCompiler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKCompiler.o `test -f 'BKCompiler.c' || echo '$(srcdir)/'`BKCompiler.c
-
-bliplay-BKCompiler.obj: BKCompiler.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKCompiler.obj -MD -MP -MF $(DEPDIR)/bliplay-BKCompiler.Tpo -c -o bliplay-BKCompiler.obj `if test -f 'BKCompiler.c'; then $(CYGPATH_W) 'BKCompiler.c'; else $(CYGPATH_W) '$(srcdir)/BKCompiler.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKCompiler.Tpo $(DEPDIR)/bliplay-BKCompiler.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKCompiler.c' object='bliplay-BKCompiler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKCompiler.obj `if test -f 'BKCompiler.c'; then $(CYGPATH_W) 'BKCompiler.c'; else $(CYGPATH_W) '$(srcdir)/BKCompiler.c'; fi`
-
-bliplay-BKInterpreter.o: BKInterpreter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKInterpreter.o -MD -MP -MF $(DEPDIR)/bliplay-BKInterpreter.Tpo -c -o bliplay-BKInterpreter.o `test -f 'BKInterpreter.c' || echo '$(srcdir)/'`BKInterpreter.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKInterpreter.Tpo $(DEPDIR)/bliplay-BKInterpreter.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKInterpreter.c' object='bliplay-BKInterpreter.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKInterpreter.o `test -f 'BKInterpreter.c' || echo '$(srcdir)/'`BKInterpreter.c
-
-bliplay-BKInterpreter.obj: BKInterpreter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-BKInterpreter.obj -MD -MP -MF $(DEPDIR)/bliplay-BKInterpreter.Tpo -c -o bliplay-BKInterpreter.obj `if test -f 'BKInterpreter.c'; then $(CYGPATH_W) 'BKInterpreter.c'; else $(CYGPATH_W) '$(srcdir)/BKInterpreter.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bliplay-BKInterpreter.Tpo $(DEPDIR)/bliplay-BKInterpreter.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='BKInterpreter.c' object='bliplay-BKInterpreter.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -c -o bliplay-BKInterpreter.obj `if test -f 'BKInterpreter.c'; then $(CYGPATH_W) 'BKInterpreter.c'; else $(CYGPATH_W) '$(srcdir)/BKInterpreter.c'; fi`
 
 bliplay-bliplay.o: bliplay.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bliplay_CFLAGS) $(CFLAGS) -MT bliplay-bliplay.o -MD -MP -MF $(DEPDIR)/bliplay-bliplay.Tpo -c -o bliplay-bliplay.o `test -f 'bliplay.c' || echo '$(srcdir)/'`bliplay.c

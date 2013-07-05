@@ -10,15 +10,28 @@ pkginclude_HEADERS = \
 	BKInterpreter.h \
 	item_list.h
 
-EXTRA_PROGRAMS = bliplay
+EXTRA_LIBRARIES = libbliparser.a
 
-bliplay_SOURCES = \
+libbliparser_a_SOURCES = \
 	BKSDLTrack.c \
 	BKParser.c \
 	BKBlipReader.c \
 	BKBlipWriter.c \
 	BKCompiler.c \
-	BKInterpreter.c \
+	BKInterpreter.c
+
+EXTRA_PROGRAMS = bliplay
+
+bliplay_SOURCES = \
 	bliplay.c
 
 bliplay_CFLAGS = $(AM_CFLAGS) -DPROGRAM_NAME=\"bliplay\"
+bliplay_LDADD = libbliparser.a
+
+EXTRA_DIST = \
+	examples/test1.blip \
+	examples/test2.blip \
+	examples/test3.blip \
+	examples/test4.blip \
+	examples/test5.blip \
+	examples/test6.blip
