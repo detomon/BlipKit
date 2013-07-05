@@ -26,10 +26,7 @@ bliplay_SOURCES = \
 	bliplay.c
 
 bliplay_CFLAGS = $(AM_CFLAGS) -DPROGRAM_NAME=\"bliplay\"
-<<<<<<< HEAD
 bliplay_LDADD = libbliparser.a
-=======
->>>>>>> c1448de46c06967bdb3f7349795a67c33671db28
 
 EXTRA_DIST = \
 	examples/test1.blip \
