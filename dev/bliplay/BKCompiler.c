@@ -497,7 +497,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 		}
 		case BKIntrArpeggioSpeed: {
 			item_list_add (cmds, item -> value);
-			item_list_add (cmds, BKMax (atoix (instr -> args [0], 0), 6));
+			item_list_add (cmds, BKMax (atoix (instr -> args [0], 0), 1));
 			break;
 		}
 		case BKIntrEnd: {
