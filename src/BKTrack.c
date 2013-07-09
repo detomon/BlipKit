@@ -310,6 +310,8 @@ BKInt BKTrackInit (BKTrack * track, BKEnum waveform)
 	return ret;
 }
 
+#include <stdio.h>
+
 void BKTrackReset (BKTrack * track)
 {
 	BKEnum waveform = track -> waveform;
@@ -319,8 +321,8 @@ void BKTrackReset (BKTrack * track)
 	// only clear fields after and including "arpeggioDivider" field
 	memset (& track -> arpeggioDivider, 0, sizeof (BKTrack) - offsetof (BKTrack, arpeggioDivider));
 
-	track -> flags &= (BKTriangleIgnoresVolumeFlag | BKIgnoreVolumeFlag);
-	
+	track -> flags &= (BKTriangleIgnoresVolumeFlag | BKIgnoreVolumeFlag | BKPanningEnabledFlag);
+
 	BKTrackSetAttr (track, BK_WAVEFORM, waveform);
 	BKTrackSetAttr (track, BK_DUTY_CYCLE, BK_SQUARE_PHASES / 4);
 	BKTrackSetAttr (track, BK_NOTE, BK_NOTE_MUTE);

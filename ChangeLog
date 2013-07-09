@@ -1,3 +1,7 @@
+Changes in BlipKit 0.3.1:
+
+* Fix: Track flag `BKPanningEnabledFlag` was reset by `BKTrackReset`
+
 Changes in BlipKit 0.3:
 
 * Added support for instrument envelopes
