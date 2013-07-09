@@ -324,6 +324,7 @@ void BKTrackReset (BKTrack * track)
 	track -> flags &= (BKTriangleIgnoresVolumeFlag | BKIgnoreVolumeFlag | BKPanningEnabledFlag);
 
 	BKTrackSetAttr (track, BK_WAVEFORM, waveform);
+	BKTrackSetAttr (track, BK_PHASE_WRAP, 0);
 	BKTrackSetAttr (track, BK_DUTY_CYCLE, BK_SQUARE_PHASES / 4);
 	BKTrackSetAttr (track, BK_NOTE, BK_NOTE_MUTE);
 	BKTrackSetAttr (track, BK_MUTE, 1);
