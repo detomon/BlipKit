@@ -797,10 +797,12 @@ void BKUnitReset (BKUnit * unit)
 {
 	BKContext * ctx = unit -> ctx;
 	
-	unit -> waveform      = 0;
-	unit -> phase.phase   = 0;
-	unit -> period        = 0;
-	unit -> time          = 0;
+	unit -> waveform        = 0;
+	unit -> phase.phase     = 0;
+	unit -> phase.wrap      = 0;
+	unit -> phase.wrapCount = 0;
+	unit -> period          = 0;
+	unit -> time            = 0;
 
 	BKUnitSetData (unit, BK_WAVEFORM, NULL);
 	BKUnitSetData (unit, BK_SAMPLE, NULL);
@@ -810,6 +812,8 @@ void BKUnitReset (BKUnit * unit)
 	unit -> sample.dataState.callback         = (void *) BKUnitSampleDataStateCallback;
 	unit -> sample.dataState.callbackUserInfo = unit;
 
-	for (BKInt i = 0; i < ctx -> numChannels; i ++)
-		unit -> lastPulse [i] = 0;
+	if (ctx) {
+		for (BKInt i = 0; i < ctx -> numChannels; i ++)
+			unit -> lastPulse [i] = 0;
+	}
 }
