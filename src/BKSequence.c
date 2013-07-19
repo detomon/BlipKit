@@ -418,6 +418,8 @@ static void BKSequenceStateRemoveFromSequence (BKSequenceState * state)
 
 BKInt BKSequenceStateSetSequence (BKSequenceState * state, BKSequence * sequence)
 {
+	BKInt result = 0;
+
 	if (state -> sequence != sequence) {
 		if (state -> sequence)
 			BKSequenceStateRemoveFromSequence (state);
@@ -427,10 +429,11 @@ BKInt BKSequenceStateSetSequence (BKSequenceState * state, BKSequence * sequence
 
 		state -> sequence = sequence;
 
-		return sequence -> funcs -> setPhase (state, state -> phase);
+		if (sequence)
+			result = sequence -> funcs -> setPhase (state, state -> phase);
 	}
 
-	return 0;
+	return result;
 }
 
 BKInt BKSequenceCopy (BKSequence ** outSequence, BKSequence * sequence)

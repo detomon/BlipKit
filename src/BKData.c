@@ -146,8 +146,10 @@ static BKInt BKDataPromoteToCopy (BKData * data)
 		
 		if (frames == NULL)
 			return BK_ALLOCATION_ERROR;
-		
+
 		memcpy (frames, data -> samples, size);
+
+		data -> samples = frames;
 		data -> flags |= BK_DATA_FLAG_COPY;
 	}
 
