@@ -9,7 +9,8 @@ Then execute `make` to build `libblipkit.a` in the `src` directory:
 
 	blipkit$ make
 
-Optionally, you may want to execute `sudo make install` to install the library and headers on your system:
+Optionally, you may want to execute `sudo make install` to install the library
+and headers on your system:
 
 	blipkit$ sudo make install
 
@@ -17,7 +18,9 @@ Optionally, you may want to execute `sudo make install` to install the library a
 Building and running examples
 -----------------------------
 
-All examples use SDL (http://www.libsdl.org) to output sound, so you have to install it first. Execute `make examplename` to build an example in the `examples` directory.
+All examples use SDL (http://www.libsdl.org) to output sound, so you have to
+install it first. Execute `make examplename` to build an example in the
+`examples` directory.
 
 	blipkit/examples$ make tone
 	blipkit/examples$ make divider
