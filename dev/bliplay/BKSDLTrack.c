@@ -78,7 +78,7 @@ static BKInstrument * parseInstrument (BKSDLContext * ctx, BKParser * parser)
 			sequenceLength = parseSequence (ctx, & item, sequence, & repeatBegin, & repeatLength, (BK_MAX_VOLUME / 255));
 			BKInstrumentSetSequence (instrument, BK_SEQUENCE_PANNING, sequence, sequenceLength, repeatBegin, repeatLength);
 		}
-		else if (strcmp (item.name, "dt") == 0) {
+		else if (strcmp (item.name, "dc") == 0) {
 			sequenceLength = parseSequence (ctx, & item, sequence, & repeatBegin, & repeatLength, 1);
 			BKInstrumentSetSequence (instrument, BK_SEQUENCE_DUTY_CYCLE, sequence, sequenceLength, repeatBegin, repeatLength);
 		}

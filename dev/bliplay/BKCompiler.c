@@ -75,6 +75,7 @@ static strval commands [] =
 	{"m",  BKIntrMute},
 	{"mt", BKIntrMuteTicks},
 	{"p",  BKIntrPanning},
+	{"pt", BKIntrPitch},
 	{"pw", BkIntrPhaseWrap},
 	{"r",  BKIntrRelease},
 	{"s",  BKIntrStep},
@@ -226,6 +227,7 @@ static BKInt * BKCompilerCombineCmds (BKCompiler * compiler, BKInt * allCmds, BK
 			case BKIntrMuteTicks:     argCount = 1; break;
 			case BKIntrVolume:        argCount = 1; break;
 			case BKIntrPanning:       argCount = 1; break;
+			case BKIntrPitch:         argCount = 1; break;
 			case BKIntrMasterVolume:  argCount = 1; break;
 			case BKIntrStep:          argCount = 1; break;
 			case BKIntrStepTicks:     argCount = 1; break;
@@ -472,6 +474,11 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 		case BKIntrPanning: {
 			item_list_add (cmds, item -> value);
 			item_list_add (cmds, atoix (instr -> args [0], 0) * (BK_MAX_VOLUME / 255));
+			break;
+		}
+		case BKIntrPitch: {
+			item_list_add (cmds, item -> value);
+			item_list_add (cmds, atoix (instr -> args [0], 0) * (BK_FINT20_UNIT / 12));
 			break;
 		}
 		case BKIntrInstrument: {

@@ -50,6 +50,7 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 		switch (command) {
 			case BKIntrAttack: {
 				value0 = * (opcode ++);
+				value0 += interpreter -> pitch;
 				BKTrackSetAttr (track, BK_NOTE, value0);
 				break;
 			}
@@ -92,6 +93,11 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 			case BKIntrPanning: {
 				value0 = * (opcode ++);
 				BKTrackSetAttr (track, BK_PANNING, value0);
+				break;
+			}
+			case BKIntrPitch: {
+				value0 = * (opcode ++);
+				interpreter -> pitch = value0;
 				break;
 			}
 			case BKIntrStep: {
