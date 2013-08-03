@@ -351,18 +351,21 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 
 	if (BKDataInit (data) == 0) {
 		switch (numBits) {
-			case 16:
+			case 16: {
 				switch (endian) {
 					case BK_BIG_ENDIAN: break;
 					case BK_LITTLE_ENDIAN: break;
-					default:
+					default: {
 						return BK_INVALID_ATTRIBUTE;
 						break;
+					}
 				}
 				break;
-			default:
+			}
+			default: {
 				return BK_INVALID_ATTRIBUTE;
 				break;
+			}
 		}
 		
 		numChannels = BKMax (1, numChannels);

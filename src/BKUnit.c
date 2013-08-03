@@ -280,9 +280,10 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 					unit -> phase.haltSilence = 1;
 					break;
 				}
-				default:
+				default: {
 					return BK_INVALID_VALUE;
 					break;
+				}
 			}
 
 			if (unit -> waveform != value) {
@@ -477,12 +478,14 @@ BKInt BKUnitGetPtr (BKUnit const * unit, BKEnum attr, void * outPtr)
 			// data may be set but is invalid; only return if valid
 			switch (unit -> waveform) {
 				case BK_CUSTOM:
-				case BK_SAMPLE:
+				case BK_SAMPLE: {
 					* ptrRef = unit -> sample.dataState.data;
 					break;
-				default:
+				}
+				default: {
 					* ptrRef = NULL;
 					break;
+				}
 			}
 			break;
 		}
