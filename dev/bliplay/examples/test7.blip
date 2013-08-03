@@ -488,7 +488,7 @@ t:begin:square;
 	s:16;
 	pt:0;e:vb:8:144;g:3;pt:0;e:vb:0;
 	pt:24;g:2;pt:0;
-	g:1;
+	pt:24;g:1;pt:0;
 	pt:60;g:2;pt:0;
 	s:16;
 
