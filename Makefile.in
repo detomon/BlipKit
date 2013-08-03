@@ -79,9 +79,9 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/configure $(am__configure_deps) ChangeLog \
-	INSTALL README TODO ar-lib compile config.guess config.sub \
-	depcomp install-sh missing
+	$(top_srcdir)/configure $(am__configure_deps) ChangeLog TODO \
+	ar-lib compile config.guess config.sub depcomp install-sh \
+	missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -290,7 +290,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = src examples dev/bliplay
 DIST_SUBDIRS = $(SUBDIRS)
-EXTRA_DIST = README TODO LICENSE VERSION
+EXTRA_DIST = README.md TODO LICENSE VERSION LOGO
 all: all-recursive
 
 .SUFFIXES:
