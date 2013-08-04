@@ -222,7 +222,7 @@ static void fillAudio (BKSDLContext * ctx, Uint8 * stream, int len)
 		fwrite (stream, len / sizeof (BKFrame), sizeof (BKFrame), outputFile);
 }
 
-static BKInt initSDL (BKSDLContext * ctx)
+static BKInt initSDL (BKSDLContext * ctx, char const ** error)
 {
 	SDL_Init (SDL_INIT_AUDIO);
 	
@@ -235,9 +235,11 @@ static BKInt initSDL (BKSDLContext * ctx)
 	wanted.callback = (void *) fillAudio;
 	wanted.userdata = ctx;
 
-	if (SDL_OpenAudio (& wanted, NULL) < 0)
+	if (SDL_OpenAudio (& wanted, NULL) < 0) {
+		* error = SDL_GetError ();
 		return -1;
-	
+	}
+
 	return 0;
 }
 
@@ -247,6 +249,8 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 	int    longoptind = 1;
 	BKUInt sampleRate = 44100;
 	BKUInt speed      = 0;
+
+	char const * error = NULL;
 
 	opterr = 0;
 
@@ -323,8 +327,8 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 		return -1;
 	}
 
-	if (initSDL (ctx) < 0) {
-		fprintf (stderr, "Couldn't initialize SDL\n");
+	if (initSDL (ctx, & error) < 0) {
+		fprintf (stderr, "Couldn't initialize SDL: %s\n", error);
 		return -1;
 	}
 
