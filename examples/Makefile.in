@@ -91,22 +91,23 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am_divider_OBJECTS = divider.$(OBJEXT)
 divider_OBJECTS = $(am_divider_OBJECTS)
-divider_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
+divider_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_envelope_OBJECTS = envelope.$(OBJEXT)
 envelope_OBJECTS = $(am_envelope_OBJECTS)
-envelope_LDADD = $(LDADD)
+envelope_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_scratch_OBJECTS = scratch.$(OBJEXT)
 scratch_OBJECTS = $(am_scratch_OBJECTS)
-scratch_LDADD = $(LDADD)
+scratch_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_stereo_OBJECTS = stereo.$(OBJEXT)
 stereo_OBJECTS = $(am_stereo_OBJECTS)
-stereo_LDADD = $(LDADD)
+stereo_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_tone_OBJECTS = tone.$(OBJEXT)
 tone_OBJECTS = $(am_tone_OBJECTS)
-tone_LDADD = $(LDADD)
+tone_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_waveform_OBJECTS = waveform.$(OBJEXT)
 waveform_OBJECTS = $(am_waveform_OBJECTS)
-waveform_LDADD = $(LDADD)
+waveform_DEPENDENCIES = $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -265,14 +266,24 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CFLAGS = @BK_STD_CFLAGS@ -I$(srcdir)/../src
-AM_LDFLAGS = -L$(srcdir)/../src -lblipkit @SDL_CFLAGS@
+AM_CFLAGS = @BK_STD_CFLAGS@ -I$(srcdir)/../src -L$(srcdir)/../src
+#AM_LDFLAGS = -lblipkit @SDL_CFLAGS@
+BK_LDADD = -lblipkit @SDL_CFLAGS@
+
+# LDFLAGS should be used for linking libraries not LDADD
+# But some newer GCC versions need to have the linkings at the end
 tone_SOURCES = tone.c
+tone_LDADD = $(BK_LDADD)
 divider_SOURCES = divider.c
+divider_LDADD = $(BK_LDADD)
 stereo_SOURCES = stereo.c
+stereo_LDADD = $(BK_LDADD)
 scratch_SOURCES = scratch.c
+scratch_LDADD = $(BK_LDADD)
 waveform_SOURCES = waveform.c
+waveform_LDADD = $(BK_LDADD)
 envelope_SOURCES = envelope.c
+envelope_LDADD = $(BK_LDADD)
 all: all-am
 
 .SUFFIXES:

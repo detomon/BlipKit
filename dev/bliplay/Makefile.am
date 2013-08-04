@@ -24,9 +24,12 @@ EXTRA_PROGRAMS = bliplay
 bliplay_SOURCES = \
 	bliplay.c
 
+# LDFLAGS should be used for linking libraries not LDADD
+# But some newer GCC versions need to have the linkings at the end
+
 bliplay_CFLAGS = $(AM_CFLAGS) -DPROGRAM_NAME=\"bliplay\"
-bliplay_LDFLAGS = -lblipkit @SDL_CFLAGS@
-bliplay_LDADD = libbliparser.a
+#bliplay_LDFLAGS = -lblipkit @SDL_CFLAGS@
+bliplay_LDADD = libbliparser.a -lblipkit @SDL_CFLAGS@
 
 EXTRA_DIST = \
 	examples/test1.blip \

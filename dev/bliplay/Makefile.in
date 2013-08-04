@@ -103,7 +103,7 @@ libbliparser_a_OBJECTS = $(am_libbliparser_a_OBJECTS)
 am_bliplay_OBJECTS = bliplay-bliplay.$(OBJEXT)
 bliplay_OBJECTS = $(am_bliplay_OBJECTS)
 bliplay_DEPENDENCIES = libbliparser.a
-bliplay_LINK = $(CCLD) $(bliplay_CFLAGS) $(CFLAGS) $(bliplay_LDFLAGS) \
+bliplay_LINK = $(CCLD) $(bliplay_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -315,9 +315,12 @@ libbliparser_a_SOURCES = \
 bliplay_SOURCES = \
 	bliplay.c
 
+
+# LDFLAGS should be used for linking libraries not LDADD
+# But some newer GCC versions need to have the linkings at the end
 bliplay_CFLAGS = $(AM_CFLAGS) -DPROGRAM_NAME=\"bliplay\"
-bliplay_LDFLAGS = -lblipkit @SDL_CFLAGS@
-bliplay_LDADD = libbliparser.a
+#bliplay_LDFLAGS = -lblipkit @SDL_CFLAGS@
+bliplay_LDADD = libbliparser.a -lblipkit @SDL_CFLAGS@
 EXTRA_DIST = \
 	examples/test1.blip \
 	examples/test2.blip \
