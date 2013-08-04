@@ -103,7 +103,7 @@ libbliparser_a_OBJECTS = $(am_libbliparser_a_OBJECTS)
 am_bliplay_OBJECTS = bliplay-bliplay.$(OBJEXT)
 bliplay_OBJECTS = $(am_bliplay_OBJECTS)
 bliplay_DEPENDENCIES = libbliparser.a
-bliplay_LINK = $(CCLD) $(bliplay_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+bliplay_LINK = $(CCLD) $(bliplay_CFLAGS) $(CFLAGS) $(bliplay_LDFLAGS) \
 	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -293,8 +293,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CFLAGS = @BK_STD_CFLAGS@  -I$(srcdir)/../../src
-AM_LDFLAGS = -L$(srcdir)/../../src -lblipkit @SDL_CFLAGS@
+AM_CFLAGS = @BK_STD_CFLAGS@ -I$(srcdir)/../../src -L$(srcdir)/../../src
 pkginclude_HEADERS = \
 	BKSDLTrack.h \
 	BKParser.h \
@@ -317,6 +316,7 @@ bliplay_SOURCES = \
 	bliplay.c
 
 bliplay_CFLAGS = $(AM_CFLAGS) -DPROGRAM_NAME=\"bliplay\"
+bliplay_LDFLAGS = -lblipkit @SDL_CFLAGS@
 bliplay_LDADD = libbliparser.a
 EXTRA_DIST = \
 	examples/test1.blip \
