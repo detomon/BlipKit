@@ -28,7 +28,7 @@
 
 typedef struct BKBlipWriter BKBlipWriter;
 
-typedef ssize_t (* BKBlipWriterCallback) (char * data, size_t size, void * userInfo);
+typedef long (* BKBlipWriterCallback) (char * data, size_t size, void * userInfo);
 
 struct BKBlipWriter
 {

@@ -30,7 +30,7 @@ typedef struct BKBlipReader    BKBlipReader;
 typedef struct BKBlipArgument  BKBlipArgument;
 typedef struct BKBlipCommand   BKBlipCommand;
 
-typedef ssize_t (* BKBlipReadCallback) (void * buffer, size_t size, void * userInfo);
+typedef long (* BKBlipReadCallback) (void * buffer, size_t size, void * userInfo);
 
 struct BKBlipReader
 {

@@ -110,7 +110,7 @@ void BKBlipReaderDispose (BKBlipReader * reader)
 static int BKBlipReaderGetChar (BKBlipReader * reader)
 {
 	int c = -1;
-	ssize_t size;
+	long size;
 
 	if (reader -> dataPtr < & reader -> data [reader -> dataSize]) {
 		c = * reader -> dataPtr ++;
