@@ -28,31 +28,36 @@ static void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKIn
 
 			if (state -> steps) {
 				step = state -> step;
-				// round up
-				stepFrac = ((step << stepShift) + (1 << (stepShift - 1))) / state -> steps;
+				step <<= stepShift;
+				// round up division by adding half of step fraction
+				// this will make calculation with small values more accurate
+				step += (1 << (stepShift - 1));
+				stepFrac = step / state -> steps;
 				step = (stepFrac * steps) >> stepShift;
 			}
-			
-			deltaValue = delta / steps;
 
-			//printf ("!!! %d\n", state -> phase);
+			deltaValue = delta / steps;
 			
 			switch (state -> phase) {
-				case 0: {  //  _/    |
+				//  / ̅  raise from zero
+				case 0: {
 					value = deltaValue * step;
 					break;
 				}
-				case 1: {  //  \_    |
-					value = deltaValue * (steps - step);
+				//  \_  lower from top value
+				case 1: {
+					value      = deltaValue * (steps - step);
 					deltaValue = -deltaValue;
 					break;
 				}
-				case 2: {  //   ̅\    |
-					value = -deltaValue * step;
+				//   ̅\  lower from zero
+				case 2: {
+					value      = -deltaValue * step;
 					deltaValue = -deltaValue;
 					break;
 				}
-				case 3: {  //  /̅    |
+				//  / ̅  raise from bottom value
+				case 3: {
 					value = -deltaValue * (steps - step);
 					break;
 				}
@@ -88,25 +93,28 @@ static void BKIntervalStateTick (BKIntervalState * state)
 			value      = state -> value;
 			deltaValue = state -> deltaValue;
 
+			// cycle phase from 0 to 3
 			state -> phase = (state -> phase + 1) & 0x3;  // % 4
-
-			printf ("<->\n");
 			
 			switch (state -> phase) {
-				case 0: {  //  _/    |
+				//  / ̅  raise from zero
+				case 0: {
 					value = 0;
 					break;
 				}
-				case 1: {  //  \_    |
+				//  \_  lower from top value
+				case 1: {
 					value      = state -> delta;
 					deltaValue = -deltaValue;
 					break;
 				}
-				case 2: {  //   ̅\    |
+				//   ̅\  lower from zero
+				case 2: {
 					value = 0;
 					break;
 				}
-				case 3: {  //  /̅    |
+				//  / ̅  raise from bottom value
+				case 3: {
 					value      = -state -> delta;
 					deltaValue = -deltaValue;
 					break;
@@ -134,7 +142,6 @@ int main (int argc, char const * argv [])
 		printf ("%4d  %+5d  %+d\n", i, state.value, state.deltaValue);
 
 		if (i >= 0) {
-			//printf ("* %d\n", si);
 			BKIntervalStateSetValues (& state, si, 20);
 			
 			if (si > 0)
