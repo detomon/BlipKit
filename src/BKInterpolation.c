@@ -1,34 +1,8 @@
 #include <stdio.h>
-#include "BKBase.h"
+#include "BKInterpolation.h"
 
 #define BK_STATE_STEP_FRAC_SHIFT 8
 #define BK_STATE_MAX_STEPS (1 << (32 - BK_STATE_STEP_FRAC_SHIFT - 1))
-
-typedef struct BKSlideState    BKSlideState;
-typedef struct BKIntervalState BKIntervalState;
-
-struct BKSlideState
-{
-	BKInt  endValue;
-	BKInt  steps;
-	BKInt  value;
-	BKInt  stepDelta;
-	BKInt  roundBias;
-	BKUInt valueShift;
-	BKInt  step;
-};
-
-struct BKIntervalState
-{
-	BKInt  delta;
-	BKInt  steps;
-	BKInt  value;
-	BKInt  stepDelta;
-	BKInt  roundBias;
-	BKUInt valueShift;
-	BKUInt phase;
-	BKInt  step;
-};
 
 static BKUInt BKGetMaxValueShift (BKInt maxValue)
 {
@@ -44,35 +18,14 @@ static BKUInt BKGetMaxValueShift (BKInt maxValue)
 	return shift;
 }
 
-/**
- * Initialize a slide state struct
- *
- * This struct is used to interpolate from value to another. Due to the usage of
- * variable length fixed point numbers even very small values can be used.
- *
- * `maxValue` defines the absolute positive or negative value which will be used
- * This value is used to determine the fraction length to interpolate the values
- */
-static void BKSlideStateInit (BKSlideState * state, BKInt maxValue)
+void BKSlideStateInit (BKSlideState * state, BKInt maxValue)
 {
 	memset (state, 0, sizeof (* state));
 
 	state -> valueShift = BKGetMaxValueShift (maxValue);
 }
 
-/**
- * Set the `endValue` which should be slided to after `steps` steps
- *
- * When changing the values before the current slide has finished, the new slide
- * starts from the current interpolated value.
- *
- * `steps` should be a value between 0 and BK_STATE_MAX_STEPS. If it is 0 then
- * `endValue` is set immediately without sliding.
- *
- * The absolute value of `endValue` should not exceed `maxValue` given at
- * initialization or else calculation errors can occur.
- */
-static void BKSlideStateSetValue (BKSlideState * state, BKInt endValue, BKInt steps)
+void BKSlideStateSetValue (BKSlideState * state, BKInt endValue, BKInt steps)
 {
 	BKInt stepDelta, deltaValue;
 	BKInt roundBias = 0;
@@ -105,12 +58,7 @@ static void BKSlideStateSetValue (BKSlideState * state, BKInt endValue, BKInt st
 	}
 }
 
-/**
- * Make slide step
- *
- * Every call slides the value by one step until the end value is reached.
- */
-static void BKSlideStateTick (BKSlideState * state)
+void BKSlideStateTick (BKSlideState * state)
 {
 	if (state -> step > 0) {
 		state -> value += state -> stepDelta;
@@ -121,10 +69,7 @@ static void BKSlideStateTick (BKSlideState * state)
 	}
 }
 
-/**
- * Get the current interpolated value
- */
-static BKInt BKSlideStateGetValue (BKSlideState * state)
+BKInt BKSlideStateGetValue (BKSlideState * state)
 {
 	BKInt value = state -> value;
 
@@ -141,13 +86,7 @@ static BKInt BKSlideStateGetValue (BKSlideState * state)
 	return value;
 }
 
-/**
- * Initialize a interval state struct
- *
- * This struct is used to create a periodic oscillation between a maximum value
- * and its negative counterpart starting from 0.
- */
-static void BKIntervalStateInit (BKIntervalState * state, BKInt maxValue)
+void BKIntervalStateInit (BKIntervalState * state, BKInt maxValue)
 {
 	BKInt valueShift;
 
@@ -162,28 +101,15 @@ static void BKIntervalStateInit (BKIntervalState * state, BKInt maxValue)
 	state -> valueShift = valueShift;
 }
 
-/**
- * Set the maximum and mimimum `delta` value and `steps` for each phase
- *
- * The oscillation has 4 phases and each phase has a duration of `steps` steps:
- *
- * 1. Beginning from 0 the value raises to the maxiumum `delta` value
- * 2. The value lowers to 0
- * 3. The value lowers to the negative `delta` value
- * 4. The value raises back to 0
- *
- * This phases are repeated until the values are changed. When changing the
- * values the current value and phase offset is recalculated for the new values.
- */
-static void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKInt steps)
+void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKInt steps)
 {
 	BKInt stepFrac, step;
 	BKInt stepDelta, value;
 	BKInt roundBias = 0;
 	BKInt const stepShift = BK_STATE_STEP_FRAC_SHIFT;
-	
+
 	steps = BKClamp (steps, 0, BK_STATE_MAX_STEPS);
-	
+
 	if (steps) {
 		delta <<= state -> valueShift;
 
@@ -231,7 +157,7 @@ static void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKIn
 					break;
 				}
 			}
-			
+
 			state -> delta      = delta;
 			state -> steps      = steps;
 			state -> value      = value;
@@ -250,12 +176,7 @@ static void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKIn
 	}
 }
 
-/**
- * Make oscillation step
- *
- * Every call sets the next oscillation step
- */
-static void BKIntervalStateTick (BKIntervalState * state)
+void BKIntervalStateTick (BKIntervalState * state)
 {
 	BKInt value, stepDelta;
 
@@ -270,7 +191,7 @@ static void BKIntervalStateTick (BKIntervalState * state)
 
 			// cycle phase from 0 to 3
 			state -> phase = (state -> phase + 1) & 0x3;  // % 4
-			
+
 			switch (state -> phase) {
 				//  / ̅  raise from zero
 				case 0: {
@@ -295,7 +216,7 @@ static void BKIntervalStateTick (BKIntervalState * state)
 					break;
 				}
 			}
-			
+
 			state -> value      = value;
 			state -> stepDelta = stepDelta;
 			state -> step       = 0;
@@ -303,10 +224,7 @@ static void BKIntervalStateTick (BKIntervalState * state)
 	}
 }
 
-/**
- * Get the current oscillated value
- */
-static BKInt BKIntervalStateGetValue (BKIntervalState * state)
+BKInt BKIntervalStateGetValue (BKIntervalState * state)
 {
 	BKInt value = state -> value;
 
@@ -321,61 +239,4 @@ static BKInt BKIntervalStateGetValue (BKIntervalState * state)
 	value >>= state -> valueShift;
 
 	return value;
-}
-
-static void BKSlideStateTest (void)
-{
-	BKSlideState state;
-
-	memset (& state, 0, sizeof (state));
-
-	BKSlideStateInit (& state, 1000);
-
-	BKSlideStateSetValue (& state, -1, 10);
-
-	for (int i = 0; i < 100; i ++) {
-		if (i == 50) {
-			BKSlideStateSetValue (& state, 10, 50);
-		}
-
-		BKSlideStateTick (& state);
-		printf ("%4d  %+5d  %+d\n", i, BKSlideStateGetValue (& state), state.stepDelta);
-	}
-}
-
-static void BKIntervalStateTest (void)
-{
-	BKInt si = 1000;
-	
-	BKIntervalState state;
-
-	BKIntervalStateInit (& state, 1000);
-
-	BKIntervalStateSetValues (& state, 1000, 20);
-
-	for (BKInt i = 0; i < 1001; i ++) {
-		printf ("%4d  %+5d  %+d\n", i, BKIntervalStateGetValue (& state), state.stepDelta);
-
-		if (i >= 0) {
-			BKIntervalStateSetValues (& state, si, 20);
-
-			if (si > 0)
-				si -= 1;
-		}
-
-		BKIntervalStateTick (& state);
-	}
-}
-
-int main (int argc, char const * argv [])
-{
-	printf ("*** Slide Test ***\n\n");
-	
-	BKSlideStateTest ();
-
-	printf ("\n*** Interval Test ***\n\n");
-
-	BKIntervalStateTest ();
-
-	return 0;
 }
