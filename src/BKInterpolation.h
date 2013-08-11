@@ -74,6 +74,9 @@ extern BKInt BKSlideStateGetValue (BKSlideState * state);
  *
  * This struct is used to create a periodic oscillation between a maximum value
  * and its negative counterpart starting from 0.
+ *
+ * `maxValue` defines the absolute `delta` value used
+ * This value is used to determine the fraction length to interpolate the values
  */
 extern void BKIntervalStateInit (BKIntervalState * state, BKInt maxValue);
 
