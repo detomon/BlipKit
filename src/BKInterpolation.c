@@ -40,18 +40,18 @@ void BKSlideStateSetValue (BKSlideState * state, BKInt endValue, BKInt steps)
 			roundBias = (roundBias * (stepDelta >> stepShift));
 		}
 
-		state -> endValue   = endValue;
+		state -> endValue  = endValue;
 		state -> stepDelta = stepDelta;
-		state -> steps      = steps;
-		state -> step       = steps;
-		state -> roundBias  = roundBias;
+		state -> steps     = steps;
+		state -> step      = steps;
+		state -> roundBias = roundBias;
 	}
 	else {
-		state -> value        = (endValue << state -> valueShift);
-		state -> endValue     = state -> value;
-		state -> steps        = 0;
-		state -> stepDelta   = 0;
-		state -> step         = 0;
+		state -> value     = (endValue << state -> valueShift);
+		state -> endValue  = state -> value;
+		state -> steps     = 0;
+		state -> stepDelta = 0;
+		state -> step      = 0;
 	}
 }
 
@@ -138,13 +138,13 @@ void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKInt steps
 				}
 				//  \_  lower from top value
 				case 1: {
-					value      = stepDelta * (steps - step);
+					value     = stepDelta * (steps - step);
 					stepDelta = -stepDelta;
 					break;
 				}
 				//   ̅\  lower from zero
 				case 2: {
-					value      = -stepDelta * step;
+					value     = -stepDelta * step;
 					stepDelta = -stepDelta;
 					break;
 				}
@@ -155,21 +155,21 @@ void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKInt steps
 				}
 			}
 
-			state -> delta      = delta;
-			state -> steps      = steps;
-			state -> value      = value;
+			state -> delta     = delta;
+			state -> steps     = steps;
+			state -> value     = value;
 			state -> stepDelta = stepDelta;
-			state -> roundBias  = roundBias;
-			state -> step       = step;
+			state -> roundBias = roundBias;
+			state -> step      = step;
 		}
 	}
 	else {
-		state -> delta      = 0;
-		state -> steps      = 0;
-		state -> value      = 0;
+		state -> delta     = 0;
+		state -> steps     = 0;
+		state -> value     = 0;
 		state -> stepDelta = 0;
-		state -> phase      = 0;
-		state -> step       = 0;
+		state -> phase     = 0;
+		state -> step      = 0;
 	}
 }
 
@@ -183,7 +183,7 @@ void BKIntervalStateTick (BKIntervalState * state)
 			state -> step ++;
 		}
 		else {
-			value      = state -> value;
+			value     = state -> value;
 			stepDelta = state -> stepDelta;
 
 			// cycle phase from 0 to 3
@@ -197,7 +197,7 @@ void BKIntervalStateTick (BKIntervalState * state)
 				}
 				//  \_  lower from top value
 				case 1: {
-					value      = state -> delta;
+					value     = state -> delta;
 					stepDelta = -stepDelta;
 					break;
 				}
@@ -208,15 +208,15 @@ void BKIntervalStateTick (BKIntervalState * state)
 				}
 				//  / ̅  raise from bottom value
 				case 3: {
-					value      = -state -> delta;
+					value     = -state -> delta;
 					stepDelta = -stepDelta;
 					break;
 				}
 			}
 
-			state -> value      = value;
+			state -> value     = value;
 			state -> stepDelta = stepDelta;
-			state -> step       = 0;
+			state -> step      = 0;
 		}
 	}
 }
