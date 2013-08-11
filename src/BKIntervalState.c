@@ -123,26 +123,19 @@ static void BKSlideStateTick (BKSlideState * state)
 
 /**
  * Get the current interpolated value
- *
- * The `rounded` option can be used to add a better behaviour when using small
- * values. When set to 1 the value is rounded to the nearest value otherwise it
- * is always rounded down. In either case the option has no real impact on the
- * performance.
- *
- * For example, the step values for a slide from 0 to 1 in 10 steps without the
- * round option (0) look like this:
- *   0 0 0 0 0 0 0 0 0 1
- * With the round option on (1) they look like this:
- *   0 0 0 0 0 1 1 1 1 1
- * This also works with negative values.
  */
-static BKInt BKSlideStateGetValue (BKSlideState * state, BKInt rounded)
+static BKInt BKSlideStateGetValue (BKSlideState * state)
 {
 	BKInt value = state -> value;
 
-	if (rounded)
-		value += state -> roundBias;
+	// Without round bias the step values from 0 to 1 in 10 steps
+	// would look like this:
+	//   0 0 0 0 0 0 0 0 0 1
+	// With round bias they look like this:
+	//   0 0 0 0 0 1 1 1 1 1
+	// This also works with negative values
 
+	value += state -> roundBias;
 	value >>= state -> valueShift;
 
 	return value;
@@ -310,9 +303,19 @@ static void BKIntervalStateTick (BKIntervalState * state)
 	}
 }
 
+/**
+ * Get the current oscillated value
+ */
 static BKInt BKIntervalStateGetValue (BKIntervalState * state)
 {
 	BKInt value = state -> value;
+
+	// Without round bias the step values from 0 to 1 in 10 steps
+	// would look like this:
+	//   0 0 0 0 0 0 0 0 0 1
+	// With round bias they look like this:
+	//   0 0 0 0 0 1 1 1 1 1
+	// This also works with negative values
 
 	value += state -> roundBias;
 	value >>= state -> valueShift;
@@ -336,7 +339,7 @@ static void BKSlideStateTest (void)
 		}
 
 		BKSlideStateTick (& state);
-		printf ("%4d  %+5d  %+d\n", i, BKSlideStateGetValue (& state, 1), state.stepDelta);
+		printf ("%4d  %+5d  %+d\n", i, BKSlideStateGetValue (& state), state.stepDelta);
 	}
 }
 
