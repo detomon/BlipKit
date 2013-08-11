@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include "BKInterpolation.h"
 
-#define BK_STATE_STEP_FRAC_SHIFT 8
-#define BK_STATE_MAX_STEPS (1 << (32 - BK_STATE_STEP_FRAC_SHIFT - 1))
-
 static BKUInt BKGetMaxValueShift (BKInt maxValue)
 {
 	BKInt shift = 0;
