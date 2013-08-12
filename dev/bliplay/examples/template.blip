@@ -1,0 +1,70 @@
+gv:255;
+gs:24;
+
+t:begin:square;
+
+	g:begin;
+		dc:1;
+		s:4;
+		e:vb:8:18;
+		a:c2;s:4;r;
+		s:8;
+	g:end;
+	
+	g:0;
+
+t:end;
+
+t:begin:square;
+
+	g:begin;
+		dc:8;
+		a:c2;s:1;r;
+		s:15;
+	g:end;
+	
+	g:0;
+
+t:end;
+
+t:begin:triangle;
+
+	g:begin;
+		a:c1;s:1;r;
+		s:7;
+		a:c2;s:1;r;
+		s:1;
+		a:c1;s:1;r;
+		s:5;
+	g:end;
+
+	g:0;
+
+t:end;
+
+t:begin:sawtooth;
+
+	g:begin;
+		s:8;
+		e:pr:18;
+		a:f2;s:2;
+		a:g3;s:2;
+		a:c1;s:2;r;
+		s:2;
+	g:end;
+
+	g:0;
+
+t:end;
+
+t:begin:noise;
+
+	g:begin;
+		s:2;
+		a:c6;s:1;r;
+		s:13;
+	g:end;
+	
+	g:0;
+
+t:end;
