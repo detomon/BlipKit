@@ -186,7 +186,7 @@ int main (int argc, char * argv [])
 		0.0 * BK_MAX_VOLUME,
 	};
 	
-	BKEnvelopeValue const arpeggio [5] = {
+	BKSequencePhase const arpeggio [5] = {
 		{24, 4 * BK_FINT20_UNIT},
 		{24, 3 * BK_FINT20_UNIT},
 		{24, 12 * BK_FINT20_UNIT},
@@ -194,12 +194,12 @@ int main (int argc, char * argv [])
 		{200, 0 * BK_FINT20_UNIT},
 	};
 	
-	BKEnvelopeValue const dutyCycle [2] = {
+	BKSequencePhase const dutyCycle [2] = {
 		{1, 0},
 		{120, 8},
 	};
 
-	BKEnvelopeValue const panning [3] = {
+	BKSequencePhase const panning [3] = {
 		{120, +BK_MAX_VOLUME},
 		{120, -BK_MAX_VOLUME},
 		{80, 0},

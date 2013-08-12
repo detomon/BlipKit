@@ -40,7 +40,7 @@ public:
 	Instrument () { BKInstrumentInit (& instr); }	
 	~Instrument () { BKInstrumentDispose (& instr); }
 
-	BKInstrumentSequence const * getSequence (BKUInt slot) const { return BKInstrumentGetSequence (& instr, slot); }
+	BKSequence const * getSequence (BKUInt slot) const { return BKInstrumentGetSequence (& instr, slot); }
 	BKInt setSequence (BKUInt slot, BKInt const * values, BKUInt length, BKInt repeatStart, BKInt repeatLength)
 	{
 		return BKInstrumentSetSequence (& instr, slot, values, length, repeatStart, repeatLength);
