@@ -329,9 +329,6 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 				sequence = instr -> sequences [i];
 				
 				if (sequence) {
-					//if (BKSequenceStateSetPhase (& state -> states [i], phase) == 0)
-					//	state -> numActiveSequences ++;
-					
 					BKSequenceStateSetPhase (& state -> states [i], phase);
 					state -> numActiveSequences ++;
 				}
@@ -341,11 +338,8 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 		}
 	}
 
-#warning Set current duty cycle value from track!
-
 	if (state -> numActiveSequences == 0)
 		phase = BK_SEQUENCE_PHASE_MUTE;
-		//BKInstrumentStateSetPhase (state, BK_SEQUENCE_PHASE_MUTE);
 
 	switch (phase) {
 		case BK_SEQUENCE_PHASE_ATTACK:
