@@ -55,19 +55,46 @@ extern void BKSlideStateInit (BKSlideState * state, BKInt maxValue);
  * The absolute value of `endValue` should not exceed `maxValue` given at
  * initialization or else calculation errors can occur.
  */
-extern void BKSlideStateSetValue (BKSlideState * state, BKInt endValue, BKInt steps);
+extern void BKSlideStateSetValueAndSteps (BKSlideState * state, BKInt endValue, BKInt steps);
+
+/**
+ * Set only the `endValue` which should be slided to
+ *
+ * This is the same as calling `BKSlideStateSetValueAndSteps` without changing
+ * the `steps`.
+ */
+extern void BKSlideStateSetValue (BKSlideState * state, BKInt endValue);
+
+/**
+ * Set only the `steps` to reach the `endValue`
+ *
+ * This is the same as calling `BKSlideStateSetValueAndSteps` without changing
+ * the `endValue`.
+ */
+extern void BKSlideStateSetSteps (BKSlideState * state, BKInt steps);
+
+/**
+ * Halt slide
+ *
+ * Following calls to `BKSlideStateStep` will not change the state value
+ * anymore.
+ *
+ * If `setEndValue` is 1 the state value is set immediately to `endValue`
+ * otherwise the interpolated value keeps its current value.
+ */
+extern void BKSlideStateHalt (BKSlideState * state, BKInt setEndValue);
 
 /**
  * Make slide step
  *
  * Every call slides the value by one step until the end value is reached.
  */
-extern void BKSlideStateTick (BKSlideState * state);
+extern void BKSlideStateStep (BKSlideState * state);
 
 /**
  * Get the current interpolated value
  */
-extern BKInt BKSlideStateGetValue (BKSlideState * state);
+extern BKInt BKSlideStateGetValue (BKSlideState const * state);
 
 /**
  * Initialize a interval state struct
@@ -93,18 +120,34 @@ extern void BKIntervalStateInit (BKIntervalState * state, BKInt maxValue);
  * This phases are repeated until the values are changed. When changing the
  * values the current value and phase offset is recalculated for the new values.
  */
-extern void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKInt steps);
+extern void BKIntervalStateSetDeltaAndSteps (BKIntervalState * state, BKInt delta, BKInt steps);
+
+/**
+ * Set only the maximum and mimimum `delta` value
+ *
+ * This is the same as calling `BKIntervalStateSetDeltaAndSteps` without
+ * changing the `steps`.
+ */
+extern void BKIntervalStateSetDelta (BKIntervalState * state, BKInt delta);
+
+/**
+ * Set only `steps` for each phase
+ *
+ * This is the same as calling `BKIntervalStateSetDeltaAndSteps` without
+ * changing the `delta` value.
+ */
+extern void BKIntervalStateSetSteps (BKIntervalState * state, BKInt steps);
 
 /**
  * Make oscillation step
  *
  * Every call sets the next oscillation step
  */
-extern void BKIntervalStateTick (BKIntervalState * state);
+extern void BKIntervalStateStep (BKIntervalState * state);
 
 /**
  * Get the current oscillated value
  */
-extern BKInt BKIntervalStateGetValue (BKIntervalState * state);
+extern BKInt BKIntervalStateGetValue (BKIntervalState const * state);
 
 #endif /* ! _BK_INTERPOLATION_H_ */

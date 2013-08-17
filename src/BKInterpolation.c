@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "BKInterpolation.h"
 
 static BKUInt BKGetMaxValueShift (BKInt maxValue)
@@ -22,7 +21,7 @@ void BKSlideStateInit (BKSlideState * state, BKInt maxValue)
 	state -> valueShift = BKGetMaxValueShift (maxValue);
 }
 
-void BKSlideStateSetValue (BKSlideState * state, BKInt endValue, BKInt steps)
+void BKSlideStateSetValueAndSteps (BKSlideState * state, BKInt endValue, BKInt steps)
 {
 	BKInt stepDelta, deltaValue;
 	BKInt roundBias = 0;
@@ -35,7 +34,8 @@ void BKSlideStateSetValue (BKSlideState * state, BKInt endValue, BKInt steps)
 		deltaValue = endValue - state -> value;
 		stepDelta  = deltaValue / steps;
 
-		if ((deltaValue >> (state -> valueShift))) {
+		// prevent division by 0
+		if ((deltaValue >> state -> valueShift)) {
 			roundBias = ((steps << stepShift) / (deltaValue >> state -> valueShift) / 2);
 			roundBias = (roundBias * (stepDelta >> stepShift));
 		}
@@ -55,7 +55,25 @@ void BKSlideStateSetValue (BKSlideState * state, BKInt endValue, BKInt steps)
 	}
 }
 
-void BKSlideStateTick (BKSlideState * state)
+void BKSlideStateSetValue (BKSlideState * state, BKInt endValue)
+{
+	BKSlideStateSetValueAndSteps (state, endValue, state -> steps);
+}
+
+void BKSlideStateSetSteps (BKSlideState * state, BKInt steps)
+{
+	BKSlideStateSetValueAndSteps (state, (state -> endValue >> state -> valueShift), steps);
+}
+
+void BKSlideStateHalt (BKSlideState * state, BKInt setEndValue)
+{
+	state -> step = 0;
+
+	if (setEndValue)
+		state -> value = state -> endValue;
+}
+
+void BKSlideStateStep (BKSlideState * state)
 {
 	if (state -> step > 0) {
 		state -> value += state -> stepDelta;
@@ -66,7 +84,7 @@ void BKSlideStateTick (BKSlideState * state)
 	}
 }
 
-BKInt BKSlideStateGetValue (BKSlideState * state)
+BKInt BKSlideStateGetValue (BKSlideState const * state)
 {
 	BKInt value = state -> value;
 
@@ -98,7 +116,7 @@ void BKIntervalStateInit (BKIntervalState * state, BKInt maxValue)
 	state -> valueShift = valueShift;
 }
 
-void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKInt steps)
+void BKIntervalStateSetDeltaAndSteps (BKIntervalState * state, BKInt delta, BKInt steps)
 {
 	BKInt stepFrac, step;
 	BKInt stepDelta, value;
@@ -125,6 +143,7 @@ void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKInt steps
 
 			stepDelta = delta / steps;
 
+			// prevent division by 0
 			if (delta >> state -> valueShift) {
 				roundBias = ((steps << stepShift) / (delta >> state -> valueShift) / 2);
 				roundBias = (roundBias * (stepDelta >> stepShift));
@@ -173,7 +192,17 @@ void BKIntervalStateSetValues (BKIntervalState * state, BKInt delta, BKInt steps
 	}
 }
 
-void BKIntervalStateTick (BKIntervalState * state)
+void BKIntervalStateSetDelta (BKIntervalState * state, BKInt delta)
+{
+	BKIntervalStateSetDeltaAndSteps (state, delta, state -> steps);
+}
+
+void BKIntervalStateSetSteps (BKIntervalState * state, BKInt steps)
+{
+	BKIntervalStateSetDeltaAndSteps (state, (state -> delta >> state -> valueShift), steps);
+}
+
+void BKIntervalStateStep (BKIntervalState * state)
 {
 	BKInt value, stepDelta;
 
@@ -221,7 +250,7 @@ void BKIntervalStateTick (BKIntervalState * state)
 	}
 }
 
-BKInt BKIntervalStateGetValue (BKIntervalState * state)
+BKInt BKIntervalStateGetValue (BKIntervalState const * state)
 {
 	BKInt value = state -> value;
 

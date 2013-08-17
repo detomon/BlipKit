@@ -9,14 +9,14 @@ static void BKSlideStateTest (void)
 
 	BKSlideStateInit (& state, 1000);
 
-	BKSlideStateSetValue (& state, -1, 10);
+	BKSlideStateSetValueAndSteps (& state, -1, 10);
 
 	for (int i = 0; i < 100; i ++) {
 		if (i == 50) {
-			BKSlideStateSetValue (& state, 10, 50);
+			BKSlideStateSetValueAndSteps (& state, 10, 50);
 		}
 
-		BKSlideStateTick (& state);
+		BKSlideStateStep (& state);
 		printf ("%4d  %+5d  %+d\n", i, BKSlideStateGetValue (& state), state.stepDelta);
 	}
 }
@@ -29,19 +29,19 @@ static void BKIntervalStateTest (void)
 
 	BKIntervalStateInit (& state, 1000);
 
-	BKIntervalStateSetValues (& state, 1000, 20);
+	BKIntervalStateSetDeltaAndSteps (& state, 1000, 20);
 
 	for (BKInt i = 0; i < 1001; i ++) {
 		printf ("%4d  %+5d  %+d\n", i, BKIntervalStateGetValue (& state), state.stepDelta);
 
 		if (i >= 0) {
-			BKIntervalStateSetValues (& state, si, 20);
+			BKIntervalStateSetDelta (& state, si);
 
 			if (si > 0)
 				si -= 1;
 		}
 
-		BKIntervalStateTick (& state);
+		BKIntervalStateStep (& state);
 	}
 }
 
