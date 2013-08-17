@@ -26,52 +26,37 @@
 
 #include "BKUnit_internal.h"
 #include "BKInstrument_internal.h"
+#include "BKInterpolation.h"
 
-#define BK_EFFECT_FLAG_SHIFT 16
+#define BK_EFFECT_FLAG_SHIFT (16 - BK_EFFECT_TYPE - 1)
 
 enum
 {
-	BKPortamentoFlag            = 1 << (BK_EFFECT_PORTAMENTO    - BK_EFFECT_TYPE - 1 + BK_EFFECT_FLAG_SHIFT),
-	BKVolumeSlideFlag           = 1 << (BK_EFFECT_VOLUME_SLIDE  - BK_EFFECT_TYPE - 1 + BK_EFFECT_FLAG_SHIFT),
-	BKPanningSlideFlag          = 1 << (BK_EFFECT_PANNING_SLIDE - BK_EFFECT_TYPE - 1 + BK_EFFECT_FLAG_SHIFT),
-	BKTremoloFlag               = 1 << (BK_EFFECT_TREMOLO       - BK_EFFECT_TYPE - 1 + BK_EFFECT_FLAG_SHIFT),
-	BKVibratoFlag               = 1 << (BK_EFFECT_VIBRATO       - BK_EFFECT_TYPE - 1 + BK_EFFECT_FLAG_SHIFT),
-	BKInstrumentFlag            = 1 << 0,
-	BKArpeggioFlag              = 1 << 1,
-	BKPanningEnabledFlag        = 1 << 2,
-	BKTriangleIgnoresVolumeFlag = 1 << 3,
-	BKIgnoreVolumeFlag          = 1 << 4,
-	BKEffectMask                = BKPortamentoFlag | BKVolumeSlideFlag
+	BKVolumeSlideFlag              = 1 << (BK_EFFECT_VOLUME_SLIDE  + BK_EFFECT_FLAG_SHIFT),
+	BKPanningSlideFlag             = 1 << (BK_EFFECT_PANNING_SLIDE + BK_EFFECT_FLAG_SHIFT),
+	BKPortamentoFlag               = 1 << (BK_EFFECT_PORTAMENTO    + BK_EFFECT_FLAG_SHIFT),
+	BKTremoloFlag                  = 1 << (BK_EFFECT_TREMOLO       + BK_EFFECT_FLAG_SHIFT),
+	BKVibratoFlag                  = 1 << (BK_EFFECT_VIBRATO       + BK_EFFECT_FLAG_SHIFT),
+	BKInstrumentFlag               = 1 << 0,
+	BKArpeggioFlag                 = 1 << 1,
+	BKPanningEnabledFlag           = 1 << 2,
+	BKTriangleIgnoresVolumeFlag    = 1 << 3,
+	BKIgnoreVolumeFlag             = 1 << 4,
+	BKTrackAttrUpdateFlagVolume    = 1 << 5,
+	BKTrackAttrUpdateFlagNote      = 1 << 6,
+	BKTrackAttrUpdateFlagDutyCycle = 1 << 7,
+	BKEffectMask                   = BKPortamentoFlag | BKVolumeSlideFlag
 	| BKPanningSlideFlag | BKTremoloFlag | BKVibratoFlag,
 };
 
+
 typedef struct BKTrack         BKTrack;
 typedef struct BKDividerState  BKDividerState;
-typedef struct BKDeltaState    BKDeltaState;
-typedef struct BKInterpState   BKInterpState;
 typedef struct BKArpeggioState BKArpeggioState;
 
 struct BKDividerState
 {
 	BKInt divider;
-	BKInt counter;
-};
-
-struct BKDeltaState
-{
-	BKInt value;
-	BKInt delta;
-	BKInt steps;
-	BKInt deltaStep;
-	BKInt counter;
-};
-
-struct BKInterpState
-{
-	BKInt value;
-	BKInt newValue;
-	BKInt steps;
-	BKInt deltaStep;
 	BKInt counter;
 };
 
@@ -95,12 +80,12 @@ struct BKTrack
 	BKInt             dutyCycle;
 	BKData          * sample;
 	BKInt             masterVolume;
-	BKInterpState     volume;
-	BKInterpState     panning;
+	BKSlideState      volume;
+	BKSlideState      panning;
 	BKInt             curNote;
-	BKInterpState     note;
-	BKDeltaState      tremolo;
-	BKDeltaState      vibrato;
+	BKSlideState      note;
+	BKIntervalState   tremolo;
+	BKIntervalState   vibrato;
 	BKArpeggioState   arpeggio;
 	BKInstrumentState instrState;
 };
@@ -161,7 +146,7 @@ extern void BKTrackDetach (BKTrack * track);
  * BK_EFFECT_PANNING_SLIDE
  *   Panning slide effect value [0]; number of ticks
  * BK_EFFECT_PORTMENTO
- *   Portamento effect value [0]; number of ticks 
+ *   Portamento effect value [0]; number of ticks
  *
  * All other attributes will be forwarded to the underlaying unit
  *
@@ -206,7 +191,7 @@ extern BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValu
  *   A maximum of BK_MAX_ARPEGGIO notes can be set
  *   To disable arpeggio set pointer to NULL or first element to 0
  *   BKInt values [] = {2, 3 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT};
- * 
+ *
  * Effects
  *
  * Each effect requires at least one value

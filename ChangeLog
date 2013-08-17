@@ -1,3 +1,8 @@
+Changes in BlipKit 0.3.2:
+
+* Rewritten effect implementation
+* Values of tremolo and vibrato effects can now be slided too
+
 Changes in BlipKit 0.3.1:
 
 * Fix: Track flag `BKPanningEnabledFlag` was reset by `BKTrackReset`

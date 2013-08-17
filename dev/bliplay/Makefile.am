@@ -37,4 +37,6 @@ EXTRA_DIST = \
 	examples/test3.blip \
 	examples/test4.blip \
 	examples/test5.blip \
-	examples/test6.blip
+	examples/test6.blip \
+	examples/test7.blip \
+	examples/test8.blip

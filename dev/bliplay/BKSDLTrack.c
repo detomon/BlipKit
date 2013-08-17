@@ -91,7 +91,7 @@ static BKInt parseWaveform (BKSDLContext * ctx, BKParser * parser, BKData * wave
 {
 	BKParserItem item;
 	BKFrame      sequence [256];
-	BKInt        length;
+	BKInt        length = 0;
 	
 	while (BKParserNextItem (parser, & item)) {
 		if (strcmp (item.name, "w") == 0 && strcmp (item.args [0], "end") == 0) {

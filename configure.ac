@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.61])
-AC_INIT([BlipKit], [0.3.1], [simon@monoxid.net], [blipkit], [http://blipkit.monoxid.net])
+AC_PREREQ([2.63])
+AC_INIT([BlipKit], [0.3.2], [simon@monoxid.net], [blipkit], [http://blipkit.monoxid.net])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # Checks for programs.
