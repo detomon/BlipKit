@@ -28,23 +28,27 @@
 #include "BKInstrument_internal.h"
 #include "BKInterpolation.h"
 
-#define BK_EFFECT_FLAG_SHIFT 16
+#define BK_EFFECT_FLAG_SHIFT (16 - BK_EFFECT_TYPE - 1)
 
 enum
 {
-	BKVolumeSlideFlag           = 1 << (BK_EFFECT_VOLUME_SLIDE  - BK_EFFECT_TYPE - 1 + BK_EFFECT_FLAG_SHIFT),
-	BKPanningSlideFlag          = 1 << (BK_EFFECT_PANNING_SLIDE - BK_EFFECT_TYPE - 1 + BK_EFFECT_FLAG_SHIFT),
-	BKPortamentoFlag            = 1 << (BK_EFFECT_PORTAMENTO    - BK_EFFECT_TYPE - 1 + BK_EFFECT_FLAG_SHIFT),
-	BKTremoloFlag               = 1 << (BK_EFFECT_TREMOLO       - BK_EFFECT_TYPE - 1 + BK_EFFECT_FLAG_SHIFT),
-	BKVibratoFlag               = 1 << (BK_EFFECT_VIBRATO       - BK_EFFECT_TYPE - 1 + BK_EFFECT_FLAG_SHIFT),
-	BKInstrumentFlag            = 1 << 0,
-	BKArpeggioFlag              = 1 << 1,
-	BKPanningEnabledFlag        = 1 << 2,
-	BKTriangleIgnoresVolumeFlag = 1 << 3,
-	BKIgnoreVolumeFlag          = 1 << 4,
-	BKEffectMask                = BKPortamentoFlag | BKVolumeSlideFlag
+	BKVolumeSlideFlag              = 1 << (BK_EFFECT_VOLUME_SLIDE  + BK_EFFECT_FLAG_SHIFT),
+	BKPanningSlideFlag             = 1 << (BK_EFFECT_PANNING_SLIDE + BK_EFFECT_FLAG_SHIFT),
+	BKPortamentoFlag               = 1 << (BK_EFFECT_PORTAMENTO    + BK_EFFECT_FLAG_SHIFT),
+	BKTremoloFlag                  = 1 << (BK_EFFECT_TREMOLO       + BK_EFFECT_FLAG_SHIFT),
+	BKVibratoFlag                  = 1 << (BK_EFFECT_VIBRATO       + BK_EFFECT_FLAG_SHIFT),
+	BKInstrumentFlag               = 1 << 0,
+	BKArpeggioFlag                 = 1 << 1,
+	BKPanningEnabledFlag           = 1 << 2,
+	BKTriangleIgnoresVolumeFlag    = 1 << 3,
+	BKIgnoreVolumeFlag             = 1 << 4,
+	BKTrackAttrUpdateFlagVolume    = 1 << 5,
+	BKTrackAttrUpdateFlagNote      = 1 << 6,
+	BKTrackAttrUpdateFlagDutyCycle = 1 << 7,
+	BKEffectMask                   = BKPortamentoFlag | BKVolumeSlideFlag
 	| BKPanningSlideFlag | BKTremoloFlag | BKVibratoFlag,
 };
+
 
 typedef struct BKTrack         BKTrack;
 typedef struct BKDividerState  BKDividerState;
