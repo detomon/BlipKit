@@ -8,6 +8,7 @@ libblipkit_a_SOURCES = \
 	BKContext.c \
 	BKData.c \
 	BKInstrument.c \
+	BKInterpolation.c \
 	BKSequence.c \
 	BKTone.c \
 	BKTrack.c \
@@ -23,6 +24,7 @@ HEADER_LIST = \
 	BKData_internal.h \
 	BKInstrument.h \
 	BKInstrument_internal.h \
+	BKInterpolation.h \
 	BKSequence.h \
 	BKTone.h \
 	BKTime.h \

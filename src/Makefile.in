@@ -129,8 +129,8 @@ libblipkit_a_AR = $(AR) $(ARFLAGS)
 libblipkit_a_LIBADD =
 am_libblipkit_a_OBJECTS = BKBuffer.$(OBJEXT) BKClock.$(OBJEXT) \
 	BKContext.$(OBJEXT) BKData.$(OBJEXT) BKInstrument.$(OBJEXT) \
-	BKSequence.$(OBJEXT) BKTone.$(OBJEXT) BKTrack.$(OBJEXT) \
-	BKUnit.$(OBJEXT)
+	BKInterpolation.$(OBJEXT) BKSequence.$(OBJEXT) \
+	BKTone.$(OBJEXT) BKTrack.$(OBJEXT) BKUnit.$(OBJEXT)
 libblipkit_a_OBJECTS = $(am_libblipkit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -296,6 +296,7 @@ libblipkit_a_SOURCES = \
 	BKContext.c \
 	BKData.c \
 	BKInstrument.c \
+	BKInterpolation.c \
 	BKSequence.c \
 	BKTone.c \
 	BKTrack.c \
@@ -311,6 +312,7 @@ HEADER_LIST = \
 	BKData_internal.h \
 	BKInstrument.h \
 	BKInstrument_internal.h \
+	BKInterpolation.h \
 	BKSequence.h \
 	BKTone.h \
 	BKTime.h \
@@ -403,6 +405,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKContext.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKData.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKInstrument.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKInterpolation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKSequence.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKTone.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKTrack.Po@am__quote@
