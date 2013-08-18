@@ -32,6 +32,7 @@ bliplay_CFLAGS = $(AM_CFLAGS) -DPROGRAM_NAME=\"bliplay\"
 bliplay_LDADD = libbliparser.a -lblipkit @SDL_CFLAGS@
 
 EXTRA_DIST = \
+	examples/template.blip \
 	examples/test1.blip \
 	examples/test2.blip \
 	examples/test3.blip \
