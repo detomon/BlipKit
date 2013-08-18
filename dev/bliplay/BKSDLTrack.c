@@ -71,7 +71,7 @@ static BKInstrument * parseInstrument (BKSDLContext * ctx, BKParser * parser)
 			BKInstrumentSetSequence (instrument, BK_SEQUENCE_VOLUME, sequence, sequenceLength, repeatBegin, repeatLength);
 		}
 		else if (strcmp (item.name, "a") == 0) {
-			sequenceLength = parseSequence (ctx, & item, sequence, & repeatBegin, & repeatLength, (BK_FINT20_UNIT / 12));
+			sequenceLength = parseSequence (ctx, & item, sequence, & repeatBegin, & repeatLength, (BK_FINT20_UNIT / 100));
 			BKInstrumentSetSequence (instrument, BK_SEQUENCE_ARPEGGIO, sequence, sequenceLength, repeatBegin, repeatLength);
 		}
 		else if (strcmp (item.name, "p") == 0) {

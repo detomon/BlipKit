@@ -6,7 +6,7 @@ t:begin:square;
 	g:begin;
 		dc:1;
 		s:4;
-		e:vb:8:18;
+		e:vb:8:150;
 		a:c2;s:4;r;
 		s:8;
 	g:end;

@@ -442,12 +442,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 						break;
 					}
 					case BK_EFFECT_VIBRATO: {
-						//float arg;
-						//arg  = (float) arg1 / 144;
-						//arg  = (arg * arg) * 144;
-						//arg1 = arg * (BK_FINT20_UNIT / 12);
-						
-						arg1 *= (BK_FINT20_UNIT / 12);
+						arg1 *= (BK_FINT20_UNIT / 100);
 
 						break;
 					}
@@ -478,7 +473,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 		}
 		case BKIntrPitch: {
 			item_list_add (cmds, item -> value);
-			item_list_add (cmds, atoix (instr -> args [0], 0) * (BK_FINT20_UNIT / 12));
+			item_list_add (cmds, atoix (instr -> args [0], 0) * (BK_FINT20_UNIT / 100));
 			break;
 		}
 		case BKIntrInstrument: {
