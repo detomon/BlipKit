@@ -37,38 +37,29 @@
 #endif
 
 /**
- * Integer
+ * Integers and fixed point numbers
  */
-#define BK_INT_SHIFT   32
-#define BK_FRAME_SHIFT 16
+#define BK_INT_SHIFT    32
+#define BK_FRAME_SHIFT  16
+#define BK_VOLUME_SHIFT 15
 
-#define BK_INT_MAX ((1U << (BK_INT_SHIFT - 1)) - 1)
-#define BK_FRAME_MAX ((1U << (BK_FRAME_SHIFT - 1)) - 1)
+typedef int32_t  BKInt;
+typedef uint32_t BKUInt;
+typedef int16_t  BKFrame;
 
-/**
- * Fixed point
- */
 #define BK_FINT20_SHIFT 20
 #define BK_FINT20_UNIT (1 << BK_FINT20_SHIFT)
 #define BK_FINT20_FRAC (BK_FINT20_UNIT - 1)
 
-#define BK_FINT16_SHIFT 16
-#define BK_FINT16_UNIT (1 << BK_FINT16_SHIFT)
-#define BK_FINT16_FRAC (BK_FINT16_UNIT - 1)
-
-#define BK_VOLUME_SHIFT 15
-
-/**
- * Wave phases
- */
-#define BK_SQUARE_PHASES   16
-#define BK_TRIANGLE_PHASES 32
-#define BK_NOISE_PHASES     8
-#define BK_SAWTOOTH_PHASES  7
+typedef int32_t  BKFInt20;   // 12.20 fixed point signed
+typedef uint32_t BKFUInt20;  // 12.20 fixed point
 
 /**
  * Limits
  */
+#define BK_INT_MAX ((1U << (BK_INT_SHIFT - 1)) - 1)
+#define BK_FRAME_MAX ((1U << (BK_FRAME_SHIFT - 1)) - 1)
+
 #define BK_MAX_CHANNELS 8
 
 #define BK_MIN_PERIOD (BK_FINT20_SHIFT / BK_TRIANGLE_PHASES)
@@ -83,6 +74,14 @@
 #define BK_MAX_SAMPLE_RATE 96000
 
 #define BK_MAX_GENERATE_SAMPLES ((1 << (BK_INT_SHIFT - BK_FINT20_SHIFT)) / 2)
+
+/**
+ * Wave phases
+ */
+#define BK_SQUARE_PHASES   16
+#define BK_TRIANGLE_PHASES 32
+#define BK_NOISE_PHASES     8
+#define BK_SAWTOOTH_PHASES  7
 
 /**
  * Default values
@@ -108,21 +107,20 @@
 #define BKAbs(a) ((a) < 0 ? -(a) : (a))
 
 /**
- * Scalar types
+ * Enum type
  */
-typedef int32_t  BKInt;
-typedef uint32_t BKUInt;
-typedef int32_t  BKFInt20;   // 12.20 fixed point signed
-typedef uint32_t BKFUInt20;  // 12.20 fixed point
-typedef int32_t  BKFInt16;   // 16.16 fixed point signed
-typedef uint32_t BKFUInt16;  // 16.16 fixed point
-typedef int16_t  BKFrame;
 typedef unsigned BKEnum;
 
+/**
+ * Define offsetof if needed
+ */
 #ifndef offsetof
 #define offsetof(s, f) ((size_t) & ((s *) NULL) -> f)
 #endif
 
+/**
+ * Time struct
+ */
 #if BK_USE_64_BIT
 
 typedef int64_t BKTime;
@@ -137,6 +135,9 @@ typedef struct
 
 #endif
 
+/**
+ * Some global types
+ */
 typedef struct BKContext BKContext;
 
 typedef struct BKCallbackInfo BKCallbackInfo;
@@ -158,6 +159,9 @@ struct BKCallbackInfo
 	BKUInt divider;
 };
 
+/**
+ * Attributes
+ */
 #define BK_ATTR_TYPE_SHIFT 12
 #define BK_ATTR_TYPE_MASK (~((1 << BK_ATTR_TYPE_SHIFT) - 1))
 
