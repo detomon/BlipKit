@@ -231,7 +231,7 @@ static BKInt * BKCompilerCombineCmds (BKCompiler * compiler, BKInt * allCmds, BK
 			case BKIntrMasterVolume:  argCount = 1; break;
 			case BKIntrStep:          argCount = 1; break;
 			case BKIntrStepTicks:     argCount = 1; break;
-			case BKIntrEffect:        argCount = 3; break;
+			case BKIntrEffect:        argCount = 4; break;
 			case BKIntrDutyCycle:     argCount = 1; break;
 			case BkIntrPhaseWrap:     argCount = 1; break;
 			case BKIntrInstrument:    argCount = 1; break;
@@ -306,7 +306,7 @@ static BKInt BKCompilerCombine (BKCompiler * compiler, BKInterpreter * interpret
 
 BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 {
-	BKInt    value0, value1, arg0, arg1;
+	BKInt    value0, value1, arg0, arg1, arg2;
 	BKInt ** cmds = compiler -> activeCmdList;
 	strval * item;
 
@@ -435,6 +435,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 			if (value0 > -1) {
 				arg0 = atoix (instr -> args [1], 0);
 				arg1 = atoix (instr -> args [2], 0);
+				arg2 = atoix (instr -> args [3], 0);
 
 				switch (value0) {
 					case BK_EFFECT_TREMOLO: {
@@ -452,6 +453,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 				item_list_add (cmds, value0);
 				item_list_add (cmds, arg0);
 				item_list_add (cmds, arg1);
+				item_list_add (cmds, arg2);
 			}
 
 			break;

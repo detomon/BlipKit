@@ -114,8 +114,8 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 			}
 			case BKIntrEffect: {
 				value0 = * (opcode ++);
-				BKTrackSetPtr (track, value0, opcode);
-				opcode += 2;
+				BKTrackSetEffect (track, value0, opcode, sizeof (BKInt [3]));
+				opcode += 3;
 				break;
 			}
 			case BKIntrDutyCycle: {
