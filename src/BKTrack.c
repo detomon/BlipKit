@@ -737,16 +737,21 @@ BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
 	return 0;
 }
 
-static BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, BKInt const values [3])
+BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, void const * inValues, BKUInt size)
 {
-	static BKInt const emptyValues [3] = {0, 0, 0};
-
 	BKInt flag;
 	BKInt steps, delta, slideSteps;
+	BKInt values [3];
 
-	if (values == NULL)
-		values = emptyValues;
-	
+	if (inValues) {
+		size = BKMin (size, sizeof (values));
+		memcpy (values, inValues, size);
+	}
+	else {
+		size = sizeof (values);
+		memset (values, 0, size);
+	}
+
 	switch (effect) {
 		case BK_EFFECT_VOLUME_SLIDE: {
 			steps = BKClamp (values [0], 0, BK_TRACK_EFFECT_MAX_STEPS);
@@ -818,43 +823,50 @@ static BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, BKInt const value
 	return 0;
 }
 
-static BKInt BKTrackGetEffect (BKTrack const * track, BKEnum effect, BKInt values [3])
+BKInt BKTrackGetEffect (BKTrack const * track, BKEnum effect, void * outValues, BKUInt size)
 {
-	values [2] = 0;
+	BKInt outSize;
+	BKInt values [3];
+
+	memset (values, 0, sizeof (values));
 
 	switch (effect) {
 		case BK_EFFECT_VOLUME_SLIDE: {
 			values [0] = track -> volume.steps;
-			values [1] = track -> volume.step;
 			break;
 		}
 		case BK_EFFECT_PORTAMENTO: {
 			values [0] = track -> note.steps;
-			values [1] = track -> note.step;
 			break;
 		}
 		case BK_EFFECT_PANNING_SLIDE: {
 			values [0] = track -> panning.steps;
-			values [1] = track -> panning.step;
 			break;
 		}
 		case BK_EFFECT_TREMOLO: {
-			values [0] = track -> tremolo.steps;
-			values [1] = track -> tremolo.delta;
+			values [0] = track -> tremoloSteps.endValue;
+			values [1] = track -> tremoloDelta.endValue;
+			values [2] = track -> tremoloDelta.steps;
 			break;
 		}
 		case BK_EFFECT_VIBRATO: {
-			values [0] = track -> vibrato.steps;
-			values [1] = track -> vibrato.delta;
+			values [0] = track -> vibratoSteps.endValue;
+			values [1] = track -> vibratoDelta.endValue;
+			values [2] = track -> vibratoDelta.steps;
 			break;
 		}
 		default: {
-			memset (values, 0, sizeof (values));
 			return BK_INVALID_ATTRIBUTE;
 			break;
 		}
 	}
-	
+
+	outSize = BKMin (size, sizeof (values));
+	// copy values
+	memcpy (outValues, values, outSize);
+	// empty trailing data
+	memset ((void *) outValues + outSize, 0, BKMax (0, (BKInt) size - outSize));
+
 	return 0;
 }
 
@@ -871,7 +883,7 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 			if (ptr)
 				memcpy (effectValues, ptr, sizeof (BKInt [2]));
 
-			return BKTrackSetEffect (track, attr, effectValues);
+			return BKTrackSetEffect (track, attr, effectValues, sizeof (BKInt [2]));
 			break;
 		}
 		default: {
@@ -924,7 +936,7 @@ BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr)
 		case BK_EFFECT_TYPE: {
 			BKInt effectValues [3];
 
-			res = BKTrackGetEffect (track, attr, effectValues);
+			res = BKTrackGetEffect (track, attr, effectValues, sizeof (BKInt [2]));
 
 			if (res != 0)
 				return res;

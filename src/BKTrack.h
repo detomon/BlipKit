@@ -253,4 +253,39 @@ extern BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr);
  */
 extern BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr);
 
+/**
+ * Enable or disable effects
+ *
+ * Each effect requires at least one value
+ * Effect can be disabled by setting a NULL pointer or setting the first value to 0
+ *
+ * BK_EFFECT_VOLUME_SLIDE
+ *   values [0] sets number of effect ticks to slide to new volume
+ * BK_EFFECT_PANNING_SLIDE
+ *   Only takes effect if context has exactly 2 channels
+ *   values [0] sets number of effect ticks to slide to new panning
+ * BK_EFFECT_PORTAMENTO
+ *   values [0] sets number of effect ticks to slide to new tone
+ * BK_EFFECT_TREMOLO
+ *   values [0] sets number of effect ticks to complete interval
+ *   values [1] sets delta volume
+ *   values [2] sets the number of ticks to slide to the new values (optional)
+ * BK_EFFECT_VIBRATO
+ *   values [0] sets number of effect ticks to complete interval
+ *   values [1] sets delta note
+ *   values [2] sets the number of ticks to slide to the new values (optional)
+ */
+extern BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, void const * ptr, BKUInt size);
+
+/**
+ * Get effect parameters
+ *
+ * BK_EFFECT_VOLUME_SLIDE
+ * BK_EFFECT_PANNING_SLIDE
+ * BK_EFFECT_PORTAMENTO
+ * BK_EFFECT_TREMOLO
+ * BK_EFFECT_VIBRATO
+ */
+extern BKInt BKTrackGetEffect (BKTrack const * track, BKEnum effect, void * outValues, BKUInt size);
+
 #endif /* ! _BK_TRACK_H_ */
