@@ -85,7 +85,11 @@ struct BKTrack
 	BKInt             curNote;
 	BKSlideState      note;
 	BKIntervalState   tremolo;
+	BKSlideState      tremoloDelta;
+	BKSlideState      tremoloSteps;
 	BKIntervalState   vibrato;
+	BKSlideState      vibratoDelta;
+	BKSlideState      vibratoSteps;
 	BKArpeggioState   arpeggio;
 	BKInstrumentState instrState;
 };

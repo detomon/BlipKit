@@ -24,6 +24,8 @@
 #include "BKTrack.h"
 #include "BKTone.h"
 
+#define BK_TRACK_EFFECT_MAX_STEPS (1 << 16)
+
 extern BKInt const sequenceDefaultValue [BK_MAX_SEQUENCES];
 
 void BKTrackReset (BKTrack * track);
@@ -272,10 +274,32 @@ static void BKTrackEffectTick (BKTrack * track)
 	}
 
 	if (track -> flags & BKTremoloFlag) {
+		if (track -> tremoloDelta.steps) {
+			BKSlideStateStep (& track -> tremoloDelta);
+			BKSlideStateStep (& track -> tremoloSteps);
+
+			BKIntervalStateSetDeltaAndSteps (
+				& track -> tremolo,
+				BKSlideStateGetValue (& track -> tremoloDelta),
+				BKSlideStateGetValue (& track -> tremoloSteps)
+			);
+		}
+
 		BKIntervalStateStep (& track -> tremolo);
 	}
 
 	if (track -> flags & BKVibratoFlag) {
+		if (track -> vibratoDelta.steps) {
+			BKSlideStateStep (& track -> vibratoDelta);
+			BKSlideStateStep (& track -> vibratoSteps);
+
+			BKIntervalStateSetDeltaAndSteps (
+				& track -> vibrato,
+				BKSlideStateGetValue (& track -> vibratoDelta),
+				BKSlideStateGetValue (& track -> vibratoSteps)
+			);
+		}
+
 		BKIntervalStateStep (& track -> vibrato);
 	}
 }
@@ -363,7 +387,12 @@ BKInt BKTrackInit (BKTrack * track, BKEnum waveform)
 		BKSlideStateInit (& track -> note, 0);  // note resolution is already high enough
 
 		BKIntervalStateInit (& track -> tremolo, BK_MAX_VOLUME);
+		BKSlideStateInit (& track -> tremoloDelta, BK_MAX_VOLUME);
+		BKSlideStateInit (& track -> tremoloSteps, BK_TRACK_EFFECT_MAX_STEPS);
+
 		BKIntervalStateInit (& track -> vibrato, 0);  // note resolution is already high enough
+		BKSlideStateInit (& track -> vibratoDelta, 0);
+		BKSlideStateInit (& track -> vibratoSteps, BK_TRACK_EFFECT_MAX_STEPS);
 	}
 
 	return ret;
@@ -708,38 +737,66 @@ BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
 	return 0;
 }
 
-static BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, BKInt const values [2])
+static BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, BKInt const values [3])
 {
-	static BKInt const emptyValues [2] = {0, 0};
+	static BKInt const emptyValues [3] = {0, 0, 0};
 
 	BKInt flag;
-	
+	BKInt steps, delta, slideSteps;
+
 	if (values == NULL)
 		values = emptyValues;
 	
 	switch (effect) {
 		case BK_EFFECT_VOLUME_SLIDE: {
-			BKSlideStateSetSteps (& track -> volume, values [0]);
+			steps = BKClamp (values [0], 0, BK_TRACK_EFFECT_MAX_STEPS);
+
+			BKSlideStateSetSteps (& track -> volume, steps);
+
 			track -> flags |= BKTrackAttrUpdateFlagVolume;
 			break;
 		}
 		case BK_EFFECT_PORTAMENTO: {
-			BKSlideStateSetSteps (& track -> note, values [0]);
+			steps = BKClamp (values [0], 0, BK_TRACK_EFFECT_MAX_STEPS);
+
+			BKSlideStateSetSteps (& track -> note, steps);
+
 			track -> flags |= BKTrackAttrUpdateFlagNote;
 			break;
 		}
 		case BK_EFFECT_PANNING_SLIDE: {
-			BKSlideStateSetSteps (& track -> panning, values [0]);
+			steps = BKClamp (values [0], 0, BK_TRACK_EFFECT_MAX_STEPS);
+
+			BKSlideStateSetSteps (& track -> panning, steps);
+
 			track -> flags |= BKTrackAttrUpdateFlagVolume;
 			break;
 		}
 		case BK_EFFECT_TREMOLO: {
-			BKIntervalStateSetDeltaAndSteps (& track -> tremolo, values [1], values [0]);
+			steps      = BKClamp (values [0], 0, BK_TRACK_EFFECT_MAX_STEPS);
+			delta      = BKClamp (values [1], 0, BK_MAX_VOLUME);
+			slideSteps = BKClamp (values [2], 0, BK_TRACK_EFFECT_MAX_STEPS);
+
+			BKSlideStateSetValueAndSteps (& track -> tremoloDelta, delta, slideSteps);
+			BKSlideStateSetValueAndSteps (& track -> tremoloSteps, steps, slideSteps);
+
+			if (slideSteps == 0)
+				BKIntervalStateSetDeltaAndSteps (& track -> tremolo, delta, steps);
+
 			track -> flags |= BKTrackAttrUpdateFlagVolume;
 			break;
 		}
 		case BK_EFFECT_VIBRATO: {
-			BKIntervalStateSetDeltaAndSteps (& track -> vibrato, values [1], values [0]);
+			steps      = BKClamp (values [0], 0, BK_TRACK_EFFECT_MAX_STEPS);
+			delta      = values [1];
+			slideSteps = BKClamp (values [2], 0, BK_TRACK_EFFECT_MAX_STEPS);
+
+			BKSlideStateSetValueAndSteps (& track -> vibratoDelta, delta, slideSteps);
+			BKSlideStateSetValueAndSteps (& track -> vibratoSteps, steps, slideSteps);
+
+			if (slideSteps == 0)
+				BKIntervalStateSetDeltaAndSteps (& track -> vibrato, delta, steps);
+
 			track -> flags |= BKTrackAttrUpdateFlagNote;
 			break;
 		}
@@ -761,8 +818,10 @@ static BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, BKInt const value
 	return 0;
 }
 
-static BKInt BKTrackGetEffect (BKTrack const * track, BKEnum effect, BKInt values [2])
+static BKInt BKTrackGetEffect (BKTrack const * track, BKEnum effect, BKInt values [3])
 {
+	values [2] = 0;
+
 	switch (effect) {
 		case BK_EFFECT_VOLUME_SLIDE: {
 			values [0] = track -> volume.steps;
@@ -790,7 +849,7 @@ static BKInt BKTrackGetEffect (BKTrack const * track, BKEnum effect, BKInt value
 			break;
 		}
 		default: {
-			memset (values, 0, sizeof (BKInt [2]));
+			memset (values, 0, sizeof (values));
 			return BK_INVALID_ATTRIBUTE;
 			break;
 		}
@@ -805,7 +864,14 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 
 	switch (attr & BK_ATTR_TYPE_MASK) {
 		case BK_EFFECT_TYPE: {
-			return BKTrackSetEffect (track, attr, ptr);
+			BKInt effectValues [3];
+
+			memset (effectValues, 0, sizeof (effectValues));
+
+			if (ptr)
+				memcpy (effectValues, ptr, sizeof (BKInt [2]));
+
+			return BKTrackSetEffect (track, attr, effectValues);
 			break;
 		}
 		default: {
@@ -851,11 +917,19 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 
 BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr)
 {
+	BKInt res = 0;
 	void ** ptrRef = outPtr;
 
 	switch (attr & BK_ATTR_TYPE_MASK) {
 		case BK_EFFECT_TYPE: {
-			return BKTrackGetEffect (track, attr, outPtr);
+			BKInt effectValues [3];
+
+			res = BKTrackGetEffect (track, attr, effectValues);
+
+			if (res != 0)
+				return res;
+
+			memcpy (outPtr, effectValues, sizeof (BKInt [2]));
 			break;
 		}
 		default: {
