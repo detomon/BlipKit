@@ -752,6 +752,8 @@ BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, void const * inValues, B
 		memset (values, 0, size);
 	}
 
+	memset ((void *) values + size, 0, sizeof (values) - size);
+
 	switch (effect) {
 		case BK_EFFECT_VOLUME_SLIDE: {
 			steps = BKClamp (values [0], 0, BK_TRACK_EFFECT_MAX_STEPS);
