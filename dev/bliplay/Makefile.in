@@ -96,7 +96,7 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libbliparser_a_AR = $(AR) $(ARFLAGS)
 libbliparser_a_LIBADD =
-am_libbliparser_a_OBJECTS = BKSDLTrack.$(OBJEXT) BKParser.$(OBJEXT) \
+am_libbliparser_a_OBJECTS = BKSDLTrack.$(OBJEXT) \
 	BKBlipReader.$(OBJEXT) BKBlipWriter.$(OBJEXT) \
 	BKCompiler.$(OBJEXT) BKInterpreter.$(OBJEXT)
 libbliparser_a_OBJECTS = $(am_libbliparser_a_OBJECTS)
@@ -296,7 +296,6 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = @BK_STD_CFLAGS@ -I$(srcdir)/../../src -L$(srcdir)/../../src
 pkginclude_HEADERS = \
 	BKSDLTrack.h \
-	BKParser.h \
 	BKBlipReader.h \
 	BKBlipWriter.h \
 	BKCompiler.h \
@@ -306,7 +305,6 @@ pkginclude_HEADERS = \
 EXTRA_LIBRARIES = libbliparser.a
 libbliparser_a_SOURCES = \
 	BKSDLTrack.c \
-	BKParser.c \
 	BKBlipReader.c \
 	BKBlipWriter.c \
 	BKCompiler.c \
@@ -386,7 +384,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKBlipWriter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKCompiler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKInterpreter.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKParser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BKSDLTrack.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bliplay-bliplay.Po@am__quote@
 

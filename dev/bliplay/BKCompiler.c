@@ -304,9 +304,9 @@ static BKInt BKCompilerCombine (BKCompiler * compiler, BKInterpreter * interpret
 	return -1;
 }
 
-BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
+BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 {
-	BKInt    value0, value1, arg0, arg1, arg2;
+	BKInt    value0, value1, arg1, arg2, arg3;
 	BKInt ** cmds = compiler -> activeCmdList;
 	strval * item;
 
@@ -315,10 +315,12 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 	if (item == NULL)
 		return 0;
 
+	char const * arg0 = instr -> args [0].arg;
+
 	switch (item -> value) {
 		case BKIntrGroup: {
 			// begin group
-			if (strcmpx (instr -> args [0], "begin") == 0) {
+			if (strcmpx (arg0, "begin") == 0) {
 				if (compiler -> groupLevel == 0) {
 					item_list_add (& compiler -> groupOffsets, item_list_length (compiler -> groupCmds));
 					compiler -> activeCmdList = & compiler -> groupCmds;
@@ -329,7 +331,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 				}
 			}
 			// end group
-			else if (strcmpx (instr -> args [0], "end") == 0) {
+			else if (strcmpx (arg0, "end") == 0) {
 				if (compiler -> groupLevel >= 1) {
 					item_list_add (cmds, BKIntrReturn);
 					compiler -> activeCmdList = & compiler -> cmds;
@@ -344,13 +346,13 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 			// play group
 			else {
 				item_list_add (cmds, item -> value);
-				item_list_add (cmds, atoix (instr -> args [0], 0));
+				item_list_add (cmds, atoix (arg0, 0));
 			}
 			
 			break;
 		}
 		case BKIntrAttack: {
-			value0 = BKCompilerLookupNote (instr -> args [0]);
+			value0 = BKCompilerLookupNote (arg0);
 			
 			if (value0 > -1) {
 				item_list_add (cmds, item -> value);
@@ -362,7 +364,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 					item_list_add (cmds, (BKInt) instr -> argCount);
 					
 					for (BKInt j = 0; j < instr -> argCount; j ++) {
-						value1 = BKCompilerLookupNote (instr -> args [j]);
+						value1 = BKCompilerLookupNote (instr -> args [j].arg);
 
 						if (value1 < 0)
 							value1 = 0;
@@ -396,7 +398,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 			break;
 		}
 		case BKIntrMuteTicks: {
-			value0 = atoix (instr -> args [0], 0);
+			value0 = atoix (arg0, 0);
 
 			item_list_add (cmds, item -> value);
 			item_list_add (cmds, value0);
@@ -404,16 +406,16 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 		}
 		case BKIntrVolume: {
 			item_list_add (cmds, item -> value);
-			item_list_add (cmds, atoix (instr -> args [0], 0) * (BK_MAX_VOLUME / 255));
+			item_list_add (cmds, atoix (arg0, 0) * (BK_MAX_VOLUME / 255));
 			break;
 		}
 		case BKIntrMasterVolume: {
 			item_list_add (cmds, item -> value);
-			item_list_add (cmds, atoix (instr -> args [0], 0) * (BK_MAX_VOLUME / 255));
+			item_list_add (cmds, atoix (arg0, 0) * (BK_MAX_VOLUME / 255));
 			break;
 		}
 		case BKIntrStep: {
-			value0 = atoix (instr -> args [0], 0);
+			value0 = atoix (arg0, 0);
 			
 			if (value0 == 0)
 				return 0;
@@ -423,27 +425,27 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 			break;
 		}
 		case BKIntrStepTicks: {
-			value0 = atoix (instr -> args [0], 0);
+			value0 = atoix (arg0, 0);
 
 			item_list_add (cmds, item -> value);
 			item_list_add (cmds, value0);
 			break;
 		}
 		case BKIntrEffect: {
-			value0 = BKCompilerLookupValue (effects, NUM_EFFECTS, instr -> args [0]);
+			value0 = BKCompilerLookupValue (effects, NUM_EFFECTS, arg0);
 
 			if (value0 > -1) {
-				arg0 = atoix (instr -> args [1], 0);
-				arg1 = atoix (instr -> args [2], 0);
-				arg2 = atoix (instr -> args [3], 0);
+				arg1 = atoix (instr -> args [1].arg, 0);
+				arg2 = atoix (instr -> args [2].arg, 0);
+				arg3 = atoix (instr -> args [3].arg, 0);
 
 				switch (value0) {
 					case BK_EFFECT_TREMOLO: {
-						arg1 *= (BK_MAX_VOLUME / 255);
+						arg2 *= (BK_MAX_VOLUME / 255);
 						break;
 					}
 					case BK_EFFECT_VIBRATO: {
-						arg1 *= (BK_FINT20_UNIT / 100);
+						arg2 *= (BK_FINT20_UNIT / 100);
 
 						break;
 					}
@@ -451,49 +453,49 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 
 				item_list_add (cmds, item -> value);
 				item_list_add (cmds, value0);
-				item_list_add (cmds, arg0);
 				item_list_add (cmds, arg1);
 				item_list_add (cmds, arg2);
+				item_list_add (cmds, arg3);
 			}
 
 			break;
 		}
 		case BKIntrDutyCycle: {
 			item_list_add (cmds, item -> value);
-			item_list_add (cmds, atoix (instr -> args [0], 0));
+			item_list_add (cmds, atoix (arg0, 0));
 			break;
 		}
 		case BkIntrPhaseWrap: {
 			item_list_add (cmds, item -> value);
-			item_list_add (cmds, atoix (instr -> args [0], 0));
+			item_list_add (cmds, atoix (arg0, 0));
 			break;
 		}
 		case BKIntrPanning: {
 			item_list_add (cmds, item -> value);
-			item_list_add (cmds, atoix (instr -> args [0], 0) * (BK_MAX_VOLUME / 255));
+			item_list_add (cmds, atoix (arg0, 0) * (BK_MAX_VOLUME / 255));
 			break;
 		}
 		case BKIntrPitch: {
 			item_list_add (cmds, item -> value);
-			item_list_add (cmds, atoix (instr -> args [0], 0) * (BK_FINT20_UNIT / 100));
+			item_list_add (cmds, atoix (arg0, 0) * (BK_FINT20_UNIT / 100));
 			break;
 		}
 		case BKIntrInstrument: {
 			item_list_add (cmds, item -> value);
-			item_list_add (cmds, atoix (instr -> args [0], -1));
+			item_list_add (cmds, atoix (arg0, -1));
 			break;
 		}
 		case BKIntrWaveform: {
 			item_list_add (cmds, item -> value);
 
-			item = bsearch (instr -> args [0], waveforms, NUM_WAVEFORMS, sizeof (strval), (void *) cmdcmp);
+			item = bsearch (arg0, waveforms, NUM_WAVEFORMS, sizeof (strval), (void *) cmdcmp);
 
 			// custom waveform
 			if (item) {
 				item_list_add (cmds, item -> value);
 			}
 			else {
-				value0 = atoix (instr -> args [0], 0);
+				value0 = atoix (arg0, 0);
 				value0 |= BK_CUSTOM_WAVEFOMR_FLAG;
 				item_list_add (cmds, value0);
 			}
@@ -501,7 +503,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * instr)
 		}
 		case BKIntrArpeggioSpeed: {
 			item_list_add (cmds, item -> value);
-			item_list_add (cmds, BKMax (atoix (instr -> args [0], 0), 1));
+			item_list_add (cmds, BKMax (atoix (arg0, 0), 1));
 			break;
 		}
 		case BKIntrEnd: {
@@ -535,11 +537,11 @@ BKInt BKCompilerTerminate (BKCompiler * compiler, BKInterpreter * interpreter)
 	return 0;
 }
 
-static BKInt BKCompilerReadCommands (BKCompiler * compiler, BKParser * parser)
+static BKInt BKCompilerReadCommands (BKCompiler * compiler, BKBlipReader * parser)
 {
-	BKParserItem item;
+	BKBlipCommand item;
 
-	while (BKParserNextItem (parser, & item)) {
+	while (BKBlipReaderNextCommand (parser, & item)) {
 		if (BKCompilerPushCommand (compiler, & item) < 0)
 			return -1;
 	}
@@ -547,7 +549,7 @@ static BKInt BKCompilerReadCommands (BKCompiler * compiler, BKParser * parser)
 	return 0;
 }
 
-BKInt BKCompilerCompile (BKCompiler * compiler, BKInterpreter * interpreter, BKParser * parser)
+BKInt BKCompilerCompile (BKCompiler * compiler, BKInterpreter * interpreter, BKBlipReader * parser)
 {
 	if (BKCompilerReadCommands (compiler, parser) < 0)
 		return -1;

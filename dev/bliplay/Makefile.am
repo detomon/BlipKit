@@ -2,7 +2,6 @@ AM_CFLAGS = @BK_STD_CFLAGS@ -I$(srcdir)/../../src -L$(srcdir)/../../src
 
 pkginclude_HEADERS = \
 	BKSDLTrack.h \
-	BKParser.h \
 	BKBlipReader.h \
 	BKBlipWriter.h \
 	BKCompiler.h \
@@ -13,7 +12,6 @@ EXTRA_LIBRARIES = libbliparser.a
 
 libbliparser_a_SOURCES = \
 	BKSDLTrack.c \
-	BKParser.c \
 	BKBlipReader.c \
 	BKBlipWriter.c \
 	BKCompiler.c \
