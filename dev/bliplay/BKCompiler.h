@@ -24,7 +24,7 @@
 #ifndef _BK_COMPILER_H_
 #define _BK_COMPILER_H_
 
-#include "BKParser.h"
+#include "BKBlipReader.h"
 #include "BKInterpreter.h"
 
 typedef struct BKCompiler BKCompiler;
@@ -53,7 +53,7 @@ extern void BKCompilerDispose (BKCompiler * compiler);
 /**
  * Push command
  */
-extern BKInt BKCompilerPushCommand (BKCompiler * compiler, BKParserItem * item);
+extern BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * item);
 
 /**
  * Compile commands and initialize interpreter
@@ -63,6 +63,6 @@ extern BKInt BKCompilerTerminate (BKCompiler * compiler, BKInterpreter * interpr
 /**
  * Compile all commands from parser and terminate compiler
  */
-extern BKInt BKCompilerCompile (BKCompiler * compiler, BKInterpreter * interpreter, BKParser * parser);
+extern BKInt BKCompilerCompile (BKCompiler * compiler, BKInterpreter * interpreter, BKBlipReader * parser);
 
 #endif /* ! _BK_COMPILER_H_ */
