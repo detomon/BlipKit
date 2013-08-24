@@ -1,7 +1,11 @@
+Changes in BlipKit 0.3.3:
+
+* Values of tremolo and vibrato effects can now be slided
+* Added track effect setter and getter functions
+
 Changes in BlipKit 0.3.2:
 
 * Rewritten effect implementation
-* Values of tremolo and vibrato effects can now be slided too
 
 Changes in BlipKit 0.3.1:
 
