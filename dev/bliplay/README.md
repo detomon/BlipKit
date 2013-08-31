@@ -8,7 +8,8 @@ library. It reads a CSV like file format. Some examples are located in
 Building and running
 --------------------
 
-Execute the following command to build `bliplay`:
+You have to build the library in the base directory first. Then execute the
+following command to build `bliplay`:
 
 	blipkit/dev/bliplay$ make bliplay
 
