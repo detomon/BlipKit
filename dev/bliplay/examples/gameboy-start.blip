@@ -1,0 +1,18 @@
+gv:255;
+gs:18;
+
+t:begin:square;
+
+	g:begin;
+		dc:8;
+		e:vs;v:255;
+		a:c5;s:1;
+		a:c6;
+		e:vs:160;v:0;
+		s:31;
+		e:vs;
+	g:end;
+
+	g:0;
+
+t:end;
