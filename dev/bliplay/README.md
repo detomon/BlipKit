@@ -15,7 +15,7 @@ following command to build `bliplay`:
 
 Now you can play the examples:
 
-	blipkit/dev/bliplay$ ./bliplay -p examples/test7.blip
+	blipkit/dev/bliplay$ ./bliplay -p examples/generic-boss-appears.blip
 
 Options
 -------
