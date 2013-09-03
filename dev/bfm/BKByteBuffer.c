@@ -1,3 +1,26 @@
+/**
+ * Copyright (c) 2012-2013 Simon Schoenenberger
+ * http://blipkit.monoxid.net/
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 #include "BKByteBuffer.h"
 
 #define OPTIONS_MASK        0x00FF
@@ -16,7 +39,7 @@ static BKByteBufferSegment * BKByteBufferSegmentAlloc (BKUSize capacity)
 	return segment;
 }
 
-static void BKByteBufferFreeSegment (BKByteBufferSegment * segment, bool freeList)
+static void BKByteBufferFreeSegment (BKByteBufferSegment * segment, BKInt freeList)
 {
 	// Free all linked segments
 	if (freeList) {
@@ -31,13 +54,13 @@ static void BKByteBufferFreeSegment (BKByteBufferSegment * segment, bool freeLis
 	}
 }
 
-static bool BKByteBufferPushStorage (BKByteBuffer * buffer, BKUSize preferredSize)
+static BKInt BKByteBufferPushStorage (BKByteBuffer * buffer, BKUSize preferredSize)
 {
 	BKByteBufferSegment * segment = NULL;
 
 	//#warning TEST!
 	//moErrorRaise ("BKByteBufferPushStorage", "Allocation error");
-	//return false;
+	//return -1;
 	
 	// Single segment
 	if (buffer -> info & BKByteBufferOptionContinuousStorage) {
@@ -59,9 +82,9 @@ static bool BKByteBufferPushStorage (BKByteBuffer * buffer, BKUSize preferredSiz
 		}
 
 		preferredSize = (usedSize + preferredSize) * MORE_STORAGE_FACTOR;
-		preferredSize = MAX (preferredSize, MIN_SEGMENT_SIZE);
+		preferredSize = BKMax (preferredSize, MIN_SEGMENT_SIZE);
 
-		if ((buffer -> info & BKByteBufferOptionKeepBytes) == false)
+		if ((buffer -> info & BKByteBufferOptionKeepBytes) != 0)
 			memmove (segment -> data, buffer -> readCursor, usedSize);
 
 		if (preferredSize > capacity) {
@@ -80,11 +103,11 @@ static bool BKByteBufferPushStorage (BKByteBuffer * buffer, BKUSize preferredSiz
 			}
 			else {
 				//moErrorRaise ("BKByteBufferPushStorage", "Allocation error");
-				return false;
+				return -1;
 			}
 		}
 		
-		return true;
+		return 0;
 	}
 	// Multiple segments
 	else {
@@ -96,7 +119,7 @@ static bool BKByteBufferPushStorage (BKByteBuffer * buffer, BKUSize preferredSiz
 		// Allocate new segment
 		else {
 			preferredSize *= MORE_STORAGE_FACTOR;
-			preferredSize = MAX (preferredSize, MIN_SEGMENT_SIZE);
+			preferredSize = BKMax (preferredSize, MIN_SEGMENT_SIZE);
 			segment = BKByteBufferSegmentAlloc (preferredSize);
 		}
 
@@ -119,15 +142,15 @@ static bool BKByteBufferPushStorage (BKByteBuffer * buffer, BKUSize preferredSiz
 			buffer -> writeCursor  = segment -> data;
 			buffer -> writeDataEnd = & segment -> data [segment -> capacity];
 
-			return true;
+			return 0;
 		}
 		else {
 			//moErrorRaise ("BKByteBufferPushStorage", "Allocation error");
-			return false;
+			return -1;
 		}
 	}
 
-	return false;
+	return -1;
 }
 
 static BKSize BKByteBufferShiftStorage (BKByteBuffer * buffer)
@@ -143,7 +166,7 @@ static BKSize BKByteBufferShiftStorage (BKByteBuffer * buffer)
 			if (writeSize > 0) {
 				shiftSize = writeSize;
 			}
-			else if (writeSize < 0) {
+			else if (writeSize != 0) {
 				//moErrorRaiseAppend ("BKByteBufferShiftStorage", "Couldn't read from buffer source");
 				shiftSize = -1;
 			}
@@ -156,7 +179,7 @@ static BKSize BKByteBufferShiftStorage (BKByteBuffer * buffer)
 			BKByteBufferSegment * nextSegment = buffer -> readSegment -> nextSegment;
 
 			// Add segment to free segments
-			if ((buffer -> info & BKByteBufferOptionKeepBytes) == false) {
+			if ((buffer -> info & BKByteBufferOptionKeepBytes) != 0) {
 				buffer -> readSegment -> nextSegment = buffer -> freeSegments;
 				buffer -> freeSegments = buffer -> readSegment;
 				buffer -> firstSegment = nextSegment;
@@ -195,24 +218,24 @@ static BKSize BKByteBufferShiftStorage (BKByteBuffer * buffer)
 	return shiftSize;
 }
 
-bool BKByteBufferInit (BKByteBuffer * buffer, BKUSize initSize, unsigned options)
+BKInt BKByteBufferInit (BKByteBuffer * buffer, BKUSize initSize, unsigned options)
 {
 	memset (buffer, 0, sizeof (BKByteBuffer));
 	buffer -> info |= (options & OPTIONS_MASK);
 
 	if (initSize) {
-		if (BKByteBufferPushStorage (buffer, initSize) == false) {
+		if (BKByteBufferPushStorage (buffer, initSize) != 0) {
 			//moErrorRaise ("BKByteBufferInit", "Allocation error");
-			return false;
+			return -1;
 		}
 	}
 
-	return true;
+	return 0;
 }
-void BKByteBufferDestroy (BKByteBuffer * buffer)
+void BKByteBufferDispose (BKByteBuffer * buffer)
 {
-	BKByteBufferFreeSegment (buffer -> firstSegment, true);
-	BKByteBufferFreeSegment (buffer -> freeSegments, true);
+	BKByteBufferFreeSegment (buffer -> firstSegment, 1);
+	BKByteBufferFreeSegment (buffer -> freeSegments, 1);
 
 	memset (buffer, 0, sizeof (BKByteBuffer));
 }
@@ -321,7 +344,7 @@ BKSize BKByteBufferWriteBytes (BKByteBuffer * buffer, const void * bytes, BKUSiz
 			if (buffer -> readSegment == buffer -> writeSegment)
 				buffer -> readDataEnd = buffer -> writeCursor;
 
-			if (BKByteBufferPushStorage (buffer, size)) {
+			if (BKByteBufferPushStorage (buffer, size) == 0) {
 				remainaingSize = buffer -> writeDataEnd - buffer -> writeCursor;
 			}
 			else {
@@ -335,18 +358,21 @@ BKSize BKByteBufferWriteBytes (BKByteBuffer * buffer, const void * bytes, BKUSiz
 	return writtenSize;
 }
 
-bool BKByteBufferWriteByte (BKByteBuffer * buffer, unsigned char byte)
+BKSize BKByteBufferWriteByte (BKByteBuffer * buffer, unsigned char byte)
 {
 	if (buffer -> writeCursor >= buffer -> writeDataEnd) {
-		if (BKByteBufferPushStorage (buffer, 1) == false) {
+		if (BKByteBufferPushStorage (buffer, 1) != 0) {
 			//moErrorRaiseAppend ("BKByteBufferWriteByte", "Couldn't write bytes");
-			return false;
+			return -1;
 		}
 	}
 
 	(* buffer -> writeCursor ++) = byte;
 
-	return true;
+	if (buffer -> readSegment == buffer -> writeSegment)
+		buffer -> readDataEnd = buffer -> writeCursor;
+
+	return 1;
 }
 
 BKUSize BKByteBufferGetSize (BKByteBuffer * buffer)
@@ -411,7 +437,7 @@ static BKUSize BKByteBufferRestoreBytes (BKByteBuffer * buffer, BKUSize size)
 	return restoredSize;
 }
 
-static bool BKByteBufferSeekToOffset (BKByteBuffer * buffer, BKSize offset)
+static BKInt BKByteBufferSeekToOffset (BKByteBuffer * buffer, BKSize offset)
 {
 	BKByteBufferSegment * segment = buffer -> firstSegment;
 
@@ -430,12 +456,12 @@ static bool BKByteBufferSeekToOffset (BKByteBuffer * buffer, BKSize offset)
 			}
 
 			if (segment == NULL)
-				return false;
+				return -1;
 		}
 
 		if (segment == buffer -> writeSegment) {
 			if (& segment -> data [offset] > buffer -> writeCursor)
-				return false;
+				return -1;
 
 			buffer -> readDataEnd = buffer -> writeCursor;
 		}
@@ -453,10 +479,10 @@ static bool BKByteBufferSeekToOffset (BKByteBuffer * buffer, BKSize offset)
 
 		buffer -> capacity = capacity;
 
-		return true;
+		return 0;
 	}
 
-	return false;
+	return -1;
 }
 
 BKSize BKByteBufferSeek (BKByteBuffer * buffer, BKSize offset, unsigned options)
@@ -476,7 +502,7 @@ BKSize BKByteBufferSeek (BKByteBuffer * buffer, BKSize offset, unsigned options)
 void BKByteBufferClear (BKByteBuffer * buffer, unsigned options)
 {
 	if (options & BKByteBufferOptionDiscardReaded) {
-		if ((buffer -> info & BKByteBufferOptionContinuousStorage) == false) {
+		if ((buffer -> info & BKByteBufferOptionContinuousStorage) != 0) {
 			BKByteBufferSegment * segment = buffer -> readSegment;
 			
 			if (segment) {
@@ -494,7 +520,7 @@ void BKByteBufferClear (BKByteBuffer * buffer, unsigned options)
 					}
 					// Free segment
 					else {
-						BKByteBufferFreeSegment (segment, false);
+						BKByteBufferFreeSegment (segment, 0);
 					}
 				}
 				
@@ -513,8 +539,8 @@ void BKByteBufferClear (BKByteBuffer * buffer, unsigned options)
 		}
 		// Free segments
 		else {
-			BKByteBufferFreeSegment (buffer -> firstSegment, true);
-			BKByteBufferFreeSegment (buffer -> freeSegments, true);
+			BKByteBufferFreeSegment (buffer -> firstSegment, 1);
+			BKByteBufferFreeSegment (buffer -> freeSegments, 1);
 			buffer -> freeSegments = NULL;
 		}
 
