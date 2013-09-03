@@ -22,7 +22,7 @@ Options
 
 The play speed can be adjusted with the options `s`:
 
-	blipkit/dev/bliplay$ ./bliplay -s 32 -p examples/test7.blip
+	blipkit/dev/bliplay$ ./bliplay -s 32 -p examples/generic-boss-appears.blip
 
 More TODO...
 
