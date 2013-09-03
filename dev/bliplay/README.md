@@ -15,14 +15,14 @@ following command to build `bliplay`:
 
 Now you can play the examples:
 
-	blipkit/dev/bliplay$ ./bliplay -p examples/test7.blip
+	blipkit/dev/bliplay$ ./bliplay -p examples/generic-boss-appears.blip
 
 Options
 -------
 
 The play speed can be adjusted with the options `s`:
 
-	blipkit/dev/bliplay$ ./bliplay -s 32 -p examples/test7.blip
+	blipkit/dev/bliplay$ ./bliplay -s 32 -p examples/generic-boss-appears.blip
 
 More TODO...
 

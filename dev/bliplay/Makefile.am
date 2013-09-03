@@ -31,11 +31,12 @@ bliplay_LDADD = libbliparser.a -lblipkit @SDL_CFLAGS@
 
 EXTRA_DIST = \
 	examples/template.blip \
+	examples/gameboy-start.blip \
+	examples/generic-boss-appears.blip \
 	examples/test1.blip \
 	examples/test2.blip \
 	examples/test3.blip \
 	examples/test4.blip \
 	examples/test5.blip \
 	examples/test6.blip \
-	examples/test7.blip \
 	examples/test8.blip

@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.63])
-AC_INIT([BlipKit], [0.3.3], [simon@monoxid.net], [blipkit], [http://blipkit.monoxid.net])
+AC_PREREQ([2.69])
+AC_INIT([BlipKit],[0.3.3],[simon@monoxid.net],[blipkit],[http://blipkit.monoxid.net])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # Checks for programs.
@@ -41,12 +41,10 @@ BK_STD_CFLAGS="-std=c99 -Wall"
 AC_SUBST(BK_STD_CFLAGS)
 
 # Tests
-AC_TRY_RUN([
+AC_RUN_IFELSE([AC_LANG_SOURCE([[
 int main () { return !((-15 >> 2) == -4); }
-],
-[],
-AC_MSG_ERROR([Host CPU seems not to handle shifting of negative values as expected])
-)
+]])],[],[AC_MSG_ERROR(Host CPU seems not to handle shifting of negative values as expected)
+],[])
 
 # Platform specific
 AC_CANONICAL_HOST
