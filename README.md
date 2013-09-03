@@ -20,7 +20,11 @@ and play samples.
 Building the library
 --------------------
 
-First execute `configure` in the base directory:
+First execute `autogen.sh` in the base directory to generate the build system:
+
+	blipkit$ sh ./autogen.sh
+
+Next execute `configure` in the base directory:
 
 	blipkit$ ./configure
 
