@@ -19,8 +19,4 @@ EXTRA_PROGRAMS = blipbfmtest
 blipbfmtest_SOURCES = \
 	blipbfmtest.c
 
-# LDFLAGS should be used for linking libraries not LDADD
-# But some newer GCC versions need to have the linkings at the end
-
-#bliplay_LDFLAGS = -lblipkit @SDL_CFLAGS@
 blipbfmtest_LDADD = libblipkitbfm.a -lblipkit @SDL_CFLAGS@
