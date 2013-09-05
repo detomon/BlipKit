@@ -76,7 +76,7 @@ static strval commands [] =
 	{"mt", BKIntrMuteTicks},
 	{"p",  BKIntrPanning},
 	{"pt", BKIntrPitch},
-	{"pw", BkIntrPhaseWrap},
+	{"pw", BKIntrPhaseWrap},
 	{"r",  BKIntrRelease},
 	{"s",  BKIntrStep},
 	{"st", BKIntrStepTicks},
@@ -233,7 +233,7 @@ static BKInt * BKCompilerCombineCmds (BKCompiler * compiler, BKInt * allCmds, BK
 			case BKIntrStepTicks:     argCount = 1; break;
 			case BKIntrEffect:        argCount = 4; break;
 			case BKIntrDutyCycle:     argCount = 1; break;
-			case BkIntrPhaseWrap:     argCount = 1; break;
+			case BKIntrPhaseWrap:     argCount = 1; break;
 			case BKIntrInstrument:    argCount = 1; break;
 			case BKIntrWaveform:      argCount = 1; break;
 			case BKIntrReturn:        argCount = 0; break;
@@ -465,7 +465,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 			item_list_add (cmds, atoix (arg0, 0));
 			break;
 		}
-		case BkIntrPhaseWrap: {
+		case BKIntrPhaseWrap: {
 			item_list_add (cmds, item -> value);
 			item_list_add (cmds, atoix (arg0, 0));
 			break;

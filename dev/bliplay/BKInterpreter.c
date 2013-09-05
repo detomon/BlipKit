@@ -123,7 +123,7 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 				BKTrackSetAttr (track, BK_DUTY_CYCLE, value0);
 				break;
 			}
-			case BkIntrPhaseWrap: {
+			case BKIntrPhaseWrap: {
 				value0 = * (opcode ++);
 				BKTrackSetAttr (track, BK_PHASE_WRAP, value0);
 				break;

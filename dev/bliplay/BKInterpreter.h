@@ -47,7 +47,7 @@ enum
 	BKIntrStep,
 	BKIntrEffect,
 	BKIntrDutyCycle,
-	BkIntrPhaseWrap,
+	BKIntrPhaseWrap,
 	BKIntrInstrument,
 	BKIntrWaveform,
 	BKIntrReturn,
