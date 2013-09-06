@@ -1,0 +1,36 @@
+# Columns:
+# Plain text command, Constant name, Number
+#
+# ? are internal used commands
+
+a     BK_INSTR_Attack              1
+?     BK_INSTR_Arpeggio            2
+as    BK_INSTR_ArpeggioSpeed       3
+r     BK_INSTR_Release             4
+st    BK_INSTR_StepTicks           5
+m     BK_INSTR_Mute                6
+mt    BK_INSTR_MuteTicks           7
+v     BK_INSTR_Volume              8
+p     BK_INSTR_Panning             9
+pt    BK_INSTR_Pitch               10
+ms    BK_INSTR_MasterVolume        11
+s     BK_INSTR_Step                12
+e     BK_INSTR_Effect              13
+dc    BK_INSTR_DutyCycle           14
+pw    BK_INSTR_PhaseWrap           15
+i     BK_INSTR_Instrument          16
+w     BK_INSTR_Waveform            17
+g     BK_INSTR_Group               18
+
+inst  BK_INSTR_InstrumentGroup     19
+wave  BK_INSTR_WaveformGroup       20
+trck  BK_INSTR_TrackGroup          21
+seqv  BK_INSTR_SequenceVolume      22
+seqp  BK_INSTR_SequencePanning     23
+seqa  BK_INSTR_SequenceArpeggio    24
+seqd  BK_INSTR_SequenceDutyCycle   25
+
+?     BK_INSTR_Jump                40
+?     BK_INSTR_Call                41
+?     BK_INSTR_Return              42
+?     BK_INSTR_Exit                43
