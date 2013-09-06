@@ -25,13 +25,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "BKByteBuffer.h"
+
 #define FILE_READ_BUFFER 0x4000
 
 struct BKByteBufferFileSource
 {
 	BKByteBufferSourceReadHandle    read;
 	BKByteBufferSourceDestroyHandle destroy;
-	int                                fildes;
+	int                             fildes;
 };
 
 static BKSize BKByteBufferFileSourceRead (BKByteBuffer * buffer, struct BKByteBufferFileSource * source)
