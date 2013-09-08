@@ -20,6 +20,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/**
+ * Created with Instructions/Generate.pl
+ * Run script to recreate the header and source file
+ */
+
 #ifndef _BK_INSTRUCTION_H_
 #define _BK_INSTRUCTION_H_
 

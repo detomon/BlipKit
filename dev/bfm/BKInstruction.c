@@ -1,3 +1,8 @@
+/**
+ * Created with Instructions/Generate.pl
+ * Run script to recreate the header and source file
+ */
+
 #include "BKInstruction.h"
 
 #define BK_INSTRUCTIONS_COUNT 24
