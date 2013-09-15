@@ -105,6 +105,7 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #define BKMax(a, b) ((a) > (b) ? (a) : (b))
 #define BKClamp(a, l, h) ((a) < (l) ? (l) : ((a) > (h) ? (h) : (a)))
 #define BKAbs(a) ((a) < 0 ? -(a) : (a))
+#define BKCmp(a, b) ((a) < (b) ? -1 : ((a) > (b) ? 1 : 0))
 
 /**
  * Enum type

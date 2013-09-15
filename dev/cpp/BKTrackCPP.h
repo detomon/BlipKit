@@ -56,6 +56,9 @@ public:
 	BKInt setPtr (BKEnum attr, void * ptr) { return BKTrackSetPtr (& track, attr, ptr); }
 	BKInt getPtr (BKEnum attr, void * outPtr) const { return BKTrackGetPtr (& track, attr, outPtr); }
 
+	BKInt setEffect (BKEnum effect, void const * ptr, BKUInt size) { return BKTrackSetEffect (& track, effect, ptr, size); }
+	BKInt getEffect (BKEnum effect, void * outValues, BKUInt size) const { return BKTrackGetEffect (& track, effect, outValues, size); }
+
 };
 
 #endif /* ! _BK_TRACK_CPP_H_ */

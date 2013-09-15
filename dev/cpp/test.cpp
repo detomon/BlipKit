@@ -44,6 +44,11 @@ int main (int argc, char const * argv [])
 	track.setAttr(BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
 	track.setAttr(BK_VOLUME, BK_MAX_VOLUME);
 
+	BKInt tremolo [2] = {24, 0.5 * BK_MAX_VOLUME};
+
+	track.setEffect(BK_EFFECT_TREMOLO, tremolo, sizeof (tremolo));
+	track.getEffect(BK_EFFECT_TREMOLO, tremolo, sizeof (tremolo));
+
 	return 0;
 }
 
