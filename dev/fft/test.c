@@ -31,7 +31,7 @@ int main (int argc, char const * argv [])
 		BKComplexComp m = sqrt (real * real + imag * imag);
 		BKComplexComp p = atan2 (imag, real);
 
-		printf ("%4d %lf %lf\n", i, real, imag);
+		printf ("%4d % lf % lf\n", i, real, imag);
 	}
 
 	BKFFTDispose (fft);

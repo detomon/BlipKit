@@ -52,7 +52,7 @@ typedef double BKComplexComp;
 #define BKComplexMult(a, b) ((a) * (b))
 #define BKComplexDiv(a, b) ((a) / (b))
 
-typedef double complex BKComplex; 
+typedef double complex BKComplex;
 
 /**
  * Define fallback macros
@@ -72,7 +72,7 @@ typedef double complex BKComplex;
 typedef struct {
 	BKComplexComp real;
 	BKComplexComp imag;
-} BKComplex;  
+} BKComplex;
 
 #endif
 

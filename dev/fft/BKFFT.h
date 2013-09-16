@@ -28,7 +28,7 @@
 #include "BKBase.h"
 #include "BKComplex.h"
 
-typedef enum 
+typedef enum
 {
 	BKFFTTransformOptionNormalized = 1 << 0,
 	BKFFTTransformOptionInvert     = 1 << 1,

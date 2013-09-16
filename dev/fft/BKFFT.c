@@ -24,22 +24,22 @@ static BKUSize BKFFTLog2 (BKSize value)
  */
 static void BKFFTBitRevMapMake (BKInt indices [], BKUSize numIndices)
 {
-    BKUInt  rev = 0, mask;
-    BKUInt halfLen = (BKUInt) numIndices / 2;
+	BKUInt  rev = 0, mask;
+	BKUInt halfLen = (BKUInt) numIndices / 2;
 
     for (BKSize i = 0; i < numIndices - 1; i ++) {
-    	indices [i] = rev;
-    	mask = halfLen;
+		indices [i] = rev;
+		mask = halfLen;
 
-    	while (rev >= mask) {
-    		rev -= mask;
-    		mask >>= 1;
-    	}
+		while (rev >= mask) {
+			rev -= mask;
+			mask >>= 1;
+		}
 
-    	rev += mask;
-    }
+		rev += mask;
+	}
 
-    indices [numIndices - 1] = (BKUInt) numIndices - 1;
+	indices [numIndices - 1] = (BKUInt) numIndices - 1;
 }
 
 /**
@@ -69,11 +69,11 @@ static void BKFFTSortBitReversed (BKComplex points [], BKUSize numPoints, BKInt 
 {
 	BKInt ri;
 	BKComplex x;
-	
+
 	for (BKInt i = 0; i < numPoints; i ++) {
 		ri = bitRevMap [i];
 		x  = points [i];
-		
+
 		if (ri > i) {
 			points [i]  = points [ri];
 			points [ri] = x;
@@ -103,7 +103,7 @@ static void BKFFTMultiplyParts (BKComplex points [], BKUSize numPoints, BKComple
 static void BKFFTInvertImaginarySign (BKComplex points [], BKUSize numPoints)
 {
 	BKComplex x;
-	
+
 	for (BKInt i = 0; i < numPoints; i ++) {
 		x = points [i];
 		x = BKComplexMake (BKComplexReal (x), -BKComplexImag (x));
@@ -138,7 +138,7 @@ static void BKFFTPolarToRectangular (BKComplex points [], BKUSize numPoints)
 	BKComplex x;
 	BKComplexComp real, magnitude;
 	BKComplexComp imag, phase;
-	
+
 	for (BKInt i = 0; i < numPoints; i ++) {
 		x          = points [i];
 		magnitude  = BKComplexReal (x);
@@ -185,7 +185,7 @@ BKFFT * BKFFTCreate (BKUSize numSamples)
 
 	if (fft) {
 		memset (fft, 0, size);
-		
+
 		fft -> numSamples = numSamples;
 		fft -> numBits    = numBits;
 		fft -> input      = (void *) & fft [1];
@@ -251,7 +251,7 @@ static void BKFFTTransformForward (BKComplex points [], BKUSize numBits, BKCompl
 	BKInt waveStep;
 	BKInt wi = 0;
 	BKComplex u, t;
-	
+
 	for (BKInt l = 1; l <= numBits; l ++) {
 		step     = (1 << l);
 		halfStep = step / 2;
@@ -280,7 +280,7 @@ static void BKFFTTransformForward (BKComplex points [], BKUSize numBits, BKCompl
 
 
 BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options)
-{	
+{
 	if (options & BKFFTTransformOptionInvert) {
 		if (options & BKFFTTransformOptionPolar)
 			BKFFTPolarToRectangular (fft -> output, fft -> numSamples);
@@ -293,7 +293,7 @@ BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options)
 
 	if (options & BKFFTTransformOptionNormalized) {
 		BKComplexComp factor = 1.0 / fft -> numSamples;
-		
+
 		if (options & BKFFTTransformOptionInvert)
 			factor = fft -> numSamples;
 
