@@ -28,7 +28,7 @@
  * Use built-in complex type by default
  */
 #ifndef BK_USE_COMPLEX
-#define BK_USE_COMPLEX 1
+#define BK_USE_COMPLEX 0
 #endif
 
 /**
@@ -64,10 +64,10 @@ typedef double complex BKComplex;
 #define BKComplexImag(a) ((a).imag)
 #define BKComplexAdd(a, b) ((BKComplex) {((a).real + (b).real), (b).real + (b).real})
 #define BKComplexSub(a, b) ((BKComplex) {((a).real - (b).real), (b).real - (b).real})
-#define BKComplexMult(a, b) ((BKComplex) {((a).real * (b).real - (a).imag * (b).imag), \
+#define BKComplexMult(a, b) ((BKComplex) {((a).real * (b).real + (a).imag * -(b).imag), \
                                        ((a).real * (b).imag + (a).imag * (b).real)})
-#define BKComplexDiv(a, b) ((a) / (b))
-#error Define BKComplexDiv!
+#define BKComplexDiv(a, b) ((BKComplex) {((a).real * (b).real + (a).imag * (b).imag), \
+                                       ((a).real * -(b).imag + (a).imag * (b).real)})
 
 typedef struct {
 	BKComplexComp real;
