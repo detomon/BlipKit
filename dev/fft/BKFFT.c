@@ -291,7 +291,7 @@ BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options)
 
 	BKFFTTransformForward (fft -> output, fft -> numBits, fft -> unitWave);
 
-	if (options & BKFFTTransformOptionNormalize) {
+	if (options & BKFFTTransformOptionNormalized) {
 		BKComplexComp factor = 1.0 / fft -> numSamples;
 		
 		if (options & BKFFTTransformOptionInvert)

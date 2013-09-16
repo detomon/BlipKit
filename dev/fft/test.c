@@ -20,7 +20,7 @@ int main (int argc, char const * argv [])
 
 	BKFFTSamplesPush (fft, x, n);
 
-	BKFFTTransform (fft, BKFFTTransformOptionNormalize);
+	BKFFTTransform (fft, BKFFTTransformOptionNormalized);
 
 	for (BKInt i = 0; i < fft -> numSamples; i ++) {
 		BKComplex x = fft -> output [i];

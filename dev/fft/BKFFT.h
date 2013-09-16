@@ -30,9 +30,9 @@
 
 typedef enum 
 {
-	BKFFTTransformOptionNormalize = 1 << 0,
-	BKFFTTransformOptionInvert    = 1 << 1,
-	BKFFTTransformOptionPolar     = 1 << 2,
+	BKFFTTransformOptionNormalized = 1 << 0,
+	BKFFTTransformOptionInvert     = 1 << 1,
+	BKFFTTransformOptionPolar      = 1 << 2,
 } BKFFTTransformOption;
 
 /**
@@ -76,7 +76,7 @@ extern BKInt BKFFTSamplesPush (BKFFT * fft, BKComplexComp const samples [], BKUS
  * If option `BKFFTTransformOptionInvert` is set the points in the output buffer
  * are transformed back to the input samples.
  *
- * If option `BKFFTTransformOptionNormalize` is set the data in the output
+ * If option `BKFFTTransformOptionNormalized` is set the data in the output
  * buffer is normalized after transformation: X[i] = X[i] / N. In combination
  * with `BKFFTTransformOptionInvert` the points in the output buffer are
  * expected to be normalized already.
