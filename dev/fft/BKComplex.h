@@ -97,8 +97,8 @@ static inline BKComplex BKComplexMult (BKComplex a, BKComplex b)
 static inline BKComplex BKComplexDiv (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
-		a.real *  b.real + a.imag * b.imag,
-		a.real * -b.imag + a.imag * b.real
+		(a.real * b.real + a.imag * b.imag) / (b.real * b.real + b.imag * b.imag),
+		(a.imag * b.real - a.real * b.imag) / (b.real * b.real + b.imag * b.imag)
 	};
 }
 
