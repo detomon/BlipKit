@@ -91,8 +91,10 @@ static void BKComplexListScale (BKComplex points [], BKUSize numPoints, BKComple
 
 	for (BKInt i = 0; i < numPoints; i ++) {
 		x = points [i];
-		x = BKComplexMake (BKComplexReal (x) * factor, BKComplexImag (x) * factor);
-		points [i] = x;
+		points [i] = BKComplexMake (
+			BKComplexReal (x) * factor,
+			BKComplexImag (x) * factor
+		);
 	}
 }
 
@@ -102,12 +104,8 @@ static void BKComplexListScale (BKComplex points [], BKUSize numPoints, BKComple
  */
 static void BKComplexListConj (BKComplex points [], BKUSize numPoints)
 {
-	BKComplex x;
-
 	for (BKInt i = 0; i < numPoints; i ++) {
-		x = points [i];
-		x = BKComplexMake (BKComplexReal (x), -BKComplexImag (x));
-		points [i] = x;
+		points [i] = BKComplexConj (points [i]);
 	}
 }
 
@@ -117,16 +115,17 @@ static void BKComplexListConj (BKComplex points [], BKUSize numPoints)
 static void BKComplexListToPolar (BKComplex points [], BKUSize numPoints)
 {
 	BKComplex x;
-	BKComplexComp real, magnitude;
-	BKComplexComp imag, phase;
+	BKComplexComp real, imag;
 
 	for (BKInt i = 0; i < numPoints; i ++) {
-		x          = points [i];
-		real       = BKComplexReal (x);
-		imag       = BKComplexImag (x);
-		magnitude  = sqrt (real * real + imag * imag);
-		phase      = atan2 (imag, real);
-		points [i] = BKComplexMake (magnitude, phase);
+		x    = points [i];
+		real = BKComplexReal (x);
+		imag = BKComplexImag (x);
+
+		points [i] = BKComplexMake (
+			hypot (real, imag),
+			atan2 (imag, real)
+		);
 	}
 }
 
@@ -136,16 +135,17 @@ static void BKComplexListToPolar (BKComplex points [], BKUSize numPoints)
 static void BKComplexListToRectangular (BKComplex points [], BKUSize numPoints)
 {
 	BKComplex x;
-	BKComplexComp real, magnitude;
-	BKComplexComp imag, phase;
+	BKComplexComp mag, phase;
 
 	for (BKInt i = 0; i < numPoints; i ++) {
-		x          = points [i];
-		magnitude  = BKComplexReal (x);
-		phase      = BKComplexImag (x);
-		real       = cos (phase) * magnitude;
-		imag       = sin (phase) * magnitude;
-		points [i] = BKComplexMake (real, imag);
+		x     = points [i];
+		mag   = BKComplexReal (x);
+		phase = BKComplexImag (x);
+
+		points [i] = BKComplexMake (
+			cos (phase) * mag,
+			sin (phase) * mag
+		);
 	}
 }
 
@@ -154,11 +154,8 @@ static void BKComplexListToRectangular (BKComplex points [], BKUSize numPoints)
  */
 static void BKComplexListCopyReal (BKComplexComp real [], BKComplex const points [], BKUSize numPoints)
 {
-	BKComplex x;
-
 	for (BKInt i = 0; i < numPoints; i ++) {
-		x = points [i];
-		real [i] = BKComplexReal (x);
+		real [i] = BKComplexReal (points [i]);
 	}
 }
 
@@ -270,7 +267,7 @@ static void BKFFTTransformForward (BKComplex points [], BKUSize numBits, BKCompl
 
 				t = BKComplexMult (points [i + halfStep], u);
 				points [i + halfStep] = BKComplexSub (points [i], t);
-				points [i]  = BKComplexAdd (points [i], t);
+				points [i] = BKComplexAdd (points [i], t);
 			}
 
 			wi += waveStep;
