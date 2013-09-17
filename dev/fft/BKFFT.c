@@ -4,7 +4,7 @@
  * Returns the next higher power of 2
  * which is the same as ceil(log2(value))
  */
-static BKUSize BKFFTLog2 (BKSize value)
+static BKUSize BKLog2 (BKSize value)
 {
 	BKUSize shift = 0;
 
@@ -85,7 +85,7 @@ static void BKFFTSortBitReversed (BKComplex points [], BKUSize numPoints, BKInt 
  * Multiply complex parts of every point in `points` with length `numPoints` by
  * `factor`
  */
-static void BKFFTMultiplyParts (BKComplex points [], BKUSize numPoints, BKComplexComp factor)
+static void BKComplexListScale (BKComplex points [], BKUSize numPoints, BKComplexComp factor)
 {
 	BKComplex x;
 
@@ -100,7 +100,7 @@ static void BKFFTMultiplyParts (BKComplex points [], BKUSize numPoints, BKComple
  * Invert the sign of the imaginary part of every point of `points` with length
  * `numPoints`
  */
-static void BKFFTInvertImaginarySign (BKComplex points [], BKUSize numPoints)
+static void BKComplexListConj (BKComplex points [], BKUSize numPoints)
 {
 	BKComplex x;
 
@@ -114,7 +114,7 @@ static void BKFFTInvertImaginarySign (BKComplex points [], BKUSize numPoints)
 /**
  * Convert `points` with length `numPoints` to their polar representation
  */
-static void BKFFTRectangularToPolar (BKComplex points [], BKUSize numPoints)
+static void BKComplexListToPolar (BKComplex points [], BKUSize numPoints)
 {
 	BKComplex x;
 	BKComplexComp real, magnitude;
@@ -133,7 +133,7 @@ static void BKFFTRectangularToPolar (BKComplex points [], BKUSize numPoints)
 /**
  * Convert `points` with length `numPoints` to their rectangular representation
  */
-static void BKFFTPolarToRectangular (BKComplex points [], BKUSize numPoints)
+static void BKComplexListToRectangular (BKComplex points [], BKUSize numPoints)
 {
 	BKComplex x;
 	BKComplexComp real, magnitude;
@@ -152,7 +152,7 @@ static void BKFFTPolarToRectangular (BKComplex points [], BKUSize numPoints)
 /**
  * Copy real part of `points` with length `numPoints` to `real`
  */
-static void BKFFTCopyReal (BKComplexComp real [], BKComplex const points [], BKUSize numPoints)
+static void BKComplexListCopyReal (BKComplexComp real [], BKComplex const points [], BKUSize numPoints)
 {
 	BKComplex x;
 
@@ -169,7 +169,7 @@ BKFFT * BKFFTCreate (BKUSize numSamples)
 	BKUSize numBits;
 
 	numSamples = BKMax (1, numSamples);
-	numBits    = BKFFTLog2 (numSamples);
+	numBits    = BKLog2 (numSamples);
 	numSamples = (1 << numBits);  // set rounded up value
 
 	// allocate all arrays at once
@@ -283,10 +283,10 @@ BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options)
 {
 	if (options & BKFFTTransformOptionInvert) {
 		if (options & BKFFTTransformOptionPolar)
-			BKFFTPolarToRectangular (fft -> output, fft -> numSamples);
+			BKComplexListToRectangular (fft -> output, fft -> numSamples);
 
 		BKFFTSortBitReversed (fft -> output, fft -> numSamples, fft -> bitRevMap);
-		BKFFTInvertImaginarySign (fft -> output, fft -> numSamples);
+		BKComplexListConj (fft -> output, fft -> numSamples);
 	}
 
 	BKFFTTransformForward (fft -> output, fft -> numBits, fft -> unitWave);
@@ -297,15 +297,15 @@ BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options)
 		if (options & BKFFTTransformOptionInvert)
 			factor = fft -> numSamples;
 
-		BKFFTMultiplyParts (fft -> output, fft -> numSamples, factor);
+		BKComplexListScale (fft -> output, fft -> numSamples, factor);
 	}
 
 	if (options & BKFFTTransformOptionInvert) {
-		BKFFTMultiplyParts (fft -> output, fft -> numSamples, 1.0 / fft -> numSamples);
-		BKFFTCopyReal (fft -> input, fft -> output, fft -> numSamples);
+		BKComplexListScale (fft -> output, fft -> numSamples, 1.0 / fft -> numSamples);
+		BKComplexListCopyReal (fft -> input, fft -> output, fft -> numSamples);
 	}
 	else if (options & BKFFTTransformOptionPolar) {
-		BKFFTRectangularToPolar (fft -> output, fft -> numSamples);
+		BKComplexListToPolar (fft -> output, fft -> numSamples);
 	}
 
 	return 0;
