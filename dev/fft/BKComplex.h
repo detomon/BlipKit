@@ -92,6 +92,17 @@ static inline BKComplex BKComplexMult (BKComplex a, BKComplex b)
 }
 
 /**
+ * Multiply `a` by inverse of `b` (a * 1 / b)
+ */
+static inline BKComplex BKComplexMultInverse (BKComplex a, BKComplex b)
+{
+	return (BKComplex) {
+		a.real *  b.real + a.imag * b.imag,
+		a.real * -b.imag + a.imag * b.real
+	};
+}
+
+/**
  * Divide two complex numbers
  */
 static inline BKComplex BKComplexDiv (BKComplex a, BKComplex b)
@@ -100,6 +111,14 @@ static inline BKComplex BKComplexDiv (BKComplex a, BKComplex b)
 		(a.real * b.real + a.imag * b.imag) / (b.real * b.real + b.imag * b.imag),
 		(a.imag * b.real - a.real * b.imag) / (b.real * b.real + b.imag * b.imag)
 	};
+}
+
+/**
+ * Conjugate complex number
+ */
+static inline BKComplex BKComplexConj (BKComplex a)
+{
+	return (BKComplex) {a.real, -a.imag};
 }
 
 #endif /* ! _BK_COMPLEX_H_ */
