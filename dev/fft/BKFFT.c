@@ -115,16 +115,16 @@ static void BKComplexListConj (BKComplex points [], BKUSize numPoints)
 static void BKComplexListToPolar (BKComplex points [], BKUSize numPoints)
 {
 	BKComplex x;
-	BKComplexComp real, imag;
+	BKComplexComp re, im;
 
 	for (BKInt i = 0; i < numPoints; i ++) {
-		x    = points [i];
-		real = BKComplexReal (x);
-		imag = BKComplexImag (x);
+		x  = points [i];
+		re = BKComplexReal (x);
+		im = BKComplexImag (x);
 
 		points [i] = BKComplexMake (
-			hypot (real, imag),
-			atan2 (imag, real)
+			hypot (re, im),
+			atan2 (im, re)
 		);
 	}
 }
@@ -135,27 +135,27 @@ static void BKComplexListToPolar (BKComplex points [], BKUSize numPoints)
 static void BKComplexListToRectangular (BKComplex points [], BKUSize numPoints)
 {
 	BKComplex x;
-	BKComplexComp mag, phase;
+	BKComplexComp mag, ph;
 
 	for (BKInt i = 0; i < numPoints; i ++) {
-		x     = points [i];
-		mag   = BKComplexReal (x);
-		phase = BKComplexImag (x);
+		x   = points [i];
+		mag = BKComplexReal (x);
+		ph  = BKComplexImag (x);
 
 		points [i] = BKComplexMake (
-			cos (phase) * mag,
-			sin (phase) * mag
+			cos (ph) * mag,
+			sin (ph) * mag
 		);
 	}
 }
 
 /**
- * Copy real part of `points` with length `numPoints` to `real`
+ * Copy real part of `points` with length `numPoints` to `re`
  */
-static void BKComplexListCopyReal (BKComplexComp real [], BKComplex const points [], BKUSize numPoints)
+static void BKComplexListCopyReal (BKComplexComp re [], BKComplex const points [], BKUSize numPoints)
 {
 	for (BKInt i = 0; i < numPoints; i ++) {
-		real [i] = BKComplexReal (points [i]);
+		re [i] = BKComplexReal (points [i]);
 	}
 }
 

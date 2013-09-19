@@ -29,17 +29,20 @@
  */
 typedef double BKComplexComp;
 
+/**
+ * The complex type
+ */
 typedef struct {
-	BKComplexComp real;
-	BKComplexComp imag;
+	BKComplexComp re;
+	BKComplexComp im;
 } BKComplex;
 
 /**
  * Make complex number with real and imaginary part
  */
-static inline BKComplex BKComplexMake (BKComplexComp real, BKComplexComp imag)
+static inline BKComplex BKComplexMake (BKComplexComp re, BKComplexComp im)
 {
-	return (BKComplex) {real, imag};
+	return (BKComplex) {re, im};
 }
 
 /**
@@ -47,7 +50,7 @@ static inline BKComplex BKComplexMake (BKComplexComp real, BKComplexComp imag)
  */
 static inline BKComplexComp BKComplexReal (BKComplex c)
 {
-	return c.real;
+	return c.re;
 }
 
 /**
@@ -55,7 +58,7 @@ static inline BKComplexComp BKComplexReal (BKComplex c)
  */
 static inline BKComplexComp BKComplexImag (BKComplex c)
 {
-	return c.imag;
+	return c.im;
 }
 
 /**
@@ -64,8 +67,8 @@ static inline BKComplexComp BKComplexImag (BKComplex c)
 static inline BKComplex BKComplexAdd (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
-		a.real + b.real,
-		a.imag + b.imag
+		a.re + b.re,
+		a.im + b.im
 	};
 }
 
@@ -75,8 +78,8 @@ static inline BKComplex BKComplexAdd (BKComplex a, BKComplex b)
 static inline BKComplex BKComplexSub (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
-		a.real - b.real,
-		a.imag - b.imag
+		a.re - b.re,
+		a.im - b.im
 	};
 }
 
@@ -86,8 +89,8 @@ static inline BKComplex BKComplexSub (BKComplex a, BKComplex b)
 static inline BKComplex BKComplexMult (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
-		a.real * b.real + a.imag * -b.imag,
-		a.real * b.imag + a.imag *  b.real
+		a.re * b.re + a.im * -b.im,
+		a.re * b.im + a.im *  b.re
 	};
 }
 
@@ -97,8 +100,8 @@ static inline BKComplex BKComplexMult (BKComplex a, BKComplex b)
 static inline BKComplex BKComplexMultInverse (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
-		a.real *  b.real + a.imag * b.imag,
-		a.real * -b.imag + a.imag * b.real
+		a.re *  b.re + a.im * b.im,
+		a.re * -b.im + a.im * b.re
 	};
 }
 
@@ -108,8 +111,8 @@ static inline BKComplex BKComplexMultInverse (BKComplex a, BKComplex b)
 static inline BKComplex BKComplexDiv (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
-		(a.real * b.real + a.imag * b.imag) / (b.real * b.real + b.imag * b.imag),
-		(a.imag * b.real - a.real * b.imag) / (b.real * b.real + b.imag * b.imag)
+		(a.re * b.re + a.im * b.im) / (b.re * b.re + b.im * b.im),
+		(a.im * b.re - a.re * b.im) / (b.re * b.re + b.im * b.im)
 	};
 }
 
@@ -118,7 +121,7 @@ static inline BKComplex BKComplexDiv (BKComplex a, BKComplex b)
  */
 static inline BKComplex BKComplexConj (BKComplex a)
 {
-	return (BKComplex) {a.real, -a.imag};
+	return (BKComplex) {a.re, -a.im};
 }
 
 #endif /* ! _BK_COMPLEX_H_ */
