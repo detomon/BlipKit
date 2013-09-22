@@ -203,7 +203,7 @@ void BKFFTDispose (BKFFT * fft)
 		free (fft);
 }
 
-BKInt BKFFTSamplesPush (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples)
+BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples, BKFFTLoadingOption options)
 {
 	BKComplex x;
 	BKInt     bi;
@@ -214,8 +214,14 @@ BKInt BKFFTSamplesPush (BKFFT * fft, BKComplexComp const samples [], BKUSize num
 
 	tailSize = fft -> numSamples - numSamples;
 
-	memmove (& fft -> input [0], & fft -> input [numSamples], moveSize * sizeof (BKComplexComp));
-	memcpy (& fft -> input [moveSize], samples, numSamples * sizeof (BKComplexComp));
+	if (options & BKFFTLoadingOptionShift) {
+		memmove (& fft -> input [0], & fft -> input [numSamples], tailSize * sizeof (BKComplexComp));
+		memcpy (& fft -> input [tailSize], samples, numSamples * sizeof (BKComplexComp));
+	}
+	else {
+		memcpy (& fft -> input [0], samples, numSamples * sizeof (BKComplexComp));
+		memset (& fft -> input [tailSize], 0, tailSize * sizeof (BKComplexComp));
+	}
 
 	// remap samples to decomposed bit reversed index
 	for (BKSize i = 0; i < fft -> numSamples; i ++) {

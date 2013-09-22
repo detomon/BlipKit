@@ -35,6 +35,11 @@ typedef enum
 	BKFFTTransformOptionPolar      = 1 << 2,
 } BKFFTTransformOption;
 
+typedef enum
+{
+	BKFFTLoadingOptionShift = 1 << 0,
+} BKFFTLoadingOption;
+
 /**
  * The FFT object
  */
@@ -62,13 +67,15 @@ extern BKFFT * BKFFTCreate (BKUSize numSamples);
 extern void BKFFTDispose (BKFFT * fft);
 
 /**
- * Append new samples
+ * Load new samples
  *
- * Shift previous samples to the left and append new `samples` with length
- * `numSamples` at the end. If `numSamples` is greater than the initial buffer
- * capacity -1 is returned. On succes 0 is returned.
+ * Replace input samples with `samples` with length `numSamples`. If less
+ * samples than the available capacity is given the rest is filled with 0.
+ * If too many samples are given they are truncated.
+ * If option `BKFFTLoadingOptionShift` is set the old samples are shifted to the
+ * left and the new samples are appended.
  */
-extern BKInt BKFFTSamplesPush (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples);
+extern BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples, BKFFTLoadingOption options);
 
 /**
  * Transform input samples to output buffer `fft -> output`
