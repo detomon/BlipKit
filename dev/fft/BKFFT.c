@@ -24,7 +24,7 @@ static BKUSize BKLog2 (BKSize value)
  */
 static void BKFFTBitRevMapMake (BKInt indices [], BKUSize numIndices)
 {
-	BKUInt  rev = 0, mask;
+	BKUInt rev = 0, mask;
 	BKUInt halfLen = (BKUInt) numIndices / 2;
 
     for (BKSize i = 0; i < numIndices - 1; i ++) {
@@ -72,9 +72,9 @@ static void BKFFTSortBitReversed (BKComplex points [], BKUSize numPoints, BKInt 
 
 	for (BKInt i = 0; i < numPoints; i ++) {
 		ri = bitRevMap [i];
-		x  = points [i];
 
 		if (ri > i) {
+			x           = points [i];
 			points [i]  = points [ri];
 			points [ri] = x;
 		}
@@ -206,13 +206,13 @@ void BKFFTDispose (BKFFT * fft)
 BKInt BKFFTSamplesPush (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples)
 {
 	BKComplex x;
-	BKInt    bi;
-	BKUSize  moveSize;
+	BKInt     bi;
+	BKUSize   tailSize;
 
 	if (numSamples > fft -> numSamples)
-		return -1;
+		numSamples = fft -> numSamples;
 
-	moveSize = fft -> numSamples - numSamples;
+	tailSize = fft -> numSamples - numSamples;
 
 	memmove (& fft -> input [0], & fft -> input [numSamples], moveSize * sizeof (BKComplexComp));
 	memcpy (& fft -> input [moveSize], samples, numSamples * sizeof (BKComplexComp));
@@ -274,7 +274,6 @@ static void BKFFTTransformForward (BKComplex points [], BKUSize numBits, BKCompl
 		}
 	}
 }
-
 
 BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options)
 {

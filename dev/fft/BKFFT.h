@@ -40,7 +40,7 @@ typedef enum
  */
 typedef struct
 {
-	BKUSize         numSamples; // buffer capacity
+	BKUSize         numSamples; // number of samples
 	BKUSize         numBits;    // convenient access to log2(numSamples)
 	BKComplexComp * input;      // len: numSamples
 	BKComplex     * output;     // len: numSamples
