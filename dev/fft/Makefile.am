@@ -1,7 +1,7 @@
 AM_CFLAGS = @BK_STD_CFLAGS@ -I$(srcdir)/../../src -L$(srcdir)/../../src
 
-EXTRA_PROGRAMS = test
+EXTRA_PROGRAMS = BKFFTTest
 
-test_SOURCES = \
+BKFFTTest_SOURCES = \
 	BKFFT.c \
-	test.c
+	BKFFTTest.c
