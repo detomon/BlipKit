@@ -35,6 +35,7 @@ AC_CONFIG_FILES([
  examples/Makefile
  dev/bliplay/Makefile
  dev/fft/Makefile
+ dev/step_phases/Makefile
 ])
 
 # Flags
