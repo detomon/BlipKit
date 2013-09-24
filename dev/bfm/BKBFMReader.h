@@ -33,51 +33,6 @@ typedef struct BKBFMToken  BKBFMToken;
 /**
  *
  */
- /*
-enum BKBFMTokenType
-{
-	BKBFMTokenTypeEnd        = 0x00,
-	BKBFMTokenTypeGroupBegin = 0x01,
-	BKBFMTokenTypeGroupEnd   = 0x02,
-	BKBFMTokenTypeInteger    = 0x04,
-	BKBFMTokenTypeString     = 0x06,
-	BKBFMTokenTypeData       = 0x07,
-
-	BKIntrAttack = 0x40,
-	BKIntrArpeggio,
-	BKIntrArpeggioSpeed,
-	BKIntrRelease,
-	BKIntrMute,
-	BKIntrMuteTicks,
-	BKIntrVolume,
-	BKIntrPanning,
-	BKIntrPitch,
-	BKIntrMasterVolume,
-	BKIntrStep,
-	BKIntrEffect,
-	BKIntrDutyCycle,
-	BkIntrPhaseWrap,
-	BKIntrInstrument,
-	BKIntrInstrumentGroup,
-	BKIntrWaveform,
-	BKIntrWaveformGroup,
-	BKIntrReturn,
-	BKIntrGroup,
-	BKIntrCall,
-	BKIntrJump,
-	BKIntrEnd,
-	BKIntrStepTicks,
-
-	BKIntrTrackGroup,
-	BKIntrSequenceVolume,
-	BKIntrSequencePanning,
-	BKIntrSequenceArpeggio,
-	BKIntrSequenceDutyCycle,
-};
-*/
-/**
- *
- */
 struct BKBFMReader
 {
 	BKUInt       flags;
