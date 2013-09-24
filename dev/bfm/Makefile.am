@@ -4,7 +4,8 @@ pkginclude_HEADERS = \
 	BKBFMReader.h \
 	BKBFMWriter.h \
 	BKByteBuffer.h \
-	BKByteBufferSource.h
+	BKByteBufferSource.h \
+	BKInstruction.h
 
 EXTRA_LIBRARIES = libblipkitbfm.a
 
@@ -12,7 +13,8 @@ libblipkitbfm_a_SOURCES = \
 	BKBFMReader.c \
 	BKBFMWriter.c \
 	BKByteBuffer.c \
-	BKByteBufferSource.c
+	BKByteBufferSource.c \
+	BKInstruction.c
 
 EXTRA_PROGRAMS = blipbfmtest
 

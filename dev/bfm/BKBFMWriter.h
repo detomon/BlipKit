@@ -21,6 +21,9 @@
  * IN THE SOFTWARE.
  */
 
+#ifndef _BK_BFM_WRITER_BUFFER_H_
+#define _BK_BFM_WRITER_BUFFER_H_
+
 #include "BKBFMReader.h"
 
 typedef struct BKBFMWriter BKBFMWriter;
@@ -56,3 +59,5 @@ extern void BKBFMWriterDispose (BKBFMWriter * writer);
  *
  */
 extern BKInt BKBFMWriterPutToken (BKBFMWriter * writer, BKBFMToken const * inToken);
+
+#endif /* ! _BK_BFM_WRITER_BUFFER_H_ */

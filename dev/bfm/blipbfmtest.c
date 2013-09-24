@@ -50,40 +50,46 @@ int main (int argc, const char * argv [])
 
 	BKBFMWriterInit (& writer, BKWriterFormatBinary);
 
-	token.type = BKBFMTokenTypeGroupBegin;
+	token.type = BK_INSTR_GroupBegin;
 	BKBFMWriterPutToken (& writer, & token);
 
-	token.type = BKIntrWaveformGroup;
-	BKBFMWriterPutToken (& writer, & token);
-
-	token.type = BKIntrSequenceVolume;
-	BKBFMWriterPutToken (& writer, & token);
-
-	for (int i = 0; i < 16; i ++) {
-		token.type = BKBFMTokenTypeInteger;
-		token.ival = i;
+		token.type = BK_INSTR_WaveformGroup;
 		BKBFMWriterPutToken (& writer, & token);
-	}
 
-	token.type = BKBFMTokenTypeGroupEnd;
-	BKBFMWriterPutToken (& writer, & token);
+			token.type = BK_INSTR_SequenceVolume;
+			BKBFMWriterPutToken (& writer, & token);
 
-	token.type = BKBFMTokenTypeGroupBegin;
-	BKBFMWriterPutToken (& writer, & token);
+			for (int i = 0; i < 16; i ++) {
+				token.type = BK_INSTR_Integer;
+				token.ival = i;
+				BKBFMWriterPutToken (& writer, & token);
+			}
 
-	token.type = BKIntrTrackGroup;
-	BKBFMWriterPutToken (& writer, & token);
+		token.type = BK_INSTR_GroupEnd;
+		BKBFMWriterPutToken (& writer, & token);
 
-	token.type = BKBFMTokenTypeString;
-	token.sval = "square";
-	token.len  = 6;
-	BKBFMWriterPutToken (& writer, & token);
+		token.type = BK_INSTR_WaveformGroup;
+		BKBFMWriterPutToken (& writer, & token);
 
-	token.type = BKBFMTokenTypeGroupEnd;
-	BKBFMWriterPutToken (& writer, & token);
+			token.type = BK_INSTR_GroupBegin;
+			BKBFMWriterPutToken (& writer, & token);
 
+			token.type = BK_INSTR_String;
+			token.sval = "square";
+			token.len  = 6;
+			BKBFMWriterPutToken (& writer, & token);
 
-	token.type = BKBFMTokenTypeEnd;
+			token.type = BK_INSTR_Attack;
+			BKBFMWriterPutToken (& writer, & token);
+
+			token.type = BK_INSTR_Integer;
+			token.ival = 15;
+			BKBFMWriterPutToken (& writer, & token);
+
+		token.type = BK_INSTR_GroupEnd;
+		BKBFMWriterPutToken (& writer, & token);
+
+	token.type = BK_INSTR_End;
 	BKBFMWriterPutToken (& writer, & token);
 
 	printBuffer (& writer.buffer);

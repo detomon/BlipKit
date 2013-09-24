@@ -7,6 +7,7 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CXX
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
@@ -34,6 +35,8 @@ AC_CONFIG_FILES([
  examples/Makefile
  dev/bliplay/Makefile
  dev/bfm/Makefile
+ dev/fft/Makefile
+ dev/step_phases/Makefile
 ])
 
 # Flags

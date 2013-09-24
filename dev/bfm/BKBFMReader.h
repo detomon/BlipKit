@@ -21,7 +21,11 @@
  * IN THE SOFTWARE.
  */
 
+#ifndef _BK_BFM_READER_BUFFER_H_
+#define _BK_BFM_READER_BUFFER_H_
+
 #include "BKByteBuffer.h"
+#include "BKInstruction.h"
 
 typedef struct BKBFMReader BKBFMReader;
 typedef struct BKBFMToken  BKBFMToken;
@@ -29,6 +33,7 @@ typedef struct BKBFMToken  BKBFMToken;
 /**
  *
  */
+ /*
 enum BKBFMTokenType
 {
 	BKBFMTokenTypeEnd        = 0x00,
@@ -69,7 +74,7 @@ enum BKBFMTokenType
 	BKIntrSequenceArpeggio,
 	BKIntrSequenceDutyCycle,
 };
-
+*/
 /**
  *
  */
@@ -107,3 +112,6 @@ extern void BKBFMReaderDispose (BKBFMReader * reader);
  *
  */
 extern BKInt BKBFMReaderNextToken (BKBFMReader * reader, BKBFMToken * outToken);
+
+#endif /* ! _BK_BFM_WRITER_BUFFER_H_ */
+
