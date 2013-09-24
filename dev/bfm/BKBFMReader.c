@@ -23,6 +23,13 @@
 
 #include "BKBFMReader.h"
 
+enum
+{
+	BKBFMReaderFlagMagicRead = 1 << 0,
+	BKBFMReaderFlagBinary    = 1 << 1,
+	BKBFMReaderFlagText      = 1 << 2,
+};
+
 BKInt BKBFMReaderInit (BKBFMReader * reader)
 {
 	memset (reader, 0, sizeof (* reader));
@@ -40,9 +47,67 @@ void BKBFMReaderDispose (BKBFMReader * reader)
 	memset (reader, 0, sizeof (* reader));
 }
 
+static BKInt BKBFMReaderReadVarInt (BKBFMReader * reader)
+{
+	BKInt n = 0;
+	BKInt c = 0;
+
+	do {
+		c = BKByteBufferReadByte (& reader -> buffer);
+		n = (n << 7) | (c & 0x7F);
+	}
+	while (c & 0x80);
+
+	// is negative
+	if (n & 1) {
+		n = -(n >> 1);
+	}
+	else {
+		n >>= 1;
+	}
+
+	return n;
+}
+
+static BKInt BKBFMReaderReadMagic (BKBFMReader * reader)
+{
+	BKSize size;
+	char   magic [14];
+
+	// read magic token
+	size = BKByteBufferReadBytes (& reader -> buffer, magic, sizeof (magic));
+
+	if (size < sizeof (magic))
+		return -1;
+
+	// seek before header
+	BKByteBufferSeek (& reader -> buffer, size, BKByteBufferSeekRestore);
+
+	// format is binary
+	if (memcmp (magic, "\x02\08\06bfm\x08\x08blip\x06\x02", 14) == 0) {
+		reader -> flags |= BKBFMReaderFlagBinary;
+	}
+	// format is text
+	else /*if (memcmp (magic, "[bfm:blip:1;", 12) == 0)*/ {
+		reader -> flags |= BKBFMReaderFlagText;
+	}
+	else {
+		return -1;
+	}
+
+	reader -> flags |= BKBFMReaderFlagMagicRead;
+
+	return 0;
+}
+
 BKInt BKBFMReaderNextToken (BKBFMReader * reader, BKBFMToken * outToken)
 {
+	if ((reader -> flags & BKBFMReaderFlagMagicRead) == 0) {
+		if (BKBFMReaderReadMagic (reader) < 0)
+			return -1;
+	}
+
 	// ...
 
-	return -1;
+	return 0;
 }
