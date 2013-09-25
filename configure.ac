@@ -33,6 +33,7 @@ AC_CONFIG_FILES([
  Makefile
  src/Makefile
  examples/Makefile
+ dev/cpp/Makefile
  dev/bliplay/Makefile
  dev/fft/Makefile
  dev/step_phases/Makefile
