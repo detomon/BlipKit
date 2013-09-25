@@ -91,9 +91,6 @@ static BKInt BKBFMReaderReadMagic (BKBFMReader * reader)
 	else /*if (memcmp (magic, "[bfm:blip:1;", 12) == 0)*/ {
 		reader -> flags |= BKBFMReaderFlagText;
 	}
-	else {
-		return -1;
-	}
 
 	reader -> flags |= BKBFMReaderFlagMagicRead;
 
