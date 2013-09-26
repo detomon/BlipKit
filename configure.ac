@@ -37,6 +37,7 @@ AC_CONFIG_FILES([
  dev/bliplay/Makefile
  dev/fft/Makefile
  dev/step_phases/Makefile
+ dev/tone_periods/Makefile
 ])
 
 # Flags
