@@ -154,14 +154,13 @@ static void BKTrackUpdateUnitNote (BKTrack * track)
 	if (track -> flags & BKVibratoFlag)
 		note += BKIntervalStateGetValue (& track -> vibrato);
 
-	period = BKTonePeriodLookup (note, track -> unit.ctx -> sampleRate) / track -> unit.phase.count;		
-
 	if (track -> waveform != BK_SAMPLE) {
+		period = BKTonePeriodLookup (note, track -> unit.ctx -> sampleRate) / track -> unit.phase.count;
 		BKUnitSetAttr (& track -> unit, BK_PERIOD, period);
 	}
 	else {
-#warning Special case for samples!
-		// ...
+		period = BKLog2PeriodLookup (note);
+		BKUnitSetAttr (& track -> unit, BK_SAMPLE_PERIOD, period);
 	}
 }
 
@@ -897,6 +896,7 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 					if (res != 0)
 						return res;
 					
+					BKUnitGetAttr (& track -> unit, BK_WAVEFORM, & track -> waveform);
 					BKTrackUpdateIgnoreVolume (track);
 					
 					break;

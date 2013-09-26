@@ -347,7 +347,7 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			break;
 		}
 		case BK_SAMPLE_PERIOD: {
-			unit -> sample.period = BKMin (value, BK_MAX_PERIOD);
+			unit -> sample.period = BKClamp (value, BK_MIN_SAMPLE_PERIOD, BK_MAX_SAMPLE_PERIOD);
 			break;
 		}
 		case BK_HALT_SILENT_PHASE: {
