@@ -80,10 +80,8 @@ BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 
 	BKInt note = notes [i];
 
-	if (note >= 0) {
+	if (note >= 0)
 		note *= BK_FINT20_UNIT;
-		note += BK_FINT20_UNIT * 12;
-	}
 				
 	// Set track note
 	if (note != -3)
@@ -111,7 +109,7 @@ int main (int argc, char * argv [])
 	BKTrackInit (& sampleTrack, BK_SQUARE);
 	
 	BKTrackSetAttr (& sampleTrack, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& sampleTrack, BK_VOLUME,        0.5 * BK_MAX_VOLUME);
+	BKTrackSetAttr (& sampleTrack, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 
 	// portamento
 	//BKTrackSetAttr (& sampleTrack, BK_EFFECT_PORTAMENTO, 15);
@@ -120,42 +118,49 @@ int main (int argc, char * argv [])
 	//BKInt const tremolo [2] = {12, 0.66 * BK_MAX_VOLUME};
 	//BKTrackSetPtr (& sampleTrack, BK_EFFECT_TREMOLO, tremolo);
 	
-	//BKInt const vibrato [2] = {30, 1 * BK_FINT20_UNIT};
+	//BKInt const vibrato [2] = {4, 6 * BK_FINT20_UNIT};
 	//BKTrackSetPtr (& sampleTrack, BK_EFFECT_VIBRATO, vibrato);
 
 	BKTrackAttach (& sampleTrack, & ctx);
 
-	BKDataInitAndLoadRawAudio (& sample, "tri_bip_1.raw", 16, 1, BK_LITTLE_ENDIAN);
-	
+	BKDataInitAndLoadRawAudio (& sample, "itemland3.raw", 16, 2, BK_LITTLE_ENDIAN);
+
 	// Normalize frames to maximum amplitude
 	BKDataNormalize (& sample);
-	
+
 	// Set data object as waveform
 	BKTrackSetPtr (& sampleTrack, BK_SAMPLE, & sample);
 	////
 
-	BKTrackSetAttr (& sampleTrack, BK_SAMPLE_REPEAT, -1);
+	//BKTrackSetAttr (& sampleTrack, BK_SAMPLE_REPEAT, 1);
 
 	//// instrument with release sequence
 	BKInstrumentInit (& instrument);
-	
-	#define NUM_SEQUENCE_PHASES 11
-	
-	BKInt const volumeSequence [NUM_SEQUENCE_PHASES] = {
+
+	#define NUM_VOLUME_PHASES 15
+
+	BKInt volumeSequence [NUM_VOLUME_PHASES];/* = {
 		1.0 * BK_MAX_VOLUME,
 		0.9 * BK_MAX_VOLUME, 0.8 * BK_MAX_VOLUME, 0.7 * BK_MAX_VOLUME,
 		0.6 * BK_MAX_VOLUME, 0.5 * BK_MAX_VOLUME, 0.4 * BK_MAX_VOLUME,
 		0.3 * BK_MAX_VOLUME, 0.2 * BK_MAX_VOLUME, 0.1 * BK_MAX_VOLUME,
 		0.0 * BK_MAX_VOLUME,
-	};
+	}*/;
 
-	BKInstrumentSetSequence (& instrument, BK_SEQUENCE_VOLUME, volumeSequence, NUM_SEQUENCE_PHASES, 0, 1);
+	volumeSequence [0] = BK_MAX_VOLUME;
+
+	for (BKInt i = 1; i < NUM_VOLUME_PHASES; i ++)
+		volumeSequence [i] = ((float) BK_MAX_VOLUME / (NUM_VOLUME_PHASES - 1) * (NUM_VOLUME_PHASES - i));
+
+	BKInstrumentSetSequence (& instrument, BK_SEQUENCE_VOLUME, volumeSequence, NUM_VOLUME_PHASES, 0, 1);
 
 	BKTrackSetPtr (& sampleTrack, BK_INSTRUMENT, & instrument);
 
-	BKTrackSetAttr (& sampleTrack, BK_NOTE, BK_C_5 * BK_FINT20_UNIT);
-	BKTrackSetAttr (& sampleTrack, BK_EFFECT_PORTAMENTO, 2000);
-	BKTrackSetAttr (& sampleTrack, BK_NOTE, BK_C_0 * BK_FINT20_UNIT);
+	//BKTrackSetAttr (& sampleTrack, BK_NOTE, BK_A_3 * BK_FINT20_UNIT);
+	//BKInt const arpeggio [] = {6, 0, 0, 4 * BK_FINT20_UNIT, 4 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT};
+	//BKTrackSetPtr (& sampleTrack, BK_ARPEGGIO, arpeggio);
+	//BKTrackSetAttr (& sampleTrack, BK_EFFECT_PORTAMENTO, 2000);
+	//BKTrackSetAttr (& sampleTrack, BK_NOTE, BK_C_0 * BK_FINT20_UNIT);
 
 	// Callback struct used for initializing divider
 	BKCallback callback;
@@ -169,14 +174,14 @@ int main (int argc, char * argv [])
 	// Divide by 4 to get a 4/4 beat
 	// Note that a divider only takes integer values
 	// Certain BPM rates are not possible as integers may be rounded down
-	BKInt dividerValue = (60.0 / 150.0 / 4) * 240;
+	BKInt dividerValue = (60.0 / 120.0 / 4) * 240;
 
 	// Initialize divider with divider value and callback
 	BKDividerInit (& divider, dividerValue, & callback);
 	
 	// Attach the divider to the master clock
 	// When samples are generated the callback is called at the defined interval
-	//BKContextAttachDivider (& ctx, & divider, BK_CLOCK_TYPE_BEAT);
+	BKContextAttachDivider (& ctx, & divider, BK_CLOCK_TYPE_BEAT);
 	
 	SDL_Init (SDL_INIT_AUDIO);
 	
