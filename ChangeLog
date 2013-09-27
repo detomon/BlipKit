@@ -1,3 +1,8 @@
+Changes in BlipKit 0.4:
+
+* Added better sample controlling
+* Removed BK_SAMPLE_REPEAT attribute
+
 Changes in BlipKit 0.3.3:
 
 * Values of tremolo and vibrato effects can now be slided
