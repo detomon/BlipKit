@@ -522,13 +522,18 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 		note = BKClamp (note, BK_MIN_NOTE << BK_FINT20_SHIFT, BK_MAX_NOTE << BK_FINT20_SHIFT);
 
 		BKSlideStateSetValue (& track -> note, note);
-		
+
 		if (track -> curNote == -1) {
 			// halt portamento
 			BKSlideStateHalt (& track -> note, 1);
 
 			if (track -> flags & BKInstrumentFlag)
 				BKTrackInstrumentAttack (track);
+		}
+
+		if (track -> waveform == BK_SAMPLE) {
+			if (track -> curNote == -1 || track -> unit.sample.repeat == 0)
+				BKUnitSetAttr (& track -> unit, BK_PHASE, 0);
 		}
 
 		track -> curNote         = note;
@@ -538,7 +543,7 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 	}
 	else if (note == BK_NOTE_RELEASE) {
 		track -> curNote = -1;
- 
+
 		if (track -> flags & BKInstrumentFlag) {
 			BKTrackInstrumentRelease (track);
 		}

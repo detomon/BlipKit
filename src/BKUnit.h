@@ -143,8 +143,7 @@ extern void BKUnitDetach (BKUnit * unit);
  *   Can eighter be 0 or 1
  *   Default is 0
  * BK_SAMPLE_REPEAT
- *   Repeat sample
- *   Can be a value between 0 and BK_INT_MAX
+ *   Repeat sample if set to 1
  *   Default is 0
  *   Use `BK_SAMPLE_CALLBACK` to have more control
  *   Does nothing if `BK_SAMPLE_CALLBACK` is set

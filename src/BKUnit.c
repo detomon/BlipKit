@@ -108,12 +108,12 @@ static BKInt BKUnitSetData (BKUnit * unit, BKEnum type, BKData * data)
 
 	res = BKUnitTrySetData (unit, data, type, BK_DATA_STATE_EVENT_RESET);
 
-	// unset data when failed
 	if (res == 0) {
 		BKDataStateSetData (& unit -> sample.dataState, data);
 	}
+	// unset data when failed
 	else {
-		BKUnitSetAttr (unit, BK_WAVEFORM, 0);
+		unit -> waveform = 0;
 	}
 
 	return res;
@@ -255,11 +255,11 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 		}
 		case BK_WAVEFORM: {
 			switch (value) {
-				/*case 0: {
+				case 0: {
 					unit -> phase.count = BK_SQUARE_PHASES;
 					unit -> phase.haltSilence = 1;
 					break;
-				}*/
+				}
 				case BK_SQUARE: {
 					unit -> phase.count = BK_SQUARE_PHASES;
 					unit -> phase.haltSilence = 1;
@@ -656,17 +656,13 @@ static BKInt BKUnitResetSample (BKUnit * unit)
 			halt = 1;
 	}
 	// repeat attribute
-	else if (unit -> sample.repeat > 0) {
-		if (unit -> sample.repeat != BK_INT_MAX)
-			unit -> sample.repeat --;
-	}
-	// no repeat
-	else {
+	else if (unit -> sample.repeat <= 0) {
 		halt = 1;
 	}
 
-	if (halt)
-		BKUnitSetPtr (unit, BK_SAMPLE, NULL);
+	if (halt) {
+		unit -> mute = 1;
+	}
 
 	return halt;
 }
@@ -685,6 +681,11 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 	BKData   * data;
 
 	data = unit -> sample.dataState.data;
+
+	// muted
+	if (unit -> mute) {
+		return time;
+	}
 
 	for (time = unit -> time; time < endTime; time += BK_FINT20_UNIT) {
 		BKInt reset = 0;
