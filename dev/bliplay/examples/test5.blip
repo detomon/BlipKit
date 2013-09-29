@@ -39,9 +39,9 @@ g:begin;
 	a:a0;s:2;r;
 	s:2;
 
-	a:h0;s:3;r;
+	a:b0;s:3;r;
 	s:3;
-	a:h0;s:2;r;
+	a:b0;s:2;r;
 	s:2;
 	a:c#0;s:5;r;
 	s:1;
@@ -86,9 +86,9 @@ g:begin;
 	a:a1;s:2;r;
 	s:2;
 
-	a:h1;s:3;r;
+	a:b1;s:3;r;
 	s:3;
-	a:h1;s:2;r;
+	a:b1;s:2;r;
 	s:2;
 	a:c#2;s:1;r;
 	s:1;
