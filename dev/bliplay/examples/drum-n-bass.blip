@@ -215,6 +215,7 @@ t:begin:square;
 	e:vs;
 
 	v:215;
+	e:tr:20:48;
 
 	g:0;
 	g:0;
@@ -225,9 +226,11 @@ t:begin:square;
 	g:0;
 	g:1;
 	v:176;
+	e:tr;
 	e:pr:34;i:3;st:40;g:1;r;st:20;i:0;e:pr:17;
 
 	v:176;
+	e:tr:20:48;
 
 	pt:1200;g:0;pt:0;
 	pt:1200;g:0;pt:0;
