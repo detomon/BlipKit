@@ -1,7 +1,11 @@
 Changes in BlipKit 0.4:
 
 * Added better sample controlling
+* Added BK_SAMPLE_PITCH attribute to data object which can be used to tune samples
+* Added BK_PITCH attribute to track object
 * Fixed bug which did reset waveform phase when the same waveform was set again
+* Updated examples files
+* Bugfix in bliplay program
 
 Changes in BlipKit 0.3.3:
 
