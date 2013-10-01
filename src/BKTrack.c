@@ -570,25 +570,31 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 
 static void BKTrackSetInstrument (BKTrack * track, BKInstrument * instrument)
 {
-	BKInstrumentStateSetInstrument (& track -> instrState, instrument);
-	
-	if (instrument) {
-		track -> flags |= BKInstrumentFlag;
-		track -> instrDivider.counter = 0;
+	if (instrument != track -> instrState.instrument) {
+		BKInstrumentStateSetInstrument (& track -> instrState, instrument);
 
-		BKTrackSetInstrumentInitValues (track);
+		if (instrument) {
+			track -> flags |= BKInstrumentFlag;
+			track -> instrDivider.counter = 0;
 
-		BKTrackInstrumentMute (track);
+			BKTrackSetInstrumentInitValues (track);
+
+			if (track -> curNote == -1) {
+				BKTrackInstrumentMute (track);
+			}
+			else {
+				BKTrackInstrumentAttack (track);
+			}
+		}
+		else {
+			track -> flags &= ~BKInstrumentFlag;
+
+			if (track -> curNote == -1)
+				BKTrackSetNote (track, BK_NOTE_MUTE);
+		}
+
+		BKTrackInstrumentUpdateFlags (track);
 	}
-	else {
-		track -> flags &= ~BKInstrumentFlag;
-		
-		if (track -> curNote == -1)
-			BKTrackSetNote (track, BK_NOTE_MUTE);
-	
-	}
-
-	BKTrackInstrumentUpdateFlags (track);
 }
 
 BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value)
