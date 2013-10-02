@@ -68,21 +68,21 @@ static BKInt BKTrackInstrStateCallback (BKEnum event, BKTrack * track)
 	return 0;
 }
 
-/** 
+/**
  * Decrement state counter
  * If the state counter reaches 0 the counter is reset and 1 is returned
  */
 static BKInt BKDividerStateTick (BKDividerState * dividerState)
 {
 	BKInt tick = 0;
-	
+
 	if (dividerState -> counter == 0) {
 		dividerState -> counter = dividerState -> divider;
 		tick = 1;
 	}
 
 	dividerState -> counter --;
-	
+
 	return tick;
 }
 
@@ -348,7 +348,7 @@ static BKEnum BKTrackTick (BKCallbackInfo * info, BKTrack * track)
 	}
 
 	// 3. Update unit
-	
+
 	BKTrackUpdateUnit (track);
 
 	// 4. Tick effects
@@ -729,7 +729,7 @@ BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
 		case BK_EFFECT_PANNING_SLIDE:
 		case BK_EFFECT_PORTAMENTO: {
 			ret = BKTrackGetPtr (track, attr, values);
-			
+
 			if (ret != 0)
 				return ret;
 
@@ -741,7 +741,7 @@ BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
 			break;
 		}
 	}
-	
+
 	* outValue = value;
 
 	return 0;
@@ -903,13 +903,13 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 				case BK_WAVEFORM:
 				case BK_SAMPLE: {
 					res = BKUnitSetPtr (& track -> unit, attr, ptr);
-					
+
 					if (res != 0)
 						return res;
-					
+
 					BKUnitGetAttr (& track -> unit, BK_WAVEFORM, & track -> waveform);
 					BKTrackUpdateIgnoreVolume (track);
-					
+
 					break;
 				}
 				case BK_INSTRUMENT: {
@@ -936,7 +936,7 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 			break;
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -965,10 +965,10 @@ BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr)
 				}
 				case BK_ARPEGGIO: {
 					BKInt * arpeggio = outPtr;
-					
+
 					arpeggio [0] = track -> arpeggio.count;
 					memcpy (& arpeggio [1], track -> arpeggio.notes, sizeof (BKInt) * track -> arpeggio.count);
-					
+
 					break;
 				}
 				default: {
@@ -980,6 +980,6 @@ BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr)
 			break;
 		}
 	}
-		
+
 	return 0;
 }

@@ -44,7 +44,7 @@ static void BKDataStateAddToData (BKDataState * state, BKData * data)
 		// search for last state in  list
 		for (lastState = data -> stateList; lastState && lastState -> nextState;)
 			lastState = lastState -> nextState;
-		
+
 		// has last state
 		if (lastState) {
 			lastState -> nextState = state;
@@ -72,10 +72,10 @@ static void BKDataStateRemoveFromData (BKDataState * state)
 		for (searchState = data -> stateList; searchState; searchState = searchState -> nextState) {
 			if (searchState == state)
 				break;
-			
+
 			prevState = searchState;
 		}
-		
+
 		// found in list
 		if (prevState) {
 			prevState -> nextState = state -> nextState;
@@ -84,7 +84,7 @@ static void BKDataStateRemoveFromData (BKDataState * state)
 		else if (data -> stateList == state) {
 			data -> stateList = data -> stateList -> nextState;
 		}
-		
+
 		state -> data       = NULL;
 		state -> nextState  = NULL;
 	}
@@ -101,7 +101,7 @@ static void BKDataResetStates (BKData * data, BKEnum event)
 	BKDataState * nextState, * prevState = NULL;
 
 	data -> flags |= BK_DATA_FLAG_STATE_LIST_LOCK;
-	
+
 	for (state = data -> stateList; state; state = nextState) {
 		dispose = 0;
 		nextState = state -> nextState;
@@ -113,7 +113,7 @@ static void BKDataResetStates (BKData * data, BKEnum event)
 			if (res < 0)
 				dispose = 1;
 		}
-		
+
 		if (event == BK_DATA_STATE_EVENT_DISPOSE)
 			dispose = 1;
 
@@ -123,12 +123,12 @@ static void BKDataResetStates (BKData * data, BKEnum event)
 
 			if (data -> stateList == state)
 				data -> stateList = state -> nextState;
-			
+
 			state -> nextState = NULL;
 			state -> data      = NULL;
 			state = NULL;
 		}
-		
+
 		prevState = state;
 	}
 
@@ -139,11 +139,11 @@ static BKInt BKDataPromoteToCopy (BKData * data)
 {
 	size_t    size;
 	BKFrame * frames;
-	
+
 	if ((data -> flags & BK_DATA_FLAG_COPY) == 0) {
 		size   = data -> numSamples * data -> numChannels * sizeof (BKFrame);
 		frames = malloc (size);
-		
+
 		if (frames == NULL)
 			return BK_ALLOCATION_ERROR;
 
@@ -167,7 +167,7 @@ void BKDataDispose (BKData * data)
 {
 	if (data == NULL)
 		return;
-	
+
 	BKDataResetStates (data, BK_DATA_STATE_EVENT_DISPOSE);
 
 	if (data -> samples)
@@ -189,7 +189,7 @@ BKInt BKDataInitCopy (BKData * copy, BKData * original)
 
 	if (res < 0)
 		return res;
-	
+
 	return 0;
 }
 
@@ -201,14 +201,14 @@ BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value)
 			break;
 		}
 	}
-	
+
 	return 0;
 }
 
 BKInt BKDataGetAttr (BKData * data, BKEnum attr, BKInt * outValue)
 {
 	BKInt value = 0;
-	
+
 	switch (attr) {
 		case BK_NUM_SAMPLES: {
 			value = data -> numSamples;
@@ -230,14 +230,14 @@ BKInt BKDataGetAttr (BKData * data, BKEnum attr, BKInt * outValue)
 }
 
 BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr)
-{	
+{
 	switch (attr) {
 		default: {
 			return BK_INVALID_ATTRIBUTE;
 			break;
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -267,7 +267,7 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 	// need at least 2 phases
 	if (numFrames < 2)
 		return BK_INVALID_NUM_SAMPLES;
-	
+
 	numChannels = BKClamp (numChannels, 1, BK_MAX_CHANNELS);
 	size        = numFrames * numChannels * sizeof (BKFrame);
 
@@ -278,7 +278,7 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 		else {
 			newFrames = malloc (size);
 		}
-		
+
 		if (newFrames == NULL)
 			return -1;
 
@@ -324,7 +324,7 @@ BKInt BKDataInitWithFrames (BKData * data, BKFrame const * phases, BKUInt numFra
 	if (BKDataInit (data) == 0) {
 		return BKDataSetFrames (data, phases, numFrames, numChannels, copy);
 	}
-	
+
 	return -1;
 }
 
@@ -367,18 +367,18 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 				break;
 			}
 		}
-		
+
 		numChannels = BKMax (1, numChannels);
 		packetSize  = numChannels * numBits;
 		packetSize  = (packetSize + 7) & ~7;  // round packet size up to one byte
 		packetSize  = packetSize / 8;         // set number of bytes
-		
+
 		file = open (path, O_RDONLY);
-		
+
 		if (file != -1) {
 			size = lseek (file, 0, SEEK_END);   // number of bytes in file
 			size = size - (size % packetSize);  // round down to full packet
-			
+
 			if (size != -1) {
 				numSamples = (BKUInt) size * 8 / (numChannels * numBits);
 				data -> samples = malloc (sizeof (BKFrame) * numSamples * numChannels);
@@ -386,10 +386,10 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 				if (data -> samples) {
 					data -> numSamples  = numSamples;
 					data -> numChannels = numChannels;
-			
+
 					lseek (file, 0, SEEK_SET);
 					read (file, data -> samples, size);
-	
+
 					if (BKSystemIsBigEndian () != (endian == BK_BIG_ENDIAN))
 						BKEndianReverse16Bit (data -> samples, size);
 				}
@@ -397,7 +397,7 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 			else {
 				return BK_OTHER_ERROR;
 			}
-			
+
 			close (file);
 		}
 		else {

@@ -161,7 +161,7 @@ static BKEnum BKUnitCallSampleCallback (BKUnit * unit, BKEnum event)
 }
 
 BKInt BKUnitInit (BKUnit * unit, BKEnum waveform)
-{	
+{
 	memset (unit, 0, sizeof (BKUnit));
 
 	unit -> funcs = (BKUnitFuncs *) & BKUnitFuncsStruct;
@@ -577,7 +577,7 @@ static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime, BKInt adva
 	origPhaseWrapCount = unit -> phase.wrapCount;
 
 	// update each channel
-	for (BKInt i = 0; i < unit -> ctx -> numChannels; i ++) {		
+	for (BKInt i = 0; i < unit -> ctx -> numChannels; i ++) {
 		volume = unit -> volume [i];
 
 		// mute sets volume to 0

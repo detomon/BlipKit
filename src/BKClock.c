@@ -47,7 +47,7 @@ BKInt BKClockInit (BKClock * clock, BKTime period, BKCallback * callback)
 void BKClockDispose (BKClock * clock)
 {
 	BKDivider * nextDivider;
-	
+
 	BKClockDetach (clock);
 
 	for (BKDivider * divider = clock -> dividers.firstDivider; divider; divider = nextDivider) {
@@ -70,7 +70,7 @@ BKInt BKClockAttach (BKClock * clock, BKContext * ctx, BKClock * beforeClock)
 		if (beforeClock == NULL) {
 			clock -> prevClock = ctx -> lastClock;
 			clock -> nextClock = NULL;
-			
+
 			if (ctx -> lastClock) {
 				ctx -> lastClock -> nextClock = clock;
 				ctx -> lastClock = clock;
@@ -102,7 +102,7 @@ BKInt BKClockAttach (BKClock * clock, BKContext * ctx, BKClock * beforeClock)
 	else {
 		return BK_INVALID_STATE;
 	}
-	
+
 	return 0;
 }
 
@@ -118,7 +118,7 @@ void BKClockDetach (BKClock * clock)
 		else {
 			ctx -> firstClock = clock -> nextClock;
 		}
-		
+
 		if (clock -> nextClock) {
 			clock -> nextClock -> prevClock = clock -> prevClock;
 		}
@@ -140,13 +140,13 @@ void BKClockSetPeriod (BKClock * clock, BKTime period)
 void BKClockReset (BKClock * clock)
 {
 	BKContext * ctx = clock -> ctx;
-	
+
 	if (ctx)
 		ctx -> flags |= BK_CONTEXT_FLAG_CLOCK_RESET;
 
 	for (BKDivider * divider = clock -> dividers.firstDivider; divider; divider = divider -> nextDivider)
 		BKDividerReset (divider);
-	
+
 	clock -> flags   &= ~BK_CLOCK_FLAG_RESET; // clear reset flag
 	clock -> counter  = 0;
 	clock -> time     = BK_TIME_ZERO;
@@ -202,7 +202,7 @@ BKInt BKClockTick (BKClock * clock)
 		BKDividerTick (clock -> dividers.firstDivider, & info);
 
 		clock -> counter ++;
-		
+
 		// set next time and new period from callback
 		if (BKTimeIsGreater (info.nextTime, clock -> time)) {
 			clock -> period   = BKTimeSub (info.nextTime, clock -> time);
@@ -223,7 +223,7 @@ BKInt BKDividerInit (BKDivider * divider, BKUInt count, BKCallback * callback)
 
 	divider -> divider = BKMax (1, count);
 	divider -> counter = 0;
-	
+
 	if (callback)
 		divider -> callback = * callback;
 
@@ -242,7 +242,7 @@ void BKDividerDispose (BKDivider * divider)
 		else {
 			group -> firstDivider = divider -> nextDivider;
 		}
-		
+
 		if (divider -> nextDivider) {
 			divider -> nextDivider -> prevDivider = divider -> prevDivider;
 		}
@@ -265,7 +265,7 @@ BKInt BKDividerAttachToGroup (BKDivider * divider, BKDividerGroup * group)
 	if (divider -> group == NULL) {
 		divider -> prevDivider = group -> lastDivider;
 		divider -> nextDivider = NULL;
-		
+
 		if (group -> lastDivider) {
 			group -> lastDivider -> nextDivider = divider;
 		}
@@ -275,20 +275,20 @@ BKInt BKDividerAttachToGroup (BKDivider * divider, BKDividerGroup * group)
 		}
 
 		group -> lastDivider = divider;
-		
+
 		divider -> group = group;
 	}
 	else {
 		return BK_INVALID_STATE;
 	}
-	
+
 	return 0;
 }
 
 void BKDividerDetach (BKDivider * divider)
 {
 	BKDividerGroup * group = divider -> group;
-	
+
 	if (group) {
 		if (divider -> prevDivider) {
 			divider -> prevDivider -> nextDivider = divider -> nextDivider;
@@ -297,7 +297,7 @@ void BKDividerDetach (BKDivider * divider)
 		else {
 			group -> firstDivider = divider -> nextDivider;
 		}
-		
+
 		if (divider -> nextDivider) {
 			divider -> nextDivider -> prevDivider = divider -> prevDivider;
 		}
@@ -305,7 +305,7 @@ void BKDividerDetach (BKDivider * divider)
 		else {
 			group -> lastDivider = divider -> prevDivider;
 		}
-		
+
 		divider -> group = NULL;
 	}
 }

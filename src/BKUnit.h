@@ -43,7 +43,7 @@ struct BKUnit
 	// linking
 	BKUnit * prevUnit;
 	BKUnit * nextUnit;
-	
+
 	// waveform
 	BKEnum waveform;
 	BKUInt dutyCycle;
@@ -189,7 +189,7 @@ extern BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue);
  *   Number of channels is ignored
  * BK_SAMPLE
  *   Set sample to play via a `BKData` object. Sample is only played once.
- *   If it should be repeated set attribute `BK_SAMPLE_REPEAT` to a value greater 1 or 
+ *   If it should be repeated set attribute `BK_SAMPLE_REPEAT` to a value greater 1 or
  *   set `BK_SAMPLE_CALLBACK`
  *
  * Errors:
