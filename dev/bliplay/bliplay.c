@@ -117,12 +117,12 @@ static int lookupCommand (char const * key, struct commandDef const * cmd)
 static int getCommand (char const * name)
 {
 	struct commandDef const * cmd;
-	
+
 	cmd = bsearch (name, commands, NUM_COMMAND_DEFS, sizeof (struct commandDef), (void *) lookupCommand);
-	
+
 	if (cmd)
 		return cmd -> command;
-	
+
 	return -1;
 }
 
@@ -164,7 +164,7 @@ static int interactiveMode (BKSDLContext * ctx)
 
 		if (sscanf (line, "%63s %255[^\n]", name, args) >= 1) {
 			command = getCommand (name);
-			
+
 			switch (command) {
 				case QUIT_COMMAND: {
 					printf ("Bye\n");
@@ -228,9 +228,9 @@ static void fillAudio (BKSDLContext * ctx, Uint8 * stream, int len)
 static BKInt initSDL (BKSDLContext * ctx, char const ** error)
 {
 	SDL_Init (SDL_INIT_AUDIO);
-	
+
 	SDL_AudioSpec wanted;
-	
+
 	wanted.freq     = ctx -> ctx.sampleRate;
 	wanted.format   = AUDIO_S16SYS;
 	wanted.channels = ctx -> ctx.numChannels;
@@ -326,7 +326,7 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 
 	if (outputFilename) {
 		char const * mode;
-		
+
 		if (flags & TRUNC_OUTPUT_FLAG) {
 			mode = "wb+";
 		} else {
@@ -391,12 +391,12 @@ t:end;";
 	// play file
 	else {
 		SDL_LockAudio ();
-		
+
 		if (BKSDLContextLoadFile (ctx, filename) < 0) {
 			fprintf (stderr, "No such file: %s\n", filename);
 			exit (1);
 		}
-		
+
 		if (speed) {
 			for (BKInt i = 0; i < ctx -> numTracks; i ++)
 				ctx -> tracks [i] -> interpreter.stepTickCount = speed;
@@ -426,7 +426,7 @@ static BKInt handleKeys ()
 
 	do {
 		int c = getchar_nocanon (0);
-		
+
 		switch (c) {
 			case 'q': {
 				printf ("\rStopped   ");
@@ -460,7 +460,7 @@ static BKInt handleKeys ()
 		//SDL_Delay(100);
 	}
 	while (1);
-	
+
 	end:
 
 	printf ("\n");
@@ -469,9 +469,9 @@ static BKInt handleKeys ()
 }
 
 static void play (void)
-{	
+{
 	handleKeys ();
-	
+
 	SDL_PauseAudio (1);
 	SDL_CloseAudio ();
 }
@@ -491,7 +491,7 @@ int main (int argc, const char * argv [])
 	if (handleOptions (& ctx, argc, argv) == 0) {
 		play ();
 	}
-	
+
 	cleanup ();
 
     return 0;

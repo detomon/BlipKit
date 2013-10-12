@@ -31,7 +31,7 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 	BKInt   numSteps = 0;
 	BKInt   run = 1;
 	BKInt * opcode = interpreter -> opcodePtr;
-	
+
 	if (interpreter -> noteStepTickCount) {
 		numSteps = interpreter -> noteStepTickCount;
 		interpreter -> noteStepTickCount = 0;
@@ -40,13 +40,13 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 			BKTrackSetAttr (track, BK_NOTE, BK_NOTE_RELEASE);
 			interpreter -> flags &= ~BKIntrReleaseFlag;
 		}
-		
+
 		return numSteps;
 	}
-	
+
 	do {
 		command = * (opcode ++);
-		
+
 		switch (command) {
 			case BKIntrAttack: {
 				value0 = * (opcode ++);
@@ -151,7 +151,7 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 			}
 			case BKIntrCall: {
 				value0 = * (opcode ++);
-				
+
 				if (interpreter -> stackPtr < interpreter -> stackEnd) {
 					* (interpreter -> stackPtr ++) = opcode;
 					opcode = & interpreter -> opcode [value0];
