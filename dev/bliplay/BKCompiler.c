@@ -84,6 +84,7 @@ static strval commands [] =
 	{"v",  BKIntrVolume},
 	{"vm", BKIntrMasterVolume},
 	{"w",  BKIntrWaveform},
+	{"x",  BKIntrEnd},
 };
 
 #define NUM_COMMANDS (sizeof (commands) / sizeof (strval))

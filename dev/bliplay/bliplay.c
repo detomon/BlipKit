@@ -289,6 +289,10 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 				sampleRate = atoi (optarg);
 				break;
 			}
+			case 'u': {
+				flags |= NO_PAUSE_SND_FLAG;
+				break;
+			}
 			default:
 				fprintf (stderr, "Unknown option %c near %s\n", opt, argv [longoptind]);
 				printOptionHelp ();
