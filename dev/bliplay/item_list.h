@@ -41,19 +41,19 @@ typedef struct {
 static BKInt * item_list_alloc (BKUInt capacity)
 {
 	item_list * list;
-	
+
 	if (capacity < 16)
 		capacity = 16;
-	
+
 	list = malloc (sizeof (item_list) + capacity * sizeof (BKInt));
-	
+
 	if (list) {
 		list -> capacity = capacity;
 		list -> length   = 0;
-		
+
 		return list -> items;
 	}
-	
+
 	return NULL;
 }
 
@@ -64,9 +64,9 @@ static void item_list_free (BKInt ** list_ref)
 {
 	BKInt     * list;
 	item_list * listPtr;
-	
+
 	list = * list_ref;
-	
+
 	if (list) {
 		listPtr = (void *) list - ((uintptr_t) & ((item_list *) 0) -> items);
 		free (listPtr);
@@ -83,34 +83,34 @@ static BKInt item_list_add (BKInt ** list_ref, BKInt n)
 	BKInt     * list;
 	item_list * listPtr;
 	BKUInt      capacity;
-	
+
 	list = * list_ref;
-	
+
 	if (list == NULL) {
 		list = item_list_alloc (0);
-		
+
 		if (list == NULL)
 			return -1;
-		
+
 		* list_ref = list;
 	}
-	
+
 	listPtr = (void *) list - ((uintptr_t) & ((item_list *) 0) -> items);
-	
+
 	if (listPtr -> length >= listPtr -> capacity) {
 		capacity = listPtr -> capacity * 2;
 		listPtr = realloc (listPtr, sizeof (item_list) + capacity * sizeof (BKInt));
-		
+
 		if (listPtr == NULL)
 			return -1;
-		
+
 		listPtr -> capacity = capacity;
 		list = listPtr -> items;
 		* list_ref = list;
 	}
-	
+
 	listPtr -> items [listPtr -> length ++] = n;
-	
+
 	return 0;
 }
 
@@ -120,13 +120,13 @@ static BKInt item_list_add (BKInt ** list_ref, BKInt n)
 static BKUInt item_list_length (BKInt * list)
 {
 	item_list * listPtr;
-	
+
 	if (list) {
 		listPtr = (void *) list - ((uintptr_t) & ((item_list *) 0) -> items);
-		
+
 		return listPtr -> length;
 	}
-	
+
 	return 0;
 }
 

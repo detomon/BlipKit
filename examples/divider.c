@@ -42,16 +42,16 @@ static int getchar_nocanon (unsigned tcflags)
 {
 	int c;
 	struct termios oldtc, newtc;
-	
+
 	tcgetattr (STDIN_FILENO, & oldtc);
-	
+
 	newtc = oldtc;
 	newtc.c_lflag &= ~(ICANON | ECHO | tcflags);
-	
+
 	tcsetattr (STDIN_FILENO, TCSANOW, & newtc);
 	c = getchar ();
 	tcsetattr (STDIN_FILENO, TCSANOW, & oldtc);
-	
+
 	return c;
 }
 
@@ -59,7 +59,7 @@ static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
 {
 	// calculate needed frames for one channel
 	BKUInt numFrames = len / sizeof (BKFrame) / info -> numChannels;
-	
+
 	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
 }
 
@@ -87,7 +87,7 @@ BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 
 	// Set track note
 	BKTrackSetAttr (& sawtooth, BK_NOTE, note);
-	
+
 	if (note >= 0)
 		note += 7 * BK_FINT20_UNIT;
 
@@ -103,7 +103,7 @@ BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 
 	if (i >= 16)
 		i = 0;
-	
+
 	return 0;
 }
 
@@ -117,9 +117,9 @@ int main (int argc, char * argv [])
 	BKInt const sampleRate  = 44100;
 
 	BKContextInit (& ctx, numChannels, sampleRate);
-	
+
 	BKTrackInit (& square, BK_SQUARE);
-	
+
 	BKTrackSetAttr (& square, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& square, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& square, BK_DUTY_CYCLE,    2);
@@ -130,14 +130,14 @@ int main (int argc, char * argv [])
 	BKTrackSetAttr (& sawtooth, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 
 	BKTrackInit (& triangle, BK_TRIANGLE);
-	
+
 	BKTrackSetAttr (& triangle, BK_MASTER_VOLUME, 0.3 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& triangle, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 
 	BKInstrument instrument;
-	
+
 	BKInstrumentInit (& instrument);
-	
+
 	BKInt sequence [6] = {
 		1.0 * BK_MAX_VOLUME, 0.8 * BK_MAX_VOLUME, 0.4 * BK_MAX_VOLUME,
 		0.4 * BK_MAX_VOLUME, 0.2 * BK_MAX_VOLUME, 0.0 * BK_MAX_VOLUME,
@@ -155,32 +155,32 @@ int main (int argc, char * argv [])
 
 	BKTrackSetPtr (& square, BK_INSTRUMENT, & instrument);
 	BKTrackSetPtr (& sawtooth, BK_INSTRUMENT, & instrument);
-	
+
 	// Callback struct used for initializing divider
 	BKCallback callback;
-	
+
 	callback.func     = dividerCallback;
 	callback.userInfo = NULL;
-	
+
 	// We want 150 BPM
 	// The master clock ticks at 240 Hz
 	// This results to an divider value of 96
 	// Note that a divider only takes integer values
 	// Certain BPM rates are not possible as integers may be rounded down
 	BKInt dividerValue = (60.0 / 150.0 / 4) * 240;
-	
+
 	// Initialize divider with divider value and callback
 	BKDividerInit (& divider, dividerValue, & callback);
-	
+
 	// Attach the divider to the master clock
 	// When samples are generated the callback is called at the defined interval
 	BKContextAttachDivider (& ctx, & divider, BK_CLOCK_TYPE_BEAT);
-	
-	
+
+
 	SDL_Init (SDL_INIT_AUDIO);
-	
+
 	SDL_AudioSpec wanted;
-	
+
 	userData.numChannels = numChannels;
 	userData.sampleRate  = sampleRate;
 
@@ -195,24 +195,24 @@ int main (int argc, char * argv [])
 		fprintf (stderr, "Couldn't open audio: %s\n", SDL_GetError ());
 		return 1;
 	}
-	
+
 	SDL_PauseAudio (0);
-		
+
 	printf ("Press [q] to stop\n");
-	
+
 	while (1) {
 		int c = getchar_nocanon (0);
 
 		/*
 		// Use lock when setting attributes outside of divider callbacks
 		SDL_LockAudio ();
-		
+
 		//BKInt vibrato [2] = {16, 3 * BK_FINT20_UNIT};
 		//BKTrackSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato);
 
 		SDL_UnlockAudio ();
 		*/
-		
+
 		if (c == 'q')
 			break;
 	}

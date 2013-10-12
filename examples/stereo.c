@@ -40,16 +40,16 @@ static int getchar_nocanon (unsigned tcflags)
 {
 	int c;
 	struct termios oldtc, newtc;
-	
+
 	tcgetattr (STDIN_FILENO, & oldtc);
-	
+
 	newtc = oldtc;
 	newtc.c_lflag &= ~(ICANON | ECHO | tcflags);
-	
+
 	tcsetattr (STDIN_FILENO, TCSANOW, & newtc);
 	c = getchar ();
 	tcsetattr (STDIN_FILENO, TCSANOW, & oldtc);
-	
+
 	return c;
 }
 
@@ -57,7 +57,7 @@ static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
 {
 	// calculate needed frames for one channel
 	BKUInt numFrames = len / sizeof (BKFrame) / info -> numChannels;
-	
+
 	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
 }
 
@@ -71,47 +71,47 @@ int main (int argc, char * argv [])
 	BKInt const sampleRate  = 44100;
 
 	BKContextInit (& ctx, numChannels, sampleRate);
-	
+
 	BKTrackInit (& left, BK_NOISE);
-	
+
 	BKTrackSetAttr (& left, BK_MASTER_VOLUME, 0.03 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& left, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& left, BK_PANNING,      -BK_MAX_VOLUME);
 	BKTrackSetAttr (& left, BK_NOTE,          BK_A_1 * BK_FINT20_UNIT);
-	
+
 	BKTrackAttach (& left, & ctx);
 
-	
+
 	BKTrackInit (& right, BK_NOISE);
-	
+
 	BKTrackSetAttr (& right, BK_MASTER_VOLUME, 0.03 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& right, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& right, BK_PANNING,      +BK_MAX_VOLUME);
 	BKTrackSetAttr (& right, BK_NOTE,          BK_A_1 * BK_FINT20_UNIT);
 	BKTrackSetAttr (& right, BK_PHASE,         16000);
-	
+
 	BKTrackAttach (& right, & ctx);
 
 
 	BKTrackInit (& square1, BK_SQUARE);
-	
+
 	BKTrackSetAttr (& square1, BK_MASTER_VOLUME, 0.025 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& square1, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& square1, BK_DUTY_CYCLE,    5);
 	BKTrackSetAttr (& square1, BK_PANNING,      -0.5 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& square1, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
-	
+
 	BKTrackAttach (& square1, & ctx);
 
 
 	BKTrackInit (& square2, BK_SQUARE);
-	
+
 	BKTrackSetAttr (& square2, BK_MASTER_VOLUME, 0.025 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& square2, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& square2, BK_DUTY_CYCLE,    7);
 	BKTrackSetAttr (& square2, BK_PANNING,      +0.5 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& square2, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
-	
+
 	BKTrackAttach (& square2, & ctx);
 
 
@@ -136,9 +136,9 @@ int main (int argc, char * argv [])
 
 
 	SDL_Init (SDL_INIT_AUDIO);
-	
+
 	SDL_AudioSpec wanted;
-	
+
 	userData.numChannels = numChannels;
 	userData.sampleRate  = sampleRate;
 
@@ -153,11 +153,11 @@ int main (int argc, char * argv [])
 		fprintf (stderr, "Couldn't open audio: %s\n", SDL_GetError ());
 		return 1;
 	}
-	
+
 	SDL_PauseAudio (0);
-	
+
 	printf ("Press [q] to stop\n");
-	
+
 	while (1) {
 		int c = getchar_nocanon (0);
 
@@ -170,12 +170,12 @@ int main (int argc, char * argv [])
 	SDL_PauseAudio (1);
 	SDL_CloseAudio ();
 
-	
+
 	BKTrackDispose (& left);
 	BKTrackDispose (& right);
 	BKTrackDispose (& square1);
 	BKTrackDispose (& square2);
 	BKContextDispose (& ctx);
-	
+
     return 0;
 }

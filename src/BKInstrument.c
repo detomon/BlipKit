@@ -236,10 +236,10 @@ static void BKInstrumentStateRemoveFromInstrument (BKInstrumentState * state)
 	if (instr != NULL && (instr -> flags & BK_INSTR_FLAG_STATE_LIST_LOCK) == 0) {
 		if (state -> prevState)
 			state -> prevState -> nextState = state -> nextState;
-		
+
 		if (state -> nextState)
 			state -> nextState -> prevState = state -> prevState;
-		
+
 		if (instr -> stateList == state)
 			instr -> stateList = state -> nextState;
 
@@ -321,19 +321,19 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 		return;
 
 	state -> numActiveSequences = 0;
-	
+
 	switch (phase) {
 		case BK_SEQUENCE_PHASE_ATTACK:
 		case BK_SEQUENCE_PHASE_RELEASE: {
 			for (BKInt i = 0; i < instr -> numSequences; i ++) {
 				sequence = instr -> sequences [i];
-				
+
 				if (sequence) {
 					BKSequenceStateSetPhase (& state -> states [i], phase);
 					state -> numActiveSequences ++;
 				}
 			}
-			
+
 			break;
 		}
 	}
@@ -350,7 +350,7 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 		case BK_SEQUENCE_PHASE_MUTE: {
 			if (state -> phase != BK_SEQUENCE_PHASE_MUTE) {
 				state -> phase = BK_SEQUENCE_PHASE_MUTE;
-				
+
 				if (state -> callback)
 					state -> callback (BK_INSTR_STATE_EVENT_MUTE, state -> callbackUserInfo);
 			}

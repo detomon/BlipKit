@@ -54,14 +54,14 @@ static BKInstrument * parseInstrument (BKSDLContext * ctx, BKBlipReader * parser
 	BKBlipCommand   item;
 	BKInt sequence [256];
 	BKInt sequenceLength, repeatBegin, repeatLength;
-	
+
 	instrument = malloc (sizeof (BKInstrument));
-	
+
 	if (instrument == NULL)
 		return NULL;
-	
+
 	BKInstrumentInit (instrument);
-	
+
 	while (BKBlipReaderNextCommand (parser, & item)) {
 		if (strcmp (item.name, "i") == 0 && strcmp (item.args [0].arg, "end") == 0) {
 			break;
@@ -83,7 +83,7 @@ static BKInstrument * parseInstrument (BKSDLContext * ctx, BKBlipReader * parser
 			BKInstrumentSetSequence (instrument, BK_SEQUENCE_DUTY_CYCLE, sequence, sequenceLength, repeatBegin, repeatLength);
 		}
 	}
-	
+
 	return instrument;
 }
 
@@ -92,19 +92,19 @@ static BKInt parseWaveform (BKSDLContext * ctx, BKBlipReader * parser, BKData * 
 	BKBlipCommand item;
 	BKFrame      sequence [256];
 	BKInt        length = 0;
-	
+
 	while (BKBlipReaderNextCommand (parser, & item)) {
 		if (strcmp (item.name, "w") == 0 && strcmp (item.args [0].arg, "end") == 0) {
 			break;
 		}
 		else if (strcmp (item.name, "s") == 0) {
 			length = (BKInt) item.argCount;
-			
+
 			for (BKInt i = 0; i < length; i ++)
 				sequence [i] = atoi (item.args [i].arg) * (BK_MAX_VOLUME / 255);
 		}
 	}
-	
+
 	return BKDataInitWithFrames (waveform, sequence, (BKInt) length, 1, 1);
 }
 
@@ -112,7 +112,7 @@ static BKEnum beatCallback (BKCallbackInfo * info, BKSDLUserData * userInfo)
 {
 	BKInt           numSteps;
 	BKInterpreter * interpreter;
-	
+
 	interpreter = userInfo -> interpreter;
 	numSteps    = BKInterpreterTrackApplyNextStep (interpreter, userInfo -> track);
 
@@ -126,27 +126,27 @@ BKInt BKSDLContextInit (BKSDLContext * ctx, BKUInt numChannels, BKUInt sampleRat
 	memset (ctx, 0, sizeof (BKSDLContext));
 
 	ctx -> speed = 23;
-	
+
 	return BKContextInit (& ctx -> ctx, numChannels, sampleRate);
 }
 
 void BKSDLContextUnloadData (BKSDLContext * ctx)
 {
 	BKSDLTrack * track;
-	
+
 	for (BKInt i = 0; i < ctx -> numWaveforms; i ++) {
 		BKDataDispose (ctx -> waveforms [i]);
 	}
-	
+
 	ctx -> numWaveforms = 0;
-	
+
 	for (BKInt i = 0; i < ctx -> numInstruments; i ++) {
 		BKInstrumentDispose (ctx -> instruments [i]);
 		free (ctx -> instruments [i]);
 	}
-	
+
 	ctx -> numInstruments = 0;
-	
+
 	for (BKInt i = 0; i < ctx -> numTracks; i ++) {
 		track = ctx -> tracks [i];
 		BKTrackDispose (& track -> track);
@@ -154,10 +154,24 @@ void BKSDLContextUnloadData (BKSDLContext * ctx)
 		BKInterpreterDispose (& track -> interpreter);
 		free (track);
 	}
-	
+
 	ctx -> numTracks = 0;
 
 	BKContextReset (& ctx -> ctx);
+}
+
+void BKSDLContextReset (BKSDLContext * ctx, BKInt resetTracks)
+{
+	BKSDLTrack * track;
+
+	for (BKInt i = 0; i < ctx -> numTracks; i ++) {
+		track = ctx -> tracks [i];
+		BKInterpreterReset (& track -> interpreter);
+		BKDividerReset (& track -> divider);
+	}
+
+	if (resetTracks)
+		BKContextReset (& ctx -> ctx);
 }
 
 void BKSDLContextDispose (BKSDLContext * ctx)
@@ -177,39 +191,39 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 	BKInt          globalVolume = 0;
 	BKInstrument * instrument;
 	BKData       * waveform;
-	
+
 	BKBlipReaderInit (& parser, data, size, NULL, NULL);
-	
+
 	while (BKBlipReaderNextCommand (& parser, & item)) {
 		if (strcmp (item.name, "t") == 0) {
 			if (strcmp (item.args [0].arg, "begin") == 0) {
 				BKCompilerInit (& compiler);
-				
+
 				track = malloc (sizeof (BKSDLTrack));
-				
+
 				if (track) {
 					memset (track, 0, sizeof (BKSDLTrack));
 					BKTrackInit (& track -> track, 0);
-					
+
 					BKSDLUserData * userData = & track -> userData;
 					userData -> track        = & track -> track;
 					userData -> interpreter  = & track -> interpreter;
-					
+
 					BKCallback callback = {
 						.func     = (BKCallbackFunc) beatCallback,
 						.userInfo = userData,
 					};
-					
+
 					BKDividerInit (& track -> divider, 12, & callback);
 				}
 				else {
 					return -1;
 				}
-				
+
 				BKInt waveform = BK_SQUARE;
 				BKInt masterVolume = 0;
 				char const * type = item.args [1].arg;
-				
+
 				if (strcmp (type, "square") == 0) {
 					waveform = BK_SQUARE;
 					masterVolume = BK_MAX_VOLUME * 0.15;
@@ -226,27 +240,27 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 					waveform = BK_SAWTOOTH;
 					masterVolume = BK_MAX_VOLUME * 0.15;
 				}
-				
+
 				masterVolume = (masterVolume * globalVolume) >> BK_VOLUME_SHIFT;
-				
+
 				BKTrackSetAttr (& track -> track, BK_WAVEFORM, waveform);
 				BKTrackSetAttr (& track -> track, BK_MASTER_VOLUME, masterVolume);
 				BKTrackSetAttr (& track -> track, BK_VOLUME, BK_MAX_VOLUME);
-				
+
 				while (BKBlipReaderNextCommand (& parser, & item)) {
 					if (strcmp (item.name, "t") == 0 && strcmp (item.args [0].arg, "end") == 0) {
 						BKCompilerTerminate (& compiler, & track -> interpreter);
-						
+
 						BKTrackAttach (& track -> track, & ctx -> ctx);
 						BKContextAttachDivider (& ctx -> ctx, & track -> divider, BK_CLOCK_TYPE_BEAT);
 						track -> interpreter.instruments   = ctx -> instruments;
 						track -> interpreter.waveforms     = ctx -> waveforms;
 						track -> interpreter.stepTickCount = ctx -> speed;
-						
+
 						ctx -> tracks [ctx -> numTracks ++] = track;
-						
+
 						BKCompilerDispose (& compiler);
-						
+
 						break;
 					}
 					else {
@@ -259,10 +273,10 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 		else if (strcmp (item.name, "i") == 0) {
 			if (strcmp (item.args [0].arg, "begin") == 0) {
 				instrument = parseInstrument (ctx, & parser);
-				
+
 				if (instrument == NULL)
 					return -1;
-				
+
 				ctx -> instruments [ctx -> numInstruments ++] = instrument;
 			}
 		}
@@ -273,9 +287,9 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 
 				if (waveform == NULL)
 					return -1;
-				
+
 				parseWaveform (ctx, & parser, waveform);
-				
+
 				ctx -> waveforms [ctx -> numWaveforms ++] = waveform;
 			}
 		}
@@ -286,9 +300,9 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 			ctx -> speed = atoi (item.args [0].arg);
 		}
 	}
-	
+
 	BKBlipReaderDispose (& parser);
-	
+
 	return 0;
 }
 
@@ -297,21 +311,21 @@ static char * dataFromFile (char const * filename, size_t * outSize)
 	int f = open (filename, O_RDONLY);
 	char * data;
 	off_t size;
-	
+
 	if (f > -1) {
 		size = lseek (f, 0, SEEK_END);
 		lseek (f, 0, SEEK_SET);
-		
+
 		data = malloc (size);
-		
+
 		if (data) {
 			read (f, data, size);
 			* outSize = size;
-			
+
 			return data;
 		}
 	}
-	
+
 	return NULL;
 }
 

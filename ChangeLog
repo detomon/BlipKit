@@ -1,7 +1,6 @@
 Changes in BlipKit 0.4:
 
 * Added better sample controlling
-* Removed BK_SAMPLE_REPEAT attribute
 * Fixed bug which did reset waveform phase when the same waveform was set again
 
 Changes in BlipKit 0.3.3:

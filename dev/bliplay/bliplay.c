@@ -39,6 +39,7 @@ enum
 	PLAY_FLAG         = 1 << 2,
 	CHECK_FLAG        = 1 << 3,
 	TRUNC_OUTPUT_FLAG = 1 << 5,
+	NO_PAUSE_SND_FLAG = 1 << 6,
 };
 
 enum
@@ -69,25 +70,26 @@ static const struct commandDef commands [] =
 
 #define NUM_COMMAND_DEFS (sizeof (commands) / sizeof (struct commandDef))
 
-static int          flags;
-static char const * filename;
-static char const * outputFilename;
-static FILE       * outputFile;
-static BKSDLContext ctx;
+static int            flags;
+static char const   * filename;
+static char const   * outputFilename;
+static FILE         * outputFile;
+static BKSDLContext   ctx, pauseCtx;
+static BKSDLContext * runCtx;
 
 static int getchar_nocanon (unsigned tcflags) {
 	int c;
 	struct termios oldtc, newtc;
-	
+
 	tcgetattr (STDIN_FILENO, & oldtc);
-	
+
 	newtc = oldtc;
 	newtc.c_lflag &= ~(ICANON | ECHO | tcflags);
-	
+
 	tcsetattr (STDIN_FILENO, TCSANOW, & newtc);
 	c = getchar ();
 	tcsetattr (STDIN_FILENO, TCSANOW, & oldtc);
-	
+
 	return c;
 }
 
@@ -115,12 +117,12 @@ static int lookupCommand (char const * key, struct commandDef const * cmd)
 static int getCommand (char const * name)
 {
 	struct commandDef const * cmd;
-	
+
 	cmd = bsearch (name, commands, NUM_COMMAND_DEFS, sizeof (struct commandDef), (void *) lookupCommand);
-	
+
 	if (cmd)
 		return cmd -> command;
-	
+
 	return -1;
 }
 
@@ -162,7 +164,7 @@ static int interactiveMode (BKSDLContext * ctx)
 
 		if (sscanf (line, "%63s %255[^\n]", name, args) >= 1) {
 			command = getCommand (name);
-			
+
 			switch (command) {
 				case QUIT_COMMAND: {
 					printf ("Bye\n");
@@ -208,6 +210,7 @@ struct option const options [] = {
 	{"check",        no_argument,       NULL, 'c'},
 	{"output",       required_argument, NULL, 'o'},
 	{"trunc-output", no_argument      , NULL, 'q'},
+	{"no-pause-snd", no_argument      , NULL, 'u'},
 	{NULL,           0,                 NULL, 0},
 };
 
@@ -215,8 +218,8 @@ static void fillAudio (BKSDLContext * ctx, Uint8 * stream, int len)
 {
 	BKUInt numChannels = ctx -> ctx.numChannels;
 	BKUInt numFrames   = len / sizeof (BKFrame) / numChannels;
-	
-	BKContextGenerate (& ctx -> ctx, (BKFrame *) stream, numFrames);
+
+	BKContextGenerate (& runCtx -> ctx, (BKFrame *) stream, numFrames);
 
 	if (outputFile)
 		fwrite (stream, len / sizeof (BKFrame), sizeof (BKFrame), outputFile);
@@ -225,9 +228,9 @@ static void fillAudio (BKSDLContext * ctx, Uint8 * stream, int len)
 static BKInt initSDL (BKSDLContext * ctx, char const ** error)
 {
 	SDL_Init (SDL_INIT_AUDIO);
-	
+
 	SDL_AudioSpec wanted;
-	
+
 	wanted.freq     = ctx -> ctx.sampleRate;
 	wanted.format   = AUDIO_S16SYS;
 	wanted.channels = ctx -> ctx.numChannels;
@@ -243,6 +246,18 @@ static BKInt initSDL (BKSDLContext * ctx, char const ** error)
 	return 0;
 }
 
+static void setRunContext (BKSDLContext * ctx, BKInt reset)
+{
+	SDL_LockAudio ();
+
+	runCtx = ctx;
+
+	if (reset)
+		BKSDLContextReset (runCtx, 0);
+
+	SDL_UnlockAudio ();
+}
+
 static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 {
 	int    opt;
@@ -254,7 +269,7 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 
 	opterr = 0;
 
-	while ((opt = getopt_long (argc, (void *) argv, "cdhpo:qs:r:", options, & longoptind)) != -1) {
+	while ((opt = getopt_long (argc, (void *) argv, "cdhpo:qs:r:u", options, & longoptind)) != -1) {
 		switch (opt) {
 			case 's': {
 				speed = atoi (optarg);
@@ -289,6 +304,10 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 				sampleRate = atoi (optarg);
 				break;
 			}
+			case 'u': {
+				flags |= NO_PAUSE_SND_FLAG;
+				break;
+			}
 			default:
 				fprintf (stderr, "Unknown option %c near %s\n", opt, argv [longoptind]);
 				printOptionHelp ();
@@ -307,7 +326,7 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 
 	if (outputFilename) {
 		char const * mode;
-		
+
 		if (flags & TRUNC_OUTPUT_FLAG) {
 			mode = "wb+";
 		} else {
@@ -327,6 +346,38 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 		return -1;
 	}
 
+	if (BKSDLContextInit (& pauseCtx, 2, sampleRate) < 0) {
+		fprintf (stderr, "Couldn't initialize pause context\n");
+		return -1;
+	}
+
+	char const * data = "gv:255; \
+gs:14; \
+ \
+t:begin:square; \
+ \
+	g:begin; \
+		dc:8; \
+		mt:8;a:c5;s:1;r;s:1; \
+		mt:8;a:c6;s:1;r;s:1; \
+		mt:8;a:c5;s:1;r;s:1; \
+		mt:8;a:c6;s:1;r;s:1; \
+	g:end; \
+ \
+	g:0; \
+	x; \
+ \
+t:end;";
+
+	BKInt dataSize = strlen (data);
+
+	if (BKSDLContextLoadData (& pauseCtx, data, dataSize) < 0) {
+		fprintf (stderr, "Couldn't load pause sound\n");
+		return -1;
+	}
+
+	setRunContext (ctx, 0);
+
 	if (initSDL (ctx, & error) < 0) {
 		fprintf (stderr, "Couldn't initialize SDL: %s\n", error);
 		return -1;
@@ -340,12 +391,12 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 	// play file
 	else {
 		SDL_LockAudio ();
-		
+
 		if (BKSDLContextLoadFile (ctx, filename) < 0) {
 			fprintf (stderr, "No such file: %s\n", filename);
 			exit (1);
 		}
-		
+
 		if (speed) {
 			for (BKInt i = 0; i < ctx -> numTracks; i ++)
 				ctx -> tracks [i] -> interpreter.stepTickCount = speed;
@@ -375,7 +426,7 @@ static BKInt handleKeys ()
 
 	do {
 		int c = getchar_nocanon (0);
-		
+
 		switch (c) {
 			case 'q': {
 				printf ("\rStopped   ");
@@ -383,13 +434,22 @@ static BKInt handleKeys ()
 				break;
 			}
 			case ' ': {
-				SDL_PauseAudio (!paused);
 				paused = !paused;
-				
+
 				if (paused) {
+					if (flags & NO_PAUSE_SND_FLAG) {
+						SDL_PauseAudio (1);
+					}
+					else {
+						setRunContext (& pauseCtx, 1);
+					}
+
 					printf ("\rPaused    ");
 				}
 				else {
+					SDL_PauseAudio (0);
+
+					setRunContext (& ctx, 0);
 					printf ("\rPlaying...");
 				}
 
@@ -400,7 +460,7 @@ static BKInt handleKeys ()
 		//SDL_Delay(100);
 	}
 	while (1);
-	
+
 	end:
 
 	printf ("\n");
@@ -409,9 +469,9 @@ static BKInt handleKeys ()
 }
 
 static void play (void)
-{	
+{
 	handleKeys ();
-	
+
 	SDL_PauseAudio (1);
 	SDL_CloseAudio ();
 }
@@ -431,7 +491,7 @@ int main (int argc, const char * argv [])
 	if (handleOptions (& ctx, argc, argv) == 0) {
 		play ();
 	}
-	
+
 	cleanup ();
 
     return 0;

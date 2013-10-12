@@ -76,4 +76,9 @@ extern BKInt BKSDLContextLoadFile (BKSDLContext * ctx, char const * filename);
  */
 extern void BKSDLContextUnloadData (BKSDLContext * ctx);
 
+/**
+ *
+ */
+extern void BKSDLContextReset (BKSDLContext * ctx, BKInt resetTracks);
+
 #endif /* ! _TRACK_H_ */
