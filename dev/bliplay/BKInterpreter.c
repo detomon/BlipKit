@@ -196,12 +196,15 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 void BKInterpreterDispose (BKInterpreter * interpreter)
 {
 	item_list_free (& interpreter -> opcode);
-	
+
 	memset (interpreter, 0, sizeof (BKInterpreter));
 }
 
 void BKInterpreterReset (BKInterpreter * interpreter)
 {
-	interpreter -> opcodePtr = interpreter -> opcode;
-	interpreter -> stackPtr  = interpreter -> stack;
+	interpreter -> flags             = 0;
+	interpreter -> pitch             = 0;
+	interpreter -> muteTickCount     = 0;
+	interpreter -> opcodePtr         = interpreter -> opcode;
+	interpreter -> stackPtr          = interpreter -> stack;
 }

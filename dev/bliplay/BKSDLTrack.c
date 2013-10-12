@@ -154,10 +154,24 @@ void BKSDLContextUnloadData (BKSDLContext * ctx)
 		BKInterpreterDispose (& track -> interpreter);
 		free (track);
 	}
-	
+
 	ctx -> numTracks = 0;
 
 	BKContextReset (& ctx -> ctx);
+}
+
+void BKSDLContextReset (BKSDLContext * ctx, BKInt resetTracks)
+{
+	BKSDLTrack * track;
+
+	for (BKInt i = 0; i < ctx -> numTracks; i ++) {
+		track = ctx -> tracks [i];
+		BKInterpreterReset (& track -> interpreter);
+		BKDividerReset (& track -> divider);
+	}
+
+	if (resetTracks)
+		BKContextReset (& ctx -> ctx);
 }
 
 void BKSDLContextDispose (BKSDLContext * ctx)
