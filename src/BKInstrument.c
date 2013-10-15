@@ -68,6 +68,11 @@ static void BKInstrumentResetStates (BKInstrument * instr, BKEnum event)
 			state -> callback (event, state -> callbackUserInfo);
 		}
 
+		for (BKInt i = 0; i < instr -> numSequences; i ++) {
+			if (instr -> sequences [i] == NULL)
+				state -> states [i].value = sequenceDefaultValue [i];
+		}
+
 		nextState = state -> nextState;
 
 		if (event == BK_INSTR_STATE_EVENT_DISPOSE)
