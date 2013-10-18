@@ -94,7 +94,11 @@ extern void BKDataDispose (BKData * data);
 extern BKInt BKDataInitCopy (BKData * copy, BKData * original);
 
 /**
- * No attributes defined
+ * BK_SAMPLE_PITCH
+ *   Samples are assumed to be tuned in BK_C_4.
+ *   The sample pitch can be corrected with this value.
+ *   Value is multiple of BK_FINT20_UNIT.
+ *   This attribute must be set before the data object is attached to a track.
  *
  * Errors:
  * Always returns BK_INVALID_ATTRIBUTE
@@ -106,6 +110,7 @@ extern BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value);
  *
  * BK_NUM_SAMPLE
  * BK_NUM_CHANNELS
+ * BK_SAMPLE_PITCH
  *
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown

@@ -154,6 +154,8 @@ static void BKTrackUpdateUnitNote (BKTrack * track)
 	if (track -> flags & BKVibratoFlag)
 		note += BKIntervalStateGetValue (& track -> vibrato);
 
+	note += track -> pitch;
+
 	if (track -> waveform != BK_SAMPLE) {
 		period = BKTonePeriodLookup (note, track -> unit.ctx -> sampleRate) / track -> unit.phase.count;
 		BKUnitSetAttr (& track -> unit, BK_PERIOD, period);
@@ -639,6 +641,10 @@ BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value)
 		}
 		case BK_NOTE: {
 			BKTrackSetNote (track, value);
+			break;
+		}
+		case BK_PITCH: {
+			track -> pitch = BKClamp (value, BK_MIN_SAMPLE_TONE << BK_FINT20_SHIFT, BK_MAX_SAMPLE_TONE << BK_FINT20_SHIFT);
 			break;
 		}
 		case BK_SAMPLE_PITCH: {

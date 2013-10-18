@@ -85,6 +85,7 @@ struct BKTrack
 	BKSlideState      panning;
 	BKInt             curNote;
 	BKSlideState      note;
+	BKFInt20          pitch;
 	BKIntervalState   tremolo;
 	BKSlideState      tremoloDelta;
 	BKSlideState      tremoloSteps;
@@ -138,6 +139,8 @@ extern void BKTrackDetach (BKTrack * track);
  *   Value must be multiplied by BK_FINT20_UNIT
  *   To release the note the value is BK_NOTE_RELEASE
  *   To mute the note the value is BK_NOTE_MUTE
+ * BK_PITCH
+ *   Set note pitch. This value will be added to every note.
  * BK_ARPEGGIO_DIVIDER
  *   Divider value for arpeggio step
  * BK_EFFECT_DIVIDER
@@ -152,10 +155,6 @@ extern void BKTrackDetach (BKTrack * track);
  *   Panning slide effect value [0]; number of ticks
  * BK_EFFECT_PORTMENTO
  *   Portamento effect value [0]; number of ticks
- * BK_SAMPLE_PITCH
- *   Samples are assumed to be tuned in BK_C_4.
- *   The sample pitch can be corrected with this value.
- *   Value is multiple of BK_FINT20_UNIT.
  *
  * All other attributes will be forwarded to the underlaying unit
  *
