@@ -42,6 +42,7 @@ struct BKData
 	BKUInt        flags;
 	BKUInt        numSamples;
 	BKUInt        numChannels;
+	BKFInt20      samplePitch;
 	BKFrame     * samples;
 	BKDataState * stateList;
 };

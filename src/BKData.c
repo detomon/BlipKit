@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "BKData_internal.h"
+#include "BKTone.h"
 
 enum
 {
@@ -196,6 +197,10 @@ BKInt BKDataInitCopy (BKData * copy, BKData * original)
 BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value)
 {
 	switch (attr) {
+		case BK_SAMPLE_PITCH: {
+			data -> samplePitch = BKClamp (value, BK_MIN_SAMPLE_TONE << BK_FINT20_SHIFT, BK_MAX_SAMPLE_TONE << BK_FINT20_SHIFT);
+			break;
+		}
 		default: {
 			return BK_INVALID_ATTRIBUTE;
 			break;
@@ -216,6 +221,10 @@ BKInt BKDataGetAttr (BKData * data, BKEnum attr, BKInt * outValue)
 		}
 		case BK_NUM_CHANNELS: {
 			value = data -> numChannels;
+			break;
+		}
+		case BK_SAMPLE_PITCH: {
+			value = data -> samplePitch;
 			break;
 		}
 		default: {

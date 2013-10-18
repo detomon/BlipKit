@@ -79,6 +79,7 @@ struct BKTrack
 	BKInt             waveform;
 	BKInt             dutyCycle;
 	BKData          * sample;
+	BKFInt20          samplePitch;
 	BKInt             masterVolume;
 	BKSlideState      volume;
 	BKSlideState      panning;
@@ -151,6 +152,10 @@ extern void BKTrackDetach (BKTrack * track);
  *   Panning slide effect value [0]; number of ticks
  * BK_EFFECT_PORTMENTO
  *   Portamento effect value [0]; number of ticks
+ * BK_SAMPLE_PITCH
+ *   Samples are assumed to be tuned in BK_C_4.
+ *   The sample pitch can be corrected with this value.
+ *   Value is multiple of BK_FINT20_UNIT.
  *
  * All other attributes will be forwarded to the underlaying unit
  *
