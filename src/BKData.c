@@ -142,7 +142,7 @@ static BKInt BKDataPromoteToCopy (BKData * data)
 	BKFrame * frames;
 
 	if ((data -> flags & BK_DATA_FLAG_COPY) == 0) {
-		size   = data -> numSamples * data -> numChannels * sizeof (BKFrame);
+		size   = data -> numFrames * data -> numChannels * sizeof (BKFrame);
 		frames = malloc (size);
 
 		if (frames == NULL)
@@ -186,7 +186,7 @@ BKInt BKDataInitCopy (BKData * copy, BKData * original)
 	copy -> flags = (original -> flags & BK_DATA_FLAG_COPY_MASK);
 
 	if (original -> samples)
-		res = BKDataSetFrames (copy, original -> samples, original -> numSamples, original -> numChannels, 1);
+		res = BKDataSetFrames (copy, original -> samples, original -> numFrames, original -> numChannels, 1);
 
 	if (res < 0)
 		return res;
@@ -215,8 +215,8 @@ BKInt BKDataGetAttr (BKData * data, BKEnum attr, BKInt * outValue)
 	BKInt value = 0;
 
 	switch (attr) {
-		case BK_NUM_SAMPLES: {
-			value = data -> numSamples;
+		case BK_NUM_FRAMES: {
+			value = data -> numFrames;
 			break;
 		}
 		case BK_NUM_CHANNELS: {
@@ -275,7 +275,7 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 
 	// need at least 2 phases
 	if (numFrames < 2)
-		return BK_INVALID_NUM_SAMPLES;
+		return BK_INVALID_NUM_FRAMES;
 
 	numChannels = BKClamp (numChannels, 1, BK_MAX_CHANNELS);
 	size        = numFrames * numChannels * sizeof (BKFrame);
@@ -304,7 +304,7 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 
 	if (newFrames) {
 		data -> samples     = newFrames;
-		data -> numSamples  = numFrames;
+		data -> numFrames   = numFrames;
 		data -> numChannels = numChannels;
 	}
 	else {
@@ -356,7 +356,7 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 	int    file;
 	off_t  size;
 	BKUInt packetSize;
-	BKUInt numSamples;
+	BKUInt numFrames;
 
 	if (BKDataInit (data) == 0) {
 		switch (numBits) {
@@ -389,11 +389,11 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 			size = size - (size % packetSize);  // round down to full packet
 
 			if (size != -1) {
-				numSamples = (BKUInt) size * 8 / (numChannels * numBits);
-				data -> samples = malloc (sizeof (BKFrame) * numSamples * numChannels);
+				numFrames = (BKUInt) size * 8 / (numChannels * numBits);
+				data -> samples = malloc (sizeof (BKFrame) * numFrames * numChannels);
 
 				if (data -> samples) {
-					data -> numSamples  = numSamples;
+					data -> numFrames  = numFrames;
 					data -> numChannels = numChannels;
 
 					lseek (file, 0, SEEK_SET);
@@ -430,7 +430,7 @@ BKInt BKDataNormalize (BKData * data)
 	if (res != 0)
 		return res;
 
-	for (BKInt i = 0; i < data -> numSamples * data -> numChannels; i ++) {
+	for (BKInt i = 0; i < data -> numFrames * data -> numChannels; i ++) {
 		value = BKAbs (data -> samples [i]);
 
 		if (value > maxValue)
@@ -440,7 +440,7 @@ BKInt BKDataNormalize (BKData * data)
 	if (maxValue) {
 		factor = (BK_MAX_VOLUME << 16) / maxValue;
 
-		for (BKInt i = 0; i < data -> numSamples * data -> numChannels; i ++)
+		for (BKInt i = 0; i < data -> numFrames * data -> numChannels; i ++)
 			data -> samples [i] = (data -> samples [i] * factor) >> 16;
 	}
 

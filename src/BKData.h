@@ -40,7 +40,7 @@ enum
 struct BKData
 {
 	BKUInt        flags;
-	BKUInt        numSamples;
+	BKUInt        numFrames;
 	BKUInt        numChannels;
 	BKFInt20      samplePitch;
 	BKFrame     * samples;

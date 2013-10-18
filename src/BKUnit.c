@@ -46,14 +46,14 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 		case BK_WAVEFORM: {
 			if (data && event != BK_DATA_STATE_EVENT_DISPOSE) {
 				if (data != unit -> sample.dataState.data) {
-					if (data -> numSamples >= 2) {
+					if (data -> numFrames >= 2) {
 						unit -> waveform          = BK_CUSTOM;
-						unit -> phase.count       = data -> numSamples;
+						unit -> phase.count       = data -> numFrames;
 						unit -> phase.haltSilence = 1;
 						unit -> phase.phase       = 0;
 					}
 					else {
-						return BK_INVALID_NUM_SAMPLES;
+						return BK_INVALID_NUM_FRAMES;
 					}
 				}
 			}
@@ -73,13 +73,13 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 				if (data -> numChannels != 1 && data -> numChannels != ctx -> numChannels) {
 					return BK_INVALID_NUM_CHANNELS;
 				}
-				else if (data -> numSamples < 2) {
-					return BK_INVALID_NUM_SAMPLES;
+				else if (data -> numFrames < 2) {
+					return BK_INVALID_NUM_FRAMES;
 				}
 				else {
 					unit -> waveform           = BK_SAMPLE;
 					unit -> phase.count        = 1;
-					unit -> sample.count       = data -> numSamples;
+					unit -> sample.count       = data -> numFrames;
 					unit -> sample.numChannels = data -> numChannels;
 
 					BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_BEGIN);
