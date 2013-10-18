@@ -156,7 +156,7 @@ int main (int argc, char * argv [])
 
 	BKTrackSetPtr (& sampleTrack, BK_INSTRUMENT, & instrument);
 
-	//BKTrackSetAttr (& sampleTrack, BK_NOTE, BK_A_3 * BK_FINT20_UNIT);
+	//BKTrackSetAttr (& sampleTrack, BK_NOTE, BK_C_4 * BK_FINT20_UNIT);
 	//BKInt const arpeggio [] = {6, 0, 0, 4 * BK_FINT20_UNIT, 4 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT};
 	//BKTrackSetPtr (& sampleTrack, BK_ARPEGGIO, arpeggio);
 	//BKTrackSetAttr (& sampleTrack, BK_EFFECT_PORTAMENTO, 2000);
