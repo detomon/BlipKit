@@ -73,7 +73,6 @@ struct BKInterpreter
 	BKInt        ** stackEnd;
 	BKInstrument ** instruments;
 	BKData       ** waveforms;
-	BKInt           pitch;
 	BKUInt          stepTickCount;
 	BKUInt          noteStepTickCount;
 	BKUInt          muteTickCount;

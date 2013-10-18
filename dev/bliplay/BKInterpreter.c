@@ -50,7 +50,6 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 		switch (command) {
 			case BKIntrAttack: {
 				value0 = * (opcode ++);
-				value0 += interpreter -> pitch;
 				BKTrackSetAttr (track, BK_NOTE, value0);
 				break;
 			}
@@ -97,7 +96,7 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 			}
 			case BKIntrPitch: {
 				value0 = * (opcode ++);
-				interpreter -> pitch = value0;
+				BKTrackSetAttr (track, BK_PITCH, value0);
 				break;
 			}
 			case BKIntrStep: {
@@ -202,9 +201,8 @@ void BKInterpreterDispose (BKInterpreter * interpreter)
 
 void BKInterpreterReset (BKInterpreter * interpreter)
 {
-	interpreter -> flags             = 0;
-	interpreter -> pitch             = 0;
-	interpreter -> muteTickCount     = 0;
-	interpreter -> opcodePtr         = interpreter -> opcode;
-	interpreter -> stackPtr          = interpreter -> stack;
+	interpreter -> flags         = 0;
+	interpreter -> muteTickCount = 0;
+	interpreter -> opcodePtr     = interpreter -> opcode;
+	interpreter -> stackPtr      = interpreter -> stack;
 }
