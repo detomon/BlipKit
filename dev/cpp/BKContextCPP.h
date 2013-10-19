@@ -52,20 +52,20 @@ public:
 
 	BKInt setPtr (BKEnum attr, void * ptr) { return BKContextSetPtr (& ctx, attr, ptr); }
 	BKInt getPtr (BKEnum attr, void * outPtr) const { return BKContextGetPtr (& ctx, attr, outPtr); }
-	
+
 	BKInt generate (BKFrame outFrames [], BKUInt size) { return BKContextGenerate (& ctx, outFrames, size); }
 	void run (BKFUInt20 endTime) { BKContextRun (& ctx, endTime); }
 	void end (BKFUInt20 endTime) { BKContextEnd (& ctx, endTime); }
 
 	BKInt size (void) const { return BKContextSize (& ctx); }
 	BKInt read (BKFrame outFrames [], BKUInt size) { return BKContextRead (& ctx, outFrames, size); }
-	
+
 	void reset (void) { BKContextReset (& ctx); }
 
 	BKInt attachClock (BlipKit::Clock * clock) { return BKClockAttach (& clock -> clock, & ctx, NULL); }
 
 	BKTime timeFromSeconds (double seconds) { return BKTimeFromSeconds (& ctx, seconds); }
-	
+
 	friend class Unit;
 	friend class Track;
 

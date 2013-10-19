@@ -54,13 +54,13 @@ class BlipKit::Divider
 
 private:
 	BKDivider divider;
-	
+
 public:
 	Divider (BKUInt count, BKCallback * callback) { BKDividerInit (& divider, count, callback); }
-	
+
 	void attach (BlipKit::Clock * clock) { BKDividerAttachToClock (& divider, & clock -> clock); }
 	void detach (void) { BKDividerDetach (& divider); }
-	
+
 	void reset (void) { BKDividerReset (& divider); }
 
 };
