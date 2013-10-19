@@ -47,7 +47,7 @@ public:
 	
 	~Track () { BKTrackDispose (& track); }
 
-	BKInt attach (BlipKit::Context * ctx) { return BKTrackAttach (& track, & ctx -> ctx); }
+	BKInt attach (BlipKit::Context & ctx) { return BKTrackAttach (& track, & ctx.ctx); }
 	void detach (void) { BKTrackDetach (& track); }
 	
 	BKInt setAttr (BKEnum attr, BKInt value) { return BKTrackSetAttr (& track, attr, value); }

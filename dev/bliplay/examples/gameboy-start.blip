@@ -14,5 +14,6 @@ t:begin:square;
 	g:end;
 
 	g:0;
+	x;
 
 t:end;

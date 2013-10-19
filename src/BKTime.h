@@ -126,10 +126,10 @@ static inline BKTime BKTimeFromSamples (long samples)
 static inline BKTime BKTimeMake (BKInt samples, BKFUInt20 frac)
 {
 	BKTime time;
-	
+
 	time.time = samples + (frac >> BK_FINT20_SHIFT);
 	time.frac = frac & BK_FINT20_FRAC;
-	
+
 	return time;
 }
 
@@ -244,7 +244,7 @@ static inline BKTime BKTimeFromSamples (long samples)
 
 	time.time = (BKInt) (samples >> BK_FINT20_SHIFT);
 	time.frac = samples & BK_FINT20_FRAC;
-	
+
 	return time;
 }
 */

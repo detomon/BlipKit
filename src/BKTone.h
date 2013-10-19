@@ -32,6 +32,18 @@
 #define BK_NOTE_RELEASE -1
 #define BK_NOTE_MUTE    -2
 
+#define BK_MIN_PIANO_TONE (3 - 4 * 12 + BK_C_0)
+#define BK_MAX_PIANO_TONE (BK_MIN_PIANO_TONE + BK_C_8)
+
+#define BK_MIN_SAMPLE_TONE (-4 * 12 + BK_C_0)
+#define BK_MAX_SAMPLE_TONE (BK_MIN_SAMPLE_TONE + BK_C_8)
+
+#define BK_TONE_SHIFT 16
+#define BK_TONE_UNIT (1 << BK_TONE_SHIFT)
+#define BK_TONE_FRAC (BK_TONE_UNIT - 1)
+
+#define BK_TONE_SAMPLE_RATE_SHIFT 18
+
 enum
 {
 	BK_C_0, BK_C_SH_0, BK_D_0, BK_D_SH_0, BK_E_0, BK_F_0, BK_F_SH_0,
@@ -53,6 +65,14 @@ enum
 	BK_C_8,
 };
 
+/**
+ *
+ */
 extern BKFUInt20 BKTonePeriodLookup (BKFInt20 tone, BKUInt sampleRate);
+
+/**
+ *
+ */
+extern BKFUInt20 BKLog2PeriodLookup (BKFInt20 tone);
 
 #endif /* ! _BK_NOTE_H_ */

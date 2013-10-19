@@ -28,7 +28,7 @@ static BKEnum BKContextTick (BKCallbackInfo * info, BKContext * ctx)
 {
 	BKDividerTick (ctx -> beatDividers.firstDivider, info);
 	BKDividerTick (ctx -> effectDividers.firstDivider, info);
-	
+
 	return 0;
 }
 
@@ -78,7 +78,7 @@ void BKContextDispose (BKContext * ctx)
 	BKUnit   * nextUnit;
 	BKClock  * nextClock;
 	BKBuffer * channel;
-	
+
 	for (BKUnit * unit = ctx -> firstUnit; unit; unit = nextUnit) {
 		nextUnit = unit -> nextUnit;
 		BKUnitDetach (unit);
@@ -123,7 +123,7 @@ BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value)
 BKInt BKContextGetAttr (BKContext const * ctx, BKEnum attr, BKInt * outValue)
 {
 	BKInt value = 0;
-	
+
 	switch (attr) {
 		case BK_NUM_CHANNELS: {
 			value = ctx -> numChannels;
@@ -145,7 +145,7 @@ BKInt BKContextGetAttr (BKContext const * ctx, BKEnum attr, BKInt * outValue)
 }
 
 BKInt BKContextSetPtr (BKContext * ctx, BKEnum attr, void * ptr)
-{	
+{
 	switch (attr) {
 		case BK_CLOCK_PERIOD: {
 			BKTime time = * (BKTime *) ptr;
@@ -164,7 +164,7 @@ BKInt BKContextSetPtr (BKContext * ctx, BKEnum attr, void * ptr)
 			break;
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -200,25 +200,25 @@ BKInt BKContextGenerate (BKContext * ctx, BKFrame outFrames [], BKUInt size)
 	BKInt  result;
 
 	remainingSize = size;
-	
+
 	do {
 		chunkSize = remainingSize;
-		
+
 		if (chunkSize > BK_MAX_GENERATE_SAMPLES)
 			chunkSize = BK_MAX_GENERATE_SAMPLES;
 
 		endTime = chunkSize << BK_FINT20_SHIFT;
 		result = BKContextEnd (ctx, endTime);
-		
+
 		if (result < 0)
 			return result;
-		
+
 		chunkSize = BKContextRead (ctx, outFrames, chunkSize);
-		
+
 		// no track has written data
 		if (chunkSize == 0)
 			chunkSize = remainingSize;
-		
+
 		remainingSize -= chunkSize;
 		outFrames += chunkSize * ctx -> numChannels;
 	}
@@ -317,7 +317,7 @@ BKInt BKContextRun (BKContext * ctx, BKFUInt20 endTime)
 
 			if (result < 0)
 				return result;
-			
+
 			// set new end time
 			time += clockDelta;
 
@@ -344,7 +344,7 @@ BKInt BKContextEnd (BKContext * ctx, BKFUInt20 endTime)
 	BKInt      result;
 
 	result = BKContextRun (ctx, endTime);
-	
+
 	if (result < 0)
 		return result;
 
@@ -378,7 +378,7 @@ BKInt BKContextRead (BKContext * ctx, BKFrame outFrames [], BKUInt size)
 	for (BKInt i = 0; i < ctx -> numChannels; i ++) {
 		channel = & ctx -> channels [i];
 		// interlace into `outFrames`
-		size = BKBufferRead (channel, & outFrames [i], size, ctx -> numChannels);		
+		size = BKBufferRead (channel, & outFrames [i], size, ctx -> numChannels);
 	}
 
 	return size;

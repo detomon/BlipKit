@@ -44,16 +44,16 @@ static int getchar_nocanon (unsigned tcflags)
 {
 	int c;
 	struct termios oldtc, newtc;
-	
+
 	tcgetattr (STDIN_FILENO, & oldtc);
-	
+
 	newtc = oldtc;
 	newtc.c_lflag &= ~(ICANON | ECHO | tcflags);
-	
+
 	tcsetattr (STDIN_FILENO, TCSANOW, & newtc);
 	c = getchar ();
 	tcsetattr (STDIN_FILENO, TCSANOW, & oldtc);
-	
+
 	return c;
 }
 
@@ -61,12 +61,12 @@ static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
 {
 	// calculate needed frames for one channel
 	BKUInt numFrames = len / sizeof (BKFrame) / info -> numChannels;
-	
+
 	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
 }
 
 BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
-{	
+{
 	static BKInt notes [32] = {
 		BK_D_2, BK_NOTE_RELEASE, BK_F_2, -3,
 		BK_A_0, BK_NOTE_RELEASE,     -3, -3,
@@ -82,16 +82,16 @@ BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 
 	if (note >= 0)
 		note *= BK_FINT20_UNIT;
-				
+
 	// Set track note
 	if (note != -3)
 		BKTrackSetAttr (& organ, BK_NOTE, note);
-	
+
 	i ++;
-	
+
 	if (i >= 32)
 		i = 0;
-	
+
 	return 0;
 }
 
@@ -103,47 +103,47 @@ int main (int argc, char * argv [])
 {
 	BKInt const numChannels = 2;
 	BKInt const sampleRate  = 44100;
-	
+
 	BKContextInit (& ctx, numChannels, sampleRate);
-	
+
 	BKTrackInit (& organ, BK_SQUARE);
-	
+
 	BKTrackSetAttr (& organ, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& organ, BK_VOLUME,        0.5 * BK_MAX_VOLUME);
 
 	// portamento
 	BKTrackSetAttr (& organ, BK_EFFECT_PORTAMENTO, 15);
-	
+
 	// tremolo
 	BKInt const tremolo [2] = {12, 0.66 * BK_MAX_VOLUME};
 	BKTrackSetPtr (& organ, BK_EFFECT_TREMOLO, tremolo);
-	
+
 	BKTrackAttach (& organ, & ctx);
-	
+
 	//// custom waveform
 	#define NUM_PHASES 16
-	
+
 	BKFrame const phases [NUM_PHASES] = {
 		 0, +1, +3, +6,
 		+4, +5, +6, +7,
 		 0, +1, +2, +3,
 		-1,  0, -5, -6,
 	};
-	
+
 	BKDataInitWithFrames (& organWaveform, phases, NUM_PHASES, 1, 1);
-	
+
 	// Normalize frames to maximum amplitude
 	BKDataNormalize (& organWaveform);
-	
+
 	// Set data object as waveform
 	BKTrackSetPtr (& organ, BK_WAVEFORM, & organWaveform);
 	////
-	
+
 	//// instrument with release sequence
 	BKInstrumentInit (& instrument);
-	
+
 	#define NUM_SEQUENCE_PHASES 11
-	
+
 	BKInt const volumeSequence [NUM_SEQUENCE_PHASES] = {
 		1.0 * BK_MAX_VOLUME,
 		0.9 * BK_MAX_VOLUME, 0.8 * BK_MAX_VOLUME, 0.7 * BK_MAX_VOLUME,
@@ -151,18 +151,18 @@ int main (int argc, char * argv [])
 		0.3 * BK_MAX_VOLUME, 0.2 * BK_MAX_VOLUME, 0.1 * BK_MAX_VOLUME,
 		0.0 * BK_MAX_VOLUME,
 	};
-	
+
 	BKInstrumentSetSequence (& instrument, BK_SEQUENCE_VOLUME, volumeSequence, NUM_SEQUENCE_PHASES, 0, 1);
 
 	BKTrackSetPtr (& organ, BK_INSTRUMENT, & instrument);
 	////
-	
+
 	// Callback struct used for initializing divider
 	BKCallback callback;
-	
+
 	callback.func     = dividerCallback;
 	callback.userInfo = NULL;
-	
+
 	// We want 120 BPM
 	// The master clock ticks at 240 Hz
 	// This results to an divider value of 80
@@ -173,60 +173,60 @@ int main (int argc, char * argv [])
 
 	// Initialize divider with divider value and callback
 	BKDividerInit (& divider, dividerValue, & callback);
-	
+
 	// Attach the divider to the master clock
 	// When samples are generated the callback is called at the defined interval
 	BKContextAttachDivider (& ctx, & divider, BK_CLOCK_TYPE_BEAT);
-	
+
 	SDL_Init (SDL_INIT_AUDIO);
-	
+
 	SDL_AudioSpec wanted;
-	
+
 	userData.numChannels = numChannels;
 	userData.sampleRate  = sampleRate;
-	
+
 	wanted.freq     = sampleRate;
 	wanted.format   = AUDIO_S16SYS;
 	wanted.channels = numChannels;
 	wanted.samples  = 512;
 	wanted.callback = (void *) fill_audio;
 	wanted.userdata = & userData;
-	
+
 	if (SDL_OpenAudio (& wanted, NULL) < 0) {
 		fprintf (stderr, "Couldn't open audio: %s\n", SDL_GetError ());
 		return 1;
 	}
-	
+
 	SDL_PauseAudio (0);
-		
+
 	printf ("Press [q] to stop\n");
-	
+
 	while (1) {
 		int c = getchar_nocanon (0);
-		
+
 		// Use lock when setting attributes outside of divider callbacks
 		SDL_LockAudio ();
-		
+
 		//BKInt vibrato [2] = {16, 3 * BK_FINT20_UNIT};
 		//BKTrackSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato);
-		
+
 		SDL_UnlockAudio ();
-		
+
 		if (c == 'q')
 			break;
 	}
-	
+
 	printf ("\n");
-	
+
 	SDL_PauseAudio (1);
 	SDL_CloseAudio ();
-	
-	
+
+
 	BKDividerDispose (& divider);
 	BKDataDispose (& organWaveform);
 	BKInstrumentDispose (& instrument);
 	BKTrackDispose (& organ);
 	BKContextDispose (& ctx);
-	
+
     return 0;
 }

@@ -63,9 +63,9 @@ static BKFrame const stepPhases [BK_STEP_UNIT][BK_STEP_WIDTH] =
 };
 
 BKInt BKBufferInit (BKBuffer * buf)
-{	
+{
 	BKBufferClear (buf);
-		
+
 	return 0;
 }
 
@@ -93,7 +93,7 @@ BKInt BKBufferUpdateStep (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 	// add step
 	for (BKInt i = 0; i < BK_STEP_WIDTH; i ++)
 		frames [i] += phase [i] * pulse;
-	
+
 	return 0;
 }
 
@@ -147,9 +147,9 @@ BKInt BKBufferRead (BKBuffer * buf, BKFrame outFrames [], BKUInt size, BKUInt in
 	while (frames < & buf -> frames [size]) {
 		accum -= (accum >> (BK_INT_SHIFT - BK_HIGH_PASS_SHIFT));  // apply high pass filter
 		accum += (* frames ++);                                   // accumulate
-		
+
 		amp = accum >> (BK_INT_SHIFT - BK_FRAME_SHIFT - 2);  // remove fraction
-		
+
 		// clamp
 		if ((BKFrame) amp != amp)
 			amp = (amp >> BK_FRAME_SHIFT) ^ BK_FRAME_MAX;

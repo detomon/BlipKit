@@ -60,9 +60,9 @@ BKInt BKBlipReaderInit (BKBlipReader * reader, char const * data, size_t dataSiz
 	else {
 		reader -> read     = read;
 		reader -> userInfo = userInfo;
-		
+
 		reader -> data = malloc (INIT_DATA_SIZE);
-		
+
 		if (reader -> data) {
 			reader -> dataPtr  = reader -> data;
 			reader -> dataSize = 0;
@@ -76,7 +76,7 @@ BKInt BKBlipReaderInit (BKBlipReader * reader, char const * data, size_t dataSiz
 
 	if (reader -> buffer) {
 		reader -> argBuffer = malloc (INIT_ARGS_SIZE * sizeof (BKBlipArgument));
-		
+
 		if (reader -> argBuffer) {
 			reader -> bufferPtr         = reader -> bufferPtr;
 			reader -> bufferCapacity    = INIT_BUFFER_SIZE;
@@ -212,7 +212,7 @@ static BKInt BKBlipReaderReadBase64 (BKBlipReader * reader, BKBlipArgument * arg
 
 		if (c != -1) {
 			bc = BKReaderBase64Table [c];
-			
+
 			// valid char
 			if (bc >= 0) {
 				value = (value << 6) + bc;
@@ -248,7 +248,7 @@ static BKInt BKBlipReaderReadBase64 (BKBlipReader * reader, BKBlipArgument * arg
 	// padding not needed
 	while (c == '=') {
 		c = BKBlipReaderGetChar (reader);
-		
+
 		if (c == -1)
 			return -1;
 	}
@@ -381,7 +381,7 @@ BKInt BKBlipReaderNextCommand (BKBlipReader * reader, BKBlipCommand * command)
 
 			if (arg == NULL)
 				return -1;
-			
+
 			ret = BKBlipReaderReadArg (reader, arg);
 
 			if (ret >= 0) {
@@ -404,7 +404,7 @@ BKInt BKBlipReaderNextCommand (BKBlipReader * reader, BKBlipCommand * command)
 		while (1);
 	}
 	while (arg -> size == 0);
-	
+
 	command -> name     = reader -> argBuffer [0].arg;
 	command -> nameSize = reader -> argBuffer [0].size;
 	command -> args     = & reader -> argBuffer [1];

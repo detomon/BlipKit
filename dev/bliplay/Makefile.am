@@ -1,6 +1,6 @@
 AM_CFLAGS = @BK_STD_CFLAGS@ -I$(srcdir)/../../src -L$(srcdir)/../../src
 
-pkginclude_HEADERS = \
+dist_noinst_HEADERS = \
 	BKSDLTrack.h \
 	BKBlipReader.h \
 	BKBlipWriter.h \

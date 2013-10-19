@@ -217,10 +217,10 @@ static inline BKTime BKTimeFromSeconds (BKContext * ctx, double seconds)
 {
 	BKTime time;
 	double samples = ctx -> sampleRate * seconds;
-	
+
 	time.time = samples;
 	time.frac = (samples - time.time) * BK_FINT20_UNIT;
-	
+
 	return time;
 }
 

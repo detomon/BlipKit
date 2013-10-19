@@ -43,7 +43,7 @@ struct BKUnit
 	// linking
 	BKUnit * prevUnit;
 	BKUnit * nextUnit;
-	
+
 	// waveform
 	BKEnum waveform;
 	BKUInt dutyCycle;
@@ -143,8 +143,7 @@ extern void BKUnitDetach (BKUnit * unit);
  *   Can eighter be 0 or 1
  *   Default is 0
  * BK_SAMPLE_REPEAT
- *   Repeat sample
- *   Can be a value between 0 and BK_INT_MAX
+ *   Repeat sample if set to 1
  *   Default is 0
  *   Use `BK_SAMPLE_CALLBACK` to have more control
  *   Does nothing if `BK_SAMPLE_CALLBACK` is set
@@ -190,7 +189,7 @@ extern BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue);
  *   Number of channels is ignored
  * BK_SAMPLE
  *   Set sample to play via a `BKData` object. Sample is only played once.
- *   If it should be repeated set attribute `BK_SAMPLE_REPEAT` to a value greater 1 or 
+ *   If it should be repeated set attribute `BK_SAMPLE_REPEAT` to a value greater 1 or
  *   set `BK_SAMPLE_CALLBACK`
  *
  * Errors:

@@ -2,15 +2,14 @@ AM_CFLAGS = @BK_STD_CFLAGS@ -I$(srcdir)/../src -L$(srcdir)/../src
 #AM_LDFLAGS = -lblipkit @SDL_CFLAGS@
 BK_LDADD = -lblipkit @SDL_CFLAGS@
 
-#bin_PROGRAMS = tone divider stereo scratch waveform envelope
-
 EXTRA_PROGRAMS = \
 	tone \
 	divider \
 	stereo \
 	scratch \
 	waveform \
-	envelope
+	envelope \
+	sample
 
 # LDFLAGS should be used for linking libraries not LDADD
 # But some newer GCC versions need to have the linkings at the end
@@ -32,3 +31,6 @@ waveform_LDADD = $(BK_LDADD)
 
 envelope_SOURCES = envelope.c
 envelope_LDADD = $(BK_LDADD)
+
+sample_SOURCES = sample.c
+sample_LDADD = $(BK_LDADD)

@@ -58,7 +58,7 @@ BKInt BKBlipWriterInit (BKBlipWriter * writer, BKBlipWriterCallback write, void 
 	memset (writer, 0, sizeof (BKBlipWriter));
 
 	writer -> buffer = malloc (INIT_BUFFER_SIZE);
-	
+
 	if (writer -> buffer) {
 		writer -> bufferPtr      = writer -> buffer;
 		writer -> bufferCapacity = INIT_BUFFER_SIZE;
@@ -70,7 +70,7 @@ BKInt BKBlipWriterInit (BKBlipWriter * writer, BKBlipWriterCallback write, void 
 	}
 
 	//base64Table ();
-	
+
 	return 0;
 }
 
@@ -100,9 +100,9 @@ static BKInt BKBlipWriterWriteChar (BKBlipWriter * writer, char c)
 		if (BKBlipWriterFlushBuffer (writer) < 0)
 			return -1;
 	}
-	
+
 	* writer -> bufferPtr ++ = c;
-	
+
 	return 0;
 }
 
@@ -174,15 +174,15 @@ static BKInt BKBlipWriterWriteDataCharsBase64 (BKBlipWriter * writer, unsigned c
 static BKInt BKBlipWriterWriteCharsEscape (BKBlipWriter * writer, char const * chars, size_t size)
 {
 	char const * charsEnd;
-	
+
 	if (size == 0 && chars)
 		size = strlen (chars);
-	
+
 	for (charsEnd = & chars [size]; chars < charsEnd; chars ++) {
 		if (BKBlipWriterWriteCharEscape (writer, * chars) < 0)
 			return -1;
 	}
-	
+
 	return 0;
 }
 
@@ -192,7 +192,7 @@ static BKInt BKBlipWriterWriteChars (BKBlipWriter * writer, char const * chars, 
 
 	if (size == 0 && chars)
 		size = strlen (chars);
-	
+
 	for (charsEnd = & chars [size]; chars < charsEnd; chars ++) {
 		if (BKBlipWriterWriteChar (writer, * chars) < 0)
 			return -1;
@@ -212,7 +212,7 @@ static BKInt BKBlipWriterAddArg (BKBlipWriter * writer, char const * arg, size_t
 		return -1;
 
 	writer -> argCount ++;
-	
+
 	return 0;
 }
 
@@ -261,7 +261,7 @@ BKInt BKBlipWriterAddDataArg (BKBlipWriter * writer, void const * data, size_t s
 
 	if (BKBlipWriterWriteChar (writer, '!') < 0)
 		return -1;
-	
+
 	if (BKBlipWriterWriteDataCharsBase64 (writer, data, size) < 0)
 		return -1;
 
