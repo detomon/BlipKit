@@ -549,7 +549,7 @@ static BKInt BKUnitNextPhase (BKUnit * unit)
 			break;
 		}
 		case BK_CUSTOM: {
-			amp = unit -> sample.dataState.data -> samples [phase];
+			amp = unit -> sample.dataState.data -> frames [phase];
 			phase ++;
 			if (phase >= unit -> phase.count)
 				phase = 0;
@@ -679,7 +679,7 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 	BKInt      volume;
 	BKBuffer * channel;
 	BKInt      pulse, delta, chanDelta;
-	BKFrame  * samples;
+	BKFrame  * frames;
 	BKData   * data;
 
 	data = unit -> sample.dataState.data;
@@ -691,13 +691,13 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 	for (time = unit -> time; time < endTime; time += BK_FINT20_UNIT) {
 		BKInt reset = 0;
 
-		samples = & data -> samples [unit -> phase.phase * unit -> sample.numChannels];
+		frames = & data -> frames [unit -> phase.phase * unit -> sample.numChannels];
 
 		// update each channel
 		for (BKInt i = 0; i < unit -> ctx -> numChannels; i ++) {
 			channel = & unit -> ctx -> channels [i];
 			volume  = unit -> volume [i];
-			pulse   = samples [unit -> sample.numChannels == 1 ? 0 : i];
+			pulse   = frames [unit -> sample.numChannels == 1 ? 0 : i];
 			delta   = (pulse * volume) >> BK_VOLUME_SHIFT;
 
 			chanDelta = delta - unit -> lastPulse [i];
