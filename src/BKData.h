@@ -43,7 +43,7 @@ struct BKData
 	BKUInt        numFrames;
 	BKUInt        numChannels;
 	BKFInt20      samplePitch;
-	BKFrame     * samples;
+	BKFrame     * frames;
 	BKDataState * stateList;
 };
 
@@ -95,7 +95,7 @@ extern BKInt BKDataInitCopy (BKData * copy, BKData * original);
 
 /**
  * BK_SAMPLE_PITCH
- *   Samples are assumed to be tuned in BK_C_4.
+ *   Frames are assumed to be tuned in BK_C_4.
  *   The sample pitch can be corrected with this value.
  *   Value is multiple of BK_FINT20_UNIT.
  *   This attribute must be set before the data object is attached to a track.
@@ -149,7 +149,7 @@ extern BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numF
 extern BKInt BKDataInitWithFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy);
 
 /**
- * Load samples from raw audio file
+ * Load frames from raw audio file
  * `numChannels` must be between 1 and BK_MAX_CHANNELS
  * If `bits` is greater than 8 `endian` must be set eighter to `BK_BIG_ENDIAN`
  * or `BK_LITTLE_ENDIAN` otherwise the system endianess is used

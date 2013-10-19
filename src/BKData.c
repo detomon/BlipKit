@@ -148,9 +148,9 @@ static BKInt BKDataPromoteToCopy (BKData * data)
 		if (frames == NULL)
 			return BK_ALLOCATION_ERROR;
 
-		memcpy (frames, data -> samples, size);
+		memcpy (frames, data -> frames, size);
 
-		data -> samples = frames;
+		data -> frames = frames;
 		data -> flags |= BK_DATA_FLAG_COPY;
 	}
 
@@ -171,8 +171,8 @@ void BKDataDispose (BKData * data)
 
 	BKDataResetStates (data, BK_DATA_STATE_EVENT_DISPOSE);
 
-	if (data -> samples)
-		free (data -> samples);
+	if (data -> frames)
+		free (data -> frames);
 
 	memset (data, 0, sizeof (BKData));
 }
@@ -185,8 +185,8 @@ BKInt BKDataInitCopy (BKData * copy, BKData * original)
 
 	copy -> flags = (original -> flags & BK_DATA_FLAG_COPY_MASK);
 
-	if (original -> samples)
-		res = BKDataSetFrames (copy, original -> samples, original -> numFrames, original -> numChannels, 1);
+	if (original -> frames)
+		res = BKDataSetFrames (copy, original -> frames, original -> numFrames, original -> numChannels, 1);
 
 	if (res < 0)
 		return res;
@@ -256,7 +256,7 @@ BKInt BKDataGetPtr (BKData * data, BKEnum attr, void * outPtr)
 
 	switch (attr) {
 		case BK_SAMPLE: {
-			* ptrRef = data -> samples;
+			* ptrRef = data -> frames;
 			break;
 		}
 		default: {
@@ -282,7 +282,7 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 
 	if (copy) {
 		if (data -> flags & BK_DATA_FLAG_COPY) {
-			newFrames = realloc (data -> samples, size);
+			newFrames = realloc (data -> frames, size);
 		}
 		else {
 			newFrames = malloc (size);
@@ -295,15 +295,15 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 	}
 	else {
 		if (data -> flags & BK_DATA_FLAG_COPY) {
-			if (data -> samples)
-				free (data -> samples);
+			if (data -> frames)
+				free (data -> frames);
 		}
 
 		newFrames = (BKFrame *) frames;
 	}
 
 	if (newFrames) {
-		data -> samples     = newFrames;
+		data -> frames      = newFrames;
 		data -> numFrames   = numFrames;
 		data -> numChannels = numChannels;
 	}
@@ -390,17 +390,17 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 
 			if (size != -1) {
 				numFrames = (BKUInt) size * 8 / (numChannels * numBits);
-				data -> samples = malloc (sizeof (BKFrame) * numFrames * numChannels);
+				data -> frames = malloc (sizeof (BKFrame) * numFrames * numChannels);
 
-				if (data -> samples) {
+				if (data -> frames) {
 					data -> numFrames  = numFrames;
 					data -> numChannels = numChannels;
 
 					lseek (file, 0, SEEK_SET);
-					read (file, data -> samples, size);
+					read (file, data -> frames, size);
 
 					if (BKSystemIsBigEndian () != (endian == BK_BIG_ENDIAN))
-						BKEndianReverse16Bit (data -> samples, size);
+						BKEndianReverse16Bit (data -> frames, size);
 				}
 			}
 			else {
@@ -431,7 +431,7 @@ BKInt BKDataNormalize (BKData * data)
 		return res;
 
 	for (BKInt i = 0; i < data -> numFrames * data -> numChannels; i ++) {
-		value = BKAbs (data -> samples [i]);
+		value = BKAbs (data -> frames [i]);
 
 		if (value > maxValue)
 			maxValue = value;
@@ -441,7 +441,7 @@ BKInt BKDataNormalize (BKData * data)
 		factor = (BK_MAX_VOLUME << 16) / maxValue;
 
 		for (BKInt i = 0; i < data -> numFrames * data -> numChannels; i ++)
-			data -> samples [i] = (data -> samples [i] * factor) >> 16;
+			data -> frames [i] = (data -> frames [i] * factor) >> 16;
 	}
 
 	return 0;
