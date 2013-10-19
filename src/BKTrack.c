@@ -148,20 +148,22 @@ static void BKTrackUpdateUnitNote (BKTrack * track)
 	if (track -> flags & BKArpeggioFlag)
 		note += track -> arpeggio.delta;
 
-	if (track -> flags & BKInstrumentFlag)
-		note += track -> instrState.states[BK_SEQUENCE_ARPEGGIO].value;
-
 	if (track -> flags & BKVibratoFlag)
 		note += BKIntervalStateGetValue (& track -> vibrato);
+
+	if (track -> flags & BKInstrumentFlag)
+		note += track -> instrState.states[BK_SEQUENCE_ARPEGGIO].value;
 
 	note += track -> pitch;
 
 	if (track -> waveform != BK_SAMPLE) {
-		period = BKTonePeriodLookup (note, track -> unit.ctx -> sampleRate) / track -> unit.phase.count;
+		period = BKTonePeriodLookup (note, track -> unit.ctx -> sampleRate);
+		period /= track -> unit.phase.count;
 		BKUnitSetAttr (& track -> unit, BK_PERIOD, period);
 	}
 	else {
-		period = BKLog2PeriodLookup (note + track -> samplePitch);
+		note += track -> samplePitch;
+		period = BKLog2PeriodLookup (note);
 		BKUnitSetAttr (& track -> unit, BK_SAMPLE_PERIOD, period);
 	}
 }
