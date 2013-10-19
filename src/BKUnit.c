@@ -685,9 +685,8 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 	data = unit -> sample.dataState.data;
 
 	// muted
-	if (unit -> mute) {
-		return time;
-	}
+	if (unit -> mute)
+		return endTime;
 
 	for (time = unit -> time; time < endTime; time += BK_FINT20_UNIT) {
 		BKInt reset = 0;
