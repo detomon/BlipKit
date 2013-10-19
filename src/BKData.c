@@ -181,9 +181,11 @@ BKInt BKDataInitCopy (BKData * copy, BKData * original)
 {
 	BKInt res = 0;
 
-	memset (copy, 0, sizeof (BKData));
+	memset (copy, original, sizeof (BKData));
 
-	copy -> flags = (original -> flags & BK_DATA_FLAG_COPY_MASK);
+	copy -> flags    &= BK_DATA_FLAG_COPY_MASK;
+	copy -> stateList = NULL;
+	copy -> frames    = NULL;
 
 	if (original -> frames)
 		res = BKDataSetFrames (copy, original -> frames, original -> numFrames, original -> numChannels, 1);
