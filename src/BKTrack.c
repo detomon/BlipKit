@@ -68,21 +68,21 @@ static BKInt BKTrackInstrStateCallback (BKEnum event, BKTrack * track)
 	return 0;
 }
 
-/** 
+/**
  * Decrement state counter
  * If the state counter reaches 0 the counter is reset and 1 is returned
  */
 static BKInt BKDividerStateTick (BKDividerState * dividerState)
 {
 	BKInt tick = 0;
-	
+
 	if (dividerState -> counter == 0) {
 		dividerState -> counter = dividerState -> divider;
 		tick = 1;
 	}
 
 	dividerState -> counter --;
-	
+
 	return tick;
 }
 
@@ -148,20 +148,23 @@ static void BKTrackUpdateUnitNote (BKTrack * track)
 	if (track -> flags & BKArpeggioFlag)
 		note += track -> arpeggio.delta;
 
-	if (track -> flags & BKInstrumentFlag)
-		note += track -> instrState.states[BK_SEQUENCE_ARPEGGIO].value;
-
 	if (track -> flags & BKVibratoFlag)
 		note += BKIntervalStateGetValue (& track -> vibrato);
 
-	period = BKTonePeriodLookup (note, track -> unit.ctx -> sampleRate) / track -> unit.phase.count;		
+	if (track -> flags & BKInstrumentFlag)
+		note += track -> instrState.states[BK_SEQUENCE_ARPEGGIO].value;
+
+	note += track -> pitch;
 
 	if (track -> waveform != BK_SAMPLE) {
+		period = BKTonePeriodLookup (note, track -> unit.ctx -> sampleRate);
+		period /= track -> unit.phase.count;
 		BKUnitSetAttr (& track -> unit, BK_PERIOD, period);
 	}
 	else {
-#warning Special case for samples!
-		// ...
+		note += track -> samplePitch;
+		period = BKLog2PeriodLookup (note);
+		BKUnitSetAttr (& track -> unit, BK_SAMPLE_PERIOD, period);
 	}
 }
 
@@ -349,7 +352,7 @@ static BKEnum BKTrackTick (BKCallbackInfo * info, BKTrack * track)
 	}
 
 	// 3. Update unit
-	
+
 	BKTrackUpdateUnit (track);
 
 	// 4. Tick effects
@@ -523,13 +526,18 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 		note = BKClamp (note, BK_MIN_NOTE << BK_FINT20_SHIFT, BK_MAX_NOTE << BK_FINT20_SHIFT);
 
 		BKSlideStateSetValue (& track -> note, note);
-		
+
 		if (track -> curNote == -1) {
 			// halt portamento
 			BKSlideStateHalt (& track -> note, 1);
 
 			if (track -> flags & BKInstrumentFlag)
 				BKTrackInstrumentAttack (track);
+		}
+
+		if (track -> waveform == BK_SAMPLE) {
+			if (track -> curNote == -1 || track -> unit.sample.repeat == 0)
+				BKUnitSetAttr (& track -> unit, BK_PHASE, 0);
 		}
 
 		track -> curNote         = note;
@@ -539,7 +547,7 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 	}
 	else if (note == BK_NOTE_RELEASE) {
 		track -> curNote = -1;
- 
+
 		if (track -> flags & BKInstrumentFlag) {
 			BKTrackInstrumentRelease (track);
 		}
@@ -566,25 +574,31 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 
 static void BKTrackSetInstrument (BKTrack * track, BKInstrument * instrument)
 {
-	BKInstrumentStateSetInstrument (& track -> instrState, instrument);
-	
-	if (instrument) {
-		track -> flags |= BKInstrumentFlag;
-		track -> instrDivider.counter = 0;
+	if (instrument != track -> instrState.instrument) {
+		BKInstrumentStateSetInstrument (& track -> instrState, instrument);
 
-		BKTrackSetInstrumentInitValues (track);
+		if (instrument) {
+			track -> flags |= BKInstrumentFlag;
+			track -> instrDivider.counter = 0;
 
-		BKTrackInstrumentMute (track);
+			BKTrackSetInstrumentInitValues (track);
+
+			if (track -> curNote == -1) {
+				BKTrackInstrumentMute (track);
+			}
+			else {
+				BKTrackInstrumentAttack (track);
+			}
+		}
+		else {
+			track -> flags &= ~BKInstrumentFlag;
+
+			if (track -> curNote == -1)
+				BKTrackSetNote (track, BK_NOTE_MUTE);
+		}
+
+		BKTrackInstrumentUpdateFlags (track);
 	}
-	else {
-		track -> flags &= ~BKInstrumentFlag;
-		
-		if (track -> curNote == -1)
-			BKTrackSetNote (track, BK_NOTE_MUTE);
-	
-	}
-
-	BKTrackInstrumentUpdateFlags (track);
 }
 
 BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value)
@@ -629,6 +643,14 @@ BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value)
 		}
 		case BK_NOTE: {
 			BKTrackSetNote (track, value);
+			break;
+		}
+		case BK_PITCH: {
+			track -> pitch = BKClamp (value, BK_MIN_SAMPLE_TONE << BK_FINT20_SHIFT, BK_MAX_SAMPLE_TONE << BK_FINT20_SHIFT);
+			break;
+		}
+		case BK_SAMPLE_PITCH: {
+			track -> samplePitch = BKClamp (value, BK_MIN_SAMPLE_TONE << BK_FINT20_SHIFT, BK_MAX_SAMPLE_TONE << BK_FINT20_SHIFT);
 			break;
 		}
 		case BK_ARPEGGIO_DIVIDER: {
@@ -699,6 +721,10 @@ BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
 			value = track -> curNote;
 			break;
 		}
+		case BK_SAMPLE_PITCH: {
+			value = track -> samplePitch;
+			break;
+		}
 		case BK_ARPEGGIO_DIVIDER: {
 			value = track -> arpeggioDivider.divider;
 			break;
@@ -719,7 +745,7 @@ BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
 		case BK_EFFECT_PANNING_SLIDE:
 		case BK_EFFECT_PORTAMENTO: {
 			ret = BKTrackGetPtr (track, attr, values);
-			
+
 			if (ret != 0)
 				return ret;
 
@@ -731,7 +757,7 @@ BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
 			break;
 		}
 	}
-	
+
 	* outValue = value;
 
 	return 0;
@@ -893,12 +919,20 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 				case BK_WAVEFORM:
 				case BK_SAMPLE: {
 					res = BKUnitSetPtr (& track -> unit, attr, ptr);
-					
+
 					if (res != 0)
 						return res;
-					
+
+					BKUnitGetAttr (& track -> unit, BK_WAVEFORM, & track -> waveform);
 					BKTrackUpdateIgnoreVolume (track);
-					
+
+					if (track -> unit.sample.dataState.data) {
+						track -> samplePitch = track -> unit.sample.dataState.data -> samplePitch;
+					}
+					else {
+						track -> samplePitch = 0;
+					}
+
 					break;
 				}
 				case BK_INSTRUMENT: {
@@ -925,7 +959,7 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 			break;
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -954,10 +988,10 @@ BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr)
 				}
 				case BK_ARPEGGIO: {
 					BKInt * arpeggio = outPtr;
-					
+
 					arpeggio [0] = track -> arpeggio.count;
 					memcpy (& arpeggio [1], track -> arpeggio.notes, sizeof (BKInt) * track -> arpeggio.count);
-					
+
 					break;
 				}
 				default: {
@@ -969,6 +1003,6 @@ BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr)
 			break;
 		}
 	}
-		
+
 	return 0;
 }

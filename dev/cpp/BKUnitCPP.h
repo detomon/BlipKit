@@ -42,7 +42,7 @@ public:
 	
 	~Unit () { BKUnitDispose (& unit); }
 	
-	BKInt attach (BlipKit::Context * ctx) { return BKUnitAttach (& unit, & ctx -> ctx); }
+	BKInt attach (BlipKit::Context & ctx) { return BKUnitAttach (& unit, & ctx.ctx); }
 	void detach (void) { BKUnitDetach (& unit); }
 	
 	BKInt setAttr (BKEnum attr, BKInt value) { return BKUnitSetAttr (& unit, attr, value); }

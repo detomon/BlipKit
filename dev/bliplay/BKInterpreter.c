@@ -31,7 +31,7 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 	BKInt   numSteps = 0;
 	BKInt   run = 1;
 	BKInt * opcode = interpreter -> opcodePtr;
-	
+
 	if (interpreter -> noteStepTickCount) {
 		numSteps = interpreter -> noteStepTickCount;
 		interpreter -> noteStepTickCount = 0;
@@ -40,17 +40,16 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 			BKTrackSetAttr (track, BK_NOTE, BK_NOTE_RELEASE);
 			interpreter -> flags &= ~BKIntrReleaseFlag;
 		}
-		
+
 		return numSteps;
 	}
-	
+
 	do {
 		command = * (opcode ++);
-		
+
 		switch (command) {
 			case BKIntrAttack: {
 				value0 = * (opcode ++);
-				value0 += interpreter -> pitch;
 				BKTrackSetAttr (track, BK_NOTE, value0);
 				break;
 			}
@@ -97,7 +96,7 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 			}
 			case BKIntrPitch: {
 				value0 = * (opcode ++);
-				interpreter -> pitch = value0;
+				BKTrackSetAttr (track, BK_PITCH, value0);
 				break;
 			}
 			case BKIntrStep: {
@@ -151,7 +150,7 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 			}
 			case BKIntrCall: {
 				value0 = * (opcode ++);
-				
+
 				if (interpreter -> stackPtr < interpreter -> stackEnd) {
 					* (interpreter -> stackPtr ++) = opcode;
 					opcode = & interpreter -> opcode [value0];
@@ -196,12 +195,14 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 void BKInterpreterDispose (BKInterpreter * interpreter)
 {
 	item_list_free (& interpreter -> opcode);
-	
+
 	memset (interpreter, 0, sizeof (BKInterpreter));
 }
 
 void BKInterpreterReset (BKInterpreter * interpreter)
 {
-	interpreter -> opcodePtr = interpreter -> opcode;
-	interpreter -> stackPtr  = interpreter -> stack;
+	interpreter -> flags         = 0;
+	interpreter -> muteTickCount = 0;
+	interpreter -> opcodePtr     = interpreter -> opcode;
+	interpreter -> stackPtr      = interpreter -> stack;
 }

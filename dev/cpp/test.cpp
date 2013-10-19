@@ -39,7 +39,7 @@ int main (int argc, char const * argv [])
 	Context ctx   = Context (2, 44100);
 	Track   track = Track (BK_SQUARE);
 
-	track.attach(& ctx);
+	track.attach(ctx);
 
 	track.setAttr(BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
 	track.setAttr(BK_VOLUME, BK_MAX_VOLUME);

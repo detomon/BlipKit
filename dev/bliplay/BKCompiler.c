@@ -47,6 +47,7 @@ static strval notes [] =
 {
 	{"a",  9},
 	{"a#", 10},
+	{"b",  11},
 	{"c",  0},
 	{"c#", 1},
 	{"d",  2},
@@ -83,6 +84,7 @@ static strval commands [] =
 	{"v",  BKIntrVolume},
 	{"vm", BKIntrMasterVolume},
 	{"w",  BKIntrWaveform},
+	{"x",  BKIntrEnd},
 };
 
 #define NUM_COMMANDS (sizeof (commands) / sizeof (strval))
@@ -146,7 +148,7 @@ BKInt BKCompilerInit (BKCompiler * compiler)
 
 	compiler -> flags &= ~BKCompilerArpeggioFlag;
 	compiler -> activeCmdList = & compiler -> cmds;
-	
+
 	return 0;
 }
 
@@ -168,10 +170,10 @@ static BKInt BKCompilerLookupValue (strval table [], size_t size, char const * n
 	BKUInt   index = -1;
 
 	item = bsearch (name, table, size, sizeof (strval), (void *) cmdcmp);
-	
+
 	if (item)
 		index = item -> value;
-	
+
 	return index;
 }
 
@@ -189,12 +191,12 @@ static BKInt BKCompilerLookupNote (char const * name)
 
 	strcpy (tone, "");  // empty name
 	sscanf (name, "%2[a-z#]%u", tone, & octave);  // scan string; d#3 => "d#", 3
-	
+
 	item = bsearch (tone, notes, NUM_NOTES, sizeof (strval), (void *) cmdcmp);
 
 	if (item) {
 		octave = BKClamp (octave, 0, 7);
-		
+
 		value = item -> value;
 		value += octave * 12;
 		value <<= BK_FINT20_SHIFT;
@@ -215,9 +217,9 @@ static BKInt * BKCompilerCombineCmds (BKCompiler * compiler, BKInt * allCmds, BK
 	for (BKInt * cmdPtr = cmds; cmdPtr < & cmds [numCmd];) {
 		argCount = 0;
 		variable = 0;
-		
+
 		cmd = * cmdPtr ++;
-		
+
 		switch (cmd) {
 			case BKIntrAttack:        argCount = 1; break;
 			case BKIntrArpeggio:      variable = 1; break;
@@ -241,20 +243,20 @@ static BKInt * BKCompilerCombineCmds (BKCompiler * compiler, BKInt * allCmds, BK
 			case BKIntrJump:          argCount = 1; break;
 			case BKIntrEnd:           argCount = 0; break;
 		}
-				
+
 		// command has variable number of arguments
 		if (variable) {
 			argCount = * cmdPtr ++;
 			* allCmds ++ = cmd;
 			* allCmds ++ = argCount;
-			
+
 			for (BKInt i = 0; i < argCount; i ++)
 				* allCmds ++ = * cmdPtr ++;
 		}
 		// command is group jump
 		else if (cmd == BKIntrGroup) {
 			value = * cmdPtr ++;
-			
+
 			if (value < item_list_length (compiler -> groupOffsets)) {
 				value = compiler -> groupOffsets [value] + item_list_length (compiler -> cmds);
 
@@ -311,7 +313,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 	strval * item;
 
 	item = bsearch (instr -> name, commands, NUM_COMMANDS, sizeof (strval), (void *) cmdcmp);
-	
+
 	if (item == NULL)
 		return 0;
 
@@ -340,7 +342,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 				else {
 					return -1;
 				}
-				
+
 				return 0;
 			}
 			// play group
@@ -348,12 +350,12 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 				item_list_add (cmds, item -> value);
 				item_list_add (cmds, atoix (arg0, 0));
 			}
-			
+
 			break;
 		}
 		case BKIntrAttack: {
 			value0 = BKCompilerLookupNote (arg0);
-			
+
 			if (value0 > -1) {
 				item_list_add (cmds, item -> value);
 				item_list_add (cmds, value0);
@@ -362,7 +364,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 				if (instr -> argCount > 1) {
 					item_list_add (cmds, BKIntrArpeggio);
 					item_list_add (cmds, (BKInt) instr -> argCount);
-					
+
 					for (BKInt j = 0; j < instr -> argCount; j ++) {
 						value1 = BKCompilerLookupNote (instr -> args [j].arg);
 
@@ -416,10 +418,10 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 		}
 		case BKIntrStep: {
 			value0 = atoix (arg0, 0);
-			
+
 			if (value0 == 0)
 				return 0;
-			
+
 			item_list_add (cmds, item -> value);
 			item_list_add (cmds, value0);
 			break;
@@ -525,7 +527,7 @@ BKInt BKCompilerTerminate (BKCompiler * compiler, BKInterpreter * interpreter)
 	// Add return command if group is not terminated
 	if (compiler -> groupLevel > 0)
 		item_list_add (& compiler -> groupCmds, BKIntrReturn);
-	
+
 	// add repeat command
 	item_list_add (& compiler -> cmds, BKIntrJump);
 	item_list_add (& compiler -> cmds, 0);
