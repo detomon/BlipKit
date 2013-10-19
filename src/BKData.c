@@ -181,7 +181,7 @@ BKInt BKDataInitCopy (BKData * copy, BKData * original)
 {
 	BKInt res = 0;
 
-	memset (copy, original, sizeof (BKData));
+	memcpy (copy, original, sizeof (BKData));
 
 	copy -> flags    &= BK_DATA_FLAG_COPY_MASK;
 	copy -> stateList = NULL;
