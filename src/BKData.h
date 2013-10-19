@@ -101,7 +101,7 @@ extern BKInt BKDataInitCopy (BKData * copy, BKData const * original);
  *   This attribute must be set before the data object is attached to a track.
  *
  * Errors:
- * Always returns BK_INVALID_ATTRIBUTE
+ * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
 extern BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value);
 
