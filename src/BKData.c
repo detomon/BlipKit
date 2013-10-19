@@ -177,7 +177,7 @@ void BKDataDispose (BKData * data)
 	memset (data, 0, sizeof (BKData));
 }
 
-BKInt BKDataInitCopy (BKData * copy, BKData * original)
+BKInt BKDataInitCopy (BKData * copy, BKData const * original)
 {
 	BKInt res = 0;
 
@@ -212,7 +212,7 @@ BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value)
 	return 0;
 }
 
-BKInt BKDataGetAttr (BKData * data, BKEnum attr, BKInt * outValue)
+BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue)
 {
 	BKInt value = 0;
 
@@ -252,7 +252,7 @@ BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr)
 	return 0;
 }
 
-BKInt BKDataGetPtr (BKData * data, BKEnum attr, void * outPtr)
+BKInt BKDataGetPtr (BKData const * data, BKEnum attr, void * outPtr)
 {
 	void ** ptrRef = outPtr;
 

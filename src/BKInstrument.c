@@ -283,10 +283,10 @@ BKInt BKInstrumentStateSetInstrument (BKInstrumentState * state, BKInstrument * 
 	return 0;
 }
 
-BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState * state, BKEnum slot, BKInt offset)
+BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState const * state, BKEnum slot, BKInt offset)
 {
 	BKInt value = 0;
-	BKSequenceState * sequenceState;
+	BKSequenceState const * sequenceState;
 
 	if (slot < BK_MAX_SEQUENCES) {
 		sequenceState = & state -> states [slot];
