@@ -91,7 +91,7 @@ extern void BKDataDispose (BKData * data);
  * Copy a data object
  * The copy will not be attached to any track
  */
-extern BKInt BKDataInitCopy (BKData * copy, BKData * original);
+extern BKInt BKDataInitCopy (BKData * copy, BKData const * original);
 
 /**
  * BK_SAMPLE_PITCH
@@ -115,7 +115,7 @@ extern BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKDataGetAttr (BKData * data, BKEnum attr, BKInt * outValue);
+extern BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue);
 
 /**
  * No attributes defined
@@ -134,7 +134,7 @@ extern BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKDataGetPtr (BKData * data, BKEnum attr, void * outPtr);
+extern BKInt BKDataGetPtr (BKData const * data, BKEnum attr, void * outPtr);
 
 /**
  * Set frames
