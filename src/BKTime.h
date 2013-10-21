@@ -111,13 +111,6 @@ static inline BKInt BKTimeIsLessEqual (BKTime a, BKTime b)
 	return a <= b;
 }
 
-/*
-static inline BKTime BKTimeFromSamples (long samples)
-{
-	return (BKTime) samples;
-}
-*/
-
 #else /* ! BK_USE_64_BIT */
 
 #define BK_TIME_ZERO ((BKTime) {0, 0})
@@ -236,18 +229,6 @@ static inline BKInt BKTimeIsLessEqual (BKTime a, BKTime b)
 {
 	return (a.time < b.time) || ((a.time == b.time) && (a.frac <= b.frac));
 }
-
-/*
-static inline BKTime BKTimeFromSamples (long samples)
-{
-	BKTime time;
-
-	time.time = (BKInt) (samples >> BK_FINT20_SHIFT);
-	time.frac = samples & BK_FINT20_FRAC;
-
-	return time;
-}
-*/
 
 #endif /* BK_USE_64_BIT */
 
