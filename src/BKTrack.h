@@ -30,6 +30,10 @@
 
 #define BK_EFFECT_FLAG_SHIFT (16 - BK_EFFECT_TYPE - 1)
 
+typedef struct BKTrack         BKTrack;
+typedef struct BKDividerState  BKDividerState;
+typedef struct BKArpeggioState BKArpeggioState;
+
 enum
 {
 	BKVolumeSlideFlag              = 1 << (BK_EFFECT_VOLUME_SLIDE  + BK_EFFECT_FLAG_SHIFT),
@@ -48,11 +52,6 @@ enum
 	BKEffectMask                   = BKPortamentoFlag | BKVolumeSlideFlag
 	| BKPanningSlideFlag | BKTremoloFlag | BKVibratoFlag,
 };
-
-
-typedef struct BKTrack         BKTrack;
-typedef struct BKDividerState  BKDividerState;
-typedef struct BKArpeggioState BKArpeggioState;
 
 struct BKDividerState
 {

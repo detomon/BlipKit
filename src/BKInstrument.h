@@ -28,6 +28,11 @@
 #include "BKContext.h"
 #include "BKSequence.h"
 
+typedef struct BKInstrumentState BKInstrumentState;
+typedef struct BKInstrument      BKInstrument;
+
+typedef BKInt (* BKInstrumentStateCallback) (BKEnum event, void * userInfo);
+
 enum
 {
 	BK_SEQUENCE_VOLUME,
@@ -43,11 +48,6 @@ enum
 	BK_INSTR_STATE_EVENT_DISPOSE,
 	BK_INSTR_STATE_EVENT_MUTE,
 };
-
-typedef struct BKInstrumentState BKInstrumentState;
-typedef struct BKInstrument      BKInstrument;
-
-typedef BKInt (* BKInstrumentStateCallback) (BKEnum event, void * userInfo);
 
 struct BKInstrumentState
 {
