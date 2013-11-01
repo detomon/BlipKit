@@ -36,9 +36,9 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 		numSteps = interpreter -> noteStepTickCount;
 		interpreter -> noteStepTickCount = 0;
 
-		if (interpreter -> flags & BKIntrReleaseFlag) {
+		if (interpreter -> flags & BKHasTickFlagRelease) {
 			BKTrackSetAttr (track, BK_NOTE, BK_NOTE_RELEASE);
-			interpreter -> flags &= ~BKIntrReleaseFlag;
+			interpreter -> flags &= ~BKHasTickFlagRelease;
 		}
 
 		return numSteps;
@@ -65,18 +65,18 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 				break;
 			}
 			case BKIntrRelease: {
-				interpreter -> muteTickCount = 0;
+				interpreter -> releaseTickCount = 0;
 				BKTrackSetAttr (track, BK_NOTE, BK_NOTE_RELEASE);
 				break;
 			}
 			case BKIntrMute: {
-				interpreter -> muteTickCount = 0;
+				interpreter -> releaseTickCount = 0;
 				BKTrackSetAttr (track, BK_NOTE, BK_NOTE_MUTE);
 				break;
 			}
 			case BKIntrMuteTicks: {
 				value0 = * (opcode ++);
-				interpreter -> muteTickCount = value0;
+				interpreter -> releaseTickCount = value0;
 				break;
 			}
 			case BKIntrVolume: {
@@ -173,18 +173,18 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 	}
 	while (run);
 
-	if (interpreter -> muteTickCount) {
-		if (interpreter -> muteTickCount > interpreter -> noteStepTickCount)
-			interpreter -> muteTickCount = interpreter -> noteStepTickCount;
+	if (interpreter -> releaseTickCount) {
+		if (interpreter -> releaseTickCount > interpreter -> noteStepTickCount)
+			interpreter -> releaseTickCount = interpreter -> noteStepTickCount;
 
-		numSteps = interpreter -> muteTickCount;
-		interpreter -> noteStepTickCount -= interpreter -> muteTickCount;
-		interpreter -> muteTickCount = 0;
-		interpreter -> flags |= BKIntrReleaseFlag;
+		numSteps = interpreter -> releaseTickCount;
+		interpreter -> noteStepTickCount -= interpreter -> releaseTickCount;
+		interpreter -> releaseTickCount = 0;
+		interpreter -> flags |= BKHasTickFlagRelease;
 	}
 	else {
 		interpreter -> noteStepTickCount = 0;
-		interpreter -> flags &= ~BKIntrReleaseFlag;
+		interpreter -> flags &= ~BKHasTickFlagRelease;
 	}
 
 	interpreter -> opcodePtr = opcode;
@@ -201,8 +201,8 @@ void BKInterpreterDispose (BKInterpreter * interpreter)
 
 void BKInterpreterReset (BKInterpreter * interpreter)
 {
-	interpreter -> flags         = 0;
-	interpreter -> muteTickCount = 0;
-	interpreter -> opcodePtr     = interpreter -> opcode;
-	interpreter -> stackPtr      = interpreter -> stack;
+	interpreter -> flags            = 0;
+	interpreter -> releaseTickCount = 0;
+	interpreter -> opcodePtr        = interpreter -> opcode;
+	interpreter -> stackPtr         = interpreter -> stack;
 }

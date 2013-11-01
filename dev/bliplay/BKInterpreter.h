@@ -37,7 +37,9 @@ enum
 	BKIntrAttack,
 	BKIntrArpeggio,
 	BKIntrArpeggioSpeed,
+	BKIntrAttackTicks,
 	BKIntrRelease,
+	BKIntrReleaseTicks,
 	BKIntrMute,
 	BKIntrMuteTicks,
 	BKIntrVolume,
@@ -45,6 +47,7 @@ enum
 	BKIntrPitch,
 	BKIntrMasterVolume,
 	BKIntrStep,
+	BKIntrTicks,
 	BKIntrEffect,
 	BKIntrDutyCycle,
 	BKIntrPhaseWrap,
@@ -60,7 +63,12 @@ enum
 
 enum
 {
-	BKIntrReleaseFlag = 1 << 0,
+	BKHasTickFlagAttack  = 1 << 0,
+	BKHasTickFlagRelease = 1 << 1,
+	BKHasTickFlagMute    = 1 << 2,
+	BKIntrFlagAttack     = 1 << 3,
+	BKIntrFlagRelease    = 1 << 4,
+	BKIntrFlagMute       = 1 << 5,
 };
 
 struct BKInterpreter
@@ -75,7 +83,11 @@ struct BKInterpreter
 	BKData       ** waveforms;
 	BKUInt          stepTickCount;
 	BKUInt          noteStepTickCount;
-	BKUInt          muteTickCount;
+	BKUInt          attackTickCount;
+	BKUInt          releaseTickCount;
+	BKInt           nextNote;
+	BKInt           numNextArpeggio;
+	BKInt           nextArpeggio [BK_MAX_ARPEGGIO];
 };
 
 /**
