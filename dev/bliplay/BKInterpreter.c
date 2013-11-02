@@ -134,8 +134,8 @@ BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * tr
 			}
 			case BKIntrWaveform: {
 				value0 = * (opcode ++);
-				if (value0 & BK_CUSTOM_WAVEFOMR_FLAG) {
-					value0 &= ~BK_CUSTOM_WAVEFOMR_FLAG;
+				if (value0 & BK_INTR_CUSTOM_WAVEFOMR_FLAG) {
+					value0 &= ~BK_INTR_CUSTOM_WAVEFOMR_FLAG;
 					BKTrackSetPtr (track, BK_WAVEFORM, value0 > -1 ? interpreter -> waveforms [value0] : NULL);
 				} else {
 					BKTrackSetAttr (track, BK_WAVEFORM, value0);

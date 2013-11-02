@@ -28,7 +28,7 @@
 #include "BKTrack.h"
 #include "item_list.h"
 
-#define BK_CUSTOM_WAVEFOMR_FLAG (1 << 24)
+#define BK_INTR_CUSTOM_WAVEFOMR_FLAG (1 << 24)
 
 typedef struct BKInterpreter BKInterpreter;
 
@@ -71,12 +71,19 @@ enum
 	BKIntrFlagMute       = 1 << 5,
 };
 
+struct BKTickEvent
+{
+	BKInt flags;
+	BKInt event;
+	BKInt ticks;
+};
+
 struct BKInterpreter
 {
 	BKUInt          flags;
 	BKInt         * opcode;
 	BKInt         * opcodePtr;
-	BKInt         * stack [64];
+	BKInt         * stack [BK_INTR_STACK_SIZE];
 	BKInt        ** stackPtr;
 	BKInt        ** stackEnd;
 	BKInstrument ** instruments;

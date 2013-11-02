@@ -509,7 +509,7 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 			}
 			else {
 				value0 = atoix (arg0, 0);
-				value0 |= BK_CUSTOM_WAVEFOMR_FLAG;
+				value0 |= BK_INTR_CUSTOM_WAVEFOMR_FLAG;
 				item_list_add (cmds, value0);
 			}
 			break;
