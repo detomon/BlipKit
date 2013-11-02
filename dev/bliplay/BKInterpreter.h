@@ -29,8 +29,11 @@
 #include "item_list.h"
 
 #define BK_INTR_CUSTOM_WAVEFOMR_FLAG (1 << 24)
+#define BK_INTR_STACK_SIZE 64
+#define BK_INTR_MAX_EVENTS 4
 
 typedef struct BKInterpreter BKInterpreter;
+typedef struct BKTickEvent   BKTickEvent;
 
 enum
 {
@@ -61,19 +64,8 @@ enum
 	BKIntrStepTicks,
 };
 
-enum
-{
-	BKHasTickFlagAttack  = 1 << 0,
-	BKHasTickFlagRelease = 1 << 1,
-	BKHasTickFlagMute    = 1 << 2,
-	BKIntrFlagAttack     = 1 << 3,
-	BKIntrFlagRelease    = 1 << 4,
-	BKIntrFlagMute       = 1 << 5,
-};
-
 struct BKTickEvent
 {
-	BKInt flags;
 	BKInt event;
 	BKInt ticks;
 };
@@ -89,18 +81,17 @@ struct BKInterpreter
 	BKInstrument ** instruments;
 	BKData       ** waveforms;
 	BKUInt          stepTickCount;
-	BKUInt          noteStepTickCount;
-	BKUInt          attackTickCount;
-	BKUInt          releaseTickCount;
+	BKUInt          numSteps;
 	BKInt           nextNote;
-	BKInt           numNextArpeggio;
-	BKInt           nextArpeggio [BK_MAX_ARPEGGIO];
+	BKInt           nextArpeggio [1 + BK_MAX_ARPEGGIO];
+	BKInt           numEvents;
+	BKTickEvent     events [BK_INTR_MAX_EVENTS];
 };
 
 /**
  * Apply commands to track and return steps to next event
  */
-extern BKInt BKInterpreterTrackApplyNextStep (BKInterpreter * interpreter, BKTrack * track);
+extern BKInt BKInterpreterTrackAdvance (BKInterpreter * interpreter, BKTrack * track);
 
 /**
  * Dispose interpreter
