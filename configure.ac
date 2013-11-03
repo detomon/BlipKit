@@ -35,6 +35,7 @@ AC_CONFIG_FILES([
  examples/Makefile
  dev/cpp/Makefile
  dev/bliplay/Makefile
+ dev/bfm/Makefile
  dev/fft/Makefile
  dev/step_phases/Makefile
  dev/tone_periods/Makefile

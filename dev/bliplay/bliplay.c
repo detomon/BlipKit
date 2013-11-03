@@ -76,6 +76,7 @@ static char const   * outputFilename;
 static FILE         * outputFile;
 static BKSDLContext   ctx, pauseCtx;
 static BKSDLContext * runCtx;
+static BKUInt         seekFrames;
 
 static int getchar_nocanon (unsigned tcflags) {
 	int c;
@@ -209,8 +210,9 @@ struct option const options [] = {
 	{"play",         optional_argument, NULL, 'p'},
 	{"check",        no_argument,       NULL, 'c'},
 	{"output",       required_argument, NULL, 'o'},
-	{"trunc-output", no_argument      , NULL, 'q'},
-	{"no-pause-snd", no_argument      , NULL, 'u'},
+	{"trunc-output", no_argument,       NULL, 'q'},
+	{"no-pause-snd", no_argument,       NULL, 'u'},
+	{"fast-forward", required_argument, NULL, 'f'},
 	{NULL,           0,                 NULL, 0},
 };
 
@@ -264,12 +266,13 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 	int    longoptind = 1;
 	BKUInt sampleRate = 44100;
 	BKUInt speed      = 0;
+	BKUInt seekTicks  = 0;
 
 	char const * error = NULL;
 
 	opterr = 0;
 
-	while ((opt = getopt_long (argc, (void *) argv, "cdhpo:qs:r:u", options, & longoptind)) != -1) {
+	while ((opt = getopt_long (argc, (void *) argv, "cdhpo:qs:r:uf:", options, & longoptind)) != -1) {
 		switch (opt) {
 			case 's': {
 				speed = atoi (optarg);
@@ -308,11 +311,16 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 				flags |= NO_PAUSE_SND_FLAG;
 				break;
 			}
-			default:
+			case 'f': {
+				seekFrames = atoi (optarg);
+				break;
+			}
+			default: {
 				fprintf (stderr, "Unknown option %c near %s\n", opt, argv [longoptind]);
 				printOptionHelp ();
 				exit (1);
 				break;
+			}
 		}
 	}
 
@@ -415,6 +423,15 @@ static BKInt handleKeys ()
 	printf ("[space] = play/pause, [q] = stop\n");
 
 	if (flags & PLAY_FLAG) {
+		BKInt i = 0, n;
+		BKFrame frames [ctx.ctx.numChannels * 512];
+
+		while (i < seekFrames) {
+			n = BKMin (seekFrames - i, 512);
+			BKContextGenerate (& ctx.ctx, frames, n);
+			i += n;
+		}
+
 		paused = 0;
 		SDL_PauseAudio (0);
 		printf ("\rPlaying...");

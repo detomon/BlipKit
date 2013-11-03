@@ -125,13 +125,13 @@ t:begin:sawtooth;
 
 	g:begin;
 		s:2;
-		a:c1;mt:24;s:2;r;
+		a:c1;rt:24;s:2;r;
 		s:2;
-		a:c1;mt:24;s:2;r;
+		a:c1;rt:24;s:2;r;
 		s:2;
-		a:c1;mt:24;s:2;r;
+		a:c1;rt:24;s:2;r;
 		s:2;
-		a:c1;mt:24;s:2;r;
+		a:c1;rt:24;s:2;r;
 	g:end;
 
 	g:begin;
@@ -158,7 +158,7 @@ t:begin:noise;
 		s:2;
 		a:c6;s:2;r;
 		e:vb:2:2125;
-		a:c4;mt:12;s:2;r;
+		a:c4;rt:12;s:2;r;
 		e:vb:0;
 		a:c6;s:2;r;
 		s:1;
