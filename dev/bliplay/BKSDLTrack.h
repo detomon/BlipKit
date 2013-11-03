@@ -43,11 +43,11 @@ typedef struct {
 typedef struct {
 	BKContext      ctx;
 	BKUInt         speed;
-	BKInstrument * instruments [256];
+	BKInstrument * instruments [64];
 	BKUInt         numInstruments;
-	BKData       * waveforms [256];
+	BKData       * waveforms [64];
 	BKUInt         numWaveforms;
-	BKSDLTrack   * tracks [256];
+	BKSDLTrack   * tracks [64];
 	BKUInt         numTracks;
 } BKSDLContext;
 
