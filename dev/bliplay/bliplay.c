@@ -40,6 +40,7 @@ enum
 	CHECK_FLAG        = 1 << 3,
 	TRUNC_OUTPUT_FLAG = 1 << 5,
 	NO_PAUSE_SND_FLAG = 1 << 6,
+	HAS_SEEK_TIME     = 1 << 7,
 };
 
 enum
@@ -76,7 +77,7 @@ static char const   * outputFilename;
 static FILE         * outputFile;
 static BKSDLContext   ctx, pauseCtx;
 static BKSDLContext * runCtx;
-static BKUInt         seekFrames;
+static BKTime         seekTime;
 
 static int getchar_nocanon (unsigned tcflags) {
 	int c;
@@ -150,11 +151,6 @@ static int interactiveMode (BKSDLContext * ctx)
 	int command = -1;
 
 	printf ("Entering interactive mode... (\"help\" for help, \"quit\" to quit)\n");
-
-	/*while (1) {
-		int c = getchar_nocanon (0);
-		printf ("[%u]\n", c);
-	}*/
 
 	do {
 		printf ("%s> ", PROGRAM_NAME);
@@ -260,13 +256,63 @@ static void setRunContext (BKSDLContext * ctx, BKInt reset)
 	SDL_UnlockAudio ();
 }
 
+static BKInt parseSeekTime (char const * string, BKTime * outTime, BKInt speed)
+{
+	double value;
+	char   type;
+	BKTime time;
+	BKInt  argc;
+
+	argc = sscanf (string, "%lf%c", & value, & type);
+
+	if (argc < 1) {
+		fprintf (stderr, "Fast forward option must define a numeric value (e.g. 12.4s, 760t, 45600f)\n");
+		return -1;
+	}
+
+	if (value < 0) {
+		fprintf (stderr, "Fast forward option must be a positive value\n");
+		return -1;
+	}
+
+	if (argc < 2)
+		type = 't';
+
+	switch (type) {
+		case 'f': {
+			time = BKTimeMake (value, 0);
+			break;
+		}
+		case 'b': {
+			time = BKTimeFromSeconds (& ctx.ctx, (1.0 / 240) * speed * value);
+			break;
+		}
+		case 't': {
+			time = BKTimeFromSeconds (& ctx.ctx, (1.0 / 240) * value);
+			break;
+		}
+		case 's': {
+			time = BKTimeFromSeconds (& ctx.ctx, value);
+			break;
+		}
+		default: {
+			fprintf (stderr, "Unknown fast forward unit '%c'\n", type);
+			return -1;
+		}
+	}
+
+	* outTime = time;
+
+	return 0;
+}
+
 static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 {
 	int    opt;
 	int    longoptind = 1;
 	BKUInt sampleRate = 44100;
 	BKUInt speed      = 0;
-	BKUInt seekTicks  = 0;
+	char seekTimeString [64];
 
 	char const * error = NULL;
 
@@ -312,7 +358,8 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 				break;
 			}
 			case 'f': {
-				seekFrames = atoi (optarg);
+				flags |= HAS_SEEK_TIME;
+				strncpy (seekTimeString, optarg, 64);
 				break;
 			}
 			default: {
@@ -408,12 +455,34 @@ t:end;";
 		if (speed) {
 			for (BKInt i = 0; i < ctx -> numTracks; i ++)
 				ctx -> tracks [i] -> interpreter.stepTickCount = speed;
+
+			ctx -> speed = speed;
+		}
+		else {
+			speed = ctx -> speed;
+		}
+
+		if (flags & HAS_SEEK_TIME) {
+			if (parseSeekTime (seekTimeString, & seekTime, speed) < 0) {
+				exit(1);
+				return -1;
+			}
 		}
 
 		SDL_UnlockAudio ();
 	}
 
 	return 0;
+}
+
+static BKInt pushFrames (BKFrame inFrames [], BKUInt size, void * info)
+{
+	return 0;
+}
+
+static void seekContext (BKSDLContext * ctx, BKTime time)
+{
+	BKContextGenerateToTime (& ctx -> ctx, time, pushFrames, NULL);
 }
 
 static BKInt handleKeys ()
@@ -423,14 +492,7 @@ static BKInt handleKeys ()
 	printf ("[space] = play/pause, [q] = stop\n");
 
 	if (flags & PLAY_FLAG) {
-		BKInt i = 0, n;
-		BKFrame frames [ctx.ctx.numChannels * 512];
-
-		while (i < seekFrames) {
-			n = BKMin (seekFrames - i, 512);
-			BKContextGenerate (& ctx.ctx, frames, n);
-			i += n;
-		}
+		seekContext (& ctx, seekTime);
 
 		paused = 0;
 		SDL_PauseAudio (0);
