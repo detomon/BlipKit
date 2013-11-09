@@ -349,6 +349,16 @@ BKInt BKInterpreterTrackAdvance (BKInterpreter * interpreter, BKTrack * track)
 				}
 				break;
 			}
+			case BKIntrSample: {
+				value0 = * (opcode ++);
+				BKTrackSetPtr (track, BK_SAMPLE, value0 > -1 ? interpreter -> samples [value0] : NULL);
+				break;
+			}
+			case BKIntrSampleRepeat: {
+				value0 = * (opcode ++);
+				BKTrackSetAttr (track, BK_SAMPLE_REPEAT, value0);
+				break;
+			}
 			case BKIntrReturn: {
 				if (interpreter -> stackPtr > interpreter -> stack) {
 					opcode = * (-- interpreter -> stackPtr);

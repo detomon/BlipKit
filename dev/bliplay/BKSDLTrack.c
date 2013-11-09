@@ -108,6 +108,44 @@ static BKInt parseWaveform (BKSDLContext * ctx, BKBlipReader * parser, BKData * 
 	return BKDataInitWithFrames (waveform, sequence, (BKInt) length, 1, 1);
 }
 
+static BKInt parseSample (BKSDLContext * ctx, BKBlipReader * parser, BKData * sample)
+{
+	BKBlipCommand item;
+	BKInt         length = 0;
+	BKInt         pitch = 0;
+	BKInt         numChannels, numBits;
+
+	while (BKBlipReaderNextCommand (parser, & item)) {
+		if (strcmp (item.name, "s") == 0 && strcmp (item.args [0].arg, "end") == 0) {
+			break;
+		}
+		else if (strcmp (item.name, "s") == 0) {
+			length = (BKInt) item.argCount;
+
+			if (length >= 3) {
+				numChannels = atoi (item.args [0].arg);
+				numBits     = atoi (item.args [1].arg);
+
+				if (numBits <= 0)
+					numBits = 16;
+
+				BKDataInitWithFrames (sample, (BKFrame *) item.args [2].arg, item.args [2].size / sizeof (BKFrame), numChannels, 1);
+			}
+			else {
+				return -1;
+			}
+		}
+		else if (strcmp (item.name, "p") == 0) {
+			pitch = atoi (item.args [0].arg);
+		}
+	}
+
+	BKDataSetAttr (sample, BK_SAMPLE_PITCH, pitch);
+	BKDataNormalize (sample);
+
+	return 0;
+}
+
 static BKEnum beatCallback (BKCallbackInfo * info, BKSDLUserData * userInfo)
 {
 	BKInt           numSteps;
@@ -190,7 +228,7 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 	BKBlipCommand  item;
 	BKInt          globalVolume = 0;
 	BKInstrument * instrument;
-	BKData       * waveform;
+	BKData       * dataObject;
 
 	BKBlipReaderInit (& parser, data, size, NULL, NULL);
 
@@ -255,6 +293,7 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 						BKContextAttachDivider (& ctx -> ctx, & track -> divider, BK_CLOCK_TYPE_BEAT);
 						track -> interpreter.instruments   = ctx -> instruments;
 						track -> interpreter.waveforms     = ctx -> waveforms;
+						track -> interpreter.samples       = ctx -> samples;
 						track -> interpreter.stepTickCount = ctx -> speed;
 
 						ctx -> tracks [ctx -> numTracks ++] = track;
@@ -283,14 +322,27 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 		// waveform
 		else if (strcmp (item.name, "w") == 0) {
 			if (strcmp (item.args [0].arg, "begin") == 0) {
-				waveform = malloc (sizeof (BKData));
+				dataObject = malloc (sizeof (BKData));
 
-				if (waveform == NULL)
+				if (dataObject == NULL)
 					return -1;
 
-				parseWaveform (ctx, & parser, waveform);
+				parseWaveform (ctx, & parser, dataObject);
 
-				ctx -> waveforms [ctx -> numWaveforms ++] = waveform;
+				ctx -> waveforms [ctx -> numWaveforms ++] = dataObject;
+			}
+		}
+		// sample
+		else if (strcmp (item.name, "s") == 0) {
+			if (strcmp (item.args [0].arg, "begin") == 0) {
+				dataObject = malloc (sizeof (BKData));
+
+				if (dataObject == NULL)
+					return -1;
+
+				parseSample (ctx, & parser, dataObject);
+
+				ctx -> samples [ctx -> numSamples ++] = dataObject;
 			}
 		}
 		else if (strcmp (item.name, "gv") == 0) {

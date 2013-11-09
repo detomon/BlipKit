@@ -47,6 +47,8 @@ typedef struct {
 	BKUInt         numInstruments;
 	BKData       * waveforms [64];
 	BKUInt         numWaveforms;
+	BKData       * samples [64];
+	BKUInt         numSamples;
 	BKSDLTrack   * tracks [64];
 	BKUInt         numTracks;
 } BKSDLContext;

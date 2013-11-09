@@ -56,6 +56,8 @@ enum
 	BKIntrPhaseWrap,
 	BKIntrInstrument,
 	BKIntrWaveform,
+	BKIntrSample,
+	BKIntrSampleRepeat,
 	BKIntrReturn,
 	BKIntrGroup,
 	BKIntrCall,
@@ -80,6 +82,7 @@ struct BKInterpreter
 	BKInt        ** stackEnd;
 	BKInstrument ** instruments;
 	BKData       ** waveforms;
+	BKData       ** samples;
 	BKUInt          stepTickCount;
 	BKUInt          numSteps;
 	BKInt           nextNote;

@@ -70,7 +70,9 @@ static strval commands [] =
 	{"a",  BKIntrAttack},
 	{"as", BKIntrArpeggioSpeed},
 	{"at", BKIntrAttackTicks},
+	{"d",  BKIntrSample},
 	{"dc", BKIntrDutyCycle},
+	{"dr", BKIntrSampleRepeat},
 	{"e",  BKIntrEffect},
 	{"g",  BKIntrGroup},
 	{"i",  BKIntrInstrument},
@@ -244,6 +246,8 @@ static BKInt * BKCompilerCombineCmds (BKCompiler * compiler, BKInt * allCmds, BK
 			case BKIntrPhaseWrap:     argCount = 1; break;
 			case BKIntrInstrument:    argCount = 1; break;
 			case BKIntrWaveform:      argCount = 1; break;
+			case BKIntrSample:        argCount = 1; break;
+			case BKIntrSampleRepeat:  argCount = 1; break;
 			case BKIntrReturn:        argCount = 0; break;
 			case BKIntrGroup:         argCount = 1; break;
 			case BKIntrJump:          argCount = 1; break;
@@ -512,6 +516,16 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 				value0 |= BK_INTR_CUSTOM_WAVEFOMR_FLAG;
 				item_list_add (cmds, value0);
 			}
+			break;
+		}
+		case BKIntrSample: {
+			item_list_add (cmds, item -> value);
+			item_list_add (cmds, atoix (arg0, -1));
+			break;
+		}
+		case BKIntrSampleRepeat: {
+			item_list_add (cmds, item -> value);
+			item_list_add (cmds, atoix (arg0, 0));
 			break;
 		}
 		case BKIntrArpeggioSpeed: {
