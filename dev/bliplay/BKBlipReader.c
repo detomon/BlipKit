@@ -199,10 +199,13 @@ static BKInt BKBlipReaderBufferPutChar (BKBlipReader * reader, int c)
 
 static BKInt BKBlipReaderBufferPutChars (BKBlipReader * reader, char const * chars, size_t size)
 {
+	size_t newSize;
 	size_t remaningSize = reader -> bufferCapacity - (reader -> bufferPtr - reader -> buffer);
 
 	if (size > remaningSize) {
-		if (BKBlipReaderResizeBuffer (reader, reader -> bufferCapacity + size + INIT_BUFFER_SIZE))
+		newSize = BKMAX (reader -> bufferCapacity * 2, reader -> bufferCapacity + size);
+
+		if (BKBlipReaderResizeBuffer (reader, newSize) < 0)
 			return -1;
 	}
 
