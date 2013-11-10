@@ -129,7 +129,7 @@ static BKInt parseSample (BKSDLContext * ctx, BKBlipReader * parser, BKData * sa
 				if (numBits <= 0)
 					numBits = 16;
 
-				BKDataInitWithFrames (sample, (BKFrame *) item.args [2].arg, item.args [2].size / sizeof (BKFrame), numChannels, 1);
+				BKDataInitWithFrames (sample, (BKFrame *) item.args [2].arg, item.args [2].size / sizeof (BKFrame) / numChannels, numChannels, 1);
 			}
 			else {
 				return -1;
