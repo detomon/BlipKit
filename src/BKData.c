@@ -279,8 +279,10 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 	if (numFrames < 2)
 		return BK_INVALID_NUM_FRAMES;
 
-	numChannels = BKClamp (numChannels, 1, BK_MAX_CHANNELS);
-	size        = numFrames * numChannels * sizeof (BKFrame);
+	if (numChannels < 1 || numChannels > BK_MAX_CHANNELS)
+		return BK_INVALID_NUM_CHANNELS;
+
+	size = numFrames * numChannels * sizeof (BKFrame);
 
 	if (copy) {
 		if (data -> flags & BK_DATA_FLAG_COPY) {
@@ -292,6 +294,8 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 
 		if (newFrames == NULL)
 			return -1;
+
+		data -> flags |= BK_DATA_FLAG_COPY;
 
 		memcpy (newFrames, frames, size);
 	}
