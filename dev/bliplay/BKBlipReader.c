@@ -143,6 +143,16 @@ static int BKBlipReaderGetCharTrimWhitespace (BKBlipReader * reader)
 	return c;
 }
 
+static void BKBlipReaderRemapArgs (BKBlipReader * reader, unsigned char * oldBuffer, unsigned char * newBuffer)
+{
+	size_t offset;
+
+	for (BKBlipArgument * arg = reader -> argBuffer; arg < reader -> argPtr; arg ++) {
+		offset = (void *) arg -> arg - (void *) oldBuffer;
+		arg -> arg = (void *) newBuffer + offset;
+	}
+}
+
 static BKInt BKBlipReaderResizeBuffer (BKBlipReader * reader, size_t newCapacity)
 {
 	unsigned char * newBuffer;
@@ -151,6 +161,8 @@ static BKInt BKBlipReaderResizeBuffer (BKBlipReader * reader, size_t newCapacity
 		newBuffer = realloc (reader -> buffer, newCapacity);
 
 		if (newBuffer) {
+			BKBlipReaderRemapArgs (reader, reader -> buffer, newBuffer);
+
 			reader -> bufferPtr      = & newBuffer [reader -> bufferPtr - reader -> buffer];
 			reader -> buffer         = newBuffer;
 			reader -> bufferCapacity = newCapacity;
