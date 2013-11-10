@@ -334,15 +334,6 @@ static BKInt BKSystemIsBigEndian (void)
 	return sentinel.c[0] == 0x01;
 }
 
-BKInt BKDataInitWithFrames (BKData * data, BKFrame const * phases, BKUInt numFrames, BKUInt numChannels, BKInt copy)
-{
-	if (BKDataInit (data) == 0) {
-		return BKDataSetFrames (data, phases, numFrames, numChannels, copy);
-	}
-
-	return -1;
-}
-
 /**
  * Reverse 16 bit integers
  */
@@ -355,6 +346,201 @@ static void BKEndianReverse16Bit (BKFrame frames [], off_t size)
 		value = (value >> 8) | (value << 8);
 		frames [i] = value;
 	}
+}
+
+static BKInt BKDataNumBitsFromParam (BKEnum param, BKUInt * outNumBits, BKInt * outIsSigned)
+{
+	BKInt numBits  = 0;
+	BKInt isSigned = 0;
+
+	switch (param) {
+		case BK_1_BIT_UNSIGNED: {
+			numBits = 1;
+			break;
+		}
+		case BK_2_BIT_UNSIGNED: {
+			numBits = 2;
+			break;
+		}
+		case BK_4_BIT_UNSIGNED: {
+			numBits = 4;
+			break;
+		}
+		case BK_8_BIT_SIGNED: {
+			numBits = 8;
+			isSigned = 1;
+			break;
+		}
+		case BK_8_BIT_UNSIGNED: {
+			numBits  = 8;
+			break;
+		}
+		case BK_16_BIT_SIGNED: {
+			numBits  = 16;
+			isSigned = 1;
+			break;
+		}
+		default: {
+			return BK_INVALID_NUM_BITS;
+			break;
+		}
+	}
+
+	* outNumBits  = numBits;
+	* outIsSigned = isSigned;
+
+	return 0;
+}
+
+static BKInt BKDataCalculateNumFramesFromNumBits (BKUInt dataSize, BKUInt numBits, BKUInt numChannels)
+{
+	BKInt numFrames = 0;
+	BKInt packetSize;
+	BKInt dataSizeBits = dataSize * 8;
+
+	if (numBits <= 8) {
+		packetSize = (numBits * numChannels);
+	}
+	else {
+		// round up to multiple of 4
+		packetSize = (numBits + 3) / 4 * 4 * numChannels;
+	}
+
+	numFrames = dataSizeBits / packetSize * numChannels;
+
+	return numFrames;
+}
+
+static BKInt BKDataConvertBits (BKFrame * outFrames, void const * data, BKUInt dataSize, BKUInt numBits, BKInt isSigned, BKInt reverseEndian, BKUInt numChannels)
+{
+	unsigned char const * charData = data;
+	unsigned char c;
+
+	for (charData = data; (void *) charData < data + dataSize;) {
+		switch (numBits) {
+			case 1: {
+				c = charData [0];
+				outFrames [0] = ((c & (1 << 7)) >> 7) * BK_FRAME_MAX;
+				outFrames [1] = ((c & (1 << 6)) >> 6) * BK_FRAME_MAX;
+				outFrames [2] = ((c & (1 << 5)) >> 5) * BK_FRAME_MAX;
+				outFrames [3] = ((c & (1 << 4)) >> 4) * BK_FRAME_MAX;
+				outFrames [4] = ((c & (1 << 3)) >> 3) * BK_FRAME_MAX;
+				outFrames [5] = ((c & (1 << 2)) >> 2) * BK_FRAME_MAX;
+				outFrames [6] = ((c & (1 << 1)) >> 1) * BK_FRAME_MAX;
+				outFrames [7] = ((c & (1 << 0)) >> 0) * BK_FRAME_MAX;
+				charData += 1;
+				outFrames += 8;
+				break;
+			}
+			case 2: {
+				c = charData [0];
+				outFrames [0] = ((c & (3 << 6)) >> 6) * BK_FRAME_MAX / 3;
+				outFrames [1] = ((c & (3 << 4)) >> 4) * BK_FRAME_MAX / 3;
+				outFrames [2] = ((c & (3 << 2)) >> 2) * BK_FRAME_MAX / 3;
+				outFrames [3] = ((c & (3 << 0)) >> 0) * BK_FRAME_MAX / 3;
+				charData += 1;
+				outFrames += 4;
+				break;
+			}
+			case 4: {
+				c = charData [0];
+				outFrames [0] = ((c & (15 << 4)) >> 4) * BK_FRAME_MAX / 15;
+				outFrames [1] = ((c & (15 << 0)) >> 0) * BK_FRAME_MAX / 15;
+				charData += 1;
+				outFrames += 2;
+				break;
+			}
+			case 8: {
+				if (isSigned) {
+					outFrames [0] = (int16_t) (* (signed char *) charData) * BK_FRAME_MAX / 127;
+				} else {
+					outFrames [0] = (int16_t) (* (unsigned char *) charData) * BK_FRAME_MAX / 255;
+				}
+
+				charData += 1;
+				outFrames += 1;
+				break;
+			}
+			case 16: {
+				if (reverseEndian) {
+					outFrames [0] = (charData [0] << 8) | (charData [1] >> 8);
+				} else {
+					outFrames [0] =  (* (int16_t *) charData);
+				}
+
+				charData += 2;
+				outFrames += 1;
+				break;
+			}
+			default: {
+				return BK_INVALID_NUM_BITS;
+			}
+		}
+	}
+
+	return 0;
+}
+
+BKInt BKDataInitWithFrames (BKData * data, BKFrame const * phases, BKUInt numFrames, BKUInt numChannels, BKInt copy)
+{
+	if (BKDataInit (data) == 0) {
+		return BKDataSetFrames (data, phases, numFrames, numChannels, copy);
+	}
+
+	return -1;
+}
+
+
+BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params)
+{
+	BKUInt    endian = (params & BK_ENDIAN_MASK);
+	BKUInt    bits   = (params & BK_DATA_BITS_MASK);
+	BKUInt    numBits;
+	BKInt     isSigned, reverseEndian = 0;
+	BKInt     numFrames;
+	BKFrame * frames;
+
+	if (numChannels < 1 || numChannels > BK_MAX_CHANNELS)
+		return BK_INVALID_NUM_CHANNELS;
+
+	if (endian)
+		reverseEndian = BKSystemIsBigEndian () != (endian == BK_BIG_ENDIAN);
+
+	if (BKDataNumBitsFromParam (bits, & numBits, & isSigned) < 0)
+		return BK_INVALID_NUM_BITS;
+
+	numFrames = BKDataCalculateNumFramesFromNumBits (dataSize, numBits, numChannels);
+
+	if (numFrames < 0)
+		return BK_INVALID_NUM_BITS;
+
+	if (data -> flags & BK_DATA_FLAG_COPY) {
+		frames = realloc (data -> frames, numFrames * sizeof (BKFrame));
+	}
+	else {
+		frames = malloc (numFrames * sizeof (BKFrame));
+	}
+
+	if (frames == NULL)
+		return BK_ALLOCATION_ERROR;
+
+	if (BKDataConvertBits (frames, frameData, dataSize, numBits, isSigned, reverseEndian, numChannels) < 0)
+		return -1;
+
+	data -> frames      = frames;
+	data -> numFrames   = numFrames / numChannels;
+	data -> numChannels = numChannels;
+
+	return 0;
+}
+
+BKInt BKDataInitWithData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params)
+{
+	if (BKDataInit (data) == 0) {
+		return BKDataSetData (data, frameData, dataSize, numChannels, params);
+	}
+
+	return -1;
 }
 
 BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBits, BKUInt numChannels, BKEnum endian)

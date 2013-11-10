@@ -60,8 +60,9 @@ struct BKDataState
  */
 enum
 {
-	BK_BIG_ENDIAN    = 1,
-	BK_LITTLE_ENDIAN = 2,
+	BK_BIG_ENDIAN    = 1 << 16,
+	BK_LITTLE_ENDIAN = 2 << 16,
+	BK_ENDIAN_MASK   = 3 << 16,
 };
 
 /**
@@ -75,6 +76,7 @@ enum
 	BK_8_BIT_SIGNED    = 4,
 	BK_8_BIT_UNSIGNED  = 5,
 	BK_16_BIT_SIGNED   = 6,
+	BK_DATA_BITS_MASK  = 15,
 };
 
 /**
@@ -147,6 +149,22 @@ extern BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numF
  * `numChannel` must be between 1 and BK_MAX_CHANNELS
  */
 extern BKInt BKDataInitWithFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy);
+
+/**
+ * Set frame data and convert to internal format
+ * `params` can be a combination of endian and bit flags e.g:
+ *   BK_LITTLE_ENDIAN | BK_16_BIT_SIGNED
+ * Endianness only affects data with more than 8 bits per frame
+ */
+extern BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params);
+
+/**
+ * Initialize data object with frame data and convert to internal format
+ * `params` can be a combination of endian and bit flags e.g:
+ *   BK_LITTLE_ENDIAN | BK_16_BIT_SIGNED
+ * Endianness only affects data with more than 8 bits per frame
+ */
+extern BKInt BKDataInitWithData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params);
 
 /**
  * Load frames from raw audio file
