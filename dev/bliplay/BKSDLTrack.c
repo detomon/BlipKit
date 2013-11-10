@@ -108,12 +108,52 @@ static BKInt parseWaveform (BKSDLContext * ctx, BKBlipReader * parser, BKData * 
 	return BKDataInitWithFrames (waveform, sequence, (BKInt) length, 1, 1);
 }
 
+static BKEnum numBitsParamFromNumBitsName (char const * numBitsString)
+{
+	char   sign     = 'u';
+	BKInt  isSigned = 0;
+	BKInt  numBits  = 0;
+	BKEnum param    = 0;
+
+	sscanf (numBitsString, "%u%c", & numBits, & sign);
+
+	isSigned = (sign == 's');
+
+	switch (numBits) {
+		case 1: {
+			param = BK_1_BIT_UNSIGNED;
+			break;
+		}
+		case 2: {
+			param = BK_2_BIT_UNSIGNED;
+			break;
+		}
+		case 4: {
+			param = BK_4_BIT_UNSIGNED;
+			break;
+		}
+		case 8: {
+			param = isSigned ? BK_8_BIT_SIGNED : BK_8_BIT_UNSIGNED;
+			break;
+		}
+		default:
+		case 16: {
+			param    = BK_16_BIT_SIGNED;
+			isSigned = 1;
+			break;
+		}
+	}
+
+	return param;
+}
+
 static BKInt parseSample (BKSDLContext * ctx, BKBlipReader * parser, BKData * sample)
 {
 	BKBlipCommand item;
 	BKInt         length = 0;
 	BKInt         pitch = 0;
-	BKInt         numChannels, numBits;
+	BKInt         numChannels;
+	BKEnum        format;
 
 	while (BKBlipReaderNextCommand (parser, & item)) {
 		if (strcmp (item.name, "s") == 0 && strcmp (item.args [0].arg, "end") == 0) {
@@ -124,12 +164,11 @@ static BKInt parseSample (BKSDLContext * ctx, BKBlipReader * parser, BKData * sa
 
 			if (length >= 3) {
 				numChannels = atoi (item.args [0].arg);
-				numBits     = atoi (item.args [1].arg);
+				format      = numBitsParamFromNumBitsName (item.args [1].arg);
 
-				if (numBits <= 0)
-					numBits = 16;
+				printf ("%d\n", format);
 
-				BKDataInitWithFrames (sample, (BKFrame *) item.args [2].arg, item.args [2].size / sizeof (BKFrame) / numChannels, numChannels, 1);
+				BKDataInitWithData (sample, item.args [2].arg, item.args [2].size, numChannels, format);
 			}
 			else {
 				return -1;
