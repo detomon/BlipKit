@@ -166,8 +166,6 @@ static BKInt parseSample (BKSDLContext * ctx, BKBlipReader * parser, BKData * sa
 				numChannels = atoi (item.args [0].arg);
 				format      = numBitsParamFromNumBitsName (item.args [1].arg);
 
-				printf ("%d\n", format);
-
 				BKDataInitWithData (sample, item.args [2].arg, item.args [2].size, numChannels, format);
 			}
 			else {
