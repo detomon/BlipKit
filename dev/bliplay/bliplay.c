@@ -78,8 +78,27 @@ static FILE         * outputFile;
 static BKSDLContext   ctx, pauseCtx;
 static BKSDLContext * runCtx;
 static BKTime         seekTime;
+static BKTime         playTime;
 
-static int getchar_nocanon (unsigned tcflags) {
+static int set_nocanon (int nocanon)
+{
+	struct termios oldtc, newtc;
+
+	tcgetattr (STDIN_FILENO, & oldtc);
+
+	newtc = oldtc;
+
+	if (nocanon) {
+		newtc.c_lflag &= ~(ICANON);
+	} else {
+		newtc.c_lflag |= (ICANON);
+	}
+
+	tcsetattr (STDIN_FILENO, TCSANOW, & newtc);
+}
+
+static int getchar_nocanon (unsigned tcflags)
+{
 	int c;
 	struct termios oldtc, newtc;
 
@@ -221,6 +240,8 @@ static void fillAudio (BKSDLContext * ctx, Uint8 * stream, int len)
 
 	if (outputFile)
 		fwrite (stream, len / sizeof (BKFrame), sizeof (BKFrame), outputFile);
+
+	playTime = BKTimeAdd (playTime, BKTimeMake (numFrames, 0));
 }
 
 static BKInt initSDL (BKSDLContext * ctx, char const ** error)
@@ -504,41 +525,85 @@ static BKInt handleKeys ()
 	}
 
 	do {
-		int c = getchar_nocanon (0);
+		fd_set in;
+		struct timeval tv;
 
-		switch (c) {
-			case 'q': {
-				printf ("\rStopped   ");
-				goto end;
-				break;
-			}
-			case ' ': {
-				paused = !paused;
+		FD_ZERO (& in);
+		FD_SET (STDIN_FILENO, & in);
+		tv.tv_sec = 0;
+		tv.tv_usec = 10000;
 
-				if (paused) {
-					if (flags & NO_PAUSE_SND_FLAG) {
-						SDL_PauseAudio (1);
+		set_nocanon(1);
+
+		int res = select (STDIN_FILENO + 1, & in, NULL, NULL, & tv);
+
+		if (res > 0) {
+			int c = getchar_nocanon (0);
+
+			switch (c) {
+				case 'q': {
+					printf ("\rStopped   ");
+					goto end;
+					break;
+				}
+				case ' ': {
+					paused = !paused;
+
+					if (paused) {
+						if (flags & NO_PAUSE_SND_FLAG) {
+							SDL_PauseAudio (1);
+						}
+						else {
+							setRunContext (& pauseCtx, 1);
+						}
+
+						printf ("\rPaused    ");
 					}
 					else {
-						setRunContext (& pauseCtx, 1);
+						SDL_PauseAudio (0);
+
+						setRunContext (& ctx, 0);
+						printf ("\rPlaying...");
 					}
 
-					printf ("\rPaused    ");
+					break;
 				}
-				else {
-					SDL_PauseAudio (0);
-
-					setRunContext (& ctx, 0);
-					printf ("\rPlaying...");
-				}
-
-				break;
 			}
+		}
+		else if (res == 0) {
+			int frames = BKTimeGetTime (playTime) * 100 / ctx.ctx.sampleRate;
+			int frac = frames % 100;
+			frames /= 100;
+			int secs = frames % 60;
+			int mins = frames / 60;
+
+			int groups [64];
+
+			for (int i = 0; i < ctx.numTracks; i ++) {
+				if (ctx.tracks[i] -> interpreter.stackPtr > ctx.tracks[i] -> interpreter.stack) {
+					groups [i] = ctx.tracks[i] -> interpreter.stackPtr [-1];
+				} else {
+					groups [i] = -1;
+				}
+			}
+
+			printf ("\rPlaying %3d:%02d.%02d", mins, secs, frac);
+
+			for (int i = 0; i < ctx.numTracks; i ++)
+				printf ("  % 6d", groups [i]);
+
+			fflush (stdout);
+		}
+		else {
+			fprintf (stderr, "select failed\n");
+			exit (1);
 		}
 
 		//SDL_Delay(100);
 	}
 	while (1);
+
+	set_nocanon (0);
 
 	end:
 
