@@ -361,7 +361,8 @@ BKInt BKInterpreterTrackAdvance (BKInterpreter * interpreter, BKTrack * track)
 			}
 			case BKIntrReturn: {
 				if (interpreter -> stackPtr > interpreter -> stack) {
-					opcode = * (-- interpreter -> stackPtr);
+					value0 = * (-- interpreter -> stackPtr);
+					opcode = & interpreter -> opcode [value0];
 				}
 				break;
 			}
@@ -369,7 +370,7 @@ BKInt BKInterpreterTrackAdvance (BKInterpreter * interpreter, BKTrack * track)
 				value0 = * (opcode ++);
 
 				if (interpreter -> stackPtr < interpreter -> stackEnd) {
-					* (interpreter -> stackPtr ++) = opcode;
+					* (interpreter -> stackPtr ++) = opcode - interpreter -> opcode;
 					opcode = & interpreter -> opcode [value0];
 				}
 				break;

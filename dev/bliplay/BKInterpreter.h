@@ -77,9 +77,9 @@ struct BKInterpreter
 	BKUInt          flags;
 	BKInt         * opcode;
 	BKInt         * opcodePtr;
-	BKInt         * stack [BK_INTR_STACK_SIZE];
-	BKInt        ** stackPtr;
-	BKInt        ** stackEnd;
+	BKInt           stack [BK_INTR_STACK_SIZE];
+	BKInt         * stackPtr;
+	BKInt         * stackEnd;
 	BKInstrument ** instruments;
 	BKData       ** waveforms;
 	BKData       ** samples;
