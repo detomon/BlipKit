@@ -71,15 +71,46 @@ t:begin:triangle;
 
 	g:begin;
 		dr:1;
+		v:0;
 		e:pr:24;
 		a:c4;s:8;
 		a:c2;s:8;
 		a:c5;s:8;
-		a:c1;s:8;a:c5;s:8;
+		a:c1;s:8;a:c5;s:8;r;
+		e:pr;
 	g:end;
 
 	d:1;
 	i:0;
 	g:2;
+	dc:8;
+
+t:end;
+
+t:begin:triangle;
+
+	g:begin;
+		d:0;
+		a:c2;s:2;r;
+		a:c3;s:2;r;
+	g:end;
+
+	g:0;
+
+t:end;
+
+t:begin:triangle;
+
+	g:begin;
+		d:1;
+		s:2;
+		a:c4;s:1;r;
+		a:c4;s:1;r;
+		s:1;
+		a:c4;s:1;r;
+		a:c3;s:2;r;
+	g:end;
+
+	g:0;
 
 t:end;
