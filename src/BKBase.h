@@ -94,7 +94,7 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
  */
 #define BK_DEFAULT_SAMPLE_RATE    44100
 #define BK_DEFAULT_CLOCK_RATE       240
-#define BK_DEFAULT_ARPEGGIO_DIVIDER   6
+#define BK_DEFAULT_ARPEGGIO_DIVIDER   4
 #define BK_DEFAULT_INSTR_DIVIDER      4
 #define BK_DEFAULT_EFFECT_DIVIDER     1
 #define BK_DEFAULT_DUTY_CYCLE         2
