@@ -78,7 +78,6 @@ static FILE         * outputFile;
 static BKSDLContext   ctx, pauseCtx;
 static BKSDLContext * runCtx;
 static BKTime         seekTime;
-static BKTime         playTime;
 
 static int set_nocanon (int nocanon)
 {
@@ -240,8 +239,6 @@ static void fillAudio (BKSDLContext * ctx, Uint8 * stream, int len)
 
 	if (outputFile)
 		fwrite (stream, len / sizeof (BKFrame), sizeof (BKFrame), outputFile);
-
-	playTime = BKTimeAdd (playTime, BKTimeMake (numFrames, 0));
 }
 
 static BKInt initSDL (BKSDLContext * ctx, char const ** error)
@@ -571,7 +568,7 @@ static BKInt handleKeys ()
 			}
 		}
 		else if (res == 0) {
-			int frames = BKTimeGetTime (playTime) * 100 / ctx.ctx.sampleRate;
+			int frames = BKTimeGetTime (ctx.ctx.currentTime) * 100 / ctx.ctx.sampleRate;
 			int frac = frames % 100;
 			frames /= 100;
 			int secs = frames % 60;
