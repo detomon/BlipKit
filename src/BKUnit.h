@@ -32,6 +32,8 @@ typedef struct BKUnitFuncs BKUnitFuncs;
 /**
  * Units are attached to a context and generate samples with a specified
  * waveform
+ *
+ * All functions return 0 on success and values < 0 on error
  */
 
 struct BKUnit
@@ -96,6 +98,9 @@ extern BKUnitFuncs const BKUnitFuncsStruct;
 
 /**
  * Initialize unit
+ *
+ * Errors:
+ * -1
  */
 extern BKInt BKUnitInit (BKUnit * unit, BKEnum waveform);
 
@@ -142,13 +147,18 @@ extern void BKUnitDetach (BKUnit * unit);
  *   Has the same effect as setting the volume to 0 but does not change volume settings
  *   Can eighter be 0 or 1
  *   Default is 0
+ * BK_SAMPLE_OFFSET
+ *   Offset at which the sample should start playing
+ *   When repeating the sample will start playing again at this offset
+ *   Default is 0
  * BK_SAMPLE_REPEAT
  *   Repeat sample if set to 1
  *   Default is 0
  *   Use `BK_SAMPLE_CALLBACK` to have more control
  *   Does nothing if `BK_SAMPLE_CALLBACK` is set
  * BK_SAMPLE_PERIOD
- *   Set speed of sample
+ *   Set speed at which the sample is played
+ *   Default is BK_FINT20_UNIT
  * BK_HALT_SILENT_PHASE
  *   Phase does stop cycling when muted or volume is 0
  *   This is automatically set when using BK_TRIANGLE and disabled on other waveforms
