@@ -71,12 +71,14 @@ struct BKUnit
 	// samples
 	struct {
 		BKDataState dataState;
-		BKUInt      count;
-		BKUInt      numChannels;
-		BKUInt      repeat;
-		BKFUInt20   time;
-		BKFUInt20   period;
-		BKCallback  callback;
+		BKUInt     numChannels;
+		BKUInt     count;
+		BKUInt     offset;
+		BKUInt     repeat;
+		BKFUInt20  timeFrac;
+		BKFUInt20  period;
+		BKCallback callback;
+		BKFrame  * frames;
 	} sample;
 };
 
