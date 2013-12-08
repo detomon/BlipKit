@@ -152,17 +152,20 @@ extern void BKUnitDetach (BKUnit * unit);
  *   Default is 0
  * BK_SAMPLE_OFFSET
  *   Frames offset from which the sample should start playing
- *   When repeating the sample it will start playing again at this offset
+ *   If BK_SAMPLE_REPEAT is set the sample it will start playing again from
+ *   this offset
  *   Default is 0
+ *   Will be reset to default when changing sample
  * BK_SAMPLE_END
  *   End (but not including) frame offset to which the sample should be played
+ *   If set to 0 it is set to the maximum offset
  *   Default is number of frames of the current sample
- *   If set to 0 this is set to the maximum offset
+ *   Will be reset to default when changing sample
  * BK_SAMPLE_REPEAT
  *   Repeat sample if set to 1
  *   Default is 0
  *   Use `BK_SAMPLE_CALLBACK` to have more control
- *   Does nothing if `BK_SAMPLE_CALLBACK` is set
+ *   Will be ignored if `BK_SAMPLE_CALLBACK` is set
  * BK_SAMPLE_PERIOD
  *   Set speed at which the sample is played
  *   Default is BK_FINT20_UNIT
@@ -174,6 +177,9 @@ extern void BKUnitDetach (BKUnit * unit);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  * BK_INVALID_VALUE if value is invalid for this attribute
+ * BK_INVALID_STATE if attribute can't be set in current unit state
+ *   This happens when trying to set BK_SAMPLE_OFFSET or BK_SAMPLE_END when no
+ *   sample is set
  */
 extern BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value);
 
