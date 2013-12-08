@@ -32,6 +32,8 @@ typedef struct BKUnitFuncs BKUnitFuncs;
 /**
  * Units are attached to a context and generate samples with a specified
  * waveform
+ *
+ * All functions return 0 on success and values < 0 on error
  */
 
 struct BKUnit
@@ -69,12 +71,15 @@ struct BKUnit
 	// samples
 	struct {
 		BKDataState dataState;
-		BKUInt      count;
 		BKUInt      numChannels;
+		BKUInt      length;
+		BKUInt      offset;
+		BKUInt      end;
 		BKUInt      repeat;
-		BKFUInt20   time;
+		BKFUInt20   timeFrac;
 		BKFUInt20   period;
 		BKCallback  callback;
+		BKFrame   * frames;
 	} sample;
 };
 
@@ -96,6 +101,9 @@ extern BKUnitFuncs const BKUnitFuncsStruct;
 
 /**
  * Initialize unit
+ *
+ * Errors:
+ * -1
  */
 extern BKInt BKUnitInit (BKUnit * unit, BKEnum waveform);
 
@@ -142,13 +150,25 @@ extern void BKUnitDetach (BKUnit * unit);
  *   Has the same effect as setting the volume to 0 but does not change volume settings
  *   Can eighter be 0 or 1
  *   Default is 0
+ * BK_SAMPLE_OFFSET
+ *   Frames offset from which the sample should start playing
+ *   If BK_SAMPLE_REPEAT is set the sample it will start playing again from
+ *   this offset
+ *   Default is 0
+ *   Will be reset to default when changing sample
+ * BK_SAMPLE_END
+ *   End (but not including) frame offset to which the sample should be played
+ *   If set to 0 it is set to the maximum offset
+ *   Default is number of frames of the current sample
+ *   Will be reset to default when changing sample
  * BK_SAMPLE_REPEAT
  *   Repeat sample if set to 1
  *   Default is 0
  *   Use `BK_SAMPLE_CALLBACK` to have more control
- *   Does nothing if `BK_SAMPLE_CALLBACK` is set
+ *   Will be ignored if `BK_SAMPLE_CALLBACK` is set
  * BK_SAMPLE_PERIOD
- *   Set speed of sample
+ *   Set speed at which the sample is played
+ *   Default is BK_FINT20_UNIT
  * BK_HALT_SILENT_PHASE
  *   Phase does stop cycling when muted or volume is 0
  *   This is automatically set when using BK_TRIANGLE and disabled on other waveforms
@@ -157,6 +177,9 @@ extern void BKUnitDetach (BKUnit * unit);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  * BK_INVALID_VALUE if value is invalid for this attribute
+ * BK_INVALID_STATE if attribute can't be set in current unit state
+ *   This happens when trying to set BK_SAMPLE_OFFSET or BK_SAMPLE_END when no
+ *   sample is set
  */
 extern BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value);
 

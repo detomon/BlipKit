@@ -143,6 +143,16 @@ static int BKBlipReaderGetCharTrimWhitespace (BKBlipReader * reader)
 	return c;
 }
 
+static void BKBlipReaderRemapArgs (BKBlipReader * reader, unsigned char * oldBuffer, unsigned char * newBuffer)
+{
+	size_t offset;
+
+	for (BKBlipArgument * arg = reader -> argBuffer; arg < reader -> argPtr; arg ++) {
+		offset = (void *) arg -> arg - (void *) oldBuffer;
+		arg -> arg = (void *) newBuffer + offset;
+	}
+}
+
 static BKInt BKBlipReaderResizeBuffer (BKBlipReader * reader, size_t newCapacity)
 {
 	unsigned char * newBuffer;
@@ -151,6 +161,8 @@ static BKInt BKBlipReaderResizeBuffer (BKBlipReader * reader, size_t newCapacity
 		newBuffer = realloc (reader -> buffer, newCapacity);
 
 		if (newBuffer) {
+			BKBlipReaderRemapArgs (reader, reader -> buffer, newBuffer);
+
 			reader -> bufferPtr      = & newBuffer [reader -> bufferPtr - reader -> buffer];
 			reader -> buffer         = newBuffer;
 			reader -> bufferCapacity = newCapacity;
@@ -187,10 +199,13 @@ static BKInt BKBlipReaderBufferPutChar (BKBlipReader * reader, int c)
 
 static BKInt BKBlipReaderBufferPutChars (BKBlipReader * reader, char const * chars, size_t size)
 {
+	size_t newSize;
 	size_t remaningSize = reader -> bufferCapacity - (reader -> bufferPtr - reader -> buffer);
 
 	if (size > remaningSize) {
-		if (BKBlipReaderResizeBuffer (reader, reader -> bufferCapacity + size + INIT_BUFFER_SIZE))
+		newSize = BKMAX (reader -> bufferCapacity * 2, reader -> bufferCapacity + size);
+
+		if (BKBlipReaderResizeBuffer (reader, newSize) < 0)
 			return -1;
 	}
 

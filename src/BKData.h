@@ -40,9 +40,10 @@ enum
 struct BKData
 {
 	BKUInt        flags;
-	BKUInt        numSamples;
+	BKUInt        numFrames;
 	BKUInt        numChannels;
-	BKFrame     * samples;
+	BKFInt20      samplePitch;
+	BKFrame     * frames;
 	BKDataState * stateList;
 };
 
@@ -59,8 +60,9 @@ struct BKDataState
  */
 enum
 {
-	BK_BIG_ENDIAN    = 1,
-	BK_LITTLE_ENDIAN = 2,
+	BK_BIG_ENDIAN    = 1 << 16,
+	BK_LITTLE_ENDIAN = 2 << 16,
+	BK_ENDIAN_MASK   = 3 << 16,
 };
 
 /**
@@ -74,6 +76,7 @@ enum
 	BK_8_BIT_SIGNED    = 4,
 	BK_8_BIT_UNSIGNED  = 5,
 	BK_16_BIT_SIGNED   = 6,
+	BK_DATA_BITS_MASK  = 15,
 };
 
 /**
@@ -90,13 +93,17 @@ extern void BKDataDispose (BKData * data);
  * Copy a data object
  * The copy will not be attached to any track
  */
-extern BKInt BKDataInitCopy (BKData * copy, BKData * original);
+extern BKInt BKDataInitCopy (BKData * copy, BKData const * original);
 
 /**
- * No attributes defined
+ * BK_SAMPLE_PITCH
+ *   Frames are assumed to be tuned in BK_C_4.
+ *   The sample pitch can be corrected with this value.
+ *   Value is multiple of BK_FINT20_UNIT.
+ *   This attribute must be set before the data object is attached to a track.
  *
  * Errors:
- * Always returns BK_INVALID_ATTRIBUTE
+ * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
 extern BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value);
 
@@ -105,11 +112,12 @@ extern BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value);
  *
  * BK_NUM_SAMPLE
  * BK_NUM_CHANNELS
+ * BK_SAMPLE_PITCH
  *
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKDataGetAttr (BKData * data, BKEnum attr, BKInt * outValue);
+extern BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue);
 
 /**
  * No attributes defined
@@ -128,7 +136,7 @@ extern BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKDataGetPtr (BKData * data, BKEnum attr, void * outPtr);
+extern BKInt BKDataGetPtr (BKData const * data, BKEnum attr, void * outPtr);
 
 /**
  * Set frames
@@ -143,7 +151,23 @@ extern BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numF
 extern BKInt BKDataInitWithFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy);
 
 /**
- * Load samples from raw audio file
+ * Set frame data and convert to internal format
+ * `params` can be a combination of endian and bit flags e.g:
+ *   BK_LITTLE_ENDIAN | BK_16_BIT_SIGNED
+ * Endianness only affects data with more than 8 bits per frame
+ */
+extern BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params);
+
+/**
+ * Initialize data object with frame data and convert to internal format
+ * `params` can be a combination of endian and bit flags e.g:
+ *   BK_LITTLE_ENDIAN | BK_16_BIT_SIGNED
+ * Endianness only affects data with more than 8 bits per frame
+ */
+extern BKInt BKDataInitWithData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params);
+
+/**
+ * Load frames from raw audio file
  * `numChannels` must be between 1 and BK_MAX_CHANNELS
  * If `bits` is greater than 8 `endian` must be set eighter to `BK_BIG_ENDIAN`
  * or `BK_LITTLE_ENDIAN` otherwise the system endianess is used

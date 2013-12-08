@@ -37,19 +37,19 @@ class BlipKit::Track
 
 public:
 	BKTrack track;
-	
+
 	Track (BKEnum waveform)
 	{
 		if (BKTrackInit (& track, waveform) < 0) {
 			throw std::bad_alloc ();
 		}
 	}
-	
+
 	~Track () { BKTrackDispose (& track); }
 
 	BKInt attach (BlipKit::Context & ctx) { return BKTrackAttach (& track, & ctx.ctx); }
 	void detach (void) { BKTrackDetach (& track); }
-	
+
 	BKInt setAttr (BKEnum attr, BKInt value) { return BKTrackSetAttr (& track, attr, value); }
 	BKInt getAttr (BKEnum attr, BKInt * outValue) const { return BKTrackGetAttr (& track, attr, outValue); }
 

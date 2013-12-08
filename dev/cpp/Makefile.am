@@ -1,4 +1,4 @@
-AM_CXXFLAGS = @BK_STD_CFLAGS@ -I$(srcdir)/../../src -L$(srcdir)/../../src
+AM_CXXFLAGS = -Wall -I$(srcdir)/../../src -L$(srcdir)/../../src
 
 EXTRA_PROGRAMS = test
 

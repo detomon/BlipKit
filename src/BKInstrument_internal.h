@@ -39,7 +39,7 @@ extern BKInt BKInstrumentStateSetInstrument (BKInstrumentState * state, BKInstru
 /**
  * Get sequence value at offset
  */
-extern BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState * state, BKEnum slot, BKInt offset);
+extern BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState const * state, BKEnum slot, BKInt offset);
 
 /**
  * Advance state

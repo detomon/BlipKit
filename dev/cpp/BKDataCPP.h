@@ -37,6 +37,12 @@ class BlipKit::Data
 public:
 	BKData data;
 
+	Data (const Data & other)
+	{
+		if (BKDataInitCopy (& data, & other.data) < 0)
+			throw std::bad_alloc ();
+	}
+
 	Data (BKFrame const * frames, BKUInt numFrames, BKUInt numChannels)
 	{
 		if (BKDataInitWithFrames (& data, frames, numFrames, numChannels, true) < 0)
@@ -50,6 +56,16 @@ public:
 	}
 
 	~Data () { BKDataDispose (& data); }
+
+	BKInt setAttr (BKEnum attr, BKInt value) { return BKDataSetAttr (& data, attr, value); }
+	BKInt getAttr (BKEnum attr, BKInt * outValue) const { return BKDataGetAttr (& data, attr, outValue); }
+
+	BKInt setPtr (BKEnum attr, void * ptr) { return BKDataSetPtr (& data, attr, ptr); }
+	BKInt getPtr (BKEnum attr, void * outPtr) const { return BKDataGetPtr (& data, attr, outPtr); }
+
+	BKInt setFrames (BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy) { return BKDataSetFrames (& data, frames, numFrames, numChannels, copy); }
+
+	BKInt normalize (void) { return BKDataNormalize (& data); }
 
 };
 

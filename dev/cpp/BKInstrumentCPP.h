@@ -33,11 +33,11 @@ namespace BlipKit
 
 class BlipKit::Instrument
 {
-	
+
 public:
 	BKInstrument instr;
-	
-	Instrument () { BKInstrumentInit (& instr); }	
+
+	Instrument () { BKInstrumentInit (& instr); }
 	~Instrument () { BKInstrumentDispose (& instr); }
 
 	BKSequence const * getSequence (BKUInt slot) const { return BKInstrumentGetSequence (& instr, slot); }

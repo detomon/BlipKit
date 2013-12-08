@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "BKData_internal.h"
+#include "BKTone.h"
 
 enum
 {
@@ -141,15 +142,15 @@ static BKInt BKDataPromoteToCopy (BKData * data)
 	BKFrame * frames;
 
 	if ((data -> flags & BK_DATA_FLAG_COPY) == 0) {
-		size   = data -> numSamples * data -> numChannels * sizeof (BKFrame);
+		size   = data -> numFrames * data -> numChannels * sizeof (BKFrame);
 		frames = malloc (size);
 
 		if (frames == NULL)
 			return BK_ALLOCATION_ERROR;
 
-		memcpy (frames, data -> samples, size);
+		memcpy (frames, data -> frames, size);
 
-		data -> samples = frames;
+		data -> frames = frames;
 		data -> flags |= BK_DATA_FLAG_COPY;
 	}
 
@@ -170,22 +171,24 @@ void BKDataDispose (BKData * data)
 
 	BKDataResetStates (data, BK_DATA_STATE_EVENT_DISPOSE);
 
-	if (data -> samples)
-		free (data -> samples);
+	if (data -> frames)
+		free (data -> frames);
 
 	memset (data, 0, sizeof (BKData));
 }
 
-BKInt BKDataInitCopy (BKData * copy, BKData * original)
+BKInt BKDataInitCopy (BKData * copy, BKData const * original)
 {
 	BKInt res = 0;
 
-	memset (copy, 0, sizeof (BKData));
+	memcpy (copy, original, sizeof (BKData));
 
-	copy -> flags = (original -> flags & BK_DATA_FLAG_COPY_MASK);
+	copy -> flags    &= BK_DATA_FLAG_COPY_MASK;
+	copy -> stateList = NULL;
+	copy -> frames    = NULL;
 
-	if (original -> samples)
-		res = BKDataSetFrames (copy, original -> samples, original -> numSamples, original -> numChannels, 1);
+	if (original -> frames)
+		res = BKDataSetFrames (copy, original -> frames, original -> numFrames, original -> numChannels, 1);
 
 	if (res < 0)
 		return res;
@@ -196,6 +199,10 @@ BKInt BKDataInitCopy (BKData * copy, BKData * original)
 BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value)
 {
 	switch (attr) {
+		case BK_SAMPLE_PITCH: {
+			data -> samplePitch = BKClamp (value, BK_MIN_SAMPLE_TONE << BK_FINT20_SHIFT, BK_MAX_SAMPLE_TONE << BK_FINT20_SHIFT);
+			break;
+		}
 		default: {
 			return BK_INVALID_ATTRIBUTE;
 			break;
@@ -205,17 +212,21 @@ BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value)
 	return 0;
 }
 
-BKInt BKDataGetAttr (BKData * data, BKEnum attr, BKInt * outValue)
+BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue)
 {
 	BKInt value = 0;
 
 	switch (attr) {
-		case BK_NUM_SAMPLES: {
-			value = data -> numSamples;
+		case BK_NUM_FRAMES: {
+			value = data -> numFrames;
 			break;
 		}
 		case BK_NUM_CHANNELS: {
 			value = data -> numChannels;
+			break;
+		}
+		case BK_SAMPLE_PITCH: {
+			value = data -> samplePitch;
 			break;
 		}
 		default: {
@@ -241,13 +252,13 @@ BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr)
 	return 0;
 }
 
-BKInt BKDataGetPtr (BKData * data, BKEnum attr, void * outPtr)
+BKInt BKDataGetPtr (BKData const * data, BKEnum attr, void * outPtr)
 {
 	void ** ptrRef = outPtr;
 
 	switch (attr) {
 		case BK_SAMPLE: {
-			* ptrRef = data -> samples;
+			* ptrRef = data -> frames;
 			break;
 		}
 		default: {
@@ -266,14 +277,16 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 
 	// need at least 2 phases
 	if (numFrames < 2)
-		return BK_INVALID_NUM_SAMPLES;
+		return BK_INVALID_NUM_FRAMES;
 
-	numChannels = BKClamp (numChannels, 1, BK_MAX_CHANNELS);
-	size        = numFrames * numChannels * sizeof (BKFrame);
+	if (numChannels < 1 || numChannels > BK_MAX_CHANNELS)
+		return BK_INVALID_NUM_CHANNELS;
+
+	size = numFrames * numChannels * sizeof (BKFrame);
 
 	if (copy) {
 		if (data -> flags & BK_DATA_FLAG_COPY) {
-			newFrames = realloc (data -> samples, size);
+			newFrames = realloc (data -> frames, size);
 		}
 		else {
 			newFrames = malloc (size);
@@ -282,20 +295,22 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 		if (newFrames == NULL)
 			return -1;
 
+		data -> flags |= BK_DATA_FLAG_COPY;
+
 		memcpy (newFrames, frames, size);
 	}
 	else {
 		if (data -> flags & BK_DATA_FLAG_COPY) {
-			if (data -> samples)
-				free (data -> samples);
+			if (data -> frames)
+				free (data -> frames);
 		}
 
 		newFrames = (BKFrame *) frames;
 	}
 
 	if (newFrames) {
-		data -> samples     = newFrames;
-		data -> numSamples  = numFrames;
+		data -> frames      = newFrames;
+		data -> numFrames   = numFrames;
 		data -> numChannels = numChannels;
 	}
 	else {
@@ -319,15 +334,6 @@ static BKInt BKSystemIsBigEndian (void)
 	return sentinel.c[0] == 0x01;
 }
 
-BKInt BKDataInitWithFrames (BKData * data, BKFrame const * phases, BKUInt numFrames, BKUInt numChannels, BKInt copy)
-{
-	if (BKDataInit (data) == 0) {
-		return BKDataSetFrames (data, phases, numFrames, numChannels, copy);
-	}
-
-	return -1;
-}
-
 /**
  * Reverse 16 bit integers
  */
@@ -342,12 +348,207 @@ static void BKEndianReverse16Bit (BKFrame frames [], off_t size)
 	}
 }
 
+static BKInt BKDataNumBitsFromParam (BKEnum param, BKUInt * outNumBits, BKInt * outIsSigned)
+{
+	BKInt numBits  = 0;
+	BKInt isSigned = 0;
+
+	switch (param) {
+		case BK_1_BIT_UNSIGNED: {
+			numBits = 1;
+			break;
+		}
+		case BK_2_BIT_UNSIGNED: {
+			numBits = 2;
+			break;
+		}
+		case BK_4_BIT_UNSIGNED: {
+			numBits = 4;
+			break;
+		}
+		case BK_8_BIT_SIGNED: {
+			numBits = 8;
+			isSigned = 1;
+			break;
+		}
+		case BK_8_BIT_UNSIGNED: {
+			numBits  = 8;
+			break;
+		}
+		case BK_16_BIT_SIGNED: {
+			numBits  = 16;
+			isSigned = 1;
+			break;
+		}
+		default: {
+			return BK_INVALID_NUM_BITS;
+			break;
+		}
+	}
+
+	* outNumBits  = numBits;
+	* outIsSigned = isSigned;
+
+	return 0;
+}
+
+static BKInt BKDataCalculateNumFramesFromNumBits (BKUInt dataSize, BKUInt numBits, BKUInt numChannels)
+{
+	BKInt numFrames = 0;
+	BKInt packetSize;
+	BKInt dataSizeBits = dataSize * 8;
+
+	if (numBits <= 8) {
+		packetSize = (numBits * numChannels);
+	}
+	else {
+		// round up to multiple of 4
+		packetSize = (numBits + 3) / 4 * 4 * numChannels;
+	}
+
+	numFrames = dataSizeBits / packetSize * numChannels;
+
+	return numFrames;
+}
+
+static BKInt BKDataConvertBits (BKFrame * outFrames, void const * data, BKUInt dataSize, BKUInt numBits, BKInt isSigned, BKInt reverseEndian, BKUInt numChannels)
+{
+	unsigned char const * charData = data;
+	unsigned char c;
+
+	for (charData = data; (void *) charData < data + dataSize;) {
+		switch (numBits) {
+			case 1: {
+				c = charData [0];
+				outFrames [0] = ((c & (1 << 7)) >> 7) * BK_FRAME_MAX;
+				outFrames [1] = ((c & (1 << 6)) >> 6) * BK_FRAME_MAX;
+				outFrames [2] = ((c & (1 << 5)) >> 5) * BK_FRAME_MAX;
+				outFrames [3] = ((c & (1 << 4)) >> 4) * BK_FRAME_MAX;
+				outFrames [4] = ((c & (1 << 3)) >> 3) * BK_FRAME_MAX;
+				outFrames [5] = ((c & (1 << 2)) >> 2) * BK_FRAME_MAX;
+				outFrames [6] = ((c & (1 << 1)) >> 1) * BK_FRAME_MAX;
+				outFrames [7] = ((c & (1 << 0)) >> 0) * BK_FRAME_MAX;
+				charData += 1;
+				outFrames += 8;
+				break;
+			}
+			case 2: {
+				c = charData [0];
+				outFrames [0] = ((c & (3 << 6)) >> 6) * BK_FRAME_MAX / 3;
+				outFrames [1] = ((c & (3 << 4)) >> 4) * BK_FRAME_MAX / 3;
+				outFrames [2] = ((c & (3 << 2)) >> 2) * BK_FRAME_MAX / 3;
+				outFrames [3] = ((c & (3 << 0)) >> 0) * BK_FRAME_MAX / 3;
+				charData += 1;
+				outFrames += 4;
+				break;
+			}
+			case 4: {
+				c = charData [0];
+				outFrames [0] = ((c & (15 << 4)) >> 4) * BK_FRAME_MAX / 15;
+				outFrames [1] = ((c & (15 << 0)) >> 0) * BK_FRAME_MAX / 15;
+				charData += 1;
+				outFrames += 2;
+				break;
+			}
+			case 8: {
+				if (isSigned) {
+					outFrames [0] = (int16_t) (* (signed char *) charData) * BK_FRAME_MAX / 127;
+				} else {
+					outFrames [0] = (int16_t) (* (unsigned char *) charData) * BK_FRAME_MAX / 255;
+				}
+
+				charData += 1;
+				outFrames += 1;
+				break;
+			}
+			case 16: {
+				if (reverseEndian) {
+					outFrames [0] = (charData [0] << 8) | (charData [1] >> 8);
+				} else {
+					outFrames [0] =  (* (int16_t *) charData);
+				}
+
+				charData += 2;
+				outFrames += 1;
+				break;
+			}
+			default: {
+				return BK_INVALID_NUM_BITS;
+			}
+		}
+	}
+
+	return 0;
+}
+
+BKInt BKDataInitWithFrames (BKData * data, BKFrame const * phases, BKUInt numFrames, BKUInt numChannels, BKInt copy)
+{
+	if (BKDataInit (data) == 0) {
+		return BKDataSetFrames (data, phases, numFrames, numChannels, copy);
+	}
+
+	return -1;
+}
+
+
+BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params)
+{
+	BKUInt    endian = (params & BK_ENDIAN_MASK);
+	BKUInt    bits   = (params & BK_DATA_BITS_MASK);
+	BKUInt    numBits;
+	BKInt     isSigned, reverseEndian = 0;
+	BKInt     numFrames;
+	BKFrame * frames;
+
+	if (numChannels < 1 || numChannels > BK_MAX_CHANNELS)
+		return BK_INVALID_NUM_CHANNELS;
+
+	if (endian)
+		reverseEndian = BKSystemIsBigEndian () != (endian == BK_BIG_ENDIAN);
+
+	if (BKDataNumBitsFromParam (bits, & numBits, & isSigned) < 0)
+		return BK_INVALID_NUM_BITS;
+
+	numFrames = BKDataCalculateNumFramesFromNumBits (dataSize, numBits, numChannels);
+
+	if (numFrames < 0)
+		return BK_INVALID_NUM_BITS;
+
+	if (data -> flags & BK_DATA_FLAG_COPY) {
+		frames = realloc (data -> frames, numFrames * sizeof (BKFrame));
+	}
+	else {
+		frames = malloc (numFrames * sizeof (BKFrame));
+	}
+
+	if (frames == NULL)
+		return BK_ALLOCATION_ERROR;
+
+	if (BKDataConvertBits (frames, frameData, dataSize, numBits, isSigned, reverseEndian, numChannels) < 0)
+		return -1;
+
+	data -> frames      = frames;
+	data -> numFrames   = numFrames / numChannels;
+	data -> numChannels = numChannels;
+
+	return 0;
+}
+
+BKInt BKDataInitWithData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params)
+{
+	if (BKDataInit (data) == 0) {
+		return BKDataSetData (data, frameData, dataSize, numChannels, params);
+	}
+
+	return -1;
+}
+
 BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBits, BKUInt numChannels, BKEnum endian)
 {
 	int    file;
 	off_t  size;
 	BKUInt packetSize;
-	BKUInt numSamples;
+	BKUInt numFrames;
 
 	if (BKDataInit (data) == 0) {
 		switch (numBits) {
@@ -380,18 +581,18 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 			size = size - (size % packetSize);  // round down to full packet
 
 			if (size != -1) {
-				numSamples = (BKUInt) size * 8 / (numChannels * numBits);
-				data -> samples = malloc (sizeof (BKFrame) * numSamples * numChannels);
+				numFrames = (BKUInt) size * 8 / (numChannels * numBits);
+				data -> frames = malloc (sizeof (BKFrame) * numFrames * numChannels);
 
-				if (data -> samples) {
-					data -> numSamples  = numSamples;
+				if (data -> frames) {
+					data -> numFrames  = numFrames;
 					data -> numChannels = numChannels;
 
 					lseek (file, 0, SEEK_SET);
-					read (file, data -> samples, size);
+					read (file, data -> frames, size);
 
 					if (BKSystemIsBigEndian () != (endian == BK_BIG_ENDIAN))
-						BKEndianReverse16Bit (data -> samples, size);
+						BKEndianReverse16Bit (data -> frames, size);
 				}
 			}
 			else {
@@ -421,8 +622,8 @@ BKInt BKDataNormalize (BKData * data)
 	if (res != 0)
 		return res;
 
-	for (BKInt i = 0; i < data -> numSamples * data -> numChannels; i ++) {
-		value = BKAbs (data -> samples [i]);
+	for (BKInt i = 0; i < data -> numFrames * data -> numChannels; i ++) {
+		value = BKAbs (data -> frames [i]);
 
 		if (value > maxValue)
 			maxValue = value;
@@ -431,8 +632,8 @@ BKInt BKDataNormalize (BKData * data)
 	if (maxValue) {
 		factor = (BK_MAX_VOLUME << 16) / maxValue;
 
-		for (BKInt i = 0; i < data -> numSamples * data -> numChannels; i ++)
-			data -> samples [i] = (data -> samples [i] * factor) >> 16;
+		for (BKInt i = 0; i < data -> numFrames * data -> numChannels; i ++)
+			data -> frames [i] = (data -> frames [i] * factor) >> 16;
 	}
 
 	return 0;

@@ -69,7 +69,10 @@ static strval commands [] =
 {
 	{"a",  BKIntrAttack},
 	{"as", BKIntrArpeggioSpeed},
+	{"at", BKIntrAttackTicks},
+	{"d",  BKIntrSample},
 	{"dc", BKIntrDutyCycle},
+	{"dr", BKIntrSampleRepeat},
 	{"e",  BKIntrEffect},
 	{"g",  BKIntrGroup},
 	{"i",  BKIntrInstrument},
@@ -79,8 +82,10 @@ static strval commands [] =
 	{"pt", BKIntrPitch},
 	{"pw", BKIntrPhaseWrap},
 	{"r",  BKIntrRelease},
+	{"rt", BKIntrReleaseTicks},
 	{"s",  BKIntrStep},
 	{"st", BKIntrStepTicks},
+	{"t",  BKIntrTicks},
 	{"v",  BKIntrVolume},
 	{"vm", BKIntrMasterVolume},
 	{"w",  BKIntrWaveform},
@@ -222,9 +227,11 @@ static BKInt * BKCompilerCombineCmds (BKCompiler * compiler, BKInt * allCmds, BK
 
 		switch (cmd) {
 			case BKIntrAttack:        argCount = 1; break;
+			case BKIntrAttackTicks:   argCount = 1; break;
 			case BKIntrArpeggio:      variable = 1; break;
 			case BKIntrArpeggioSpeed: argCount = 1; break;
 			case BKIntrRelease:       argCount = 0; break;
+			case BKIntrReleaseTicks:  argCount = 1; break;
 			case BKIntrMute:          argCount = 0; break;
 			case BKIntrMuteTicks:     argCount = 1; break;
 			case BKIntrVolume:        argCount = 1; break;
@@ -233,11 +240,14 @@ static BKInt * BKCompilerCombineCmds (BKCompiler * compiler, BKInt * allCmds, BK
 			case BKIntrMasterVolume:  argCount = 1; break;
 			case BKIntrStep:          argCount = 1; break;
 			case BKIntrStepTicks:     argCount = 1; break;
+			case BKIntrTicks:         argCount = 1; break;
 			case BKIntrEffect:        argCount = 4; break;
 			case BKIntrDutyCycle:     argCount = 1; break;
 			case BKIntrPhaseWrap:     argCount = 1; break;
 			case BKIntrInstrument:    argCount = 1; break;
 			case BKIntrWaveform:      argCount = 1; break;
+			case BKIntrSample:        argCount = 1; break;
+			case BKIntrSampleRepeat:  argCount = 1; break;
 			case BKIntrReturn:        argCount = 0; break;
 			case BKIntrGroup:         argCount = 1; break;
 			case BKIntrJump:          argCount = 1; break;
@@ -362,6 +372,8 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 
 				// set arpeggio
 				if (instr -> argCount > 1) {
+					instr -> argCount = BKMin (instr -> argCount, BK_MAX_ARPEGGIO);
+
 					item_list_add (cmds, BKIntrArpeggio);
 					item_list_add (cmds, (BKInt) instr -> argCount);
 
@@ -399,6 +411,8 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 
 			break;
 		}
+		case BKIntrAttackTicks:
+		case BKIntrReleaseTicks:
 		case BKIntrMuteTicks: {
 			value0 = atoix (arg0, 0);
 
@@ -416,7 +430,8 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 			item_list_add (cmds, atoix (arg0, 0) * (BK_MAX_VOLUME / 255));
 			break;
 		}
-		case BKIntrStep: {
+		case BKIntrStep:
+		case BKIntrTicks: {
 			value0 = atoix (arg0, 0);
 
 			if (value0 == 0)
@@ -498,9 +513,19 @@ BKInt BKCompilerPushCommand (BKCompiler * compiler, BKBlipCommand * instr)
 			}
 			else {
 				value0 = atoix (arg0, 0);
-				value0 |= BK_CUSTOM_WAVEFOMR_FLAG;
+				value0 |= BK_INTR_CUSTOM_WAVEFOMR_FLAG;
 				item_list_add (cmds, value0);
 			}
+			break;
+		}
+		case BKIntrSample: {
+			item_list_add (cmds, item -> value);
+			item_list_add (cmds, atoix (arg0, -1));
+			break;
+		}
+		case BKIntrSampleRepeat: {
+			item_list_add (cmds, item -> value);
+			item_list_add (cmds, atoix (arg0, 0));
 			break;
 		}
 		case BKIntrArpeggioSpeed: {

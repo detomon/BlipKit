@@ -68,6 +68,11 @@ static void BKInstrumentResetStates (BKInstrument * instr, BKEnum event)
 			state -> callback (event, state -> callbackUserInfo);
 		}
 
+		for (BKInt i = 0; i < instr -> numSequences; i ++) {
+			if (instr -> sequences [i] == NULL)
+				state -> states [i].value = sequenceDefaultValue [i];
+		}
+
 		nextState = state -> nextState;
 
 		if (event == BK_INSTR_STATE_EVENT_DISPOSE)
@@ -278,10 +283,10 @@ BKInt BKInstrumentStateSetInstrument (BKInstrumentState * state, BKInstrument * 
 	return 0;
 }
 
-BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState * state, BKEnum slot, BKInt offset)
+BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState const * state, BKEnum slot, BKInt offset)
 {
 	BKInt value = 0;
-	BKSequenceState * sequenceState;
+	BKSequenceState const * sequenceState;
 
 	if (slot < BK_MAX_SEQUENCES) {
 		sequenceState = & state -> states [slot];

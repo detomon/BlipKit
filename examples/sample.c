@@ -40,6 +40,8 @@ BKSDLUserData userData;
 BKDivider     divider;
 BKInt         i = 0;
 
+BKInt offset = 0;
+
 static int getchar_nocanon (unsigned tcflags)
 {
 	int c;
@@ -63,6 +65,13 @@ static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
 	BKUInt numFrames = len / sizeof (BKFrame) / info -> numChannels;
 
 	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
+
+	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_OFFSET, offset);
+	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_END, offset+ 200);
+	offset += 1;
+
+	if (offset > 2000)
+		offset = 0;
 }
 
 BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
@@ -108,55 +117,48 @@ int main (int argc, char * argv [])
 
 	BKTrackInit (& sampleTrack, BK_SQUARE);
 
-	BKTrackSetAttr (& sampleTrack, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
+	BKTrackSetAttr (& sampleTrack, BK_MASTER_VOLUME, 0.5 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& sampleTrack, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-
-	// portamento
-	//BKTrackSetAttr (& sampleTrack, BK_EFFECT_PORTAMENTO, 15);
-
-	// tremolo
-	//BKInt const tremolo [2] = {12, 0.66 * BK_MAX_VOLUME};
-	//BKTrackSetPtr (& sampleTrack, BK_EFFECT_TREMOLO, tremolo);
-
-	//BKInt const vibrato [2] = {4, 6 * BK_FINT20_UNIT};
-	//BKTrackSetPtr (& sampleTrack, BK_EFFECT_VIBRATO, vibrato);
 
 	BKTrackAttach (& sampleTrack, & ctx);
 
+	// Load raw sound data
 	BKDataInitAndLoadRawAudio (& sample, "itemland3.raw", 16, 1, BK_LITTLE_ENDIAN);
 
 	// Normalize frames to maximum amplitude
 	BKDataNormalize (& sample);
 
-	// Set data object as waveform
-	BKTrackSetPtr (& sampleTrack, BK_SAMPLE, & sample);
-	////
+	// Tune sample pitch to BK_C_4 (approximately)
+	BKDataSetAttr (& sample, BK_SAMPLE_PITCH, -0.9 * BK_FINT20_UNIT);
 
-	//BKTrackSetAttr (& sampleTrack, BK_SAMPLE_REPEAT, 1);
+	// Set data object as sample
+	BKTrackSetPtr (& sampleTrack, BK_SAMPLE, & sample);
+
+	// set play range
+	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_OFFSET, 600);
+	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_END, 800);
+
+	// repeat play range
+	BKTrackSetAttr (& sampleTrack, BK_SAMPLE_REPEAT, 1);
 
 	//// instrument with release sequence
 	BKInstrumentInit (& instrument);
 
 	#define NUM_VOLUME_PHASES 15
 
-	BKInt volumeSequence [NUM_VOLUME_PHASES];/* = {
-		1.0 * BK_MAX_VOLUME,
-		0.9 * BK_MAX_VOLUME, 0.8 * BK_MAX_VOLUME, 0.7 * BK_MAX_VOLUME,
-		0.6 * BK_MAX_VOLUME, 0.5 * BK_MAX_VOLUME, 0.4 * BK_MAX_VOLUME,
-		0.3 * BK_MAX_VOLUME, 0.2 * BK_MAX_VOLUME, 0.1 * BK_MAX_VOLUME,
-		0.0 * BK_MAX_VOLUME,
-	}*/;
+	BKInt volumeSequence [NUM_VOLUME_PHASES];
 
-	volumeSequence [0] = BK_MAX_VOLUME;
+	// Create descending sequence
+	for (BKInt i = 0; i < NUM_VOLUME_PHASES; i ++)
+		volumeSequence [i] = ((float) BK_MAX_VOLUME * (NUM_VOLUME_PHASES - i) / NUM_VOLUME_PHASES);
 
-	for (BKInt i = 1; i < NUM_VOLUME_PHASES; i ++)
-		volumeSequence [i] = ((float) BK_MAX_VOLUME / (NUM_VOLUME_PHASES - 1) * (NUM_VOLUME_PHASES - i));
-
+	// Set volume sequence of instrument
 	BKInstrumentSetSequence (& instrument, BK_SEQUENCE_VOLUME, volumeSequence, NUM_VOLUME_PHASES, 0, 1);
 
+	// Attach instrument to track
 	BKTrackSetPtr (& sampleTrack, BK_INSTRUMENT, & instrument);
 
-	//BKTrackSetAttr (& sampleTrack, BK_NOTE, BK_A_3 * BK_FINT20_UNIT);
+	//BKTrackSetAttr (& sampleTrack, BK_NOTE, BK_C_4 * BK_FINT20_UNIT);
 	//BKInt const arpeggio [] = {6, 0, 0, 4 * BK_FINT20_UNIT, 4 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT};
 	//BKTrackSetPtr (& sampleTrack, BK_ARPEGGIO, arpeggio);
 	//BKTrackSetAttr (& sampleTrack, BK_EFFECT_PORTAMENTO, 2000);
@@ -168,13 +170,13 @@ int main (int argc, char * argv [])
 	callback.func     = dividerCallback;
 	callback.userInfo = NULL;
 
-	// We want 120 BPM
+	// We want 150 BPM
 	// The master clock ticks at 240 Hz
-	// This results to an divider value of 80
+	// This results to an divider value of 96
 	// Divide by 4 to get a 4/4 beat
 	// Note that a divider only takes integer values
 	// Certain BPM rates are not possible as integers may be rounded down
-	BKInt dividerValue = (60.0 / 120.0 / 4) * 240;
+	BKInt dividerValue = (60.0 / 150.0 / 4) * 240;
 
 	// Initialize divider with divider value and callback
 	BKDividerInit (& divider, dividerValue, & callback);
@@ -210,12 +212,13 @@ int main (int argc, char * argv [])
 		int c = getchar_nocanon (0);
 
 		// Use lock when setting attributes outside of divider callbacks
-		SDL_LockAudio ();
+		//SDL_LockAudio ();
 
+		// Do stuff ...
 		//BKInt vibrato [2] = {16, 3 * BK_FINT20_UNIT};
 		//BKTrackSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato);
 
-		SDL_UnlockAudio ();
+		//SDL_UnlockAudio ();
 
 		if (c == 'q')
 			break;

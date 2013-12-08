@@ -21,66 +21,43 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef _TRACK_H_
-#define _TRACK_H_
+#ifndef _BK_BFM_WRITER_BUFFER_H_
+#define _BK_BFM_WRITER_BUFFER_H_
 
-#include <SDL/SDL.h>
-#include "BlipKit.h"
-#include "BKCompiler.h"
+#include "BKBFMReader.h"
 
-typedef struct {
-	BKTrack       * track;
-	BKInterpreter * interpreter;
-} BKSDLUserData;
+typedef struct BKBFMWriter BKBFMWriter;
 
-typedef struct {
-	BKTrack       track;
-	BKDivider     divider;
-	BKInterpreter interpreter;
-	BKSDLUserData userData;
-} BKSDLTrack;
-
-typedef struct {
-	BKContext      ctx;
-	BKUInt         speed;
-	BKInstrument * instruments [64];
-	BKUInt         numInstruments;
-	BKData       * waveforms [64];
-	BKUInt         numWaveforms;
-	BKData       * samples [64];
-	BKUInt         numSamples;
-	BKSDLTrack   * tracks [64];
-	BKUInt         numTracks;
-} BKSDLContext;
+enum BKWriterFormat
+{
+	BKWriterFormatDefault = 0,
+	BKWriterFormatText    = 1,
+	BKWriterFormatBinary  = 2,
+};
 
 /**
  *
  */
-extern BKInt BKSDLContextInit (BKSDLContext * ctx, BKUInt numChannels, BKUInt sampleRate);
+struct BKBFMWriter
+{
+	BKUInt       flags;
+	BKEnum       format;
+	BKByteBuffer buffer;
+};
 
 /**
  *
  */
-extern void BKSDLContextDispose (BKSDLContext * ctx);
+extern BKInt BKBFMWriterInit (BKBFMWriter * writer, BKEnum format);
 
 /**
  *
  */
-extern BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size);
+extern void BKBFMWriterDispose (BKBFMWriter * writer);
 
 /**
  *
  */
-extern BKInt BKSDLContextLoadFile (BKSDLContext * ctx, char const * filename);
+extern BKInt BKBFMWriterPutToken (BKBFMWriter * writer, BKBFMToken const * inToken);
 
-/**
- *
- */
-extern void BKSDLContextUnloadData (BKSDLContext * ctx);
-
-/**
- *
- */
-extern void BKSDLContextReset (BKSDLContext * ctx, BKInt resetTracks);
-
-#endif /* ! _TRACK_H_ */
+#endif /* ! _BK_BFM_WRITER_BUFFER_H_ */

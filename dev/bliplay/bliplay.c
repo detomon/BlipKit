@@ -40,6 +40,7 @@ enum
 	CHECK_FLAG        = 1 << 3,
 	TRUNC_OUTPUT_FLAG = 1 << 5,
 	NO_PAUSE_SND_FLAG = 1 << 6,
+	HAS_SEEK_TIME     = 1 << 7,
 };
 
 enum
@@ -76,8 +77,27 @@ static char const   * outputFilename;
 static FILE         * outputFile;
 static BKSDLContext   ctx, pauseCtx;
 static BKSDLContext * runCtx;
+static BKTime         seekTime;
 
-static int getchar_nocanon (unsigned tcflags) {
+static int set_nocanon (int nocanon)
+{
+	struct termios oldtc, newtc;
+
+	tcgetattr (STDIN_FILENO, & oldtc);
+
+	newtc = oldtc;
+
+	if (nocanon) {
+		newtc.c_lflag &= ~(ICANON);
+	} else {
+		newtc.c_lflag |= (ICANON);
+	}
+
+	tcsetattr (STDIN_FILENO, TCSANOW, & newtc);
+}
+
+static int getchar_nocanon (unsigned tcflags)
+{
 	int c;
 	struct termios oldtc, newtc;
 
@@ -150,11 +170,6 @@ static int interactiveMode (BKSDLContext * ctx)
 
 	printf ("Entering interactive mode... (\"help\" for help, \"quit\" to quit)\n");
 
-	/*while (1) {
-		int c = getchar_nocanon (0);
-		printf ("[%u]\n", c);
-	}*/
-
 	do {
 		printf ("%s> ", PROGRAM_NAME);
 		fgets (line, sizeof (line), stdin);
@@ -209,8 +224,9 @@ struct option const options [] = {
 	{"play",         optional_argument, NULL, 'p'},
 	{"check",        no_argument,       NULL, 'c'},
 	{"output",       required_argument, NULL, 'o'},
-	{"trunc-output", no_argument      , NULL, 'q'},
-	{"no-pause-snd", no_argument      , NULL, 'u'},
+	{"trunc-output", no_argument,       NULL, 'q'},
+	{"no-pause-snd", no_argument,       NULL, 'u'},
+	{"fast-forward", required_argument, NULL, 'f'},
 	{NULL,           0,                 NULL, 0},
 };
 
@@ -258,18 +274,69 @@ static void setRunContext (BKSDLContext * ctx, BKInt reset)
 	SDL_UnlockAudio ();
 }
 
+static BKInt parseSeekTime (char const * string, BKTime * outTime, BKInt speed)
+{
+	double value;
+	char   type;
+	BKTime time;
+	BKInt  argc;
+
+	argc = sscanf (string, "%lf%c", & value, & type);
+
+	if (argc < 1) {
+		fprintf (stderr, "Fast forward option must define a numeric value (e.g. 12.4s, 760t, 45600f)\n");
+		return -1;
+	}
+
+	if (value < 0) {
+		fprintf (stderr, "Fast forward option must be a positive value\n");
+		return -1;
+	}
+
+	if (argc < 2)
+		type = 't';
+
+	switch (type) {
+		case 'f': {
+			time = BKTimeMake (value, 0);
+			break;
+		}
+		case 'b': {
+			time = BKTimeFromSeconds (& ctx.ctx, (1.0 / 240) * speed * value);
+			break;
+		}
+		case 't': {
+			time = BKTimeFromSeconds (& ctx.ctx, (1.0 / 240) * value);
+			break;
+		}
+		case 's': {
+			time = BKTimeFromSeconds (& ctx.ctx, value);
+			break;
+		}
+		default: {
+			fprintf (stderr, "Unknown fast forward unit '%c'\n", type);
+			return -1;
+		}
+	}
+
+	* outTime = time;
+
+	return 0;
+}
+
 static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 {
 	int    opt;
 	int    longoptind = 1;
 	BKUInt sampleRate = 44100;
 	BKUInt speed      = 0;
+	char seekTimeString [64];
 
 	char const * error = NULL;
 
 	opterr = 0;
 
-	while ((opt = getopt_long (argc, (void *) argv, "cdhpo:qs:r:u", options, & longoptind)) != -1) {
+	while ((opt = getopt_long (argc, (void *) argv, "cdhpo:qs:r:uf:", options, & longoptind)) != -1) {
 		switch (opt) {
 			case 's': {
 				speed = atoi (optarg);
@@ -308,11 +375,17 @@ static int handleOptions (BKSDLContext * ctx, int argc, const char * argv [])
 				flags |= NO_PAUSE_SND_FLAG;
 				break;
 			}
-			default:
+			case 'f': {
+				flags |= HAS_SEEK_TIME;
+				strncpy (seekTimeString, optarg, 64);
+				break;
+			}
+			default: {
 				fprintf (stderr, "Unknown option %c near %s\n", opt, argv [longoptind]);
 				printOptionHelp ();
 				exit (1);
 				break;
+			}
 		}
 	}
 
@@ -400,12 +473,34 @@ t:end;";
 		if (speed) {
 			for (BKInt i = 0; i < ctx -> numTracks; i ++)
 				ctx -> tracks [i] -> interpreter.stepTickCount = speed;
+
+			ctx -> speed = speed;
+		}
+		else {
+			speed = ctx -> speed;
+		}
+
+		if (flags & HAS_SEEK_TIME) {
+			if (parseSeekTime (seekTimeString, & seekTime, speed) < 0) {
+				exit(1);
+				return -1;
+			}
 		}
 
 		SDL_UnlockAudio ();
 	}
 
 	return 0;
+}
+
+static BKInt pushFrames (BKFrame inFrames [], BKUInt size, void * info)
+{
+	return 0;
+}
+
+static void seekContext (BKSDLContext * ctx, BKTime time)
+{
+	BKContextGenerateToTime (& ctx -> ctx, time, pushFrames, NULL);
 }
 
 static BKInt handleKeys ()
@@ -415,6 +510,8 @@ static BKInt handleKeys ()
 	printf ("[space] = play/pause, [q] = stop\n");
 
 	if (flags & PLAY_FLAG) {
+		seekContext (& ctx, seekTime);
+
 		paused = 0;
 		SDL_PauseAudio (0);
 		printf ("\rPlaying...");
@@ -425,41 +522,85 @@ static BKInt handleKeys ()
 	}
 
 	do {
-		int c = getchar_nocanon (0);
+		fd_set in;
+		struct timeval tv;
 
-		switch (c) {
-			case 'q': {
-				printf ("\rStopped   ");
-				goto end;
-				break;
-			}
-			case ' ': {
-				paused = !paused;
+		FD_ZERO (& in);
+		FD_SET (STDIN_FILENO, & in);
+		tv.tv_sec = 0;
+		tv.tv_usec = 10000;
 
-				if (paused) {
-					if (flags & NO_PAUSE_SND_FLAG) {
-						SDL_PauseAudio (1);
+		set_nocanon(1);
+
+		int res = select (STDIN_FILENO + 1, & in, NULL, NULL, & tv);
+
+		if (res > 0) {
+			int c = getchar_nocanon (0);
+
+			switch (c) {
+				case 'q': {
+					printf ("\rStopped   ");
+					goto end;
+					break;
+				}
+				case ' ': {
+					paused = !paused;
+
+					if (paused) {
+						if (flags & NO_PAUSE_SND_FLAG) {
+							SDL_PauseAudio (1);
+						}
+						else {
+							setRunContext (& pauseCtx, 1);
+						}
+
+						printf ("\rPaused    ");
 					}
 					else {
-						setRunContext (& pauseCtx, 1);
+						SDL_PauseAudio (0);
+
+						setRunContext (& ctx, 0);
+						printf ("\rPlaying...");
 					}
 
-					printf ("\rPaused    ");
+					break;
 				}
-				else {
-					SDL_PauseAudio (0);
-
-					setRunContext (& ctx, 0);
-					printf ("\rPlaying...");
-				}
-
-				break;
 			}
+		}
+		else if (res == 0) {
+			int frames = BKTimeGetTime (ctx.ctx.currentTime) * 100 / ctx.ctx.sampleRate;
+			int frac = frames % 100;
+			frames /= 100;
+			int secs = frames % 60;
+			int mins = frames / 60;
+
+			int groups [64];
+
+			for (int i = 0; i < ctx.numTracks; i ++) {
+				if (ctx.tracks[i] -> interpreter.stackPtr > ctx.tracks[i] -> interpreter.stack) {
+					groups [i] = ctx.tracks[i] -> interpreter.stackPtr [-1];
+				} else {
+					groups [i] = -1;
+				}
+			}
+
+			printf ("\rPlaying %3d:%02d.%02d", mins, secs, frac);
+
+			for (int i = 0; i < ctx.numTracks; i ++)
+				printf ("  % 6d", groups [i]);
+
+			fflush (stdout);
+		}
+		else {
+			fprintf (stderr, "select failed\n");
+			exit (1);
 		}
 
 		//SDL_Delay(100);
 	}
 	while (1);
+
+	set_nocanon (0);
 
 	end:
 

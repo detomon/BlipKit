@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT([BlipKit],[0.3.3],[simon@monoxid.net],[blipkit],[http://blipkit.monoxid.net])
+AC_INIT([BlipKit],[0.5],[simon@monoxid.net],[blipkit],[http://blipkit.monoxid.net])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # Checks for programs.
@@ -35,6 +35,7 @@ AC_CONFIG_FILES([
  examples/Makefile
  dev/cpp/Makefile
  dev/bliplay/Makefile
+ dev/bfm/Makefile
  dev/fft/Makefile
  dev/step_phases/Makefile
  dev/tone_periods/Makefile

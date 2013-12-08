@@ -137,42 +137,42 @@ g:begin;
 	a:c3;s:1;r;s:1;
 	a:d#3;s:1;r;
 	a:g3;s:1;r;
-	mt:34;a:c4;s:2;r;
-	mt:34;a:a#3;s:2;r;
+	rt:34;a:c4;s:2;r;
+	rt:34;a:a#3;s:2;r;
 	a:c4;s:1;r;
 	a:a#3;s:1;r;
-	mt:34;a:g3;s:2;r;
-	mt:34;a:a#3;s:2;r;
-	mt:34;a:g3;s:2;r;
+	rt:34;a:g3;s:2;r;
+	rt:34;a:a#3;s:2;r;
+	rt:34;a:g3;s:2;r;
 
 	a:c3;s:1;r;s:1;
 	a:f3;s:1;r;
 	a:g3;s:1;r;
-	mt:34;a:c4;s:2;r;
-	mt:34;a:g3;s:2;r;
-	mt:34;a:g#3;s:2;r;
-	mt:34;a:g3;s:2;r;
-	mt:34;a:f3;s:2;r;
-	mt:34;a:g3;s:2;r;
+	rt:34;a:c4;s:2;r;
+	rt:34;a:g3;s:2;r;
+	rt:34;a:g#3;s:2;r;
+	rt:34;a:g3;s:2;r;
+	rt:34;a:f3;s:2;r;
+	rt:34;a:g3;s:2;r;
 
-	mt:34;a:c3;s:2;r;
+	rt:34;a:c3;s:2;r;
 	a:d#3;s:1;r;
 	a:c3;s:1;r;
-	mt:34;a:c4;s:2;r;
-	mt:34;a:g3;s:2;r;
+	rt:34;a:c4;s:2;r;
+	rt:34;a:g3;s:2;r;
 	a:c4;s:1;r;
 	a:a#3;s:1;r;
-	mt:34;a:g#3;s:2;r;
-	mt:34;a:g3;s:2;r;
-	mt:34;a:a#3;s:2;r;
+	rt:34;a:g#3;s:2;r;
+	rt:34;a:g3;s:2;r;
+	rt:34;a:a#3;s:2;r;
 
-	mt:34;a:g3;s:2;r;
-	mt:34;a:a#3;s:2;r;
-	mt:34;a:c4;s:2;r;
-	mt:34;a:d#4;s:2;r;
+	rt:34;a:g3;s:2;r;
+	rt:34;a:a#3;s:2;r;
+	rt:34;a:c4;s:2;r;
+	rt:34;a:d#4;s:2;r;
 	a:d#3;s:1;r;
 	a:c4;s:1;r;
-	mt:34;a:g#3;s:2;r;
+	rt:34;a:g#3;s:2;r;
 	a:g3;s:1;r;s:1;
 	a:g3;s:1;r;s:1;
 
@@ -187,38 +187,38 @@ g:begin;
 	a:c4;s:1;r;s:1;
 	a:c4;s:1;r;
 	a:a#3;s:1;r;
-	mt:34;a:g#3;s:2;r;
+	rt:34;a:g#3;s:2;r;
 	a:g3;s:1;r;s:1;
 	a:g3;s:1;r;s:1;
 
 	a:c3;s:1;r;s:1;
 	a:f3;s:1;r;
 	a:g3;s:1;r;
-	mt:34;a:c4;s:2;r;
-	mt:34;a:g3;s:2;r;
-	mt:34;a:c4;s:2;r;
-	mt:34;a:d#4;s:2;r;
+	rt:34;a:c4;s:2;r;
+	rt:34;a:g3;s:2;r;
+	rt:34;a:c4;s:2;r;
+	rt:34;a:d#4;s:2;r;
 	a:c4;s:1;r;s:1;
 	a:c4;s:1;r;s:1;
 
-	mt:34;a:c3;s:2;r;
+	rt:34;a:c3;s:2;r;
 	a:d#3;s:1;r;
 	a:c3;s:1;r;
-	mt:34;a:c4;s:2;r;
-	mt:34;a:g3;s:2;r;
+	rt:34;a:c4;s:2;r;
+	rt:34;a:g3;s:2;r;
 	a:c4;s:1;r;
 	a:a#3;s:1;r;
-	mt:34;a:g#3;s:2;r;
+	rt:34;a:g#3;s:2;r;
 	a:g3;s:1;r;s:1;
 	a:g3;s:1;r;s:1;
 
-	mt:34;a:f3;s:2;r;
-	mt:34;a:c4;s:2;r;
-	mt:34;a:g3;s:2;r;
+	rt:34;a:f3;s:2;r;
+	rt:34;a:c4;s:2;r;
+	rt:34;a:g3;s:2;r;
 	a:a#3;s:1;r;s:1;
 	a:a#3;s:1;r;
 	a:d#4;s:1;r;
-	mt:34;a:d4;s:2;r;
+	rt:34;a:d4;s:2;r;
 	a:c4;s:1;r;s:1;
 	a:c4;s:1;r;s:1;
 
@@ -507,106 +507,106 @@ t:begin:noise;
 
 g:begin;
 
-	mt:12;p:+00;i:0;a:g6;s:1;r;s:1;
-	mt:5;p:-48;i:1;a:g5;s:1;r;s:1;
-	mt:12;p:+48;i:0;a:g4;s:1;r;s:1;
+	rt:12;p:+00;i:0;a:g6;s:1;r;s:1;
+	rt:5;p:-48;i:1;a:g5;s:1;r;s:1;
+	rt:12;p:+48;i:0;a:g4;s:1;r;s:1;
 	s:2;
 	p:+00;i:0;a:g6;s:2;r;
 	s:2;
-	mt:5;p:+00;i:1;a:g5;s:1;r;s:1;
+	rt:5;p:+00;i:1;a:g5;s:1;r;s:1;
 	p:+32;i:0;a:g5;s:1;r;s:1;
 
-	mt:12;p:+00;i:0;a:g6;s:1;r;s:1;
-	mt:5;p:-48;i:1;a:g5;s:1;r;s:1;
-	mt:12;p:+48;i:0;a:g4;s:1;r;s:1;
+	rt:12;p:+00;i:0;a:g6;s:1;r;s:1;
+	rt:5;p:-48;i:1;a:g5;s:1;r;s:1;
+	rt:12;p:+48;i:0;a:g4;s:1;r;s:1;
 	s:2;
 	p:+00;i:0;a:g6;s:2;r;
 	s:2;
-	mt:5;p:+00;i:1;a:g5;s:1;r;s:1;
+	rt:5;p:+00;i:1;a:g5;s:1;r;s:1;
 	p:+32;i:0;a:g5;s:1;r;s:1;
 
-	mt:12;p:+00;i:0;a:g6;s:1;r;s:1;
-	mt:5;p:-48;i:1;a:g5;s:1;r;s:1;
-	mt:12;p:+48;i:0;a:g4;s:1;r;s:1;
+	rt:12;p:+00;i:0;a:g6;s:1;r;s:1;
+	rt:5;p:-48;i:1;a:g5;s:1;r;s:1;
+	rt:12;p:+48;i:0;a:g4;s:1;r;s:1;
 	s:2;
 	p:+00;i:0;a:g6;s:2;r;
 	s:2;
-	mt:5;p:+00;i:1;a:g5;s:1;r;s:1;
+	rt:5;p:+00;i:1;a:g5;s:1;r;s:1;
 	p:+32;i:0;a:g5;s:1;r;s:1;
 
-	mt:12;p:+00;i:0;a:g6;s:1;r;s:1;
-	mt:5;p:-48;i:1;a:g5;s:1;r;s:1;
-	mt:12;p:+48;i:0;a:g4;s:1;r;s:1;
+	rt:12;p:+00;i:0;a:g6;s:1;r;s:1;
+	rt:5;p:-48;i:1;a:g5;s:1;r;s:1;
+	rt:12;p:+48;i:0;a:g4;s:1;r;s:1;
 	s:2;
 	p:+00;i:0;a:g6;s:2;r;
 	s:2;
-	mt:5;p:+00;i:1;a:g5;s:1;r;s:1;
+	rt:5;p:+00;i:1;a:g5;s:1;r;s:1;
 	p:+32;i:0;a:g5;s:1;r;s:1;
 
 g:end;
 
 g:begin;
 
-	mt:25;p:+00;i:0;a:g6;s:2;r;
+	rt:25;p:+00;i:0;a:g6;s:2;r;
 	s:2;
-	mt:6;p:+48;i:0;a:g6;s:1;r;s:1;
-	mt:4;p:-48;i:0;a:g5;s:1;r;s:1;
-	mt:25;p:+00;i:0;a:g6;s:2;r;
+	rt:6;p:+48;i:0;a:g6;s:1;r;s:1;
+	rt:4;p:-48;i:0;a:g5;s:1;r;s:1;
+	rt:25;p:+00;i:0;a:g6;s:2;r;
 	s:2;
-	mt:6;p:+00;i:0;a:g6;s:1;r;s:1;
-	s:2;
-
-	mt:25;p:+00;i:0;a:g6;s:2;r;
-	s:2;
-	mt:6;p:+48;i:0;a:g6;s:1;r;s:1;
-	mt:4;p:-48;i:0;a:g5;s:1;r;s:1;
-	mt:25;p:+00;i:0;a:g6;s:2;r;
-	s:2;
-	mt:4;p:-48;i:0;a:g5;s:1;r;s:1;
-	mt:48;p:+00;i:0;a:g6;s:2;r;
-
-	mt:25;p:+00;i:0;a:g6;s:2;r;
-	s:2;
-	mt:6;p:+48;i:0;a:g6;s:1;r;s:1;
-	mt:4;p:-48;i:0;a:g5;s:1;r;s:1;
-	mt:25;p:+00;i:0;a:g6;s:2;r;
-	s:2;
-	mt:6;p:+00;i:0;a:g6;s:1;r;s:1;
+	rt:6;p:+00;i:0;a:g6;s:1;r;s:1;
 	s:2;
 
-	mt:25;p:+00;i:0;a:g6;s:2;r;
+	rt:25;p:+00;i:0;a:g6;s:2;r;
 	s:2;
-	mt:6;p:+48;i:0;a:g6;s:1;r;s:1;
-	mt:4;p:-48;i:0;a:g5;s:1;r;s:1;
-	mt:25;p:+00;i:0;a:g6;s:2;r;
+	rt:6;p:+48;i:0;a:g6;s:1;r;s:1;
+	rt:4;p:-48;i:0;a:g5;s:1;r;s:1;
+	rt:25;p:+00;i:0;a:g6;s:2;r;
 	s:2;
-	mt:4;p:-48;i:0;a:g5;s:1;r;s:1;
-	mt:48;p:+00;i:0;a:g6;s:2;r;
+	rt:4;p:-48;i:0;a:g5;s:1;r;s:1;
+	rt:48;p:+00;i:0;a:g6;s:2;r;
+
+	rt:25;p:+00;i:0;a:g6;s:2;r;
+	s:2;
+	rt:6;p:+48;i:0;a:g6;s:1;r;s:1;
+	rt:4;p:-48;i:0;a:g5;s:1;r;s:1;
+	rt:25;p:+00;i:0;a:g6;s:2;r;
+	s:2;
+	rt:6;p:+00;i:0;a:g6;s:1;r;s:1;
+	s:2;
+
+	rt:25;p:+00;i:0;a:g6;s:2;r;
+	s:2;
+	rt:6;p:+48;i:0;a:g6;s:1;r;s:1;
+	rt:4;p:-48;i:0;a:g5;s:1;r;s:1;
+	rt:25;p:+00;i:0;a:g6;s:2;r;
+	s:2;
+	rt:4;p:-48;i:0;a:g5;s:1;r;s:1;
+	rt:48;p:+00;i:0;a:g6;s:2;r;
 
 g:end;
 
 g:begin;
 
 	s:4;
-	mt:6;p:+00;i:0;a:g6;s:1;r;s:1;
+	rt:6;p:+00;i:0;a:g6;s:1;r;s:1;
 	s:6;
-	mt:6;p:+00;i:0;a:g6;s:1;r;s:1;
-	s:6;
-
-	mt:6;p:+00;i:0;a:g6;s:1;r;s:1;
-	s:6;
-	mt:6;p:+00;i:0;a:g6;s:1;r;s:1;
+	rt:6;p:+00;i:0;a:g6;s:1;r;s:1;
 	s:6;
 
-	mt:6;p:+00;i:0;a:g6;s:1;r;s:1;
+	rt:6;p:+00;i:0;a:g6;s:1;r;s:1;
 	s:6;
-	mt:6;p:+00;i:0;a:g6;s:1;r;s:1;
+	rt:6;p:+00;i:0;a:g6;s:1;r;s:1;
 	s:6;
 
-	mt:6;p:+00;i:0;a:g6;s:1;r;s:1;
+	rt:6;p:+00;i:0;a:g6;s:1;r;s:1;
 	s:6;
-	mt:35;p:+00;i:0;a:g6;s:2;r;
-	mt:35;p:+00;i:0;a:g6;s:2;r;
+	rt:6;p:+00;i:0;a:g6;s:1;r;s:1;
+	s:6;
+
+	rt:6;p:+00;i:0;a:g6;s:1;r;s:1;
+	s:6;
+	rt:35;p:+00;i:0;a:g6;s:2;r;
+	rt:35;p:+00;i:0;a:g6;s:2;r;
 
 g:end;
 

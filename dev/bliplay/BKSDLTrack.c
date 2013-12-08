@@ -108,13 +108,88 @@ static BKInt parseWaveform (BKSDLContext * ctx, BKBlipReader * parser, BKData * 
 	return BKDataInitWithFrames (waveform, sequence, (BKInt) length, 1, 1);
 }
 
+static BKEnum numBitsParamFromNumBitsName (char const * numBitsString)
+{
+	char   sign     = 'u';
+	BKInt  isSigned = 0;
+	BKInt  numBits  = 0;
+	BKEnum param    = 0;
+
+	sscanf (numBitsString, "%u%c", & numBits, & sign);
+
+	isSigned = (sign == 's');
+
+	switch (numBits) {
+		case 1: {
+			param = BK_1_BIT_UNSIGNED;
+			break;
+		}
+		case 2: {
+			param = BK_2_BIT_UNSIGNED;
+			break;
+		}
+		case 4: {
+			param = BK_4_BIT_UNSIGNED;
+			break;
+		}
+		case 8: {
+			param = isSigned ? BK_8_BIT_SIGNED : BK_8_BIT_UNSIGNED;
+			break;
+		}
+		default:
+		case 16: {
+			param    = BK_16_BIT_SIGNED;
+			isSigned = 1;
+			break;
+		}
+	}
+
+	return param;
+}
+
+static BKInt parseSample (BKSDLContext * ctx, BKBlipReader * parser, BKData * sample)
+{
+	BKBlipCommand item;
+	BKInt         length = 0;
+	BKInt         pitch = 0;
+	BKInt         numChannels;
+	BKEnum        format;
+
+	while (BKBlipReaderNextCommand (parser, & item)) {
+		if (strcmp (item.name, "s") == 0 && strcmp (item.args [0].arg, "end") == 0) {
+			break;
+		}
+		else if (strcmp (item.name, "s") == 0) {
+			length = (BKInt) item.argCount;
+
+			if (length >= 3) {
+				numChannels = atoi (item.args [0].arg);
+				format      = numBitsParamFromNumBitsName (item.args [1].arg);
+
+				BKDataInitWithData (sample, item.args [2].arg, item.args [2].size, numChannels, format);
+			}
+			else {
+				return -1;
+			}
+		}
+		else if (strcmp (item.name, "p") == 0) {
+			pitch = atoi (item.args [0].arg);
+		}
+	}
+
+	BKDataSetAttr (sample, BK_SAMPLE_PITCH, pitch);
+	BKDataNormalize (sample);
+
+	return 0;
+}
+
 static BKEnum beatCallback (BKCallbackInfo * info, BKSDLUserData * userInfo)
 {
 	BKInt           numSteps;
 	BKInterpreter * interpreter;
 
 	interpreter = userInfo -> interpreter;
-	numSteps    = BKInterpreterTrackApplyNextStep (interpreter, userInfo -> track);
+	numSteps    = BKInterpreterTrackAdvance (interpreter, userInfo -> track);
 
 	info -> divider = numSteps;
 
@@ -190,7 +265,7 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 	BKBlipCommand  item;
 	BKInt          globalVolume = 0;
 	BKInstrument * instrument;
-	BKData       * waveform;
+	BKData       * dataObject;
 
 	BKBlipReaderInit (& parser, data, size, NULL, NULL);
 
@@ -255,6 +330,7 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 						BKContextAttachDivider (& ctx -> ctx, & track -> divider, BK_CLOCK_TYPE_BEAT);
 						track -> interpreter.instruments   = ctx -> instruments;
 						track -> interpreter.waveforms     = ctx -> waveforms;
+						track -> interpreter.samples       = ctx -> samples;
 						track -> interpreter.stepTickCount = ctx -> speed;
 
 						ctx -> tracks [ctx -> numTracks ++] = track;
@@ -283,14 +359,27 @@ BKInt BKSDLContextLoadData (BKSDLContext * ctx, void const * data, size_t size)
 		// waveform
 		else if (strcmp (item.name, "w") == 0) {
 			if (strcmp (item.args [0].arg, "begin") == 0) {
-				waveform = malloc (sizeof (BKData));
+				dataObject = malloc (sizeof (BKData));
 
-				if (waveform == NULL)
+				if (dataObject == NULL)
 					return -1;
 
-				parseWaveform (ctx, & parser, waveform);
+				parseWaveform (ctx, & parser, dataObject);
 
-				ctx -> waveforms [ctx -> numWaveforms ++] = waveform;
+				ctx -> waveforms [ctx -> numWaveforms ++] = dataObject;
+			}
+		}
+		// sample
+		else if (strcmp (item.name, "s") == 0) {
+			if (strcmp (item.args [0].arg, "begin") == 0) {
+				dataObject = malloc (sizeof (BKData));
+
+				if (dataObject == NULL)
+					return -1;
+
+				parseSample (ctx, & parser, dataObject);
+
+				ctx -> samples [ctx -> numSamples ++] = dataObject;
 			}
 		}
 		else if (strcmp (item.name, "gv") == 0) {

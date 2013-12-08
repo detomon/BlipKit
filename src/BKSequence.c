@@ -292,7 +292,6 @@ static BKInt BKSequenceFuncEnvelopeSetPhase (BKSequenceState * state, BKEnum pha
 			state -> steps        = 0;
 			state -> delta        = 0;
 			state -> offset       = sequence -> length;
-			//state -> value        = sequence -> defaultValue;
 			state -> shiftedValue = (state -> value << sequence -> fracShift);
 			state -> endValue     = 0;
 			break;

@@ -30,6 +30,10 @@
 
 #define BK_EFFECT_FLAG_SHIFT (16 - BK_EFFECT_TYPE - 1)
 
+typedef struct BKTrack         BKTrack;
+typedef struct BKDividerState  BKDividerState;
+typedef struct BKArpeggioState BKArpeggioState;
+
 enum
 {
 	BKVolumeSlideFlag              = 1 << (BK_EFFECT_VOLUME_SLIDE  + BK_EFFECT_FLAG_SHIFT),
@@ -48,11 +52,6 @@ enum
 	BKEffectMask                   = BKPortamentoFlag | BKVolumeSlideFlag
 	| BKPanningSlideFlag | BKTremoloFlag | BKVibratoFlag,
 };
-
-
-typedef struct BKTrack         BKTrack;
-typedef struct BKDividerState  BKDividerState;
-typedef struct BKArpeggioState BKArpeggioState;
 
 struct BKDividerState
 {
@@ -79,11 +78,13 @@ struct BKTrack
 	BKInt             waveform;
 	BKInt             dutyCycle;
 	BKData          * sample;
+	BKFInt20          samplePitch;
 	BKInt             masterVolume;
 	BKSlideState      volume;
 	BKSlideState      panning;
 	BKInt             curNote;
 	BKSlideState      note;
+	BKFInt20          pitch;
 	BKIntervalState   tremolo;
 	BKSlideState      tremoloDelta;
 	BKSlideState      tremoloSteps;
@@ -137,6 +138,8 @@ extern void BKTrackDetach (BKTrack * track);
  *   Value must be multiplied by BK_FINT20_UNIT
  *   To release the note the value is BK_NOTE_RELEASE
  *   To mute the note the value is BK_NOTE_MUTE
+ * BK_PITCH
+ *   Set note pitch. This value will be added to every note.
  * BK_ARPEGGIO_DIVIDER
  *   Divider value for arpeggio step
  * BK_EFFECT_DIVIDER

@@ -18,10 +18,6 @@ static void BKCalcTonePeriods (void)
 		// frequency in seconds
 		// so it can be multiplied by the samplerate
 		period = 1.0 / freq * BK_FINT20_UNIT;
-		//tonePeriods [i] = period;
-
-		//BKUInt eff = (double) 48000 / (((double) period * 48000) / BK_FINT20_UNIT);
-		//printf ("%f, %2d %f\n", freq, i, (1.0 - (double) freq / eff) * 100);
 
 		if (c && c % 12 == 0)
 			printf ("\n\t");
@@ -36,19 +32,11 @@ static void BKCalcLog2Periods (void)
 {
 	BKUInt period;
 
-	printf ("static BKUInt const log2Periods [(BK_MAX_PIANO_TONE - BK_MIN_PIANO_TONE) + 1] =\n");
+	printf ("static BKUInt const log2Periods [(BK_MAX_SAMPLE_TONE - BK_MIN_SAMPLE_TONE) + 1] =\n");
 	printf ("{\n\t");
 
-	for (BKInt i = BK_MIN_PIANO_TONE, c = 0; i <= BK_MAX_PIANO_TONE; i ++, c ++) {
-		// frequency in seconds
-		// so it can be multiplied by the samplerate
+	for (BKInt i = BK_MIN_SAMPLE_TONE, c = 0; i <= BK_MAX_SAMPLE_TONE; i ++, c ++) {
 		period = pow (2.0, ((double) i / 12.0)) * BK_FINT20_UNIT;
-		//tonePeriods [i] = period;
-
-		//printf ("%d %d\n", i, period);
-
-		//BKUInt eff = (double) 48000 / (((double) period * 48000) / BK_FINT20_UNIT);
-		//printf ("%f, %2d %f\n", freq, i, (1.0 - (double) freq / eff) * 100);
 
 		if (c && c % 12 == 0)
 			printf ("\n\t");
@@ -58,6 +46,7 @@ static void BKCalcLog2Periods (void)
 
 	printf ("\n};\n\n");
 }
+
 int main (int argc, char const * argv [])
 {
 	BKCalcTonePeriods ();
