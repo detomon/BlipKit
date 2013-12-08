@@ -1,3 +1,10 @@
+Changes in BlipKit 0.5:
+
+* Add attributes BK_SAMPLE_OFFSET and BK_SAMPLE_END
+* Some fixes in library
+* Update examples
+* Samples loadable with different bit resolutions with `BKDataInitWithData` and `BKDataSetData`
+
 Changes in BlipKit 0.4.1:
 
 * Updates in CPP wrappers
