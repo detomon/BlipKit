@@ -777,8 +777,6 @@ void BKUnitEnd (BKUnit * unit, BKFUInt20 time)
 
 void BKUnitReset (BKUnit * unit)
 {
-	BKContext * ctx = unit -> ctx;
-
 	unit -> waveform        = 0;
 	unit -> phase.phase     = 0;
 	unit -> phase.wrap      = 0;
@@ -794,8 +792,6 @@ void BKUnitReset (BKUnit * unit)
 	unit -> sample.dataState.callback         = (void *) BKUnitSampleDataStateCallback;
 	unit -> sample.dataState.callbackUserInfo = unit;
 
-	if (ctx) {
-		for (BKInt i = 0; i < ctx -> numChannels; i ++)
-			unit -> lastPulse [i] = 0;
-	}
+	for (BKInt i = 0; i < BK_MAX_CHANNELS; i ++)
+		unit -> lastPulse [i] = 0;
 }
