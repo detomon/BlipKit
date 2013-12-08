@@ -51,6 +51,8 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 						unit -> phase.count       = data -> numFrames;
 						unit -> phase.haltSilence = 1;
 						unit -> phase.phase       = 0;
+						unit -> sample.offset     = 0;
+						unit -> sample.end        = data -> numFrames;
 						unit -> sample.frames     = data -> frames;
 					}
 					else {
@@ -60,7 +62,10 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 			}
 			// data was disposed
 			else {
-				unit -> waveform = 0;
+				unit -> waveform      = 0;
+				unit -> sample.offset = 0;
+				unit -> sample.end    = 0;
+				unit -> sample.frames = NULL;
 				return -1;
 			}
 
@@ -79,9 +84,11 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 				}
 				else {
 					unit -> waveform           = BK_SAMPLE;
-					unit -> phase.count        = 1;
-					unit -> sample.count       = data -> numFrames;
+					unit -> phase.count        = 1;  // prevent divion by 0
+					unit -> sample.length      = data -> numFrames;
 					unit -> sample.numChannels = data -> numChannels;
+					unit -> sample.offset      = 0;
+					unit -> sample.end         = data -> numFrames;
 					unit -> sample.frames      = data -> frames;
 
 					BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_BEGIN);
@@ -89,7 +96,11 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 			}
 			// disable sample
 			else {
-				unit -> waveform = 0;
+				unit -> waveform      = 0;
+				unit -> sample.offset = 0;
+				unit -> sample.end    = 0;
+				unit -> sample.frames = NULL;
+
 			}
 
 			unit -> phase.phase   = 0; // reset phase
@@ -304,7 +315,7 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 				value = BKClamp (value, 0, unit -> phase.count - 1);
 			}
 			else  {
-				value = BKClamp (value, 0, unit -> sample.count - 1);
+				value = BKClamp (value, 0, unit -> sample.length - 1);
 				BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_BEGIN);
 			}
 
@@ -344,6 +355,47 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 		}
 		case BK_MUTE: {
 			unit -> mute = value ? 1 : 0;
+			break;
+		}
+		case BK_SAMPLE_OFFSET: {
+			BKInt absLength;
+
+			if (unit -> waveform != BK_SAMPLE)
+				return BK_INVALID_STATE;
+
+			absLength = unit -> sample.dataState.data -> numFrames;
+
+			value = BKMin (value, BKMin (unit -> sample.end - 2, absLength - 2));
+			value = BKMax (0, value);
+
+			if (value != unit -> sample.offset) {
+				unit -> sample.frames = & unit -> sample.dataState.data -> frames [value * unit -> sample.numChannels];
+				unit -> sample.length = unit -> sample.end - value;
+				unit -> sample.offset = value;
+			}
+
+			break;
+		}
+		case BK_SAMPLE_END: {
+			BKInt absLength;
+
+			if (unit -> waveform != BK_SAMPLE)
+				return BK_INVALID_STATE;
+
+			absLength = unit -> sample.dataState.data -> numFrames;
+
+			if (value == 0) {
+				value = absLength;
+			}
+			else {
+				value = BKClamp (unit -> sample.offset + 2, value, absLength);
+			}
+
+			if (value != unit -> sample.end) {
+				unit -> sample.length = value - unit -> sample.offset;
+				unit -> sample.end    = value;
+			}
+
 			break;
 		}
 		case BK_SAMPLE_REPEAT: {
@@ -393,7 +445,7 @@ BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue)
 			break;
 		}
 		case BK_NUM_PHASES: {
-			value = (unit -> waveform != BK_SAMPLE) ? unit -> phase.count : unit -> sample.count;
+			value = (unit -> waveform != BK_SAMPLE) ? unit -> phase.count : unit -> sample.length;
 			break;
 		}
 		case BK_VOLUME_0:
@@ -409,6 +461,14 @@ BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue)
 		}
 		case BK_MUTE: {
 			value = unit -> mute;
+			break;
+		}
+		case BK_SAMPLE_OFFSET: {
+			value = unit -> sample.offset;
+			break;
+		}
+		case BK_SAMPLE_END: {
+			value = unit -> sample.end;
 			break;
 		}
 		case BK_SAMPLE_REPEAT: {
@@ -632,7 +692,7 @@ static BKInt BKUnitResetSample (BKUnit * unit)
 	BKInt halt    = 0;
 
 	if (unit -> phase.wrap) {
-		if (unit -> phase.wrap < unit -> sample.count) {
+		if (unit -> phase.wrap < unit -> sample.length) {
 			numWrap = unit -> phase.wrap;
 		}
 		else {
@@ -640,7 +700,7 @@ static BKInt BKUnitResetSample (BKUnit * unit)
 		}
 	}
 	else {
-		numWrap = unit -> sample.count;
+		numWrap = unit -> sample.length;
 	}
 
 	if (numWrap) {
@@ -712,7 +772,7 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 		unit -> sample.timeFrac &= BK_FINT20_FRAC;
 
 		// reset if sample ended
-		if (unit -> phase.phase >= unit -> sample.count) {
+		if (unit -> phase.phase >= unit -> sample.length) {
 			reset = 1;
 		}
 		// reset if phase wrap exceeded

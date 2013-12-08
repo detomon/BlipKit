@@ -71,14 +71,15 @@ struct BKUnit
 	// samples
 	struct {
 		BKDataState dataState;
-		BKUInt     numChannels;
-		BKUInt     count;
-		BKUInt     offset;
-		BKUInt     repeat;
-		BKFUInt20  timeFrac;
-		BKFUInt20  period;
-		BKCallback callback;
-		BKFrame  * frames;
+		BKUInt      numChannels;
+		BKUInt      length;
+		BKUInt      offset;
+		BKUInt      end;
+		BKUInt      repeat;
+		BKFUInt20   timeFrac;
+		BKFUInt20   period;
+		BKCallback  callback;
+		BKFrame   * frames;
 	} sample;
 };
 
@@ -150,9 +151,13 @@ extern void BKUnitDetach (BKUnit * unit);
  *   Can eighter be 0 or 1
  *   Default is 0
  * BK_SAMPLE_OFFSET
- *   Offset at which the sample should start playing
- *   When repeating the sample will start playing again at this offset
+ *   Frames offset from which the sample should start playing
+ *   When repeating the sample it will start playing again at this offset
  *   Default is 0
+ * BK_SAMPLE_END
+ *   End (but not including) frame offset to which the sample should be played
+ *   Default is number of frames of the current sample
+ *   If set to 0 this is set to the maximum offset
  * BK_SAMPLE_REPEAT
  *   Repeat sample if set to 1
  *   Default is 0
