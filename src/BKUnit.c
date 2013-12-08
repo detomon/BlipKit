@@ -364,9 +364,7 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 				return BK_INVALID_STATE;
 
 			absLength = unit -> sample.dataState.data -> numFrames;
-
-			value = BKMin (value, BKMin (unit -> sample.end - 2, absLength - 2));
-			value = BKMax (0, value);
+			value     = BKClamp (value, 0, BKMin (unit -> sample.end - 2, absLength - 2));
 
 			if (value != unit -> sample.offset) {
 				unit -> sample.frames = & unit -> sample.dataState.data -> frames [value * unit -> sample.numChannels];
@@ -384,12 +382,10 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 
 			absLength = unit -> sample.dataState.data -> numFrames;
 
-			if (value == 0) {
+			if (value == 0)
 				value = absLength;
-			}
-			else {
-				value = BKClamp (unit -> sample.offset + 2, value, absLength);
-			}
+
+			value = BKClamp (value, unit -> sample.offset + 2, absLength);
 
 			if (value != unit -> sample.end) {
 				unit -> sample.length = value - unit -> sample.offset;
@@ -688,20 +684,10 @@ static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime, BKInt adva
 
 static BKInt BKUnitResetSample (BKUnit * unit)
 {
-	BKInt numWrap = 0;
-	BKInt halt    = 0;
+	BKInt numWrap;
+	BKInt halt = 0;
 
-	if (unit -> phase.wrap) {
-		if (unit -> phase.wrap < unit -> sample.length) {
-			numWrap = unit -> phase.wrap;
-		}
-		else {
-			unit -> phase.phase = 0;
-		}
-	}
-	else {
-		numWrap = unit -> sample.length;
-	}
+	numWrap = unit -> sample.length;
 
 	if (numWrap) {
 		// phase %= numWrap
@@ -772,13 +758,8 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 		unit -> sample.timeFrac &= BK_FINT20_FRAC;
 
 		// reset if sample ended
-		if (unit -> phase.phase >= unit -> sample.length) {
+		if (unit -> phase.phase >= unit -> sample.length)
 			reset = 1;
-		}
-		// reset if phase wrap exceeded
-		else if (unit -> phase.wrap && unit -> phase.phase > unit -> phase.wrap) {
-			reset = 1;
-		}
 
 		if (reset) {
 			if (BKUnitResetSample (unit) == 1)
