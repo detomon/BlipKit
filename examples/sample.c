@@ -40,6 +40,8 @@ BKSDLUserData userData;
 BKDivider     divider;
 BKInt         i = 0;
 
+BKInt offset = 0;
+
 static int getchar_nocanon (unsigned tcflags)
 {
 	int c;
@@ -63,6 +65,13 @@ static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
 	BKUInt numFrames = len / sizeof (BKFrame) / info -> numChannels;
 
 	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
+
+	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_OFFSET, offset);
+	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_END, offset+ 200);
+	offset += 1;
+
+	if (offset > 2000)
+		offset = 0;
 }
 
 BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
@@ -116,16 +125,21 @@ int main (int argc, char * argv [])
 	// Load raw sound data
 	BKDataInitAndLoadRawAudio (& sample, "itemland3.raw", 16, 1, BK_LITTLE_ENDIAN);
 
-	// Tune sample pitch to BK_C_4 (approximately)
-	BKDataSetAttr (& sample, BK_SAMPLE_PITCH, -0.9 * BK_FINT20_UNIT);
-
 	// Normalize frames to maximum amplitude
 	BKDataNormalize (& sample);
 
-	// Set data object as waveform
+	// Tune sample pitch to BK_C_4 (approximately)
+	BKDataSetAttr (& sample, BK_SAMPLE_PITCH, -0.9 * BK_FINT20_UNIT);
+
+	// Set data object as sample
 	BKTrackSetPtr (& sampleTrack, BK_SAMPLE, & sample);
 
-	//BKTrackSetAttr (& sampleTrack, BK_SAMPLE_REPEAT, 1);
+	// set play range
+	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_OFFSET, 600);
+	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_END, 800);
+
+	// repeat play range
+	BKTrackSetAttr (& sampleTrack, BK_SAMPLE_REPEAT, 1);
 
 	//// instrument with release sequence
 	BKInstrumentInit (& instrument);
