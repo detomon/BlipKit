@@ -678,21 +678,6 @@ static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime, BKInt adva
 				BKBufferUpdateStep (channel, time, chanDelta);
 			}
 
-			/*
-			// run until time
-			for (time = unit -> time; time < endTime; time += unit -> period) {
-				pulse = BKUnitNextPhase (unit);
-				delta = (pulse * volume) >> BK_VOLUME_SHIFT;
-
-				// "scale" last pulse to current volume
-				// this reduces click noisees if volume is lower than before
-				chanDelta = delta - ((lastPulse * volume) >> BK_VOLUME_SHIFT);
-				lastPulse = pulse;
-
-				BKBufferUpdateStep (channel, time, chanDelta);
-			}
-			*/
-
 			unit -> lastPulse [i] = lastPulse;
 		}
 	}
