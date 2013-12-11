@@ -117,7 +117,7 @@ int main (int argc, char * argv [])
 
 	BKTrackInit (& sampleTrack, BK_SQUARE);
 
-	BKTrackSetAttr (& sampleTrack, BK_MASTER_VOLUME, 0.5 * BK_MAX_VOLUME);
+	BKTrackSetAttr (& sampleTrack, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
 	BKTrackSetAttr (& sampleTrack, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 
 	BKTrackAttach (& sampleTrack, & ctx);
