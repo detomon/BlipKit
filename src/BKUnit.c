@@ -358,7 +358,7 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			break;
 		}
 		case BK_SAMPLE_OFFSET: {
-			BKInt absLength;
+			BKInt absLength, relOffset, newPhase;
 
 			if (unit -> waveform != BK_SAMPLE)
 				return BK_INVALID_STATE;
@@ -367,15 +367,25 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			value     = BKClamp (value, 0, BKMin (unit -> sample.end - 2, absLength - 2));
 
 			if (value != unit -> sample.offset) {
+				relOffset = value - unit -> sample.offset;
+
 				unit -> sample.frames = & unit -> sample.dataState.data -> frames [value * unit -> sample.numChannels];
 				unit -> sample.length = unit -> sample.end - value;
 				unit -> sample.offset = value;
+
+				newPhase = unit -> phase.phase - relOffset;
+
+				// reset phase if it would overlap the new range
+				if (newPhase < 0 || newPhase >= unit -> sample.length)
+					newPhase = 0;
+
+				unit -> phase.phase = newPhase;
 			}
 
 			break;
 		}
 		case BK_SAMPLE_END: {
-			BKInt absLength;
+			BKInt absLength, newPhase;
 
 			if (unit -> waveform != BK_SAMPLE)
 				return BK_INVALID_STATE;
@@ -390,6 +400,14 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			if (value != unit -> sample.end) {
 				unit -> sample.length = value - unit -> sample.offset;
 				unit -> sample.end    = value;
+
+				newPhase = unit -> phase.phase;
+
+				// reset phase if it would overlap the new range
+				if (newPhase >= unit -> sample.length)
+					newPhase = 0;
+
+				unit -> phase.phase = newPhase;
 			}
 
 			break;
