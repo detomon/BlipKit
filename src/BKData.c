@@ -169,7 +169,7 @@ void BKDataDispose (BKData * data)
 	if (data == NULL)
 		return;
 
-	BKDataDetach (data)
+	BKDataDetach (data);
 
 	if (data -> frames)
 		free (data -> frames);
