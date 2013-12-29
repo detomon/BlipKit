@@ -75,9 +75,14 @@ struct BKInstrument
 extern BKInt BKInstrumentInit (BKInstrument * instr);
 
 /**
- * Dispose instrument
+ * Dispose instrument and detach from all tracks
  */
 extern void BKInstrumentDispose (BKInstrument * instr);
+
+/**
+ * Detach instrument from all tracks
+ */
+extern void BKInstrumentDetach (BKInstrument * instr);
 
 /**
  * Copy an instrument

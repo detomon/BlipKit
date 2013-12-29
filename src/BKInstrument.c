@@ -64,16 +64,10 @@ static void BKInstrumentResetStates (BKInstrument * instr, BKEnum event)
 	BKInstrumentState * state, * nextState;
 
 	for (state = instr -> stateList; state; state = nextState) {
-		if (state -> callback) {
-			state -> callback (event, state -> callbackUserInfo);
-		}
-
-		for (BKInt i = 0; i < instr -> numSequences; i ++) {
-			if (instr -> sequences [i] == NULL)
-				state -> states [i].value = sequenceDefaultValue [i];
-		}
-
 		nextState = state -> nextState;
+
+		if (state -> callback)
+			state -> callback (event, state -> callbackUserInfo);
 
 		if (event == BK_INSTR_STATE_EVENT_DISPOSE)
 			BKInstrumentStateSetInstrument (state, NULL);
@@ -91,7 +85,7 @@ void BKInstrumentDispose (BKInstrument * instr)
 {
 	BKSequence * sequence;
 
-	BKInstrumentResetStates (instr, BK_INSTR_STATE_EVENT_DISPOSE);
+	BKInstrumentDetach (instr);
 
 	for (BKInt i = 0; i < BK_MAX_SEQUENCES; i ++) {
 		sequence = instr -> sequences [i];
@@ -101,6 +95,11 @@ void BKInstrumentDispose (BKInstrument * instr)
 	}
 
 	memset (instr, 0, sizeof (BKInstrument));
+}
+
+void BKInstrumentDetach (BKInstrument * instr)
+{
+	BKInstrumentResetStates (instr, BK_INSTR_STATE_EVENT_DISPOSE);
 }
 
 BKInt BKInstrumentInitCopy (BKInstrument * copy, BKInstrument const * original)
