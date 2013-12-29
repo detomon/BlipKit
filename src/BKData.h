@@ -85,9 +85,14 @@ enum
 extern BKInt BKDataInit (BKData * data);
 
 /**
- * Dispose data
+ * Dispose data and detach from all tracks
  */
 extern void BKDataDispose (BKData * data);
+
+/**
+ * Detach data from all tracks
+ */
+extern void BKDataDetach (BKData * data);
 
 /**
  * Copy a data object

@@ -1,3 +1,7 @@
+Changes in BlipKit 0.6:
+
+* Add detach functions to instrument and data object
+
 Changes in BlipKit 0.5:
 
 * Add attributes BK_SAMPLE_OFFSET and BK_SAMPLE_END

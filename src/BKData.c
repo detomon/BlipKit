@@ -169,12 +169,20 @@ void BKDataDispose (BKData * data)
 	if (data == NULL)
 		return;
 
-	BKDataResetStates (data, BK_DATA_STATE_EVENT_DISPOSE);
+	BKDataDetach (data)
 
 	if (data -> frames)
 		free (data -> frames);
 
 	memset (data, 0, sizeof (BKData));
+}
+
+void BKDataDetach (BKData * data)
+{
+	if (data == NULL)
+		return;
+
+	BKDataResetStates (data, BK_DATA_STATE_EVENT_DISPOSE);
 }
 
 BKInt BKDataInitCopy (BKData * copy, BKData const * original)
