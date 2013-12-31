@@ -132,7 +132,7 @@ static BKInt BKUnitSetData (BKUnit * unit, BKEnum type, BKData * data)
 	return res;
 }
 
-static BKInt BKUnitSampleDataStateCallback (BKEnum event, BKUnit * unit)
+BKInt BKUnitSampleDataStateCallback (BKEnum event, BKUnit * unit)
 {
 	BKEnum type;
 

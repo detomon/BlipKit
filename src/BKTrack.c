@@ -365,6 +365,18 @@ static BKEnum BKTrackTick (BKCallbackInfo * info, BKTrack * track)
 	return 0;
 }
 
+static BKEnum BKTrackSampleDataStateCallback (BKEnum event, BKTrack * track)
+{
+	BKEnum res;
+
+	res = BKUnitSampleDataStateCallback (event, & track -> unit);
+
+	if (res == 0)
+		BKTrackUpdateUnitNote (track);
+
+	return res;
+}
+
 BKInt BKTrackInit (BKTrack * track, BKEnum waveform)
 {
 	BKInt ret = 0;
@@ -379,6 +391,9 @@ BKInt BKTrackInit (BKTrack * track, BKEnum waveform)
 		// init waveform flags
 		BKTrackSetAttr (track, BK_WAVEFORM, waveform);
 		BKTrackReset (track);
+
+		track -> unit.sample.dataState.callback         = (void *) BKTrackSampleDataStateCallback;
+		track -> unit.sample.dataState.callbackUserInfo = track;
 
 		callback.func     = (BKCallbackFunc) BKTrackTick;
 		callback.userInfo = track;
@@ -420,6 +435,9 @@ void BKTrackReset (BKTrack * track)
 	track -> flags &= (BKTriangleIgnoresVolumeFlag | BKIgnoreVolumeFlag | BKPanningEnabledFlag);
 
 	BKUnitReset (& track -> unit);
+
+	track -> unit.sample.dataState.callback         = (void *) BKTrackSampleDataStateCallback;
+	track -> unit.sample.dataState.callbackUserInfo = track;
 
 	BKTrackSetAttr (track, BK_WAVEFORM, waveform);
 	BKTrackSetAttr (track, BK_DUTY_CYCLE, BK_SQUARE_PHASES / 4);
@@ -932,6 +950,9 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 					else {
 						track -> samplePitch = 0;
 					}
+
+					// in case waveform length has changed
+					BKTrackUpdateUnitNote (track);
 
 					break;
 				}

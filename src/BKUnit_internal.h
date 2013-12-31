@@ -38,4 +38,8 @@ extern void BKUnitEnd (BKUnit * unit, BKFUInt20 time);
  */
 extern void BKUnitReset (BKUnit * unit);
 
+/*
+ */
+extern BKInt BKUnitSampleDataStateCallback (BKEnum event, BKUnit * unit);
+
 #endif /* ! _BK_UNIT_INTERN_H_ */
