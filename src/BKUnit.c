@@ -45,19 +45,17 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 		// set data as custom waveform
 		case BK_WAVEFORM: {
 			if (data && event != BK_DATA_STATE_EVENT_DISPOSE) {
-				if (data != unit -> sample.dataState.data) {
-					if (data -> numFrames >= 2) {
-						unit -> waveform          = BK_CUSTOM;
-						unit -> phase.count       = data -> numFrames;
-						unit -> phase.haltSilence = 1;
-						unit -> phase.phase       = 0;
-						unit -> sample.offset     = 0;
-						unit -> sample.end        = data -> numFrames;
-						unit -> sample.frames     = data -> frames;
-					}
-					else {
-						return BK_INVALID_NUM_FRAMES;
-					}
+				if (data -> numFrames >= 2) {
+					unit -> waveform          = BK_CUSTOM;
+					unit -> phase.count       = data -> numFrames;
+					unit -> phase.haltSilence = 1;
+					unit -> phase.phase       = 0;
+					unit -> sample.offset     = 0;
+					unit -> sample.end        = data -> numFrames;
+					unit -> sample.frames     = data -> frames;
+				}
+				else {
+					return BK_INVALID_NUM_FRAMES;
 				}
 			}
 			// data was disposed
@@ -144,7 +142,7 @@ static BKInt BKUnitSampleDataStateCallback (BKEnum event, BKUnit * unit)
 			break;
 		}
 		case BK_SAMPLE: {
-			type = BK_WAVEFORM;
+			type = BK_SAMPLE;
 			break;
 		}
 		default: {
