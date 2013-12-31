@@ -79,7 +79,7 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #define BK_MIN_SAMPLE_PERIOD (1 << (BK_FINT20_SHIFT - 8))
 #define BK_MAX_SAMPLE_PERIOD (1 << (BK_FINT20_SHIFT + 8))
 
-#define BK_MAX_GENERATE_SAMPLES ((1 << (BK_INT_SHIFT - BK_FINT20_SHIFT)) / 2)
+#define BK_MAX_GENERATE_SAMPLES ((1 << (BK_INT_SHIFT - BK_FINT20_SHIFT)) / 4)
 
 /**
  * Wave phases
