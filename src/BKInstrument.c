@@ -267,21 +267,21 @@ BKInt BKInstrumentStateInit (BKInstrumentState * state)
 	return 0;
 }
 
-static void BKInstrumentUpdateState (BKInstrumentState * state)
-{
-	for (BKInt i = 0; i < BK_MAX_SEQUENCES; i ++)
-		state -> states [i].sequence = state -> instrument -> sequences [i];
-}
-
 BKInt BKInstrumentStateSetInstrument (BKInstrumentState * state, BKInstrument * instr)
 {
 	BKInstrumentStateRemoveFromInstrument (state);
 	BKInstrumentStateAddToInstrument (state, instr);
 
 	if (instr) {
-		BKInstrumentUpdateState (state);
+		for (BKInt i = 0; i < BK_MAX_SEQUENCES; i ++)
+			state -> states [i].sequence = state -> instrument -> sequences [i];
+
 		BKInstrumentStateSetDefaultValues (state);
 		BKInstrumentStateSetPhase (state, BK_SEQUENCE_PHASE_ATTACK);
+	}
+	else {
+		for (BKInt i = 0; i < BK_MAX_SEQUENCES; i ++)
+			state -> states [i].sequence = NULL;
 	}
 
 	return 0;
