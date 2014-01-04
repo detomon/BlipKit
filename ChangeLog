@@ -1,3 +1,8 @@
+Changes in BlipKit 0.6.3:
+
+* Fix reset of default values when updating sequence
+* Fix removing sequences from state when unsetting instrument
+
 Changes in BlipKit 0.6.2:
 
 * Fix waveform and sample update
