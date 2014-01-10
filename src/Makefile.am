@@ -3,6 +3,7 @@ AM_CFLAGS = @BK_STD_CFLAGS@
 lib_LIBRARIES = libblipkit.a
 
 libblipkit_a_SOURCES = \
+	BKBase.c \
 	BKBuffer.c \
 	BKClock.c \
 	BKContext.c \

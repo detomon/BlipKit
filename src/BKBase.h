@@ -30,6 +30,12 @@
 #include <string.h>
 
 /**
+ * Version
+ */
+ extern char const * BKVersionString;
+ extern unsigned     BKVersionNumber;
+
+/**
  * Settings
  */
 #ifndef BK_USE_64_BIT
