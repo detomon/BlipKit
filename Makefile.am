@@ -1,4 +1,9 @@
 SUBDIRS = src examples dev/bliplay
 DIST_SUBDIRS = $(SUBDIRS)
 
-EXTRA_DIST = README.md TODO LICENSE VERSION LOGO autogen.sh
+EXTRA_DIST = \
+	README.md \
+	LICENSE \
+	VERSION \
+	LOGO \
+	autogen.sh
