@@ -1,4 +1,4 @@
-SUBDIRS = src examples dev/bliplay
+SUBDIRS = src examples
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
