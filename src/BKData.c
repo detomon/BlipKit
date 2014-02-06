@@ -405,7 +405,7 @@ static BKInt BKDataCalculateNumFramesFromNumBits (BKUInt dataSize, BKUInt numBit
 	return numFrames;
 }
 
-static BKInt BKDataConvertBits (BKFrame * outFrames, void const * data, BKUInt dataSize, BKUInt numBits, BKInt isSigned, BKInt reverseEndian, BKUInt numChannels)
+static BKInt BKDataConvertFromBits (BKFrame * outFrames, void const * data, BKUInt dataSize, BKUInt numBits, BKInt isSigned, BKInt reverseEndian, BKUInt numChannels)
 {
 	unsigned char const * charData = data;
 	unsigned char c;
@@ -518,7 +518,7 @@ BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKU
 	if (frames == NULL)
 		return BK_ALLOCATION_ERROR;
 
-	if (BKDataConvertBits (frames, frameData, dataSize, numBits, isSigned, reverseEndian, numChannels) < 0)
+	if (BKDataConvertFromBits (frames, frameData, dataSize, numBits, isSigned, reverseEndian, numChannels) < 0)
 		return -1;
 
 	data -> frames      = frames;
