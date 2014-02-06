@@ -342,20 +342,6 @@ static BKInt BKSystemIsBigEndian (void)
 	return sentinel.c[0] == 0x01;
 }
 
-/**
- * Reverse 16 bit integers
- */
-static void BKEndianReverse16Bit (BKFrame frames [], off_t size)
-{
-	BKFrame value;
-
-	for (off_t i = 0; i < size; i ++) {
-		value = frames [i];
-		value = (value >> 8) | (value << 8);
-		frames [i] = value;
-	}
-}
-
 static BKInt BKDataNumBitsFromParam (BKEnum param, BKUInt * outNumBits, BKInt * outIsSigned)
 {
 	BKInt numBits  = 0;
