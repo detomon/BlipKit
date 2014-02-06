@@ -386,6 +386,42 @@ static BKInt BKDataNumBitsFromParam (BKEnum param, BKUInt * outNumBits, BKInt * 
 	return 0;
 }
 
+static BKInt BKDataParamFromNumBits (BKEnum * outParam, BKUInt numBits, BKInt isSigned)
+{
+	BKEnum param = 0;
+
+	switch (numBits) {
+		case 1: {
+			param = BK_1_BIT_UNSIGNED;
+			break;
+		}
+		case 2: {
+			param = BK_2_BIT_UNSIGNED;
+			break;
+		}
+		case 4: {
+			param = BK_4_BIT_UNSIGNED;
+			break;
+		}
+		case 8: {
+			param = isSigned ? BK_8_BIT_SIGNED : BK_8_BIT_UNSIGNED;
+			break;
+		}
+		case 16: {
+			param = BK_16_BIT_SIGNED;
+			break;
+		}
+		default: {
+			return BK_INVALID_ATTRIBUTE;
+			break;
+		}
+	}
+
+	* outParam = param;
+
+	return 0;
+}
+
 static BKInt BKDataCalculateNumFramesFromNumBits (BKUInt dataSize, BKUInt numBits, BKUInt numChannels)
 {
 	BKInt numFrames = 0;
@@ -541,68 +577,48 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 {
 	int    file;
 	off_t  size;
-	BKUInt packetSize;
-	BKUInt numFrames;
+	void * frames;
+	BKEnum params;
+	BKInt  ret = 0;
 
-	if (BKDataInit (data) == 0) {
-		switch (numBits) {
-			case 16: {
-				switch (endian) {
-					case BK_BIG_ENDIAN: break;
-					case BK_LITTLE_ENDIAN: break;
-					default: {
-						return BK_INVALID_ATTRIBUTE;
-						break;
-					}
-				}
-				break;
-			}
-			default: {
-				return BK_INVALID_ATTRIBUTE;
-				break;
-			}
-		}
+	if (BKDataInit (data) < 0)
+		return BK_INVALID_RETURN_VALUE;
 
-		numChannels = BKMax (1, numChannels);
-		packetSize  = numChannels * numBits;
-		packetSize  = (packetSize + 7) & ~7;  // round packet size up to one byte
-		packetSize  = packetSize / 8;         // set number of bytes
+	file = open (path, O_RDONLY);
 
-		file = open (path, O_RDONLY);
+	if (file < 0)
+		return BK_FILE_ERROR;
 
-		if (file != -1) {
-			size = lseek (file, 0, SEEK_END);   // number of bytes in file
-			size = size - (size % packetSize);  // round down to full packet
+	size = lseek (file, 0, SEEK_END);
 
-			if (size != -1) {
-				numFrames = (BKUInt) size * 8 / (numChannels * numBits);
-				data -> frames = malloc (sizeof (BKFrame) * numFrames * numChannels);
-
-				if (data -> frames) {
-					data -> numFrames  = numFrames;
-					data -> numChannels = numChannels;
-
-					lseek (file, 0, SEEK_SET);
-					read (file, data -> frames, size);
-
-					if (BKSystemIsBigEndian () != (endian == BK_BIG_ENDIAN))
-						BKEndianReverse16Bit (data -> frames, size);
-				}
-			}
-			else {
-				return BK_OTHER_ERROR;
-			}
-
-			close (file);
-		}
-		else {
-			return BK_OTHER_ERROR;
-		}
-
-		return 0;
+	if (size < 0) {
+		close (file);
+		return BK_FILE_ERROR;
 	}
 
-	return -1;
+	frames = malloc (size);
+
+	if (frames == NULL) {
+		close (file);
+		return BK_ALLOCATION_ERROR;
+	}
+
+	lseek (file, 0, SEEK_SET);
+	read (file, frames, size);
+	close (file);
+
+	if (BKDataParamFromNumBits (& params, numBits, 0) < 0) {
+		free (frames);
+		return BK_INVALID_ATTRIBUTE;
+	}
+
+	params |= endian;
+
+	ret = BKDataSetData (data, frames, size, numChannels, params);
+
+	free (frames);
+
+	return ret;
 }
 
 BKInt BKDataNormalize (BKData * data)
