@@ -173,12 +173,7 @@ extern BKInt BKDataInitWithData (BKData * data, void const * frameData, BKUInt d
 
 /**
  * Load frames from raw audio file
- * `numChannels` must be between 1 and BK_MAX_CHANNELS
- * If `bits` is greater than 8 `endian` must be set eighter to `BK_BIG_ENDIAN`
- * or `BK_LITTLE_ENDIAN` otherwise the system endianess is used
- *
- * NOTE:
- * Only 16 bit frames can be loaded at the moment (`bits` = 16)
+ * Calls `BKDataSetData` with the data of the file
  */
 extern BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKEnum bits, BKUInt numChannels, BKEnum endian);
 
