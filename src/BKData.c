@@ -29,8 +29,8 @@
 
 enum
 {
-	BK_DATA_FLAG_STATE_LIST_LOCK = 1 << 0,
-	BK_DATA_FLAG_COPY            = 1 << 1,
+	BK_DATA_FLAG_STATE_LIST_LOCK = 1 << 16,
+	BK_DATA_FLAG_COPY            = 1 << 17,
 	BK_DATA_FLAG_COPY_MASK       = BK_DATA_FLAG_COPY,
 };
 
