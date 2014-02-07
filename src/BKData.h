@@ -29,31 +29,11 @@
 typedef struct BKData      BKData;
 typedef struct BKDataState BKDataState;
 
+typedef struct BKDataInfo        BKDataInfo;
+typedef struct BKDataConvertInfo BKDataConvertInfo;
+typedef struct BKDataExportInfo  BKDataExportInfo;
+
 typedef BKInt (* BKDataStateCallback) (BKEnum event, void * userInfo);
-
-enum
-{
-	BK_DATA_STATE_EVENT_RESET,
-	BK_DATA_STATE_EVENT_DISPOSE,
-};
-
-struct BKData
-{
-	BKUInt        flags;
-	BKUInt        numFrames;
-	BKUInt        numChannels;
-	BKFInt20      samplePitch;
-	BKFrame     * frames;
-	BKDataState * stateList;
-};
-
-struct BKDataState
-{
-	BKData            * data;
-	BKDataStateCallback callback; // called when setting new frames
-	void              * callbackUserInfo;
-	BKDataState       * nextState;
-};
 
 /**
  * Endian
@@ -77,6 +57,55 @@ enum
 	BK_8_BIT_UNSIGNED  = 5,
 	BK_16_BIT_SIGNED   = 6,
 	BK_DATA_BITS_MASK  = 15,
+};
+
+/**
+ * Callback events
+ */
+enum
+{
+	BK_DATA_STATE_EVENT_RESET,
+	BK_DATA_STATE_EVENT_DISPOSE,
+};
+
+struct BKDataInfo
+{
+	BKEnum numBits;
+};
+
+struct BKData
+{
+	BKUInt        flags;
+	BKDataInfo    info;
+	BKUInt        numFrames;
+	BKUInt        numChannels;
+	BKFInt20      samplePitch;
+	BKFrame     * frames;
+	BKDataState * stateList;
+};
+
+struct BKDataState
+{
+	BKData            * data;
+	BKDataStateCallback callback; // called when setting new frames
+	void              * callbackUserInfo;
+	BKDataState       * nextState;
+};
+
+struct BKDataConvertInfo
+{
+	BKInt  sourceSampleRate;
+	BKInt  targetSampleRate;
+	BKEnum targetNumBits;
+	BKInt  ditherSmoothLength;
+	float  ditherSlope;
+	float  ditherCurve;
+	float  threshold;
+};
+
+struct BKDataExportInfo
+{
+
 };
 
 /**
@@ -182,5 +211,15 @@ extern BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKEnum
  * If BKData was initialized without copying frames, a copy is made
  */
 extern BKInt BKDataNormalize (BKData * data);
+
+/**
+ * 
+ */
+extern BKInt BKDataConvert (BKData * data, BKDataConvertInfo * info);
+
+/**
+ * 
+ */
+extern BKInt BKDataExport (BKData * data, BKDataExportInfo * info);
 
 #endif /* ! _BK_DATA_H_ */
