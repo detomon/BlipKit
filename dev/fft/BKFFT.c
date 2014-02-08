@@ -133,7 +133,7 @@ static void BKComplexListConj (BKComplex points [], BKUSize numPoints)
 }
 
 /**
- * Convert `points` with length `numPoints` to their polar representation
+ * Convert `points` with length `numPoints` to their polar form
  */
 static void BKComplexListToPolar (BKComplex points [], BKUSize numPoints)
 {
@@ -153,7 +153,7 @@ static void BKComplexListToPolar (BKComplex points [], BKUSize numPoints)
 }
 
 /**
- * Convert `points` with length `numPoints` to their rectangular representation
+ * Convert `points` with length `numPoints` to their rectangular form
  */
 static void BKComplexListToRectangular (BKComplex points [], BKUSize numPoints)
 {

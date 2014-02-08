@@ -89,9 +89,9 @@ extern BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUS
  * expected to be normalized already.
  *
  * If option `BKFFTTransformOptionPolar` is set the output points are converted
- * to their polar representation after transformation. In combination with
+ * to their polar form after transformation. In combination with
  * `BKFFTTransformOptionInvert` the points in the output buffer are expected
- * to be in the polar representation already.
+ * to be in the polar form already.
  */
 extern BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options);
 
