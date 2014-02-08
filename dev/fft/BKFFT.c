@@ -50,7 +50,7 @@ static void BKFFTBitRevMapMake (BKInt indices [], BKUSize numIndices)
 	BKUInt rev = 0, mask;
 	BKUInt halfLen = (BKUInt) numIndices / 2;
 
-    for (BKSize i = 0; i < numIndices - 1; i ++) {
+	for (BKSize i = 0; i < numIndices - 1; i ++) {
 		indices [i] = rev;
 		mask = halfLen;
 
@@ -203,19 +203,20 @@ BKFFT * BKFFTCreate (BKUSize numSamples)
 
 	fft = malloc (size);
 
-	if (fft) {
-		memset (fft, 0, size);
+	if (fft == NULL)
+		return NULL;
 
-		fft -> numSamples = numSamples;
-		fft -> numBits    = numBits;
-		fft -> input      = (void *) & fft [1];
-		fft -> output     = (void *) fft -> input     + numSamples * sizeof (BKComplexComp);
-		fft -> bitRevMap  = (void *) fft -> output    + numSamples * sizeof (BKComplex);
-		fft -> unitWave   = (void *) fft -> bitRevMap + numSamples * sizeof (BKInt);
+	memset (fft, 0, size);
 
-		BKFFTBitRevMapMake (fft -> bitRevMap, numSamples);
-		BKFFTUnitWaveMake (fft -> unitWave, numSamples);
-	}
+	fft -> numSamples = numSamples;
+	fft -> numBits    = numBits;
+	fft -> input      = (void *) & fft [1];
+	fft -> output     = (void *) fft -> input     + numSamples * sizeof (BKComplexComp);
+	fft -> bitRevMap  = (void *) fft -> output    + numSamples * sizeof (BKComplex);
+	fft -> unitWave   = (void *) fft -> bitRevMap + numSamples * sizeof (BKInt);
+
+	BKFFTBitRevMapMake (fft -> bitRevMap, numSamples);
+	BKFFTUnitWaveMake (fft -> unitWave, numSamples);
 
 	return fft;
 }
@@ -237,10 +238,12 @@ BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUSize num
 
 	tailSize = fft -> numSamples - numSamples;
 
+	// shift existing samples to the left and append new samples
 	if (options & BKFFTLoadingOptionShift) {
 		memmove (& fft -> input [0], & fft -> input [numSamples], tailSize * sizeof (BKComplexComp));
 		memcpy (& fft -> input [tailSize], samples, numSamples * sizeof (BKComplexComp));
 	}
+	// overwrite existing sample and empty pending samples
 	else {
 		memcpy (& fft -> input [0], samples, numSamples * sizeof (BKComplexComp));
 		memset (& fft -> input [tailSize], 0, tailSize * sizeof (BKComplexComp));
@@ -317,10 +320,12 @@ BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options)
 	BKFFTTransformForward (fft -> output, fft -> numBits, fft -> unitWave);
 
 	if (options & BKFFTTransformOptionNormalized) {
-		BKComplexComp factor = 1.0 / fft -> numSamples;
+		BKComplexComp factor;
 
 		if (options & BKFFTTransformOptionInvert)
 			factor = fft -> numSamples;
+		else
+			factor = 1.0 / fft -> numSamples;
 
 		BKComplexListScale (fft -> output, fft -> numSamples, factor);
 	}
