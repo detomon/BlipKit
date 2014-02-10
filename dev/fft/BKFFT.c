@@ -227,7 +227,7 @@ void BKFFTDispose (BKFFT * fft)
 		free (fft);
 }
 
-BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples, BKFFTLoadingOption options)
+BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples, BKEnum options)
 {
 	BKComplex x;
 	BKInt     bi;

@@ -75,7 +75,7 @@ extern void BKFFTDispose (BKFFT * fft);
  * If option `BKFFTLoadingOptionShift` is set the old samples are shifted to the
  * left and the new samples are appended.
  */
-extern BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples, BKFFTLoadingOption options);
+extern BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples, BKEnum options);
 
 /**
  * Transform input samples to output buffer `fft -> output`
@@ -93,7 +93,7 @@ extern BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUS
  * `BKFFTTransformOptionInvert` the points in the output buffer are expected
  * to be in the polar form already.
  */
-extern BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options);
+extern BKInt BKFFTTransform (BKFFT * fft, BKEnum options);
 
 /**
  * Load spectrum points from f = 0.0 to f = 0.5 into output buffer
