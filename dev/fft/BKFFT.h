@@ -28,17 +28,17 @@
 #include "BKBase.h"
 #include "BKComplex.h"
 
-typedef enum
+enum
 {
-	BKFFTTransformOptionNormalized = 1 << 0,
-	BKFFTTransformOptionInvert     = 1 << 1,
-	BKFFTTransformOptionPolar      = 1 << 2,
-} BKFFTTransformOption;
+	BK_FFT_TRANS_NORMALIZE = 1 << 0,
+	BK_FFT_TRANS_INVERT    = 1 << 1,
+	BK_FFT_TRANS_POLAR     = 1 << 2,
+};
 
-typedef enum
+enum
 {
-	BKFFTLoadingOptionShift = 1 << 0,
-} BKFFTLoadingOption;
+	BK_FFT_LOAD_SHIFT = 1 << 0,
+};
 
 /**
  * The FFT object
@@ -72,7 +72,7 @@ extern void BKFFTDispose (BKFFT * fft);
  * Replace input samples with `samples` with length `numSamples`. If less
  * samples than the available capacity is given the rest is filled with 0.
  * If too many samples are given they are truncated.
- * If option `BKFFTLoadingOptionShift` is set the old samples are shifted to the
+ * If option `BK_FFT_LOAD_SHIFT` is set the old samples are shifted to the
  * left and the new samples are appended.
  */
 extern BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples, BKEnum options);
@@ -80,17 +80,17 @@ extern BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUS
 /**
  * Transform input samples to output buffer `fft -> output`
  *
- * If option `BKFFTTransformOptionInvert` is set the points in the output buffer
+ * If option `BK_FFT_TRANS_INVERT` is set the points in the output buffer
  * are transformed back to the input samples.
  *
- * If option `BKFFTTransformOptionNormalized` is set the data in the output
+ * If option `BK_FFT_TRANS_NORMALIZE` is set the data in the output
  * buffer is normalized after transformation: X[i] = X[i] / N. In combination
- * with `BKFFTTransformOptionInvert` the points in the output buffer are
+ * with `BK_FFT_TRANS_INVERT` the points in the output buffer are
  * expected to be normalized already.
  *
- * If option `BKFFTTransformOptionPolar` is set the output points are converted
+ * If option `BK_FFT_TRANS_POLAR` is set the output points are converted
  * to their polar form after transformation. In combination with
- * `BKFFTTransformOptionInvert` the points in the output buffer are expected
+ * `BK_FFT_TRANS_INVERT` the points in the output buffer are expected
  * to be in the polar form already.
  */
 extern BKInt BKFFTTransform (BKFFT * fft, BKEnum options);

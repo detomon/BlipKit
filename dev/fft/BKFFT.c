@@ -239,7 +239,7 @@ BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUSize num
 	tailSize = fft -> numSamples - numSamples;
 
 	// shift existing samples to the left and append new samples
-	if (options & BKFFTLoadingOptionShift) {
+	if (options & BK_FFT_LOAD_SHIFT) {
 		memmove (& fft -> input [0], & fft -> input [numSamples], tailSize * sizeof (BKComplexComp));
 		memcpy (& fft -> input [tailSize], samples, numSamples * sizeof (BKComplexComp));
 	}
@@ -307,10 +307,10 @@ static void BKFFTTransformForward (BKComplex points [], BKUSize numBits, BKCompl
 	}
 }
 
-BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options)
+BKInt BKFFTTransform (BKFFT * fft, BKEnum options)
 {
-	if (options & BKFFTTransformOptionInvert) {
-		if (options & BKFFTTransformOptionPolar)
+	if (options & BK_FFT_TRANS_INVERT) {
+		if (options & BK_FFT_TRANS_POLAR)
 			BKComplexListToRectangular (fft -> output, fft -> numSamples);
 
 		BKFFTSortBitReversed (fft -> output, fft -> numSamples, fft -> bitRevMap);
@@ -319,10 +319,10 @@ BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options)
 
 	BKFFTTransformForward (fft -> output, fft -> numBits, fft -> unitWave);
 
-	if (options & BKFFTTransformOptionNormalized) {
+	if (options & BK_FFT_TRANS_NORMALIZE) {
 		BKComplexComp factor;
 
-		if (options & BKFFTTransformOptionInvert)
+		if (options & BK_FFT_TRANS_INVERT)
 			factor = fft -> numSamples;
 		else
 			factor = 1.0 / fft -> numSamples;
@@ -330,11 +330,11 @@ BKInt BKFFTTransform (BKFFT * fft, BKFFTTransformOption options)
 		BKComplexListScale (fft -> output, fft -> numSamples, factor);
 	}
 
-	if (options & BKFFTTransformOptionInvert) {
+	if (options & BK_FFT_TRANS_INVERT) {
 		BKComplexListScale (fft -> output, fft -> numSamples, 1.0 / fft -> numSamples);
 		BKComplexListCopyReal (fft -> input, fft -> output, fft -> numSamples);
 	}
-	else if (options & BKFFTTransformOptionPolar) {
+	else if (options & BK_FFT_TRANS_POLAR) {
 		BKComplexListToPolar (fft -> output, fft -> numSamples);
 	}
 

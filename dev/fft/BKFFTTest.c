@@ -67,7 +67,7 @@ int main (int argc, char const * argv [])
 	}
 
 	// transform backwards
-	BKFFTTransform (fft, BKFFTTransformOptionInvert);
+	BKFFTTransform (fft, BK_FFT_TRANS_INVERT);
 
 	printf ("\nReversed output:\n");
 
