@@ -329,6 +329,10 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 	if (instr == NULL)
 		return;
 
+	// do only release once
+	if (state -> phase == BK_SEQUENCE_PHASE_RELEASE && phase == BK_SEQUENCE_PHASE_RELEASE)
+		return;
+
 	state -> numActiveSequences = 0;
 
 	switch (phase) {
