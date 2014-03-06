@@ -22,6 +22,7 @@
  */
 
 #include <fcntl.h>
+#include <math.h>
 #include <stdio.h>
 #include <unistd.h>
 #include "BKData_internal.h"
@@ -520,7 +521,6 @@ BKInt BKDataInitWithFrames (BKData * data, BKFrame const * phases, BKUInt numFra
 	return -1;
 }
 
-
 BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params)
 {
 	BKUInt    endian = (params & BK_ENDIAN_MASK);
@@ -655,4 +655,125 @@ BKInt BKDataStateSetData (BKDataState * state, BKData * data)
 	BKDataStateAddToData (state, data);
 
 	return 0;
+}
+
+static void BKDataReduceBits (int16_t * outFrames, int16_t * frames, size_t length, BKDataConvertInfo * info)
+{
+	int32_t maxValue;
+
+	BKInt const maximize = 1;
+	BKInt const shiftUp  = 1;
+
+	BKInt bits               = info -> targetNumBits;
+	BKInt ditherSmoothLength = info -> ditherSmoothLength;
+	float ditherSlope        = info -> ditherSlope;
+	float ditherCurve        = info -> ditherCurve;
+
+	maxValue = (1 << 15) - 1;
+
+	int32_t frame;
+	int32_t frame32;
+	int32_t dither, deltaDither;
+	int32_t threshold = info -> threshold * maxValue;
+	float sum = 0.0;
+	float lastFrame = 0.0;
+	int downsample = 15 - bits + 1;
+	float ditherFactor;
+
+	deltaDither = (1 << (downsample)) - 1;
+
+	for (int i = 0; i < length; i ++) {
+		frame = frames [i];
+
+		sum -= lastFrame;
+		sum += frame;
+		lastFrame = frame;
+
+		frame32 = (int32_t) frame;
+
+		if (BKAbs (frame) >= threshold) {
+			dither = rand ();
+			dither = (dither & 1) ? -deltaDither : deltaDither;
+
+			// smooth dither
+			ditherFactor = powf (BKAbs ((sum / ditherSmoothLength)) / maxValue, ditherCurve);
+			ditherFactor = (1.0 - ditherSlope) + (ditherFactor * ditherSlope);
+			dither *= ditherFactor;
+
+			frame32 += dither;
+		}
+		else {
+			frame32 = 0;
+		}
+
+		int tmpDownsample = downsample;
+
+		frame32 = BKClamp (frame32, -maxValue, maxValue);
+
+		if (shiftUp && bits <= 8) {
+			frame32 = (frame32 >> 1) - (1 << 15) / 2;
+			tmpDownsample -= 1;
+			frame32 = BKClamp (frame32, -maxValue, maxValue);
+			frame32 >>= tmpDownsample;
+			frame32 = -frame32;
+		}
+		else {
+			frame32 >>= tmpDownsample;
+			frame32 = -frame32;
+		}
+
+		if (maximize)
+			frame32 = frame32 * maxValue / (1 << (15 - tmpDownsample));
+
+		outFrames [i] = frame32;
+	}
+}
+
+BKInt BKDataConvert (BKData * data, BKDataConvertInfo * info)
+{
+	int16_t * convertedFrames;
+	BKSize length;
+	BKDataConvertInfo validatedInfo;
+
+	length = data -> numFrames * data -> numChannels;
+
+	validatedInfo = (* info);
+
+	if (validatedInfo.ditherSmoothLength == 0)
+		validatedInfo.ditherSmoothLength = 64;
+
+	if (validatedInfo.ditherSlope == 0)
+		validatedInfo.ditherSlope = 1.0;
+
+	if (validatedInfo.ditherCurve == 0)
+		validatedInfo.ditherCurve = 1.0;
+
+	if (validatedInfo.threshold == 0)
+		validatedInfo.threshold = 0.02;
+
+	if (validatedInfo.targetNumBits > 15)
+		validatedInfo.targetNumBits = 15;
+
+	if ((data -> flags & BK_DATA_FLAG_COPY) == 0) {
+		convertedFrames = malloc (length * sizeof (uint16_t));
+
+		if (convertedFrames == NULL)
+			return -1;
+	}
+	else {
+		convertedFrames = data -> frames;
+	}
+
+	BKDataReduceBits (convertedFrames, data -> frames, length, & validatedInfo);
+
+	data -> frames = convertedFrames;
+
+	BKDataResetStates (data, BK_DATA_STATE_EVENT_RESET);
+
+	return 0;
+}
+
+BKInt BKDataExport (BKData * data, BKDataExportInfo * info)
+{
+	return -1;
 }
