@@ -171,7 +171,7 @@ void BKDataDispose (BKData * data)
 
 	BKDataDetach (data);
 
-	if (data -> frames)
+	if (data -> frames && (data -> flags & BK_DATA_FLAG_COPY))
 		free (data -> frames);
 
 	memset (data, 0, sizeof (BKData));
