@@ -294,19 +294,23 @@ static BKInt BKSequenceFuncEnvelopeSetPhase (BKSequenceState * state, BKEnum pha
 			state -> offset       = sequence -> length;
 			state -> shiftedValue = (state -> value << sequence -> fracShift);
 			state -> endValue     = 0;
+			state -> phase        = BK_SEQUENCE_PHASE_MUTE;
 			break;
 		}
 		case BK_SEQUENCE_PHASE_ATTACK: {
 			state -> steps  = 0;
 			state -> offset = 0;
+			state -> phase  = BK_SEQUENCE_PHASE_ATTACK;
 
 			result = BKSequenceFuncEnvelopeStep (state, 0);  // make first step
+
 
 			break;
 		}
 		case BK_SEQUENCE_PHASE_RELEASE: {
 			state -> steps  = 0;
 			state -> offset = sequence -> sustainOffset + sequence -> sustainLength;
+			state -> phase  = BK_SEQUENCE_PHASE_RELEASE;
 
 			result = BKSequenceFuncEnvelopeStep (state, 0);  // make first step
 
@@ -324,8 +328,6 @@ static BKInt BKSequenceFuncEnvelopeSetPhase (BKSequenceState * state, BKEnum pha
 			result = BK_SEQUENCE_RETURN_FINISH;
 		}
 	}
-
-	state -> phase = phase;
 
 	return result;
 }
