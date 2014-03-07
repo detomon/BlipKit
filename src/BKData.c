@@ -673,14 +673,15 @@ static void BKDataReduceBits (int16_t * outFrames, int16_t * frames, size_t leng
 
 	int32_t frame;
 	int32_t frame32;
-	int32_t dither, deltaDither;
+	int32_t dither, deltaDither = 0;
 	int32_t threshold = info -> threshold * maxValue;
 	float sum = 0.0;
 	float lastFrame = 0.0;
 	int downsample = 15 - bits + 1;
 	float ditherFactor;
 
-	deltaDither = (1 << (downsample)) - 1;
+	if (bits <= 8)
+		deltaDither = (1 << (downsample)) - 1;
 
 	for (int i = 0; i < length; i ++) {
 		frame = frames [i];
@@ -692,15 +693,17 @@ static void BKDataReduceBits (int16_t * outFrames, int16_t * frames, size_t leng
 		frame32 = (int32_t) frame;
 
 		if (BKAbs (frame) >= threshold) {
-			dither = rand ();
-			dither = (dither & 1) ? -deltaDither : deltaDither;
+			if (deltaDither) {
+				dither = rand ();
+				dither = (dither & 1) ? -deltaDither : deltaDither;
 
-			// smooth dither
-			ditherFactor = powf (BKAbs ((sum / ditherSmoothLength)) / maxValue, ditherCurve);
-			ditherFactor = (1.0 - ditherSlope) + (ditherFactor * ditherSlope);
-			dither *= ditherFactor;
+				// smooth dither
+				ditherFactor = powf (BKAbs ((sum / ditherSmoothLength)) / maxValue, ditherCurve);
+				ditherFactor = (1.0 - ditherSlope) + (ditherFactor * ditherSlope);
+				dither *= ditherFactor;
 
-			frame32 += dither;
+				frame32 += dither;
+			}
 		}
 		else {
 			frame32 = 0;
