@@ -817,22 +817,28 @@ void BKUnitEnd (BKUnit * unit, BKFUInt20 time)
 	unit -> time -= time;
 }
 
-void BKUnitReset (BKUnit * unit)
+void BKUnitClear (BKUnit * unit)
 {
-	unit -> waveform        = 0;
-	unit -> phase.phase     = 0;
+	BKUnitSetData (unit, BK_WAVEFORM, NULL);
+	//BKUnitSetData (unit, BK_SAMPLE, NULL);
+
 	unit -> phase.wrap      = 0;
 	unit -> phase.wrapCount = 0;
-	unit -> period          = 0;
-	unit -> time            = 0;
-
-	BKUnitSetData (unit, BK_WAVEFORM, NULL);
-	BKUnitSetData (unit, BK_SAMPLE, NULL);
 
 	unit -> sample.period                     = BK_FINT20_UNIT;
 	unit -> sample.timeFrac                   = 0;
 	unit -> sample.dataState.callback         = (void *) BKUnitSampleDataStateCallback;
 	unit -> sample.dataState.callbackUserInfo = unit;
+}
+
+void BKUnitReset (BKUnit * unit)
+{
+	BKUnitClear (unit);
+
+	unit -> period      = 0;
+	unit -> waveform    = 0;
+	unit -> phase.phase = 0;
+	unit -> time = 0;
 
 	for (BKInt i = 0; i < BK_MAX_CHANNELS; i ++)
 		unit -> lastPulse [i] = 0;

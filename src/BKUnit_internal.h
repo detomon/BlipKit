@@ -34,9 +34,15 @@ extern BKInt BKUnitRun (BKUnit * unit, BKFUInt20 endTime);
  */
 extern void BKUnitEnd (BKUnit * unit, BKFUInt20 time);
 
-/*
+/**
+ * Reset unit values and buffer state
  */
 extern void BKUnitReset (BKUnit * unit);
+
+/**
+ * Reset unit values
+ */
+extern void BKUnitClear (BKUnit * unit);
 
 /*
  */

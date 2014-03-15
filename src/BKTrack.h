@@ -101,9 +101,14 @@ struct BKTrack
 extern BKInt BKTrackInit (BKTrack * track, BKEnum waveform);
 
 /**
- * Reset track
+ * Reset track values and buffer state
  */
 extern void BKTrackReset (BKTrack * track);
+
+/**
+ * Reset track values
+ */
+extern void BKTrackClear (BKTrack * track);
 
 /**
  * Dispose track
