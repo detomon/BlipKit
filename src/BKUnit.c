@@ -59,7 +59,7 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 				}
 			}
 			// data was disposed
-			else {
+			else if (unit -> waveform == BK_CUSTOM) {
 				unit -> waveform      = 0;
 				unit -> sample.offset = 0;
 				unit -> sample.end    = 0;
@@ -88,21 +88,21 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 					unit -> sample.offset      = 0;
 					unit -> sample.end         = data -> numFrames;
 					unit -> sample.frames      = data -> frames;
+					unit -> phase.phase        = 0; // reset phase
+					unit -> sample.repeat      = 0;
 
 					BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_BEGIN);
 				}
 			}
 			// disable sample
-			else {
+			else if (unit -> waveform == BK_SAMPLE) {
 				unit -> waveform      = 0;
 				unit -> sample.offset = 0;
 				unit -> sample.end    = 0;
 				unit -> sample.frames = NULL;
-
+				unit -> phase.phase   = 0; // reset phase
+				unit -> sample.repeat = 0;
 			}
-
-			unit -> phase.phase   = 0; // reset phase
-			unit -> sample.repeat = 0;
 
 			break;
 		}
@@ -126,7 +126,13 @@ static BKInt BKUnitSetData (BKUnit * unit, BKEnum type, BKData * data)
 	}
 	// unset data when failed
 	else {
-		unit -> waveform = 0;
+		switch (unit -> waveform) {
+			case BK_CUSTOM:
+			case BK_SAMPLE: {
+				unit -> waveform = 0;
+				break;
+			}
+		}
 	}
 
 	return res;
