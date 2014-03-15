@@ -425,7 +425,8 @@ static BKInt BKTrackRun (BKTrack * track, BKFUInt20 endTime)
 
 void BKTrackReset (BKTrack * track)
 {
-	BKEnum waveform = track -> waveform;
+	BKEnum waveform     = track -> waveform;
+	BKInt  masterVolume = track -> masterVolume;
 
 	BKTrackSetInstrument (track, NULL);
 
@@ -439,6 +440,8 @@ void BKTrackReset (BKTrack * track)
 	track -> unit.sample.dataState.callback         = (void *) BKTrackSampleDataStateCallback;
 	track -> unit.sample.dataState.callbackUserInfo = track;
 
+	BKTrackSetAttr (track, BK_VOLUME, BK_MAX_VOLUME);
+	BKTrackSetAttr (track, BK_MASTER_VOLUME, masterVolume);
 	BKTrackSetAttr (track, BK_WAVEFORM, waveform);
 	BKTrackSetAttr (track, BK_DUTY_CYCLE, BK_SQUARE_PHASES / 4);
 	BKTrackSetAttr (track, BK_NOTE, BK_NOTE_MUTE);
