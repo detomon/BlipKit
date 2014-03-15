@@ -332,6 +332,7 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			unit -> phase.phase     = 0;
 			unit -> phase.wrap      = value;
 			unit -> phase.wrapCount = value;
+			break;
 		}
 		case BK_PERIOD: {
 			unit -> period = BKMax (value, BK_MIN_PERIOD);
