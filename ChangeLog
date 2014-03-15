@@ -1,3 +1,12 @@
+Changes in BlipKit 0.7:
+
+* Implemented a bit conversion function in BKData
+* Instrument release sequences are now only played once when releasing multiple times
+* Track volume is now at maximum after intialization
+* Added track clear functions
+* Reduced clicking noise when clearing units
+* Fixed missing break in switch statement
+
 Changes in BlipKit 0.6.3:
 
 * Fix reset of default values when updating sequence
