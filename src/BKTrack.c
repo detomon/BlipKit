@@ -433,6 +433,7 @@ void BKTrackReset (BKTrack * track)
 void BKTrackClear (BKTrack * track)
 {
 	BKEnum waveform     = track -> waveform;
+	BKInt  dutyCycle    = track -> dutyCycle;
 	BKInt  masterVolume = track -> masterVolume;
 
 	BKUnitClear (& track -> unit);
@@ -450,6 +451,7 @@ void BKTrackClear (BKTrack * track)
 	BKTrackSetAttr (track, BK_VOLUME, BK_MAX_VOLUME);
 	BKTrackSetAttr (track, BK_MASTER_VOLUME, masterVolume);
 	BKTrackSetAttr (track, BK_WAVEFORM, waveform);
+	BKTrackSetAttr (track, BK_DUTY_CYCLE, dutyCycle);
 	BKTrackSetAttr (track, BK_NOTE, BK_NOTE_MUTE);
 	BKTrackSetAttr (track, BK_MUTE, 1);
 
