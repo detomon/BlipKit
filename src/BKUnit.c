@@ -827,7 +827,7 @@ void BKUnitEnd (BKUnit * unit, BKFUInt20 time)
 void BKUnitClear (BKUnit * unit)
 {
 	BKUnitSetData (unit, BK_WAVEFORM, NULL);
-	//BKUnitSetData (unit, BK_SAMPLE, NULL);
+	BKUnitSetData (unit, BK_SAMPLE, NULL);
 
 	unit -> phase.wrap      = 0;
 	unit -> phase.wrapCount = 0;
