@@ -197,9 +197,11 @@ BKInt BKContextGenerate (BKContext * ctx, BKFrame outFrames [], BKUInt size)
 	BKUInt endTime;
 	BKUInt chunkSize;
 	BKUInt remainingSize;
+	BKUInt writeSize;
 	BKInt  result;
 
 	remainingSize = size;
+	writeSize     = 0;
 
 	do {
 		chunkSize = remainingSize;
@@ -215,6 +217,8 @@ BKInt BKContextGenerate (BKContext * ctx, BKFrame outFrames [], BKUInt size)
 
 		chunkSize = BKContextRead (ctx, outFrames, chunkSize);
 
+		writeSize += chunkSize;
+
 		// no track has written data
 		if (chunkSize == 0)
 			chunkSize = remainingSize;
@@ -224,7 +228,7 @@ BKInt BKContextGenerate (BKContext * ctx, BKFrame outFrames [], BKUInt size)
 	}
 	while (remainingSize);
 
-	return size;
+	return writeSize;
 }
 
 BKInt BKContextGenerateToTime (BKContext * ctx, BKTime endTime, BKInt (* write) (BKFrame inFrames [], BKUInt size, void * info), void * info)
