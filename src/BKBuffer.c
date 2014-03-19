@@ -124,6 +124,13 @@ BKInt BKBufferEnd (BKBuffer * buf, BKFUInt20 time)
 
 BKInt BKBufferShift (BKBuffer * buf, BKFUInt20 time)
 {
+	BKFUInt20 maxShift;
+
+	maxShift = buf -> capacity << BK_FINT20_SHIFT;
+
+	if (buf -> time + time > maxShift)
+		time = maxShift - buf -> time;
+
 	buf -> time += time;
 
 	return 0;
