@@ -399,18 +399,6 @@ BKInt BKTrackInit (BKTrack * track, BKEnum waveform)
 		callback.userInfo = track;
 
 		BKDividerInit (& track -> divider, 1, & callback);
-
-		BKSlideStateInit (& track -> volume, BK_MAX_VOLUME);
-		BKSlideStateInit (& track -> panning, BK_MAX_VOLUME);
-		BKSlideStateInit (& track -> note, 0);  // note resolution is already high enough
-
-		BKIntervalStateInit (& track -> tremolo, BK_MAX_VOLUME);
-		BKSlideStateInit (& track -> tremoloDelta, BK_MAX_VOLUME);
-		BKSlideStateInit (& track -> tremoloSteps, BK_TRACK_EFFECT_MAX_STEPS);
-
-		BKIntervalStateInit (& track -> vibrato, 0);  // note resolution is already high enough
-		BKSlideStateInit (& track -> vibratoDelta, 0);
-		BKSlideStateInit (& track -> vibratoSteps, BK_TRACK_EFFECT_MAX_STEPS);
 	}
 
 	return ret;
@@ -445,8 +433,24 @@ void BKTrackClear (BKTrack * track)
 
 	track -> flags &= (BKTriangleIgnoresVolumeFlag | BKIgnoreVolumeFlag | BKPanningEnabledFlag);
 
-	track -> unit.sample.dataState.callback         = (void *) BKTrackSampleDataStateCallback;
-	track -> unit.sample.dataState.callbackUserInfo = track;
+	BKTrackSetAttr (track, BK_ARPEGGIO_DIVIDER, BK_DEFAULT_ARPEGGIO_DIVIDER);
+	BKTrackSetAttr (track, BK_EFFECT_DIVIDER, BK_DEFAULT_EFFECT_DIVIDER);
+	BKTrackSetAttr (track, BK_INSTRUMENT_DIVIDER, BK_DEFAULT_INSTR_DIVIDER);
+
+	track -> instrState.callback         = (void *) BKTrackInstrStateCallback;
+	track -> instrState.callbackUserInfo = track;
+
+	BKSlideStateInit (& track -> volume, BK_MAX_VOLUME);
+	BKSlideStateInit (& track -> panning, BK_MAX_VOLUME);
+	BKSlideStateInit (& track -> note, 0);  // note resolution is already high enough
+
+	BKIntervalStateInit (& track -> tremolo, BK_MAX_VOLUME);
+	BKSlideStateInit (& track -> tremoloDelta, BK_MAX_VOLUME);
+	BKSlideStateInit (& track -> tremoloSteps, BK_TRACK_EFFECT_MAX_STEPS);
+
+	BKIntervalStateInit (& track -> vibrato, 0);  // note resolution is already high enough
+	BKSlideStateInit (& track -> vibratoDelta, 0);
+	BKSlideStateInit (& track -> vibratoSteps, BK_TRACK_EFFECT_MAX_STEPS);
 
 	BKTrackSetAttr (track, BK_VOLUME, BK_MAX_VOLUME);
 	BKTrackSetAttr (track, BK_MASTER_VOLUME, masterVolume);
@@ -454,13 +458,6 @@ void BKTrackClear (BKTrack * track)
 	BKTrackSetAttr (track, BK_DUTY_CYCLE, dutyCycle);
 	BKTrackSetAttr (track, BK_NOTE, BK_NOTE_MUTE);
 	BKTrackSetAttr (track, BK_MUTE, 1);
-
-	BKTrackSetAttr (track, BK_ARPEGGIO_DIVIDER, BK_DEFAULT_ARPEGGIO_DIVIDER);
-	BKTrackSetAttr (track, BK_EFFECT_DIVIDER, BK_DEFAULT_EFFECT_DIVIDER);
-	BKTrackSetAttr (track, BK_INSTRUMENT_DIVIDER, BK_DEFAULT_INSTR_DIVIDER);
-
-	track -> instrState.callback         = (void *) BKTrackInstrStateCallback;
-	track -> instrState.callbackUserInfo = track;
 }
 
 void BKTrackDispose (BKTrack * track)
