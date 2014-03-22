@@ -1,3 +1,8 @@
+Changes in BlipKit 0.7.1:
+
+* Fix audio buffer behaviour
+* Fix track clear function
+
 Changes in BlipKit 0.7:
 
 * Implemented a bit conversion function in BKData
