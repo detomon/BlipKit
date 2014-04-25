@@ -209,7 +209,7 @@ BKInt BKInstrumentSetEnvelopeADSR (BKInstrument * instr, BKUInt attack, BKUInt d
 	BKSequencePhase phases [4] = {
 		{attack, BK_MAX_VOLUME},
 		{decay, sustain},
-		{1, sustain},
+		{240, sustain},
 		{release, 0},
 	};
 
