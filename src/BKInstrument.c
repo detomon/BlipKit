@@ -375,9 +375,5 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 					state -> callback (BK_INSTR_STATE_EVENT_MUTE, state -> callbackUserInfo);
 			}
 		}
-		default: {
-			return;
-			break;
-		}
 	}
 }
