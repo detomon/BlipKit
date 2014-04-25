@@ -176,11 +176,12 @@ static BKUInt BKSequencePhaseGetFracShift (BKSequencePhase const * phases, BKUIn
 /**
  * Check step sum of envelope values
  */
-static BKInt BKSequenceEnvelopeCheckValues (BKSequencePhase const * values, BKUInt length)
+static BKInt BKSequenceEnvelopeCheckValues (BKSequencePhase const * values, BKUInt length, BKUInt sustainOffset, BKUInt sustainLength)
 {
 	BKInt steps = 0;
 
-	for (BKInt i = 0; i < length; i ++)
+	// check sustain sequence step length
+	for (BKInt i = sustainOffset; i < sustainOffset + sustainLength; i ++)
 		steps += values [i].steps;
 
 	if (steps == 0)
@@ -191,7 +192,7 @@ static BKInt BKSequenceEnvelopeCheckValues (BKSequencePhase const * values, BKUI
 
 static BKInt BKSequenceFuncEnvelopeCreate (BKSequence ** outSequence, BKSequenceFuncs const * funcs, void const * values, BKUInt length, BKUInt sustainOffset, BKUInt sustainLength)
 {
-	if (BKSequenceEnvelopeCheckValues (values, length) != 0)
+	if (BKSequenceEnvelopeCheckValues (values, length, sustainOffset, sustainLength) != 0)
 		return BK_INVALID_VALUE;
 
 	BKInt        size     = sizeof (BKSequencePhase) * length;
