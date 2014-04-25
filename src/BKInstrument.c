@@ -368,6 +368,7 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 			break;
 		}
 		case BK_SEQUENCE_PHASE_MUTE: {
+			// do only call once
 			if (state -> phase != BK_SEQUENCE_PHASE_MUTE) {
 				state -> phase = BK_SEQUENCE_PHASE_MUTE;
 
