@@ -351,8 +351,15 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 		}
 	}
 
-	if (state -> numActiveSequences == 0)
-		phase = BK_SEQUENCE_PHASE_MUTE;
+	if (state -> numActiveSequences == 0) {
+		switch (phase) {
+			case BK_SEQUENCE_PHASE_RELEASE:
+			case BK_SEQUENCE_PHASE_MUTE: {
+				phase = BK_SEQUENCE_PHASE_MUTE;
+				break;
+			}
+		}
+	}
 
 	switch (phase) {
 		case BK_SEQUENCE_PHASE_ATTACK:
