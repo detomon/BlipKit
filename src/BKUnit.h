@@ -76,8 +76,9 @@ struct BKUnit
 		BKUInt      offset;
 		BKUInt      end;
 		BKUInt      repeat;
-		BKFUInt20   timeFrac;
-		BKFUInt20   period;
+		BKUInt      repeatCount;
+		BKFInt20    timeFrac;
+		BKFInt20    period;
 		BKCallback  callback;
 		BKFrame   * frames;
 	} sample;

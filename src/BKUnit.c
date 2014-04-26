@@ -46,13 +46,14 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 		case BK_WAVEFORM: {
 			if (data && event != BK_DATA_STATE_EVENT_DISPOSE) {
 				if (data -> numFrames >= 2) {
-					unit -> waveform          = BK_CUSTOM;
-					unit -> phase.count       = data -> numFrames;
-					unit -> phase.haltSilence = 1;
-					unit -> phase.phase       = 0;
-					unit -> sample.offset     = 0;
-					unit -> sample.end        = data -> numFrames;
-					unit -> sample.frames     = data -> frames;
+					unit -> waveform           = BK_CUSTOM;
+					unit -> phase.count        = data -> numFrames;
+					unit -> phase.haltSilence  = 1;
+					unit -> phase.phase        = 0;
+					unit -> sample.offset      = 0;
+					unit -> sample.end         = data -> numFrames;
+					unit -> sample.frames      = data -> frames;
+					unit -> sample.repeatCount = 0;
 				}
 				else {
 					return BK_INVALID_NUM_FRAMES;
@@ -90,6 +91,7 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 					unit -> sample.frames      = data -> frames;
 					unit -> phase.phase        = 0; // reset phase
 					unit -> sample.repeat      = 0;
+					unit -> sample.repeatCount = 0;
 
 					BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_BEGIN);
 				}
@@ -254,6 +256,59 @@ void BKUnitDetach (BKUnit * unit)
 	}
 }
 
+static void BKUnitUpdateSampleRange (BKUnit * unit, BKInt offset, BKInt end)
+{
+	BKInt sampleLength;
+	BKInt oldOffset;
+	BKInt newOffset, newLength;
+	BKInt newPhase;
+
+	if (unit -> sample.dataState.data == NULL)
+		return;
+
+	sampleLength = unit -> sample.dataState.data -> numFrames;
+
+	if (offset < 0) offset += sampleLength + 1;
+	offset = BKClamp (offset, 0, sampleLength);
+
+	if (end < 0) end += sampleLength + 1;
+	end = BKClamp (end, 0, sampleLength);
+
+	oldOffset = BKMin (unit -> sample.offset, unit -> sample.end);
+	newOffset = BKMin (offset, end);
+	newLength = BKAbs (offset - end);
+
+	newPhase = unit -> phase.phase + (oldOffset - newOffset);
+
+	// reset phase if it would overlap the new range
+	if (newPhase < 0 || newPhase >= newLength)
+		newPhase = 0;
+
+	unit -> sample.offset = offset;
+	unit -> sample.end    = end;
+	unit -> sample.frames = & unit -> sample.dataState.data -> frames [newOffset * unit -> sample.numChannels];
+	unit -> sample.length = newLength;
+	unit -> sample.period = BKAbs (unit -> sample.period);
+
+	// reverse sample period
+	if (offset > end)
+		unit -> sample.period = -unit -> sample.period;
+
+	// if not playing yet
+	if (unit -> sample.repeatCount == 0) {
+		// set sample phase to begin if sample phase is at end
+		if (unit -> sample.offset < unit -> sample.end && unit -> phase.phase == unit -> sample.length - 1) {
+			newPhase = 0;
+		}
+		// set sample phase to end if sample phase is at begin
+		else if (unit -> phase.phase == 0) {
+			newPhase = unit -> sample.length - 1;
+		}
+	}
+
+	unit -> phase.phase = newPhase;
+}
+
 BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 {
 	switch (attr) {
@@ -319,6 +374,10 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 				value = BKClamp (value, 0, unit -> phase.count - 1);
 			}
 			else  {
+				// set phase from end if reversed
+				if (unit -> sample.offset > unit -> sample.end)
+					value = unit -> sample.length - value - 1;
+
 				value = BKClamp (value, 0, unit -> sample.length - 1);
 				BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_BEGIN);
 			}
@@ -362,67 +421,17 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			unit -> mute = value ? 1 : 0;
 			break;
 		}
-		case BK_SAMPLE_OFFSET: {
-			BKInt absLength, relOffset, newPhase;
-
-			if (unit -> waveform != BK_SAMPLE)
-				return BK_INVALID_STATE;
-
-			absLength = unit -> sample.dataState.data -> numFrames;
-			value     = BKClamp (value, 0, BKMin (unit -> sample.end - 2, absLength - 2));
-
-			if (value != unit -> sample.offset) {
-				relOffset = value - unit -> sample.offset;
-
-				unit -> sample.frames = & unit -> sample.dataState.data -> frames [value * unit -> sample.numChannels];
-				unit -> sample.length = unit -> sample.end - value;
-				unit -> sample.offset = value;
-
-				newPhase = unit -> phase.phase - relOffset;
-
-				// reset phase if it would overlap the new range
-				if (newPhase < 0 || newPhase >= unit -> sample.length)
-					newPhase = 0;
-
-				unit -> phase.phase = newPhase;
-			}
-
-			break;
-		}
-		case BK_SAMPLE_END: {
-			BKInt absLength, newPhase;
-
-			if (unit -> waveform != BK_SAMPLE)
-				return BK_INVALID_STATE;
-
-			absLength = unit -> sample.dataState.data -> numFrames;
-
-			if (value == 0)
-				value = absLength;
-
-			value = BKClamp (value, unit -> sample.offset + 2, absLength);
-
-			if (value != unit -> sample.end) {
-				unit -> sample.length = value - unit -> sample.offset;
-				unit -> sample.end    = value;
-
-				newPhase = unit -> phase.phase;
-
-				// reset phase if it would overlap the new range
-				if (newPhase >= unit -> sample.length)
-					newPhase = 0;
-
-				unit -> phase.phase = newPhase;
-			}
-
-			break;
-		}
 		case BK_SAMPLE_REPEAT: {
 			unit -> sample.repeat = value;
 			break;
 		}
 		case BK_SAMPLE_PERIOD: {
 			unit -> sample.period = BKClamp (value, BK_MIN_SAMPLE_PERIOD, BK_MAX_SAMPLE_PERIOD);
+
+			// reverse sample direction
+			if (unit -> sample.offset > unit -> sample.end)
+				unit -> sample.period = -unit -> sample.period;
+
 			break;
 		}
 		case BK_HALT_SILENT_PHASE: {
@@ -482,20 +491,12 @@ BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue)
 			value = unit -> mute;
 			break;
 		}
-		case BK_SAMPLE_OFFSET: {
-			value = unit -> sample.offset;
-			break;
-		}
-		case BK_SAMPLE_END: {
-			value = unit -> sample.end;
-			break;
-		}
 		case BK_SAMPLE_REPEAT: {
 			value = unit -> sample.repeat;
 			break;
 		}
 		case BK_SAMPLE_PERIOD: {
-			value = unit -> sample.period;
+			value = BKAbs (unit -> sample.period);
 			break;
 		}
 		case BK_HALT_SILENT_PHASE: {
@@ -515,7 +516,8 @@ BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue)
 
 BKInt BKUnitSetPtr (BKUnit * unit, BKEnum attr, void * ptr)
 {
-	BKInt res;
+	BKInt   res;
+	BKInt * values;
 
 	switch (attr) {
 		case BK_SAMPLE_CALLBACK: {
@@ -539,6 +541,16 @@ BKInt BKUnitSetPtr (BKUnit * unit, BKEnum attr, void * ptr)
 
 			break;
 		}
+		case BK_SAMPLE_RANGE: {
+			if (unit -> waveform != BK_SAMPLE)
+				return BK_INVALID_STATE;
+
+			values = ptr;
+
+			BKUnitUpdateSampleRange (unit, values [0], values [1]);
+
+			break;
+		}
 		default: {
 			return BK_INVALID_ATTRIBUTE;
 			break;
@@ -551,6 +563,7 @@ BKInt BKUnitSetPtr (BKUnit * unit, BKEnum attr, void * ptr)
 BKInt BKUnitGetPtr (BKUnit const * unit, BKEnum attr, void * outPtr)
 {
 	void ** ptrRef = outPtr;
+	BKInt * values = outPtr;
 
 	switch (attr) {
 		case BK_SAMPLE_CALLBACK: {
@@ -570,6 +583,11 @@ BKInt BKUnitGetPtr (BKUnit const * unit, BKEnum attr, void * outPtr)
 					break;
 				}
 			}
+			break;
+		}
+		case BK_SAMPLE_RANGE: {
+			values [0] = unit -> sample.offset;
+			values [1] = unit -> sample.end;
 			break;
 		}
 		default: {
@@ -699,10 +717,18 @@ static BKInt BKUnitResetSample (BKUnit * unit)
 
 	if (numWrap) {
 		// phase %= numWrap
-		do {
-			unit -> phase.phase -= numWrap;
+		if (unit -> sample.offset < unit -> sample.end) {
+			do {
+				unit -> phase.phase -= numWrap;
+			}
+			while (unit -> phase.phase >= numWrap);
 		}
-		while (unit -> phase.phase >= numWrap);
+		else {
+			do {
+				unit -> phase.phase += numWrap;
+			}
+			while ((BKInt) unit -> phase.phase < 0);
+		}
 	}
 
 	// callback function
@@ -722,6 +748,8 @@ static BKInt BKUnitResetSample (BKUnit * unit)
 		unit -> mute = 1;
 	}
 
+	unit -> sample.repeatCount ++;
+
 	return halt;
 }
 
@@ -731,19 +759,23 @@ static BKInt BKUnitResetSample (BKUnit * unit)
  */
 static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 {
-	BKFUInt20  time, lastTime;
+	BKFInt20   time, lastTime;
 	BKInt      volume;
 	BKBuffer * channel;
 	BKInt      pulse, delta, chanDelta;
 	BKFrame  * frames;
+	BKInt      reset = 0;
 
 	// muted
 	if (unit -> mute)
 		return endTime;
 
-	for (time = unit -> time; time < endTime; time += BK_FINT20_UNIT) {
-		BKInt reset = 0;
+	// prevent invalid sample length
+	if (BKAbs ((BKInt) unit -> sample.end - (BKInt) unit -> sample.offset) < 2)
+		return endTime;
 
+	for (time = unit -> time; time < endTime; time += BK_FINT20_UNIT) {
+		reset  = 0;
 		frames = & unit -> sample.frames [unit -> phase.phase * unit -> sample.numChannels];
 
 		// update each channel
@@ -761,13 +793,18 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 
 		// advance phase
 		lastTime = unit -> sample.timeFrac;
-		unit -> sample.timeFrac += unit -> sample.period;
+		unit -> sample.timeFrac += unit -> sample.period; // may be negative
 		unit -> phase.phase += (unit -> sample.timeFrac >> BK_FINT20_SHIFT) - (lastTime >> BK_FINT20_SHIFT);
 		unit -> sample.timeFrac &= BK_FINT20_FRAC;
 
-		// reset if sample ended
-		if (unit -> phase.phase >= unit -> sample.length)
+		// reset if phase exceeds end
+		if (unit -> phase.phase >= unit -> sample.length) {
 			reset = 1;
+		}
+		// reset if phase exceeds end (reversed)
+		else if ((BKInt) unit -> phase.phase < 0) {
+			reset = 1;
+		}
 
 		if (reset) {
 			if (BKUnitResetSample (unit) == 1)
@@ -832,10 +869,22 @@ void BKUnitClear (BKUnit * unit)
 	unit -> phase.wrap      = 0;
 	unit -> phase.wrapCount = 0;
 
+	unit -> sample.offset                     = 0;
+	unit -> sample.end                        = 0;
+	unit -> sample.repeat                     = 0;
+	unit -> sample.repeatCount                = 0;
 	unit -> sample.period                     = BK_FINT20_UNIT;
 	unit -> sample.timeFrac                   = 0;
 	unit -> sample.dataState.callback         = (void *) BKUnitSampleDataStateCallback;
 	unit -> sample.dataState.callbackUserInfo = unit;
+
+	// reset sample range
+	if (unit -> sample.dataState.data)
+		unit -> sample.end = unit -> sample.dataState.data -> numFrames;
+
+	// reverse period if needed
+	if (unit -> sample.offset > unit -> sample.end)
+		unit -> sample.period = -unit -> sample.period;
 }
 
 void BKUnitReset (BKUnit * unit)
