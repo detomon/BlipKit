@@ -165,7 +165,7 @@ static BKUInt BKSequencePhaseGetFracShift (BKSequencePhase const * phases, BKUIn
 
 	// shift must be smaller than maximum value
 	// reduce by one bit to allow enough delta to slide from maximum to minimum
-	while ((1 << shift) < maxValue && shift < 30)
+	while ((1 << shift) <= maxValue && shift < 30)
 		shift ++;
 
 	shift = 30 - shift;
