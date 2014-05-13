@@ -159,22 +159,22 @@ static void BKInstrumentStateSetSequence (BKInstrument * instr, BKEnum slot, BKS
 static BKInt BKInstrumentSetSequenceValues (BKInstrument * instr, BKSequenceFuncs const * funcs, BKEnum slot, void const * values, BKUInt length, BKInt sustainOffset, BKInt sustainLength)
 {
 	BKInt error = 0;
-	BKSequence * sequence;
+	BKSequence * sequence, * newSequence = NULL;
 
 	if (slot < BK_MAX_SEQUENCES) {
 		sequence = instr -> sequences [slot];
 
-		if (sequence) {
-			BKSequenceDispose (sequence);
-			sequence = NULL;
-		}
-
 		if (values && length) {
-			error = BKSequenceCreate (& sequence, funcs, values, length, sustainOffset, sustainLength);
+			error = BKSequenceCreate (& newSequence, funcs, values, length, sustainOffset, sustainLength);
 
 			if (error != 0)
 				return error;
 		}
+
+		if (sequence)
+			BKSequenceDispose (sequence);
+
+		sequence = newSequence;
 
 		BKInstrumentStateSetSequence (instr, slot, sequence);
 
