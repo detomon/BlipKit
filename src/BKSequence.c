@@ -31,7 +31,7 @@ static BKInt BKSequenceFuncSimpleCreate (BKSequence ** outSequence, BKSequenceFu
 
 static BKInt BKSequenceFuncSimpleSetPhase (BKSequenceState * state, BKEnum phase)
 {
-	BKInt        result   = 0;
+	BKInt        result   = BK_SEQUENCE_RETURN_NONE;
 	BKSequence * sequence = state -> sequence;
 	BKInt      * values   = sequence -> values;
 
@@ -285,7 +285,7 @@ static BKEnum BKSequenceFuncEnvelopeStep (BKSequenceState * state, BKEnum level)
 
 static BKInt BKSequenceFuncEnvelopeSetPhase (BKSequenceState * state, BKEnum phase)
 {
-	BKInt        result   = 0;
+	BKInt        result   = BK_SEQUENCE_RETURN_NONE;
 	BKSequence * sequence = state -> sequence;
 
 	switch (phase) {
@@ -305,7 +305,6 @@ static BKInt BKSequenceFuncEnvelopeSetPhase (BKSequenceState * state, BKEnum pha
 
 			result = BKSequenceFuncEnvelopeStep (state, 0);  // make first step
 
-
 			break;
 		}
 		case BK_SEQUENCE_PHASE_RELEASE: {
@@ -323,7 +322,7 @@ static BKInt BKSequenceFuncEnvelopeSetPhase (BKSequenceState * state, BKEnum pha
 		}
 	}
 
-	if (result == 0) {
+	if (result == BK_SEQUENCE_RETURN_NONE) {
 		if (state -> offset >= sequence -> length) {
 			state -> offset = sequence -> length;
 			result = BK_SEQUENCE_RETURN_FINISH;

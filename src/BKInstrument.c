@@ -342,8 +342,8 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 				sequence = instr -> sequences [i];
 
 				if (sequence) {
-					BKSequenceStateSetPhase (& state -> states [i], phase);
-					state -> numActiveSequences ++;
+					if (BKSequenceStateSetPhase (& state -> states [i], phase) != BK_SEQUENCE_RETURN_FINISH)
+						state -> numActiveSequences ++;
 				}
 			}
 

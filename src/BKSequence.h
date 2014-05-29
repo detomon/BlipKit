@@ -29,16 +29,19 @@ enum
 enum
 {
 	// no step
-	BK_SEQUENCE_RETURN_NONE,
+	BK_SEQUENCE_RETURN_NONE = 0,
 
 	// normal step
-	BK_SEQUENCE_RETURN_STEP,
+	BK_SEQUENCE_RETURN_STEP = 1 << 0,
 
 	// sustain sequence was restarted
-	BK_SEQUENCE_RETURN_REPEAT,
+	BK_SEQUENCE_RETURN_REPEAT = 1 << 1,
 
 	// sequence has finished
-	BK_SEQUENCE_RETURN_FINISH,
+	BK_SEQUENCE_RETURN_FINISH = 1 << 2,
+
+	// mask for active sequence
+	BK_SEQUENCE_RETURN_ACTIVE_MASK = BK_SEQUENCE_RETURN_STEP | BK_SEQUENCE_RETURN_REPEAT,
 };
 
 /**
