@@ -59,7 +59,7 @@ static BKInt BKSequenceFuncSimpleSetPhase (BKSequenceState * state, BKEnum phase
 	}
 	else {
 		//state -> value  = sequence -> defaultValue;
-		state -> offset = sequence -> length;
+		state -> offset = BK_INT_MAX;
 		result = BK_SEQUENCE_RETURN_FINISH;
 	}
 
