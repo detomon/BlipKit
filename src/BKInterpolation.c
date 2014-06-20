@@ -119,7 +119,7 @@ void BKIntervalStateInit (BKIntervalState * state, BKInt maxValue)
 void BKIntervalStateSetDeltaAndSteps (BKIntervalState * state, BKInt delta, BKInt steps)
 {
 	BKInt stepFrac, step;
-	BKInt stepDelta, value;
+	BKInt stepDelta, value = 0;
 	BKInt roundBias = 0;
 	BKInt const stepShift = BK_STATE_STEP_FRAC_SHIFT;
 

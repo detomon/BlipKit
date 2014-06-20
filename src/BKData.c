@@ -614,7 +614,7 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 
 	params |= endian;
 
-	ret = BKDataSetData (data, frames, size, numChannels, params);
+	ret = BKDataSetData (data, frames, (BKUInt) size, numChannels, params);
 
 	free (frames);
 
