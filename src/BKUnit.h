@@ -215,6 +215,11 @@ extern BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue);
  *   Set sample to play via a `BKData` object. Sample is only played once.
  *   If it should be repeated set attribute `BK_SAMPLE_REPEAT` to a value greater 1 or
  *   set `BK_SAMPLE_CALLBACK`
+ * BK_SAMPLE_RANGE
+ *   Set sample repeat range as BKInt[2]
+ *   The first value defines the start offset in frames
+ *   The second value defines the end offset in frames
+ *   If the end position is less than the start position, the sample is played in reverse
  *
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
@@ -230,6 +235,8 @@ extern BKInt BKUnitSetPtr (BKUnit * unit, BKEnum attr, void * ptr);
  *   Get sample callback
  * BK_SAMPLE
  *   Get `BKData` object if waveform is BK_CUSTOM or BK_SAMPLE
+ * BK_SAMPLE_RANGE
+ *  Get sample repeat range
  *
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
