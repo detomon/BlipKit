@@ -1,3 +1,8 @@
+Changes in BlipKit 0.8.1:
+
+* Fixed errors in instrument sequences
+* Fixed example 'sample.c'
+
 Changes in BlipKit 0.8:
 
 * Added BK_SAMLE_RANGE attribute which replaces BK_SAMPLE_OFFSET and BK_SAMPLE_END
