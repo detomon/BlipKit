@@ -66,8 +66,8 @@ static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
 
 	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
 
-	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_OFFSET, offset);
-	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_END, offset+ 200);
+	BKInt range [2] = {offset, offset + 200};
+	BKTrackSetPtr (& sampleTrack, BK_SAMPLE_RANGE, range);
 	offset += 1;
 
 	if (offset > 2000)
@@ -135,8 +135,8 @@ int main (int argc, char * argv [])
 	BKTrackSetPtr (& sampleTrack, BK_SAMPLE, & sample);
 
 	// set play range
-	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_OFFSET, 600);
-	BKTrackSetAttr(& sampleTrack, BK_SAMPLE_END, 800);
+	BKInt range [2] = {600, 800};
+	BKTrackSetAttr (& sampleTrack, BK_SAMPLE_RANGE, range);
 
 	// repeat play range
 	BKTrackSetAttr (& sampleTrack, BK_SAMPLE_REPEAT, 1);
