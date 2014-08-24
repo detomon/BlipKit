@@ -5,6 +5,9 @@ static BKInt BKSequenceFuncSimpleCreate (BKSequence ** outSequence, BKSequenceFu
 	BKInt        size;
 	BKSequence * sequence;
 
+	sustainOffset = BKClamp (sustainOffset, 0, length);
+	sustainLength = BKClamp (sustainLength, 0, length - sustainOffset);
+
 	size = sizeof (BKInt) * length;
 	sequence = malloc (sizeof (* sequence) + size);
 
@@ -17,8 +20,8 @@ static BKInt BKSequenceFuncSimpleCreate (BKSequence ** outSequence, BKSequenceFu
 
 		sequence -> funcs         = funcs;
 		sequence -> length        = length;
-		sequence -> sustainOffset = BKClamp (sustainOffset, 0, length);
-		sequence -> sustainLength = BKClamp (sustainLength, 0, length - sequence -> sustainOffset);
+		sequence -> sustainOffset = sustainOffset;
+		sequence -> sustainLength = sustainLength;
 		sequence -> fracShift     = 0;
 
 		* outSequence = sequence;
@@ -180,6 +183,9 @@ static BKInt BKSequenceEnvelopeCheckValues (BKSequencePhase const * values, BKUI
 {
 	BKInt steps = 0;
 
+	if (sustainOffset == length)
+		return 0;
+
 	// check sustain sequence step length
 	for (BKInt i = sustainOffset; i < sustainOffset + sustainLength; i ++)
 		steps += values [i].steps;
@@ -192,6 +198,9 @@ static BKInt BKSequenceEnvelopeCheckValues (BKSequencePhase const * values, BKUI
 
 static BKInt BKSequenceFuncEnvelopeCreate (BKSequence ** outSequence, BKSequenceFuncs const * funcs, void const * values, BKUInt length, BKUInt sustainOffset, BKUInt sustainLength)
 {
+	sustainOffset = BKClamp (sustainOffset, 0, length);
+	sustainLength = BKClamp (sustainLength, 0, length - sustainOffset);
+
 	if (BKSequenceEnvelopeCheckValues (values, length, sustainOffset, sustainLength) != 0)
 		return BK_INVALID_VALUE;
 
@@ -207,8 +216,8 @@ static BKInt BKSequenceFuncEnvelopeCreate (BKSequence ** outSequence, BKSequence
 
 		sequence -> funcs         = funcs;
 		sequence -> length        = length;
-		sequence -> sustainOffset = BKClamp (sustainOffset, 0, length);
-		sequence -> sustainLength = BKClamp (sustainLength, 0, length - sequence -> sustainOffset);
+		sequence -> sustainOffset = sustainOffset;
+		sequence -> sustainLength = sustainLength;
 		sequence -> fracShift     = BKSequencePhaseGetFracShift (values, length);
 
 		* outSequence = sequence;
