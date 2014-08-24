@@ -337,7 +337,8 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 
 	switch (phase) {
 		case BK_SEQUENCE_PHASE_ATTACK:
-		case BK_SEQUENCE_PHASE_RELEASE: {
+		case BK_SEQUENCE_PHASE_RELEASE:
+		case BK_SEQUENCE_PHASE_MUTE: {
 			for (BKInt i = 0; i < instr -> numSequences; i ++) {
 				sequence = instr -> sequences [i];
 
