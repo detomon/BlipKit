@@ -94,6 +94,7 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #define BK_TRIANGLE_PHASES 32
 #define BK_NOISE_PHASES     8
 #define BK_SAWTOOTH_PHASES  7
+#define BK_SINE_PHASES     32
 
 /**
  * Default values
@@ -249,6 +250,7 @@ enum
 	BK_TRIANGLE,
 	BK_NOISE,
 	BK_SAWTOOTH,
+	BK_SINE,
 	BK_CUSTOM,
 	BK_SAMPLE,
 };

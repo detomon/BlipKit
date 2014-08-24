@@ -130,7 +130,7 @@ extern void BKUnitDetach (BKUnit * unit);
  * Set attribute
  *
  * BK_WAVEFORM
- *   Set waveform: BK_SQUARE, BK_TRIANGLE, BK_NOISE, BK_SAWTOOTH
+ *   Set waveform: BK_SQUARE, BK_TRIANGLE, BK_NOISE, BK_SAWTOOTH, BK_SINE
  * BK_DUTY_CYCLE
  *   Set duty cycle of square wave (BK_SQUARE). Other waveforms are not affected.
  *   Value may be between 1 and 15. Values outside of this range are clamped.

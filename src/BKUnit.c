@@ -24,6 +24,18 @@
 #include "BKUnit_internal.h"
 #include "BKData_internal.h"
 
+static BKFrame const BKSinePhases [BK_SINE_PHASES] =
+{
+	     0,   6392,  12539,  18204,
+	 23169,  27244,  30272,  32137,
+	 32767,  32137,  30272,  27244,
+	 23169,  18204,  12539,   6392,
+	     0,  -6392, -12539, -18204,
+	-23169, -27244, -30272, -32137,
+	-32767, -32137, -30272, -27244,
+	-23169, -18204, -12539,  -6392,
+};
+
 static BKEnum BKUnitCallSampleCallback (BKUnit * unit, BKEnum event);
 
 BKUnitFuncs const BKUnitFuncsStruct =
@@ -354,6 +366,11 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 					unit -> phase.haltSilence = 1;
 					break;
 				}
+				case BK_SINE: {
+					unit -> phase.count = BK_SINE_PHASES;
+					unit -> phase.haltSilence = 1;
+					break;
+				}
 				default: {
 					return BK_INVALID_VALUE;
 					break;
@@ -647,6 +664,11 @@ static BKInt BKUnitNextPhase (BKUnit * unit)
 				phase = 0;
 			break;
 		}
+		case BK_SINE: {
+			amp   = BKSinePhases [phase] / 2;
+			phase = (phase + 1) & (BK_SINE_PHASES - 1);
+			break;
+		}
 		case BK_CUSTOM: {
 			amp = unit -> sample.frames [phase];
 			phase ++;
@@ -827,6 +849,7 @@ BKInt BKUnitRun (BKUnit * unit, BKFUInt20 endTime)
 			case BK_TRIANGLE:
 			case BK_NOISE:
 			case BK_SAWTOOTH:
+			case BK_SINE:
 			case BK_CUSTOM: {
 				time = BKUnitRunWaveform (unit, endTime, (unit -> phase.haltSilence == 0));
 				break;
