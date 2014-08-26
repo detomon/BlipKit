@@ -23,5 +23,5 @@
 
 #include "BKBase.h"
 
-char const * BKVersionString = "0.6.3";
-unsigned     BKVersionNumber = 0x00 + (0x06 << 8) + (0x03 << 16) + (0x00 << 24);
+char const * BKVersionString = "0.9";
+unsigned     BKVersionNumber = 0x00 + (0x09 << 8) + (0x00 << 16) + (0x00 << 24);
