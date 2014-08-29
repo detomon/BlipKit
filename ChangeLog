@@ -1,53 +1,63 @@
 Changes in BlipKit 0.9:
+  Release date: 2014-08-26
 
 * Added sine waveform
 * Fixed errors in instrument sequences
 
 Changes in BlipKit 0.8.1:
+  Release date: 2014-08-21
 
 * Fixed errors in instrument sequences
 * Fixed example 'sample.c'
 
 Changes in BlipKit 0.8:
+  Release date: 2014-04-27
 
 * Added BK_SAMLE_RANGE attribute which replaces BK_SAMPLE_OFFSET and BK_SAMPLE_END
 * Fixed instrument behaviour when no sequences exist
 * Added check for invalid instrument sequences which cause infinite loops
 
 Changes in BlipKit 0.7.1:
+  Release date: 2014-03-22
 
 * Fix audio buffer behaviour
 * Fix track clear function
 
 Changes in BlipKit 0.7:
+  Release date: 2014-03-15
 
 * Implemented a bit conversion function in BKData
 * Instrument release sequences are now only played once when releasing multiple times
-* Track volume is now at maximum after intialization
+* Track volume is now at maximum after initialization
 * Added track clear functions
 * Reduced clicking noise when clearing units
 * Fixed missing break in switch statement
 
 Changes in BlipKit 0.6.3:
+  Release date: 2014-01-04
 
 * Fix reset of default values when updating sequence
 * Fix removing sequences from state when unsetting instrument
 
 Changes in BlipKit 0.6.2:
+  Release date: 2013-12-31
 
 * Fix waveform and sample update
 * Fix chunk size in BKContextGenerate
 * Fix calculation of period when updating waveform
 
 Changes in BlipKit 0.6.1:
+  Release date: 2013-12-29
 
 * Fix behaviour of attributes BK_SAMPLE_OFFSET and BK_SAMPLE_END
 
 Changes in BlipKit 0.6:
+  Release date: 2013-12-29
 
 * Add detach functions to instrument and data object
 
 Changes in BlipKit 0.5:
+  Release date: 2013-12-08
 
 * Add attributes BK_SAMPLE_OFFSET and BK_SAMPLE_END
 * Some fixes in library
@@ -55,12 +65,14 @@ Changes in BlipKit 0.5:
 * Samples loadable with different bit resolutions with `BKDataInitWithData` and `BKDataSetData`
 
 Changes in BlipKit 0.4.1:
+  Release date: 2013-09-03
 
 * Updates in CPP wrappers
 * Updates in bliplay program
 * Small fixes in library
 
 Changes in BlipKit 0.4:
+  Release date: 2013-10-19
 
 * Added better sample controlling
 * Added BK_SAMPLE_PITCH attribute to data object which can be used to tune samples
@@ -70,26 +82,31 @@ Changes in BlipKit 0.4:
 * Bugfix in bliplay program
 
 Changes in BlipKit 0.3.3:
+  Release date: 2013-08-24
 
 * Values of tremolo and vibrato effects can now be slided
 * Added track effect setter and getter functions
 
 Changes in BlipKit 0.3.2:
+  Release date: 2013-08-18
 
 * Rewritten effect implementation
 
 Changes in BlipKit 0.3.1:
+  Release date: 2013-07-19
 
 * Fix: Track flag `BKPanningEnabledFlag` was reset by `BKTrackReset`
 * Fixed dereferencing bugs
 
 Changes in BlipKit 0.3:
+  Release date: 2013-07-05
 
 * Added support for instrument envelopes
 * Rewritten instrument sequences
 * Added bliplay program
 
 Changes in BlipKit 0.2:
+  Release date: 2013-06-29
 
 * Added macro BKAbs
 * Added function BKDataNormalize
