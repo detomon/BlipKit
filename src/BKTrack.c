@@ -927,6 +927,7 @@ BKInt BKTrackGetEffect (BKTrack const * track, BKEnum effect, void * outValues, 
 BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 {
 	BKInt res;
+	BKInt oldAttr;
 
 	switch (attr & BK_ATTR_TYPE_MASK) {
 		case BK_EFFECT_TYPE: {
@@ -944,10 +945,21 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 			switch (attr) {
 				case BK_WAVEFORM:
 				case BK_SAMPLE: {
-					res = BKUnitSetPtr (& track -> unit, attr, ptr);
+					oldAttr = 0;
+					BKUnitGetAttr (& track -> unit, BK_WAVEFORM, & oldAttr);
 
-					if (res != 0)
-						return res;
+					switch (oldAttr) {
+						case BK_CUSTOM: oldAttr = BK_CUSTOM; break;
+						case BK_SAMPLE: oldAttr = BK_SAMPLE; break;
+					}
+
+					// set data again if changed
+					if (attr != oldAttr || ptr != track -> unit.sample.dataState.data) {
+						res = BKUnitSetPtr (& track -> unit, attr, ptr);
+
+						if (res != 0)
+							return res;
+					}
 
 					BKUnitGetAttr (& track -> unit, BK_WAVEFORM, & track -> waveform);
 					BKTrackUpdateIgnoreVolume (track);
