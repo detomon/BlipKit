@@ -36,77 +36,77 @@
 #define BK_TIME_ZERO 0
 #define BK_TIME_MAX INT64_MAX
 
-static inline BKTime BKTimeMake (BKInt samples, BKFUInt20 frac)
+static BKTime BKTimeMake (BKInt samples, BKFUInt20 frac)
 {
 	return (samples << BK_FINT20_SHIFT) + frac;
 }
 
-static inline BKInt BKTimeGetTime (BKTime a)
+static BKInt BKTimeGetTime (BKTime a)
 {
 	return (BKInt) (a >> BK_FINT20_SHIFT);
 }
 
-static inline BKFUInt20 BKTimeGetFrac (BKTime a)
+static BKFUInt20 BKTimeGetFrac (BKTime a)
 {
 	return (a & BK_FINT20_SHIFT);
 }
 
-static inline BKFUInt20 BKTimeGetFUInt20 (BKTime a)
+static BKFUInt20 BKTimeGetFUInt20 (BKTime a)
 {
 	return (BKFUInt20) a;
 }
 
-static inline BKTime BKTimeAdd (BKTime a, BKTime b)
+static BKTime BKTimeAdd (BKTime a, BKTime b)
 {
 	return a + b;
 }
 
-static inline BKTime BKTimeAddFUInt20 (BKTime a, BKFUInt20 b)
+static BKTime BKTimeAddFUInt20 (BKTime a, BKFUInt20 b)
 {
 	return a + (BKTime) b;
 }
 
-static inline BKTime BKTimeSub (BKTime a, BKTime b)
+static BKTime BKTimeSub (BKTime a, BKTime b)
 {
 	return a - b;
 }
 
-static inline BKTime BKTimeSubFUInt20 (BKTime a, BKFUInt20 b)
+static BKTime BKTimeSubFUInt20 (BKTime a, BKFUInt20 b)
 {
 	return a - (BKTime) b;
 }
 
-static inline BKInt BKTimeIsEqual (BKTime a, BKTime b)
+static BKInt BKTimeIsEqual (BKTime a, BKTime b)
 {
 	return a == b;
 }
 
-static inline BKInt BKTimeIsGreater (BKTime a, BKTime b)
+static BKInt BKTimeIsGreater (BKTime a, BKTime b)
 {
 	return a > b;
 }
 
-static inline BKInt BKTimeIsGreaterFUInt20 (BKTime a, BKFUInt20 b)
+static BKInt BKTimeIsGreaterFUInt20 (BKTime a, BKFUInt20 b)
 {
 	return a > (BKInt) b;
 }
 
-static inline BKInt BKTimeIsGreaterEqual (BKTime a, BKTime b)
+static BKInt BKTimeIsGreaterEqual (BKTime a, BKTime b)
 {
 	return a >= b;
 }
 
-static inline BKInt BKTimeIsLess (BKTime a, BKTime b)
+static BKInt BKTimeIsLess (BKTime a, BKTime b)
 {
 	return a < b;
 }
 
-static inline BKInt BKTimeIsLessFUInt20 (BKTime a, BKFUInt20 b)
+static BKInt BKTimeIsLessFUInt20 (BKTime a, BKFUInt20 b)
 {
 	return a < (BKTime) b;
 }
 
-static inline BKInt BKTimeIsLessEqual (BKTime a, BKTime b)
+static BKInt BKTimeIsLessEqual (BKTime a, BKTime b)
 {
 	return a <= b;
 }
@@ -116,7 +116,7 @@ static inline BKInt BKTimeIsLessEqual (BKTime a, BKTime b)
 #define BK_TIME_ZERO ((BKTime) {0, 0})
 #define BK_TIME_MAX ((BKTime) {BK_INT_MAX, BK_FINT20_FRAC})
 
-static inline BKTime BKTimeMake (BKInt samples, BKFUInt20 frac)
+static BKTime BKTimeMake (BKInt samples, BKFUInt20 frac)
 {
 	BKTime time;
 
@@ -126,22 +126,22 @@ static inline BKTime BKTimeMake (BKInt samples, BKFUInt20 frac)
 	return time;
 }
 
-static inline BKInt BKTimeGetTime (BKTime a)
+static BKInt BKTimeGetTime (BKTime a)
 {
 	return (BKInt) a.time;
 }
 
-static inline BKFUInt20 BKTimeGetFrac (BKTime a)
+static BKFUInt20 BKTimeGetFrac (BKTime a)
 {
 	return a.frac;
 }
 
-static inline BKFUInt20 BKTimeGetFUInt20 (BKTime a)
+static BKFUInt20 BKTimeGetFUInt20 (BKTime a)
 {
 	return (a.time << BK_FINT20_SHIFT) + a.frac;
 }
 
-static inline BKTime BKTimeAdd (BKTime a, BKTime b)
+static BKTime BKTimeAdd (BKTime a, BKTime b)
 {
 	BKTime    time;
 	BKFUInt20 frac;
@@ -154,7 +154,7 @@ static inline BKTime BKTimeAdd (BKTime a, BKTime b)
 	return time;
 }
 
-static inline BKTime BKTimeAddFUInt20 (BKTime a, BKFUInt20 b)
+static BKTime BKTimeAddFUInt20 (BKTime a, BKFUInt20 b)
 {
 	BKFUInt20 frac;
 
@@ -166,7 +166,7 @@ static inline BKTime BKTimeAddFUInt20 (BKTime a, BKFUInt20 b)
 	return a;
 }
 
-static inline BKTime BKTimeSub (BKTime a, BKTime b)
+static BKTime BKTimeSub (BKTime a, BKTime b)
 {
 	BKTime    time;
 	BKFUInt20 frac;
@@ -179,7 +179,7 @@ static inline BKTime BKTimeSub (BKTime a, BKTime b)
 	return time;
 }
 
-static inline BKTime BKTimeSubFUInt20 (BKTime a, BKFUInt20 b)
+static BKTime BKTimeSubFUInt20 (BKTime a, BKFUInt20 b)
 {
 	BKFUInt20 frac;
 
@@ -191,41 +191,41 @@ static inline BKTime BKTimeSubFUInt20 (BKTime a, BKFUInt20 b)
 	return a;
 }
 
-static inline BKInt BKTimeIsEqual (BKTime a, BKTime b)
+static BKInt BKTimeIsEqual (BKTime a, BKTime b)
 {
 	return (a.time == b.time) && (a.frac == b.frac);
 }
 
-static inline BKInt BKTimeIsGreater (BKTime a, BKTime b)
+static BKInt BKTimeIsGreater (BKTime a, BKTime b)
 {
 	return (a.time > b.time) || ((a.time == b.time) && (a.frac > b.frac));
 }
 
-static inline BKInt BKTimeIsGreaterFUInt20 (BKTime a, BKFUInt20 b)
+static BKInt BKTimeIsGreaterFUInt20 (BKTime a, BKFUInt20 b)
 {
 	BKTime time = {b >> BK_FINT20_SHIFT, b & BK_FINT20_FRAC};
 
 	return BKTimeIsGreater (a, time);
 }
 
-static inline BKInt BKTimeIsGreaterEqual (BKTime a, BKTime b)
+static BKInt BKTimeIsGreaterEqual (BKTime a, BKTime b)
 {
 	return (a.time > b.time) || ((a.time == b.time) && (a.frac >= b.frac));
 }
 
-static inline BKInt BKTimeIsLess (BKTime a, BKTime b)
+static BKInt BKTimeIsLess (BKTime a, BKTime b)
 {
 	return (a.time < b.time) || ((a.time == b.time) && (a.frac < b.frac));
 }
 
-static inline BKInt BKTimeIsLessFUInt20 (BKTime a, BKFUInt20 b)
+static BKInt BKTimeIsLessFUInt20 (BKTime a, BKFUInt20 b)
 {
 	BKTime time = {b >> BK_FINT20_SHIFT, b & BK_FINT20_FRAC};
 
 	return BKTimeIsLess (a, time);
 }
 
-static inline BKInt BKTimeIsLessEqual (BKTime a, BKTime b)
+static BKInt BKTimeIsLessEqual (BKTime a, BKTime b)
 {
 	return (a.time < b.time) || ((a.time == b.time) && (a.frac <= b.frac));
 }

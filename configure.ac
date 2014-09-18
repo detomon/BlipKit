@@ -16,7 +16,6 @@ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_CHECK_HEADERS([fcntl.h limits.h stddef.h stdint.h stdlib.h string.h termios.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_C_INLINE
 AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_INT64_T

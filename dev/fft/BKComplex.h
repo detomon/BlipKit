@@ -40,7 +40,7 @@ typedef struct {
 /**
  * Make complex number with real and imaginary part
  */
-static inline BKComplex BKComplexMake (BKComplexComp re, BKComplexComp im)
+static BKComplex BKComplexMake (BKComplexComp re, BKComplexComp im)
 {
 	return (BKComplex) {re, im};
 }
@@ -48,7 +48,7 @@ static inline BKComplex BKComplexMake (BKComplexComp re, BKComplexComp im)
 /**
  * Get real part
  */
-static inline BKComplexComp BKComplexReal (BKComplex c)
+static BKComplexComp BKComplexReal (BKComplex c)
 {
 	return c.re;
 }
@@ -56,7 +56,7 @@ static inline BKComplexComp BKComplexReal (BKComplex c)
 /**
  * Get imaginary part
  */
-static inline BKComplexComp BKComplexImag (BKComplex c)
+static BKComplexComp BKComplexImag (BKComplex c)
 {
 	return c.im;
 }
@@ -64,7 +64,7 @@ static inline BKComplexComp BKComplexImag (BKComplex c)
 /**
  * Add two complex numbers
  */
-static inline BKComplex BKComplexAdd (BKComplex a, BKComplex b)
+static BKComplex BKComplexAdd (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
 		a.re + b.re,
@@ -75,7 +75,7 @@ static inline BKComplex BKComplexAdd (BKComplex a, BKComplex b)
 /**
  * Subtract two complex numbers
  */
-static inline BKComplex BKComplexSub (BKComplex a, BKComplex b)
+static BKComplex BKComplexSub (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
 		a.re - b.re,
@@ -86,7 +86,7 @@ static inline BKComplex BKComplexSub (BKComplex a, BKComplex b)
 /**
  * Multiply two complex numbers
  */
-static inline BKComplex BKComplexMult (BKComplex a, BKComplex b)
+static BKComplex BKComplexMult (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
 		a.re * b.re + a.im * -b.im,
@@ -97,7 +97,7 @@ static inline BKComplex BKComplexMult (BKComplex a, BKComplex b)
 /**
  * Multiply `a` by inverse of `b` (a * 1 / b)
  */
-static inline BKComplex BKComplexMultInverse (BKComplex a, BKComplex b)
+static BKComplex BKComplexMultInverse (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
 		a.re *  b.re + a.im * b.im,
@@ -108,7 +108,7 @@ static inline BKComplex BKComplexMultInverse (BKComplex a, BKComplex b)
 /**
  * Divide two complex numbers
  */
-static inline BKComplex BKComplexDiv (BKComplex a, BKComplex b)
+static BKComplex BKComplexDiv (BKComplex a, BKComplex b)
 {
 	return (BKComplex) {
 		(a.re * b.re + a.im * b.im) / (b.re * b.re + b.im * b.im),
@@ -119,7 +119,7 @@ static inline BKComplex BKComplexDiv (BKComplex a, BKComplex b)
 /**
  * Conjugate complex number
  */
-static inline BKComplex BKComplexConj (BKComplex a)
+static BKComplex BKComplexConj (BKComplex a)
 {
 	return (BKComplex) {a.re, -a.im};
 }
