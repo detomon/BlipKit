@@ -139,7 +139,7 @@ static void BKDataResetStates (BKData * data, BKEnum event)
 
 static BKInt BKDataPromoteToCopy (BKData * data)
 {
-	size_t    size;
+	BKSize    size;
 	BKFrame * frames;
 
 	if ((data -> flags & BK_DATA_FLAG_COPY) == 0) {
@@ -483,9 +483,9 @@ static BKInt BKDataConvertFromBits (BKFrame * outFrames, void const * data, BKUI
 			}
 			case 8: {
 				if (isSigned) {
-					outFrames [0] = (int16_t) (* (signed char *) charData) * BK_FRAME_MAX / 127;
+					outFrames [0] = (BKFrame) (* (signed char *) charData) * BK_FRAME_MAX / 127;
 				} else {
-					outFrames [0] = (int16_t) (* (unsigned char *) charData) * BK_FRAME_MAX / 255;
+					outFrames [0] = (BKFrame) (* (unsigned char *) charData) * BK_FRAME_MAX / 255;
 				}
 
 				charData += 1;
@@ -496,7 +496,7 @@ static BKInt BKDataConvertFromBits (BKFrame * outFrames, void const * data, BKUI
 				if (reverseEndian) {
 					outFrames [0] = (charData [0] << 8) | (charData [1] >> 8);
 				} else {
-					outFrames [0] =  (* (int16_t *) charData);
+					outFrames [0] =  (* (BKFrame *) charData);
 				}
 
 				charData += 2;
@@ -657,9 +657,9 @@ BKInt BKDataStateSetData (BKDataState * state, BKData * data)
 	return 0;
 }
 
-static void BKDataReduceBits (int16_t * outFrames, int16_t * frames, size_t length, BKDataConvertInfo * info)
+static void BKDataReduceBits (BKFrame * outFrames, BKFrame * frames, BKSize length, BKDataConvertInfo * info)
 {
-	int32_t maxValue;
+	BKInt maxValue;
 
 	BKInt const maximize = 1;
 	BKInt const shiftUp  = 1;
@@ -671,10 +671,10 @@ static void BKDataReduceBits (int16_t * outFrames, int16_t * frames, size_t leng
 
 	maxValue = (1 << 15) - 1;
 
-	int32_t frame;
-	int32_t frame32;
-	int32_t dither, deltaDither = 0;
-	int32_t threshold = info -> threshold * maxValue;
+	BKInt frame;
+	BKInt frame32;
+	BKInt dither, deltaDither = 0;
+	BKInt threshold = info -> threshold * maxValue;
 	float sum = 0.0;
 	float lastFrame = 0.0;
 	int downsample = 15 - bits + 1;
@@ -690,7 +690,7 @@ static void BKDataReduceBits (int16_t * outFrames, int16_t * frames, size_t leng
 		sum += frame;
 		lastFrame = frame;
 
-		frame32 = (int32_t) frame;
+		frame32 = (BKInt) frame;
 
 		if (BKAbs (frame) >= threshold) {
 			if (deltaDither) {
@@ -734,7 +734,7 @@ static void BKDataReduceBits (int16_t * outFrames, int16_t * frames, size_t leng
 
 BKInt BKDataConvert (BKData * data, BKDataConvertInfo * info)
 {
-	int16_t * convertedFrames;
+	BKFrame * convertedFrames;
 	BKSize length;
 	BKDataConvertInfo validatedInfo;
 
@@ -758,7 +758,7 @@ BKInt BKDataConvert (BKData * data, BKDataConvertInfo * info)
 		validatedInfo.targetNumBits = 15;
 
 	if ((data -> flags & BK_DATA_FLAG_COPY) == 0) {
-		convertedFrames = malloc (length * sizeof (uint16_t));
+		convertedFrames = malloc (length * sizeof (BKFrame));
 
 		if (convertedFrames == NULL)
 			return -1;

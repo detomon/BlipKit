@@ -6,10 +6,13 @@ AC_INIT([BlipKit],[0.9],[simon@monoxid.net],[blipkit],[http://blipkit.monoxid.ne
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # Checks for programs.
-AC_PROG_CC
+AC_PROG_AWK
 AC_PROG_CXX
+AC_PROG_CC
 AC_PROG_RANLIB
-AM_PROG_CC_C_O
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 # Checks for header files.
@@ -21,6 +24,7 @@ AC_TYPE_INT32_T
 AC_TYPE_INT64_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
 AC_CHECK_HEADER_STDBOOL
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
