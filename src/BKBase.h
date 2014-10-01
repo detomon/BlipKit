@@ -32,8 +32,8 @@
 /**
  * Version
  */
- extern char const * BKVersionString;
- extern unsigned     BKVersionNumber;
+ #define BK_VERSION "0.9"
+ extern char const * BKVersion;
 
 /**
  * Settings
