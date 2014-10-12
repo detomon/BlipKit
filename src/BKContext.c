@@ -97,6 +97,8 @@ void BKContextDispose (BKContext * ctx)
 	if (ctx -> channels)
 		free (ctx -> channels);
 
+	BKClockDispose (& ctx -> masterClock);
+
 	memset (ctx, 0, sizeof (BKContext));
 }
 
