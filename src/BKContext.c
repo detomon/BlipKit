@@ -45,7 +45,7 @@ static void BKContextUpdateMasterClocks (BKContext * ctx)
 	callback.func     = (BKCallbackFunc) BKContextTick;
 	callback.userInfo = ctx;
 
-	BKClockInit (& ctx -> effectClock, clockPeriod, & callback);  // then advance effects
+	BKClockInit (& ctx -> masterClock, clockPeriod, & callback);  // then advance effects
 }
 
 BKInt BKContextInit (BKContext * ctx, BKUInt numChannels, BKUInt sampleRate)
@@ -151,7 +151,7 @@ BKInt BKContextSetPtr (BKContext * ctx, BKEnum attr, void * ptr)
 			BKTime time = * (BKTime *) ptr;
 
 			if (BKTimeIsGreater (time, BK_TIME_ZERO)) {
-				BKClockSetPeriod (& ctx -> effectClock, time);
+				BKClockSetPeriod (& ctx -> masterClock, time);
 			}
 			else {
 				return BK_INVALID_VALUE;
@@ -174,7 +174,7 @@ BKInt BKContextGetPtr (BKContext const * ctx, BKEnum attr, void * outPtr)
 		case BK_CLOCK_PERIOD: {
 			BKTime * timeRef = outPtr;
 
-			* timeRef = ctx -> effectClock.period;
+			* timeRef = ctx -> masterClock.period;
 			break;
 		}
 		case BK_TIME: {
@@ -413,7 +413,7 @@ void BKContextReset (BKContext * ctx)
 
 BKInt BKContextAttachDivider (BKContext * ctx, BKDivider * divider, BKEnum type)
 {
-	BKClock        * clock = & ctx -> effectClock;
+	BKClock        * clock = & ctx -> masterClock;
 	BKDividerGroup * group = NULL;
 
 	switch (type) {

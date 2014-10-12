@@ -60,9 +60,8 @@ struct BKContext
 	BKFUInt20 deltaTime;
 	BKTime    currentTime;
 
-	// default clocks
-	BKClock effectClock;
-	//BKClock beatClock;
+	// master clocks
+	BKClock masterClock;
 
 	// divider groups
 	BKDividerGroup effectDividers;
