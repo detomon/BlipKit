@@ -136,7 +136,7 @@ int main (int argc, char * argv [])
 
 	// set play range
 	BKInt range [2] = {600, 800};
-	BKTrackSetAttr (& sampleTrack, BK_SAMPLE_RANGE, range);
+	BKTrackSetPtr (& sampleTrack, BK_SAMPLE_RANGE, range);
 
 	// repeat play range
 	BKTrackSetAttr (& sampleTrack, BK_SAMPLE_REPEAT, 1);
