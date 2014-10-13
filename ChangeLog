@@ -1,3 +1,13 @@
+Changes in BlipKit 0.10:
+  Release date: 2014-10-13
+
+* Add WAVE loader
+* BK_SEQUENCE_PITCH replaces BK_SEQUENCE_ARPEGGIO
+* Updated BKSize and BKUSize to be more compatible
+* Fixed BK_SAMPLE attribute when setting the same pointer again
+* Fixed compiler warnings
+* Fixed example 'sample'
+
 Changes in BlipKit 0.9:
   Release date: 2014-08-26
 

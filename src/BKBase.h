@@ -32,7 +32,7 @@
 /**
  * Version
  */
- #define BK_VERSION "0.9"
+ #define BK_VERSION "0.10"
  extern char const * BKVersion;
 
 /**

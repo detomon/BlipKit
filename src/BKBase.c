@@ -23,4 +23,4 @@
 
 #include "BKBase.h"
 
-char const * BKVersion = "0.9";
+char const * BKVersion = "0.10";
