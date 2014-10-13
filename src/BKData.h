@@ -24,6 +24,7 @@
 #ifndef _BK_DATA_H_
 #define _BK_DATA_H_
 
+#include <stdio.h>
 #include "BKBase.h"
 
 typedef struct BKData      BKData;
@@ -205,6 +206,13 @@ extern BKInt BKDataInitWithData (BKData * data, void const * frameData, BKUInt d
  * Calls `BKDataSetData` with the data of the file
  */
 extern BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKEnum bits, BKUInt numChannels, BKEnum endian);
+
+/**
+ * Load frames from WAVE audio file
+ * Only 16 and 8 bit PCM format is supported
+ * File `file` is not closed
+ */
+extern BKInt BKDataInitAndLoadWAVE (BKData * data, FILE * file);
 
 /**
  * Normalize frames to maximum possible values

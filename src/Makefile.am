@@ -13,7 +13,9 @@ libblipkit_a_SOURCES = \
 	BKSequence.c \
 	BKTone.c \
 	BKTrack.c \
-	BKUnit.c
+	BKUnit.c \
+	BKWaveFileWriter.c \
+	BKWaveFileReader.c
 
 HEADER_LIST = \
 	BlipKit.h \
@@ -31,7 +33,10 @@ HEADER_LIST = \
 	BKTime.h \
 	BKTrack.h \
 	BKUnit.h \
-	BKUnit_internal.h
+	BKUnit_internal.h \
+	BKWaveFileWriter.h \
+	BKWaveFileReader.h \
+	BKWaveFile_internal.h
 
 pkginclude_HEADERS = $(HEADER_LIST)
 

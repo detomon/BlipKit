@@ -23,9 +23,9 @@
 
 #include <fcntl.h>
 #include <math.h>
-#include <stdio.h>
 #include <unistd.h>
 #include "BKData_internal.h"
+#include "BKWaveFileReader.h"
 #include "BKTone.h"
 
 enum
@@ -619,6 +619,48 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 	free (frames);
 
 	return ret;
+}
+
+BKInt BKDataInitAndLoadWAVE (BKData * data, FILE * file)
+{
+	BKWaveFileReader reader;
+	BKInt numChannels, sampleRate, numFrames;
+	BKFrame * frames;
+	BKSize size;
+
+	if (BKDataInit (data) < 0) {
+		return BK_INVALID_RETURN_VALUE;
+	}
+
+	if (BKWaveFileReaderInit (& reader, file) < 0) {
+		return BK_INVALID_RETURN_VALUE;
+	}
+
+	if (BKWaveFileReaderReadHeader (& reader, & numChannels, & sampleRate, & numFrames) < 0) {
+		return BK_INVALID_RETURN_VALUE;
+	}
+
+	size   = numFrames * numChannels * sizeof (BKFrame);
+	frames = malloc (size);
+
+	if (frames == NULL) {
+		BKWaveFileReaderDispose (& reader);
+		return BK_ALLOCATION_ERROR;
+	}
+
+	if (BKWaveFileReaderReadFrames (& reader, frames) < 0) {
+		free (frames);
+		return BK_INVALID_RETURN_VALUE;
+	}
+
+	data -> flags      |= BK_DATA_FLAG_COPY;
+	data -> numFrames   = numFrames;
+	data -> numChannels = numChannels;
+	data -> frames      = frames;
+
+	BKWaveFileReaderDispose (& reader);
+
+	return 0;
 }
 
 BKInt BKDataNormalize (BKData * data)
