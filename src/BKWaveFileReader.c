@@ -160,11 +160,13 @@ BKInt BKWaveFileReaderReadFrames (BKWaveFileReader * reader, BKFrame outFrames [
 	switch (reader -> numBits) {
 		case 8: {
 			frameSize = 1;
+			readMask  = 0;
 			break;
 		}
 		default:
 		case 16: {
 			frameSize = 2;
+			readMask  = 1;
 			break;
 		}
 	}
@@ -172,13 +174,18 @@ BKInt BKWaveFileReaderReadFrames (BKWaveFileReader * reader, BKFrame outFrames [
 	writeSize     = 0;
 	reverseEndian = BKSystemIsBigEndian ();
 	remainingSize = reader -> dataSize;
-	readMask      = ~((1 << frameSize) - 1);
+	readMask      = ~readMask;
 
 	while (remainingSize) {
 		readSize = BKMin (remainingSize, sizeof (buffer));
 		readSize = readSize & readMask;
 		readSize = fread (buffer, 1, readSize, reader -> file);
 		readSize = readSize & readMask;
+
+		// truncated
+		if (readSize == 0) {
+			break;
+		}
 
 		bufferPtr = buffer;
 
