@@ -173,7 +173,7 @@ BKInt BKDividerTick (BKDivider * divider, BKCallbackInfo * info)
 
 				divider -> callback.func (info, divider -> callback.userInfo);
 
-				divider -> divider = info -> divider;
+				divider -> divider = BKMax (1, info -> divider);
 			}
 
 			divider -> counter = divider -> divider;
