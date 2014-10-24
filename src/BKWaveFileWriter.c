@@ -23,6 +23,7 @@
 
 #include "BKWaveFileWriter.h"
 #include "BKWaveFile_internal.h"
+#include <fcntl.h>
 
 /**
  * https://ccrma.stanford.edu/courses/422/projects/WaveFormat/
@@ -53,19 +54,34 @@ static BKWaveFileHeaderData const waveFileHeaderData =
 	.subchunkSize = 0,
 };
 
-static BKInt BKFileIsSeekable (FILE * file)
+static BKInt BKCheckFile (FILE * file)
 {
+	int fd, mode;
+
 	if (fseek (file, 0, SEEK_CUR)) {
-		return 0;
+		fprintf (stderr, "BKWaveFileWriterInit: file is not seekable\n");
+		return -1;
 	}
 
-	return 1;
+	fd   = fileno (file);
+	mode = fcntl (fd, F_GETFL);
+
+	if (mode < 0) {
+		fprintf (stderr, "BKWaveFileWriterInit: could not determine file mode\n");
+		return -1;
+	}
+
+	if ((mode & O_ACCMODE) != O_RDWR) {
+		fprintf (stderr, "BKWaveFileWriterInit: file must be read/writable\n");
+		return -1;
+	}
+
+	return 0;
 }
 
 BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numChannels, BKInt sampleRate)
 {
-	if (BKFileIsSeekable (file) == 0) {
-		fprintf (stderr, "BKWaveFileWriterInit: file is not seekable\n");
+	if (BKCheckFile (file) < 0) {
 		return -1;
 	}
 
