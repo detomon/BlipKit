@@ -391,10 +391,6 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 				value = BKClamp (value, 0, unit -> phase.count - 1);
 			}
 			else  {
-				// set phase from end if reversed
-				if (unit -> sample.offset > unit -> sample.end)
-					value = unit -> sample.length - value - 1;
-
 				value = BKClamp (value, 0, unit -> sample.length - 1);
 				BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_BEGIN);
 			}
