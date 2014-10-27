@@ -108,10 +108,10 @@ BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value)
 		case BK_ARPEGGIO_DIVIDER:
 		case BK_EFFECT_DIVIDER:
 		case BK_INSTRUMENT_DIVIDER: {
-			for (BKUnit * unit = ctx -> firstUnit; unit; unit = unit -> nextUnit) {
+			/*for (BKUnit * unit = ctx -> firstUnit; unit; unit = unit -> nextUnit) {
 				if (unit -> funcs -> setAttr)
 					unit -> funcs -> setAttr (unit, attr, value);
-			}
+			}*/
 		}
 		default: {
 			return BK_INVALID_ATTRIBUTE;
@@ -329,7 +329,7 @@ BKInt BKContextRun (BKContext * ctx, BKFUInt20 endTime)
 
 			// run units
 			for (unit = ctx -> firstUnit; unit; unit = unit -> nextUnit)
-				unit -> funcs -> run (unit, time);
+				unit -> run (unit, time);
 		}
 
 		ctx -> deltaTime = time;
@@ -337,7 +337,7 @@ BKInt BKContextRun (BKContext * ctx, BKFUInt20 endTime)
 	else {
 		// run units
 		for (unit = ctx -> firstUnit; unit; unit = unit -> nextUnit)
-			unit -> funcs -> run (unit, endTime);
+			unit -> run (unit, endTime);
 	}
 
 	return endTime;
@@ -359,7 +359,7 @@ BKInt BKContextEnd (BKContext * ctx, BKFUInt20 endTime)
 
 	// end units
 	for (unit = ctx -> firstUnit; unit; unit = unit -> nextUnit)
-		unit -> funcs -> end (unit, endTime);
+		unit -> end (unit, endTime);
 
 	// shift channel buffers
 	for (BKInt i = 0; i < ctx -> numChannels; i ++) {
@@ -400,8 +400,8 @@ void BKContextReset (BKContext * ctx)
 	ctx -> currentTime = BK_TIME_ZERO;
 
 	for (unit = ctx -> firstUnit; unit; unit = unit -> nextUnit) {
-		if (unit -> funcs -> reset)
-			unit -> funcs -> reset (unit);
+		if (unit -> reset)
+			unit -> reset (unit);
 	}
 
 	for (clock = ctx -> firstClock; clock; clock = clock -> nextClock)

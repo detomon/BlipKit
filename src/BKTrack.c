@@ -36,17 +36,6 @@ static void BKTrackSetNote (BKTrack * track, BKInt note);
 static void BKTrackSetInstrument (BKTrack * track, BKInstrument * instrument);
 static void BKTrackInstrumentUpdateFlags (BKTrack * track, BKInt all);
 
-static BKUnitFuncs const BKTrackFuncsStruct =
-{
-	.run     = (void *) BKTrackRun,
-	.end     = (void *) BKUnitEnd,
-	.reset   = (void *) BKTrackReset,
-	.getAttr = (void *) BKTrackGetAttr,
-	.setAttr = (void *) BKTrackSetAttr,
-	.getPtr  = (void *) BKTrackGetPtr,
-	.setPtr  = (void *) BKTrackSetPtr,
-};
-
 static BKInt BKTrackInstrStateCallback (BKEnum event, BKTrack * track)
 {
 	switch (event) {
@@ -385,7 +374,8 @@ BKInt BKTrackInit (BKTrack * track, BKEnum waveform)
 	ret = BKUnitInit (& track -> unit, waveform);
 
 	track -> flags      = BKTriangleIgnoresVolumeFlag;
-	track -> unit.funcs = (BKUnitFuncs *) & BKTrackFuncsStruct;
+	track -> unit.run   = (BKUnitRunFunc) BKTrackRun;
+	track -> unit.reset = (BKUnitResetFunc) BKTrackReset;
 
 	if (ret == 0) {
 		// init waveform flags

@@ -36,11 +36,17 @@ typedef struct BKUnitFuncs BKUnitFuncs;
  * All functions return 0 on success and values < 0 on error
  */
 
+typedef BKInt (* BKUnitRunFunc)   (void * unit, BKFUInt20 endTime);
+typedef BKInt (* BKUnitEndFunc)   (void * unit, BKFUInt20 time);
+typedef void  (* BKUnitResetFunc) (void * unit);
+
 struct BKUnit
 {
 	// context
-	BKContext   * ctx;
-	BKUnitFuncs * funcs;
+	BKContext     * ctx;
+	BKUnitRunFunc   run;
+	BKUnitEndFunc   end;
+	BKUnitResetFunc reset;
 
 	// linking
 	BKUnit * prevUnit;
@@ -83,22 +89,6 @@ struct BKUnit
 		BKFrame   * frames;
 	} sample;
 };
-
-struct BKUnitFuncs
-{
-	BKInt (* run)     (void * unit, BKFUInt20 endTime);
-	void  (* end)     (void * unit, BKFUInt20 time);
-	void  (* reset)   (void * unit);
-	BKInt (* getAttr) (void const * unit, BKEnum attr, BKInt * outValue);
-	BKInt (* setAttr) (void * unit, BKEnum attr, BKInt value);
-	BKInt (* getPtr)  (void const * unit, BKEnum attr, void * outPtr);
-	BKInt (* setPtr)  (void * unit, BKEnum attr, void * ptr);
-};
-
-/**
- * Generate functions used by unit
- */
-extern BKUnitFuncs const BKUnitFuncsStruct;
 
 /**
  * Initialize unit
