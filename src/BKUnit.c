@@ -716,7 +716,7 @@ static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime, BKInt adva
 				chanDelta = delta - lastPulse;
 				lastPulse = delta;
 
-				BKBufferUpdateStep (channel, time, chanDelta);
+				BKBufferAddPulse (channel, time, chanDelta);
 			}
 
 			unit -> lastPulse [i] = lastPulse;
@@ -806,7 +806,7 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 			chanDelta = delta - unit -> lastPulse [i];
 			unit -> lastPulse [i] = delta;
 
-			BKBufferUpdateSample (channel, time, chanDelta);
+			BKBufferAddFrame (channel, time, chanDelta);
 		}
 
 		// advance phase

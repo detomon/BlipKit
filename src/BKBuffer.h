@@ -65,12 +65,12 @@ extern void BKBufferDispose (BKBuffer * buf);
 /**
  * Add pulse at time offset
  */
-extern BKInt BKBufferUpdateStep (BKBuffer * buf, BKFUInt20 time, BKFrame pulse);
+extern BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse);
 
 /**
- * Add single sample
+ * Add single frame at time offset
  */
-extern BKInt BKBufferUpdateSample (BKBuffer * buf, BKFUInt20 time, BKFrame pulse);
+extern BKInt BKBufferAddFrame (BKBuffer * buf, BKFUInt20 time, BKFrame frame);
 
 /**
  * Set time of last update

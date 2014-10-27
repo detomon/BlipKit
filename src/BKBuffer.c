@@ -74,7 +74,7 @@ void BKBufferDispose (BKBuffer * buf)
 	BKBufferClear (buf);
 }
 
-BKInt BKBufferUpdateStep (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
+BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 {
 	BKUInt          frac;
 	BKUInt          offset;
@@ -84,8 +84,8 @@ BKInt BKBufferUpdateStep (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 	time   = buf -> time + time;
 	offset = time >> BK_FINT20_SHIFT;
 
-	frac = time & BK_FINT20_FRAC;                // sample fraction
-	frac >>= (BK_FINT20_SHIFT - BK_STEP_SHIFT);  // step fraction
+	frac = time & BK_FINT20_FRAC;               // frame fraction
+	frac >>= (BK_FINT20_SHIFT - BK_STEP_SHIFT); // step fraction
 
 	phase  = stepPhases [frac];
 	frames = & buf -> frames [offset];
@@ -97,14 +97,14 @@ BKInt BKBufferUpdateStep (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 	return 0;
 }
 
-BKInt BKBufferUpdateSample (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
+BKInt BKBufferAddFrame (BKBuffer * buf, BKFUInt20 time, BKFrame frame)
 {
 	BKUInt offset;
 
 	time   = buf -> time + time;
 	offset = time >> BK_FINT20_SHIFT;
 
-	buf -> frames [offset] += BK_MAX_VOLUME * pulse;
+	buf -> frames [offset] += BK_MAX_VOLUME * frame;
 
 	return 0;
 }
