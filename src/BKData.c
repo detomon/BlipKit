@@ -28,6 +28,8 @@
 #include "BKWaveFileReader.h"
 #include "BKTone.h"
 
+extern BKClass const BKDataClass;
+
 enum
 {
 	BK_DATA_FLAG_STATE_LIST_LOCK = 1 << 16,
@@ -42,7 +44,7 @@ static void BKDataStateAddToData (BKDataState * state, BKData * data)
 {
 	BKDataState * lastState;
 
-	if (state -> data == NULL && data && (data -> flags & BK_DATA_FLAG_STATE_LIST_LOCK) == 0) {
+	if (state -> data == NULL && data && (data -> object.flags & BK_DATA_FLAG_STATE_LIST_LOCK) == 0) {
 		// search for last state in  list
 		for (lastState = data -> stateList; lastState && lastState -> nextState;)
 			lastState = lastState -> nextState;
@@ -69,7 +71,7 @@ static void BKDataStateRemoveFromData (BKDataState * state)
 	BKData      * data = state -> data;
 	BKDataState * searchState, * prevState = NULL;
 
-	if (data != NULL && (data -> flags & BK_DATA_FLAG_STATE_LIST_LOCK) == 0) {
+	if (data != NULL && (data -> object.flags & BK_DATA_FLAG_STATE_LIST_LOCK) == 0) {
 		// search for state and previous state
 		for (searchState = data -> stateList; searchState; searchState = searchState -> nextState) {
 			if (searchState == state)
@@ -102,7 +104,7 @@ static void BKDataResetStates (BKData * data, BKEnum event)
 	BKDataState * state;
 	BKDataState * nextState, * prevState = NULL;
 
-	data -> flags |= BK_DATA_FLAG_STATE_LIST_LOCK;
+	data -> object.flags |= BK_DATA_FLAG_STATE_LIST_LOCK;
 
 	for (state = data -> stateList; state; state = nextState) {
 		dispose = 0;
@@ -134,7 +136,7 @@ static void BKDataResetStates (BKData * data, BKEnum event)
 		prevState = state;
 	}
 
-	data -> flags &= ~BK_DATA_FLAG_STATE_LIST_LOCK;
+	data -> object.flags &= ~BK_DATA_FLAG_STATE_LIST_LOCK;
 }
 
 static BKInt BKDataPromoteToCopy (BKData * data)
@@ -142,7 +144,7 @@ static BKInt BKDataPromoteToCopy (BKData * data)
 	BKSize    size;
 	BKFrame * frames;
 
-	if ((data -> flags & BK_DATA_FLAG_COPY) == 0) {
+	if ((data -> object.flags & BK_DATA_FLAG_COPY) == 0) {
 		size   = data -> numFrames * data -> numChannels * sizeof (BKFrame);
 		frames = malloc (size);
 
@@ -152,7 +154,7 @@ static BKInt BKDataPromoteToCopy (BKData * data)
 		memcpy (frames, data -> frames, size);
 
 		data -> frames = frames;
-		data -> flags |= BK_DATA_FLAG_COPY;
+		data -> object.flags |= BK_DATA_FLAG_COPY;
 	}
 
 	return 0;
@@ -160,22 +162,17 @@ static BKInt BKDataPromoteToCopy (BKData * data)
 
 BKInt BKDataInit (BKData * data)
 {
-	memset (data, 0, sizeof (BKData));
+	return BKObjectInit (data, & BKDataClass, sizeof (BKData));
+}
 
-	return 0;
+BKInt BKDataAlloc (BKData ** outData)
+{
+	return BKObjectAlloc ((void *) outData, & BKDataClass, 0);
 }
 
 void BKDataDispose (BKData * data)
 {
-	if (data == NULL)
-		return;
-
-	BKDataDetach (data);
-
-	if (data -> frames && (data -> flags & BK_DATA_FLAG_COPY))
-		free (data -> frames);
-
-	memset (data, 0, sizeof (BKData));
+	BKDispose (data);
 }
 
 void BKDataDetach (BKData * data)
@@ -192,7 +189,7 @@ BKInt BKDataInitCopy (BKData * copy, BKData const * original)
 
 	memcpy (copy, original, sizeof (BKData));
 
-	copy -> flags    &= BK_DATA_FLAG_COPY_MASK;
+	copy -> object.flags &= BK_DATA_FLAG_COPY_MASK;
 	copy -> stateList = NULL;
 	copy -> frames    = NULL;
 
@@ -294,7 +291,7 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 	size = numFrames * numChannels * sizeof (BKFrame);
 
 	if (copy) {
-		if (data -> flags & BK_DATA_FLAG_COPY) {
+		if (data -> object.flags & BK_DATA_FLAG_COPY) {
 			newFrames = realloc (data -> frames, size);
 		}
 		else {
@@ -304,12 +301,12 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 		if (newFrames == NULL)
 			return -1;
 
-		data -> flags |= BK_DATA_FLAG_COPY;
+		data -> object.flags |= BK_DATA_FLAG_COPY;
 
 		memcpy (newFrames, frames, size);
 	}
 	else {
-		if (data -> flags & BK_DATA_FLAG_COPY) {
+		if (data -> object.flags & BK_DATA_FLAG_COPY) {
 			if (data -> frames)
 				free (data -> frames);
 		}
@@ -318,13 +315,13 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 	}
 
 	if (newFrames) {
-		data -> frames      = newFrames;
-		data -> numFrames   = numFrames;
-		data -> numChannels = numChannels;
-	}
-	else {
 		return -1;
 	}
+
+	data -> frames      = newFrames;
+	data -> numFrames   = numFrames;
+	data -> numChannels = numChannels;
+	data -> numBits     = 16;
 
 	BKDataResetStates (data, BK_DATA_STATE_EVENT_RESET);
 
@@ -544,7 +541,7 @@ BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKU
 	if (numFrames < 0)
 		return BK_INVALID_NUM_BITS;
 
-	if (data -> flags & BK_DATA_FLAG_COPY) {
+	if (data -> object.flags & BK_DATA_FLAG_COPY) {
 		frames = realloc (data -> frames, numFrames * sizeof (BKFrame));
 	}
 	else {
@@ -560,6 +557,7 @@ BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKU
 	data -> frames      = frames;
 	data -> numFrames   = numFrames / numChannels;
 	data -> numChannels = numChannels;
+	data -> numBits     = numBits;
 
 	return 0;
 }
@@ -612,6 +610,7 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 		return BK_INVALID_ATTRIBUTE;
 	}
 
+	data -> numBits = numBits;
 	params |= endian;
 
 	ret = BKDataSetData (data, frames, (BKUInt) size, numChannels, params);
@@ -653,10 +652,12 @@ BKInt BKDataInitAndLoadWAVE (BKData * data, FILE * file)
 		return BK_INVALID_RETURN_VALUE;
 	}
 
-	data -> flags      |= BK_DATA_FLAG_COPY;
-	data -> numFrames   = numFrames;
-	data -> numChannels = numChannels;
-	data -> frames      = frames;
+	data -> object.flags |= BK_DATA_FLAG_COPY;
+	data -> numBits       = 16;
+	data -> sampleRate    = sampleRate;
+	data -> numFrames     = numFrames;
+	data -> numChannels   = numChannels;
+	data -> frames        = frames;
 
 	BKWaveFileReaderDispose (& reader);
 
@@ -799,7 +800,7 @@ BKInt BKDataConvert (BKData * data, BKDataConvertInfo * info)
 	if (validatedInfo.targetNumBits > 15)
 		validatedInfo.targetNumBits = 15;
 
-	if ((data -> flags & BK_DATA_FLAG_COPY) == 0) {
+	if ((data -> object.flags & BK_DATA_FLAG_COPY) == 0) {
 		convertedFrames = malloc (length * sizeof (BKFrame));
 
 		if (convertedFrames == NULL)
@@ -818,7 +819,31 @@ BKInt BKDataConvert (BKData * data, BKDataConvertInfo * info)
 	return 0;
 }
 
-BKInt BKDataExport (BKData * data, BKDataExportInfo * info)
+static BKInt BKDataSetPtrSize (BKData * data, BKEnum attr, void * ptr, BKSize size)
 {
-	return -1;
+	return BKDataSetPtr (data, attr, ptr);
 }
+
+static BKInt BKDataGetPtrSize (BKData * data, BKEnum attr, void * outPtr, BKSize size)
+{
+	return BKDataGetPtr (data, attr, outPtr);
+}
+
+static void BKDataDisposeObject (BKData * data)
+{
+	BKDataDetach (data);
+
+	if (data -> frames && (data -> object.flags & BK_DATA_FLAG_COPY)) {
+		free (data -> frames);
+	}
+}
+
+BKClass const BKDataClass =
+{
+	.instanceSize = sizeof (BKData),
+	.setAttr      = (void *) BKDataSetAttr,
+	.getAttr      = (void *) BKDataGetAttr,
+	.setPtr       = (void *) BKDataSetPtrSize,
+	.getPtr       = (void *) BKDataGetPtrSize,
+	.dispose      = (void *) BKDataDisposeObject,
+};

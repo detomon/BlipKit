@@ -25,7 +25,7 @@
 #define _BK_DATA_H_
 
 #include <stdio.h>
-#include "BKBase.h"
+#include "BKObject.h"
 
 typedef struct BKData      BKData;
 typedef struct BKDataState BKDataState;
@@ -69,15 +69,11 @@ enum
 	BK_DATA_STATE_EVENT_DISPOSE,
 };
 
-struct BKDataInfo
-{
-	BKEnum numBits;
-};
-
 struct BKData
 {
-	BKUInt        flags;
-	BKDataInfo    info;
+	BKObject      object;
+	BKEnum        numBits;
+	BKInt         sampleRate;
 	BKUInt        numFrames;
 	BKUInt        numChannels;
 	BKFInt20      samplePitch;
@@ -104,15 +100,15 @@ struct BKDataConvertInfo
 	float  threshold;
 };
 
-struct BKDataExportInfo
-{
-
-};
-
 /**
- * Initialize Data
+ * Initialize data object
  */
 extern BKInt BKDataInit (BKData * data);
+
+/**
+ * Allocate data object
+ */
+extern BKInt BKDataAlloc (BKData ** outData);
 
 /**
  * Dispose data and detach from all tracks
@@ -224,10 +220,5 @@ extern BKInt BKDataNormalize (BKData * data);
  * 
  */
 extern BKInt BKDataConvert (BKData * data, BKDataConvertInfo * info);
-
-/**
- * 
- */
-extern BKInt BKDataExport (BKData * data, BKDataExportInfo * info);
 
 #endif /* ! _BK_DATA_H_ */
