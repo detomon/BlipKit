@@ -38,17 +38,6 @@ static BKFrame const BKSinePhases [BK_SINE_PHASES] =
 
 static BKEnum BKUnitCallSampleCallback (BKUnit * unit, BKEnum event);
 
-BKUnitFuncs const BKUnitFuncsStruct =
-{
-	.run     = (void *) BKUnitRun,
-	.end     = (void *) BKUnitEnd,
-	.reset   = (void *) BKUnitReset,
-	.getAttr = (void *) BKUnitGetAttr,
-	.setAttr = (void *) BKUnitSetAttr,
-	.getPtr  = (void *) BKUnitGetPtr,
-	.setPtr  = (void *) BKUnitSetPtr,
-};
-
 static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum event)
 {
 	BKContext * ctx = unit -> ctx;
@@ -195,7 +184,9 @@ BKInt BKUnitInit (BKUnit * unit, BKEnum waveform)
 {
 	memset (unit, 0, sizeof (BKUnit));
 
-	unit -> funcs = (BKUnitFuncs *) & BKUnitFuncsStruct;
+	unit -> run   = (BKUnitRunFunc) BKUnitRun;
+	unit -> end   = (BKUnitEndFunc) BKUnitEnd;
+	unit -> reset = (BKUnitResetFunc) BKUnitReset;
 
 	BKUnitSetAttr (unit, BK_DUTY_CYCLE, BK_DEFAULT_DUTY_CYCLE);
 	BKUnitSetAttr (unit, BK_WAVEFORM, waveform);
