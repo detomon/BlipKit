@@ -314,7 +314,7 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 		newFrames = (BKFrame *) frames;
 	}
 
-	if (newFrames) {
+	if (newFrames == NULL) {
 		return -1;
 	}
 
