@@ -52,14 +52,14 @@ struct BKUnit
 	BKUnit * prevUnit;
 	BKUnit * nextUnit;
 
-	// waveform
-	BKEnum waveform;
-	BKUInt dutyCycle;
-
 	// time
 	BKFUInt20 time;
 	BKFUInt20 period;
 	BKInt     lastPulse [BK_MAX_CHANNELS];
+
+	// waveform
+	BKEnum waveform;
+	BKUInt dutyCycle;
 
 	// volume
 	BKInt volume [BK_MAX_CHANNELS];
