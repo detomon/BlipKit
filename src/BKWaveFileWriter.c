@@ -29,6 +29,8 @@
  * https://ccrma.stanford.edu/courses/422/projects/WaveFormat/
  */
 
+extern BKClass BKWaveFileWriterClass;
+
 static BKWaveFileHeader const waveFileHeader =
 {
 	.chunkID   = "RIFF",
@@ -85,7 +87,9 @@ BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numCha
 		return -1;
 	}
 
-	memset (writer, 0, sizeof (* writer));
+	if (BKObjectInit (writer, & BKWaveFileWriterClass, sizeof (*writer)) < 0) {
+		return -1;
+	}
 
 	writer -> file          = file;
 	writer -> initOffset    = ftell (file);
@@ -98,7 +102,6 @@ BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numCha
 
 void BKWaveFileWriterDispose (BKWaveFileWriter * writer)
 {
-	memset (writer, 0, sizeof (* writer));
 }
 
 static BKInt BKWaveFileWriterWriteHeader (BKWaveFileWriter * writer)
@@ -228,7 +231,13 @@ BKInt BKWaveFileWriteData (FILE * file, BKData const * data, BKInt sampleRate)
 	BKWaveFileWriterAppendFrames (& writer, data -> frames, data -> numFrames * data -> numChannels);
 	BKWaveFileWriterTerminate (& writer);
 
-	BKWaveFileWriterDispose (& writer);
+	BKDispose (& writer);
 
 	return 0;
 }
+
+BKClass BKWaveFileWriterClass =
+{
+	.instanceSize = sizeof (BKWaveFileWriter),
+	.dispose      = (BKDisposeFunc) BKWaveFileWriterDispose,
+};

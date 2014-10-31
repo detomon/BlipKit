@@ -48,6 +48,7 @@ enum BKObjectFlag
 {
 	BKObjectFlagInitialized = 1 << 24,
 	BKObjectFlagAllocated   = 1 << 25,
+	BKObjectFlagUsableMask  = (1 << 24) - 1,
 };
 
 /**

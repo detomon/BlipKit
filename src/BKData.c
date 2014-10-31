@@ -643,7 +643,7 @@ BKInt BKDataInitAndLoadWAVE (BKData * data, FILE * file)
 	frames = malloc (size);
 
 	if (frames == NULL) {
-		BKWaveFileReaderDispose (& reader);
+		BKDispose (& reader);
 		return BK_ALLOCATION_ERROR;
 	}
 
@@ -659,7 +659,7 @@ BKInt BKDataInitAndLoadWAVE (BKData * data, FILE * file)
 	data -> numChannels   = numChannels;
 	data -> frames        = frames;
 
-	BKWaveFileReaderDispose (& reader);
+	BKDispose (& reader);
 
 	return 0;
 }

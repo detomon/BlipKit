@@ -24,9 +24,13 @@
 #include "BKWaveFileReader.h"
 #include "BKWaveFile_internal.h"
 
+extern BKClass BKWaveFileReaderClass;
+
 BKInt BKWaveFileReaderInit (BKWaveFileReader * reader, FILE * file)
 {
-	memset (reader, 0, sizeof (* reader));
+	if (BKObjectInit (reader, & BKWaveFileReaderClass, sizeof (*reader)) < 0) {
+		return -1;
+	}
 
 	reader -> file = file;
 
@@ -35,7 +39,6 @@ BKInt BKWaveFileReaderInit (BKWaveFileReader * reader, FILE * file)
 
 void BKWaveFileReaderDispose (BKWaveFileReader * reader)
 {
-	memset (reader, 0, sizeof (* reader));
 }
 
 static void BKWaveFileHeaderFmtRead (BKWaveFileHeaderFmt * headerFmt)
@@ -221,7 +224,14 @@ BKInt BKWaveFileReaderReadFrames (BKWaveFileReader * reader, BKFrame outFrames [
 		}
 	}
 
+	// empty trailing byte if any
 	memset (outFrames, 0, reader -> dataSize - writeSize);
 
 	return 0;
 }
+
+BKClass BKWaveFileReaderClass =
+{
+	.instanceSize = sizeof (BKWaveFileReader),
+	.dispose      = (BKDisposeFunc) BKWaveFileReaderDispose,
+};

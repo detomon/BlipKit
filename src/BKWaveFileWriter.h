@@ -32,13 +32,14 @@ typedef struct BKWaveFileWriter BKWaveFileWriter;
 
 struct BKWaveFileWriter
 {
-	FILE * file;
-	BKSize initOffset;
-	BKInt  sampleRate;
-	BKInt  numChannels;
-	BKSize fileSize;
-	BKSize dataSize;
-	BKInt  reverseEndian;
+	BKObject object;
+	FILE   * file;
+	BKSize   initOffset;
+	BKInt    sampleRate;
+	BKInt    numChannels;
+	BKSize   fileSize;
+	BKSize   dataSize;
+	BKInt    reverseEndian;
 };
 
 /**
@@ -47,15 +48,10 @@ struct BKWaveFileWriter
  * Prepare a writer object to write frames to an opened and writable file
  * `file`. Number of channels `numChannels` defines the layout of the frames
  * which will be appended. `sampleRate` defines the play speed.
+ *
+ * The file is closed when disposing with `BKDispose`
  */
 extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numChannels, BKInt sampleRate);
-
-/**
- * Dispose writer object
- *
- * This doesn't close the file given at initialization.
- */
-extern void BKWaveFileWriterDispose (BKWaveFileWriter * writer);
 
 /**
  * Append frames to WAVE file

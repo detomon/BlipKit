@@ -32,27 +32,23 @@ typedef struct BKWaveFileReader BKWaveFileReader;
 
 struct BKWaveFileReader
 {
-	FILE * file;
-	BKInt  sampleRate;
-	BKInt  numChannels;
-	BKInt  numBits;
-	BKInt  numFrames;
-	BKSize dataSize;
+	BKObject object;
+	FILE   * file;
+	BKInt    sampleRate;
+	BKInt    numChannels;
+	BKInt    numBits;
+	BKInt    numFrames;
+	BKSize   dataSize;
 };
 
 /**
  * Initialize WAVE file reader object
  *
  * Only PCM format with 8 or 16 bits can be read at the moment.
+ *
+ * The file is closed when disposing with `BKDispose`
  */
 extern BKInt BKWaveFileReaderInit (BKWaveFileReader * reader, FILE * file);
-
-/**
- * Dispose reader object
- *
- * This doesn't close the file given at initialization.
- */
-extern void BKWaveFileReaderDispose (BKWaveFileReader * reader);
 
 /**
  * Read header of WAVE file
