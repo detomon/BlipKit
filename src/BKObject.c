@@ -47,6 +47,12 @@ BKInt BKObjectAlloc (void ** outObject, BKClass const * isa, BKSize extraSize)
 {
 	BKObject * obj;
 
+	if (outObject == NULL) {
+		return BK_ALLOCATION_ERROR;
+	}
+
+	*outObject = NULL;
+
 	if (isa == NULL || isa -> instanceSize == 0) {
 		return BK_ALLOCATION_ERROR;
 	}
@@ -59,7 +65,7 @@ BKInt BKObjectAlloc (void ** outObject, BKClass const * isa, BKSize extraSize)
 
 	memset (obj, 0, isa -> instanceSize);
 
-	obj -> flags = BKObjectFlagInitialized;
+	obj -> flags = BKObjectFlagInitialized | BKObjectFlagAllocated;
 	obj -> isa   = isa;
 
 	*outObject = obj;
