@@ -797,7 +797,7 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 			chanDelta = delta - unit -> lastPulse [i];
 			unit -> lastPulse [i] = delta;
 
-			BKBufferAddFrame (channel, time, chanDelta);
+			BKBufferAddPulse (channel, time, chanDelta);
 		}
 
 		// advance phase
