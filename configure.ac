@@ -46,7 +46,7 @@ AC_CONFIG_FILES([
 ])
 
 # Define flags.
-BK_STD_CFLAGS="-std=c99 -Wall -Wno-unused-function"
+BK_STD_CFLAGS="-std=c99 -Wall -Wno-unused-function -Wno-deprecated"
 
 AC_SUBST(BK_STD_CFLAGS)
 

@@ -101,6 +101,11 @@ struct BKTrack
 extern BKInt BKTrackInit (BKTrack * track, BKEnum waveform);
 
 /**
+ * Allocate track
+ */
+extern BKInt BKTrackAlloc (BKTrack ** outTrack, BKEnum waveform);
+
+/**
  * Reset track values and buffer state
  */
 extern void BKTrackReset (BKTrack * track);
@@ -113,7 +118,7 @@ extern void BKTrackClear (BKTrack * track);
 /**
  * Dispose track
  */
-extern void BKTrackDispose (BKTrack * track);
+extern void BKTrackDispose (BKTrack * track) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Attach to context
@@ -166,7 +171,7 @@ extern void BKTrackDetach (BKTrack * track);
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  * BK_INVALID_VALUE if value is invalid for this attribute
  */
-extern BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value);
+extern BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value) BK_DEPRECATED_FUNC ("Use 'BKSetAttr' instead");
 
 /**
  * Get attribute
@@ -188,7 +193,7 @@ extern BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue);
+extern BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue) BK_DEPRECATED_FUNC ("Use 'BKGetAttr' instead");
 
 /**
  * Set pointer
@@ -233,7 +238,7 @@ extern BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValu
  * BK_INVALID_VALUE if pointer is invalid for this attribute
  * BK_INVALID_NUM_CHANNELS if number of channels of sample does not match that of context
  */
-extern BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr);
+extern BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr) BK_DEPRECATED_FUNC ("Use 'BKSetPtr' instead");
 
 /**
  * Get pointer
@@ -259,7 +264,7 @@ extern BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr);
+extern BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr) BK_DEPRECATED_FUNC ("Use 'BKGetPtr' instead");
 
 /**
  * Enable or disable effects

@@ -42,6 +42,8 @@ typedef void  (* BKUnitResetFunc) (void * unit);
 
 struct BKUnit
 {
+	BKObject object;
+
 	// context
 	BKContext     * ctx;
 	BKUnitRunFunc   run;
@@ -101,7 +103,7 @@ extern BKInt BKUnitInit (BKUnit * unit, BKEnum waveform);
 /**
  * Dispose unit
  */
-extern void BKUnitDispose (BKUnit * unit);
+extern void BKUnitDispose (BKUnit * unit) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Attach to context

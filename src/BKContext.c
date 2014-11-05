@@ -24,6 +24,8 @@
 #include "BKContext.h"
 #include "BKUnit.h"
 
+extern BKClass BKContextClass;
+
 static BKEnum BKContextTick (BKCallbackInfo * info, BKContext * ctx)
 {
 	BKDividerTick (ctx -> beatDividers.firstDivider, info);
@@ -48,11 +50,9 @@ static void BKContextUpdateMasterClocks (BKContext * ctx)
 	BKClockInit (& ctx -> masterClock, clockPeriod, & callback);  // then advance effects
 }
 
-BKInt BKContextInit (BKContext * ctx, BKUInt numChannels, BKUInt sampleRate)
+BKInt BKContextInitGeneric (BKContext * ctx, BKUInt numChannels, BKUInt sampleRate)
 {
 	BKBuffer * channel;
-
-	memset (ctx, 0, sizeof (BKContext));
 
 	ctx -> sampleRate  = BKClamp (sampleRate, BK_MIN_SAMPLE_RATE, BK_MAX_SAMPLE_RATE);
 	ctx -> numChannels = BKClamp (numChannels, 1, BK_MAX_CHANNELS);
@@ -68,6 +68,32 @@ BKInt BKContextInit (BKContext * ctx, BKUInt numChannels, BKUInt sampleRate)
 
 		if (BKBufferInit (channel) < 0)
 			return BK_ALLOCATION_ERROR;
+	}
+
+	return 0;
+}
+
+BKInt BKContextInit (BKContext * ctx, BKUInt numChannels, BKUInt sampleRate)
+{
+	if (BKObjectInit (ctx, & BKContextClass, sizeof (*ctx)) < 0) {
+		return -1;
+	}
+
+	if (BKContextInitGeneric (ctx, numChannels, sampleRate) < 0) {
+		return -1;
+	}
+
+	return 0;
+}
+
+extern BKInt BKContextAlloc (BKContext ** outCtx, BKUInt numChannels, BKUInt sampleRate)
+{
+	if (BKObjectAlloc ((void **) outCtx, & BKContextClass, 0) < 0) {
+		return -1;
+	}
+
+	if (BKContextInitGeneric (*outCtx, numChannels, sampleRate) < 0) {
+		return -1;
 	}
 
 	return 0;
@@ -98,8 +124,6 @@ void BKContextDispose (BKContext * ctx)
 		free (ctx -> channels);
 
 	BKClockDispose (& ctx -> masterClock);
-
-	memset (ctx, 0, sizeof (BKContext));
 }
 
 BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value)
@@ -449,3 +473,23 @@ BKInt BKContextAttachDivider (BKContext * ctx, BKDivider * divider, BKEnum type)
 
 	return 0;
 }
+
+static BKInt BKContextSetPtrSize (BKContext * ctx, BKEnum attr, void * ptr, BKSize size)
+{
+	return BKContextSetPtr (ctx, attr, ptr);
+}
+
+static BKInt BKContextGetPtrSize (BKContext * ctx, BKEnum attr, void * outPtr, BKSize size)
+{
+	return BKContextSetPtr (ctx, attr, outPtr);
+}
+
+BKClass BKContextClass =
+{
+	.instanceSize = sizeof (BKContext),
+	.dispose      = (BKDisposeFunc) BKContextDispose,
+	.setAttr      = (BKSetAttrFunc) BKContextSetAttr,
+	.getAttr      = (BKGetAttrFunc) BKContextGetAttr,
+	.setPtr       = (BKSetPtrFunc)  BKContextSetPtrSize,
+	.getPtr       = (BKGetPtrFunc)  BKContextGetPtrSize,
+};

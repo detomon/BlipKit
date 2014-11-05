@@ -24,6 +24,8 @@
 #include "BKUnit_internal.h"
 #include "BKData_internal.h"
 
+extern BKClass BKUnitClass;
+
 static BKFrame const BKSinePhases [BK_SINE_PHASES] =
 {
 	     0,   6392,  12539,  18204,
@@ -182,14 +184,16 @@ static BKEnum BKUnitCallSampleCallback (BKUnit * unit, BKEnum event)
 
 BKInt BKUnitInit (BKUnit * unit, BKEnum waveform)
 {
-	memset (unit, 0, sizeof (BKUnit));
+	if (BKObjectInit (unit, & BKUnitClass, sizeof (*unit)) < 0) {
+		return -1;
+	}
 
 	unit -> run   = (BKUnitRunFunc) BKUnitRun;
 	unit -> end   = (BKUnitEndFunc) BKUnitEnd;
 	unit -> reset = (BKUnitResetFunc) BKUnitReset;
 
-	BKUnitSetAttr (unit, BK_DUTY_CYCLE, BK_DEFAULT_DUTY_CYCLE);
-	BKUnitSetAttr (unit, BK_WAVEFORM, waveform);
+	BKSetAttr (unit, BK_DUTY_CYCLE, BK_DEFAULT_DUTY_CYCLE);
+	BKSetAttr (unit, BK_WAVEFORM, waveform);
 
 	unit -> sample.period                     = BK_FINT20_UNIT;
 	unit -> sample.timeFrac                   = 0;
@@ -204,8 +208,6 @@ void BKUnitDispose (BKUnit * unit)
 	BKDataStateSetData (& unit -> sample.dataState, NULL);
 
 	BKUnitDetach (unit);
-
-	memset (unit, 0, sizeof (BKUnit));
 }
 
 BKInt BKUnitAttach (BKUnit * unit, BKContext * ctx)
@@ -909,3 +911,23 @@ void BKUnitReset (BKUnit * unit)
 	for (BKInt i = 0; i < BK_MAX_CHANNELS; i ++)
 		unit -> lastPulse [i] = 0;
 }
+
+static BKInt BKUnitSetPtrSize (BKUnit * unit, BKEnum attr, void * ptr, BKSize size)
+{
+	return BKUnitSetPtr (unit, attr, ptr);
+}
+
+static BKInt BKUnitGetPtrSize (BKUnit * unit, BKEnum attr, void * outPtr, BKSize size)
+{
+	return BKUnitSetPtr (unit, attr, outPtr);
+}
+
+BKClass BKUnitClass =
+{
+	.instanceSize = sizeof (BKUnit),
+	.dispose      = (BKDisposeFunc) BKUnitDispose,
+	.setAttr      = (BKSetAttrFunc) BKUnitSetAttr,
+	.getAttr      = (BKGetAttrFunc) BKUnitGetAttr,
+	.setPtr       = (BKSetPtrFunc)  BKUnitSetPtrSize,
+	.getPtr       = (BKGetPtrFunc)  BKUnitGetPtrSize,
+};

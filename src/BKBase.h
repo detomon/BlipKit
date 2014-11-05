@@ -298,4 +298,8 @@ enum
 	BK_OTHER_ERROR,
 };
 
+#if __GNUC__
+#define BK_DEPRECATED_FUNC(msg) __attribute__((deprecated(msg)))
+#endif
+
 #endif /* !_BK_BASE_H_  */

@@ -26,6 +26,8 @@
 
 #define BK_TRACK_EFFECT_MAX_STEPS (1 << 16)
 
+extern BKClass BKTrackClass;
+
 extern BKInt const sequenceDefaultValue [BK_MAX_SEQUENCES];
 
 void BKTrackReset (BKTrack * track);
@@ -366,32 +368,62 @@ static BKEnum BKTrackSampleDataStateCallback (BKEnum event, BKTrack * track)
 	return res;
 }
 
-BKInt BKTrackInit (BKTrack * track, BKEnum waveform)
+static BKInt BKTrackInitGeneric (BKTrack * track, BKEnum waveform)
 {
 	BKInt ret = 0;
 	BKCallback callback;
 
 	ret = BKUnitInit (& track -> unit, waveform);
 
-	track -> flags      = BKTriangleIgnoresVolumeFlag;
+	if (ret < 0) {
+		return ret;
+	}
+
+	track -> unit.object.isa = & BKTrackClass;
+
+	track -> flags     |= BKTriangleIgnoresVolumeFlag;
 	track -> unit.run   = (BKUnitRunFunc) BKTrackRun;
 	track -> unit.reset = (BKUnitResetFunc) BKTrackReset;
 
-	if (ret == 0) {
-		// init waveform flags
-		BKTrackSetAttr (track, BK_WAVEFORM, waveform);
-		BKTrackReset (track);
+	// init waveform flags
+	BKSetAttr (track, BK_WAVEFORM, waveform);
+	BKTrackReset (track);
 
-		track -> unit.sample.dataState.callback         = (void *) BKTrackSampleDataStateCallback;
-		track -> unit.sample.dataState.callbackUserInfo = track;
+	track -> unit.sample.dataState.callback         = (void *) BKTrackSampleDataStateCallback;
+	track -> unit.sample.dataState.callbackUserInfo = track;
 
-		callback.func     = (BKCallbackFunc) BKTrackTick;
-		callback.userInfo = track;
+	callback.func     = (BKCallbackFunc) BKTrackTick;
+	callback.userInfo = track;
 
-		BKDividerInit (& track -> divider, 1, & callback);
-	}
+	BKDividerInit (& track -> divider, 1, & callback);
 
 	return ret;
+}
+
+BKInt BKTrackInit (BKTrack * track, BKEnum waveform)
+{
+	if (BKObjectInit (track, & BKTrackClass, sizeof (*track)) < 0) {
+		return -1;
+	}
+
+	if (BKTrackInitGeneric (track, waveform) < 0) {
+		return -1;
+	}
+
+	return 0;
+}
+
+BKInt BKTrackAlloc (BKTrack ** outTrack, BKEnum waveform)
+{
+	if (BKObjectAlloc ((void **) outTrack, & BKTrackClass, 0) < 0) {
+		return -1;
+	}
+
+	if (BKTrackInitGeneric (*outTrack, waveform) < 0) {
+		return -1;
+	}
+
+	return 0;
 }
 
 static BKInt BKTrackRun (BKTrack * track, BKFUInt20 endTime)
@@ -404,7 +436,7 @@ static BKInt BKTrackRun (BKTrack * track, BKFUInt20 endTime)
 void BKTrackReset (BKTrack * track)
 {
 	BKUnitReset (& track -> unit);
-	BKTrackSetAttr (track, BK_DUTY_CYCLE, BK_SQUARE_PHASES / 4);
+	BKSetAttr (track, BK_DUTY_CYCLE, BK_SQUARE_PHASES / 4);
 	BKTrackClear (track);
 }
 
@@ -423,9 +455,9 @@ void BKTrackClear (BKTrack * track)
 
 	track -> flags &= (BKTriangleIgnoresVolumeFlag | BKIgnoreVolumeFlag | BKPanningEnabledFlag);
 
-	BKTrackSetAttr (track, BK_ARPEGGIO_DIVIDER, BK_DEFAULT_ARPEGGIO_DIVIDER);
-	BKTrackSetAttr (track, BK_EFFECT_DIVIDER, BK_DEFAULT_EFFECT_DIVIDER);
-	BKTrackSetAttr (track, BK_INSTRUMENT_DIVIDER, BK_DEFAULT_INSTR_DIVIDER);
+	BKSetAttr (track, BK_ARPEGGIO_DIVIDER, BK_DEFAULT_ARPEGGIO_DIVIDER);
+	BKSetAttr (track, BK_EFFECT_DIVIDER, BK_DEFAULT_EFFECT_DIVIDER);
+	BKSetAttr (track, BK_INSTRUMENT_DIVIDER, BK_DEFAULT_INSTR_DIVIDER);
 
 	track -> instrState.callback         = (void *) BKTrackInstrStateCallback;
 	track -> instrState.callbackUserInfo = track;
@@ -442,12 +474,12 @@ void BKTrackClear (BKTrack * track)
 	BKSlideStateInit (& track -> vibratoDelta, 0);
 	BKSlideStateInit (& track -> vibratoSteps, BK_TRACK_EFFECT_MAX_STEPS);
 
-	BKTrackSetAttr (track, BK_VOLUME, BK_MAX_VOLUME);
-	BKTrackSetAttr (track, BK_MASTER_VOLUME, masterVolume);
-	BKTrackSetAttr (track, BK_WAVEFORM, waveform);
-	BKTrackSetAttr (track, BK_DUTY_CYCLE, dutyCycle);
-	BKTrackSetAttr (track, BK_NOTE, BK_NOTE_MUTE);
-	BKTrackSetAttr (track, BK_MUTE, 1);
+	BKSetAttr (track, BK_VOLUME, BK_MAX_VOLUME);
+	BKSetAttr (track, BK_MASTER_VOLUME, masterVolume);
+	BKSetAttr (track, BK_WAVEFORM, waveform);
+	BKSetAttr (track, BK_DUTY_CYCLE, dutyCycle);
+	BKSetAttr (track, BK_NOTE, BK_NOTE_MUTE);
+	BKSetAttr (track, BK_MUTE, 1);
 }
 
 void BKTrackDispose (BKTrack * track)
@@ -456,7 +488,6 @@ void BKTrackDispose (BKTrack * track)
 
 	BKTrackDetach (track);
 	BKUnitDispose (& track -> unit);
-	memset (track, 0, sizeof (BKTrack));
 }
 
 BKInt BKTrackAttach (BKTrack * track, BKContext * ctx)
@@ -702,7 +733,7 @@ BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value)
 			values [0] = value;
 			values [1] = 0;
 
-			return BKTrackSetPtr (track, attr, values);
+			return BKSetPtr (track, attr, values, sizeof (values));
 			break;
 		}
 		default: {
@@ -760,7 +791,7 @@ BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
 		case BK_EFFECT_VOLUME_SLIDE:
 		case BK_EFFECT_PANNING_SLIDE:
 		case BK_EFFECT_PORTAMENTO: {
-			ret = BKTrackGetPtr (track, attr, values);
+			ret = BKGetPtr (track, attr, values, sizeof (values));
 
 			if (ret != 0)
 				return ret;
@@ -1037,3 +1068,23 @@ BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr)
 
 	return 0;
 }
+
+static BKInt BKTrackSetPtrSize (BKTrack * track, BKEnum attr, void * ptr, BKSize size)
+{
+	return BKTrackSetPtr (track, attr, ptr);
+}
+
+static BKInt BKTrackGetPtrSize (BKTrack * track, BKEnum attr, void * outPtr, BKSize size)
+{
+	return BKTrackSetPtr (track, attr, outPtr);
+}
+
+BKClass BKTrackClass =
+{
+	.instanceSize = sizeof (BKTrack),
+	.dispose      = (BKDisposeFunc) BKTrackDispose,
+	.setAttr      = (BKSetAttrFunc) BKTrackSetAttr,
+	.getAttr      = (BKGetAttrFunc) BKTrackGetAttr,
+	.setPtr       = (BKSetPtrFunc)  BKTrackSetPtrSize,
+	.getPtr       = (BKGetPtrFunc)  BKTrackGetPtrSize,
+};

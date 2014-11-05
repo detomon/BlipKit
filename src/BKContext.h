@@ -24,7 +24,7 @@
 #ifndef _BK_CONTEXT_H_
 #define _BK_CONTEXT_H_
 
-#include "BKBase.h"
+#include "BKObject.h"
 #include "BKBuffer.h"
 #include "BKClock.h"
 
@@ -50,7 +50,8 @@ enum
 
 struct BKContext
 {
-	BKUInt flags;
+	BKObject object;
+	BKUInt   flags;
 
 	// settings
 	BKUInt numChannels;
@@ -90,10 +91,15 @@ struct BKContext
 extern BKInt BKContextInit (BKContext * ctx, BKUInt numChannels, BKUInt sampleRate);
 
 /**
+ * Allocate context and initialize with `BKContextInit`
+ */
+extern BKInt BKContextAlloc (BKContext ** outCtx, BKUInt numChannels, BKUInt sampleRate);
+
+/**
  * Dispose context and resources
  * This does not dispose attached units but detaches them
  */
-extern void BKContextDispose (BKContext * ctx);
+extern void BKContextDispose (BKContext * ctx) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Set attribute
@@ -109,7 +115,7 @@ extern void BKContextDispose (BKContext * ctx);
  * BK_INVALID_ATTRIBUTE if attribute is unkown
  * BK_INVALID_VALUE if value is invalid for this attribute
  */
-extern BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value);
+extern BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value) BK_DEPRECATED_FUNC ("Use 'BKSetAttr' instead");
 
 /**
  * Get attribute
@@ -120,7 +126,7 @@ extern BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unkown
  */
-extern BKInt BKContextGetAttr (BKContext const * ctx, BKEnum attr, BKInt * outValue);
+extern BKInt BKContextGetAttr (BKContext const * ctx, BKEnum attr, BKInt * outValue) BK_DEPRECATED_FUNC ("Use 'BKGetAttr' instead");
 
 /**
  * Set pointer
@@ -133,7 +139,7 @@ extern BKInt BKContextGetAttr (BKContext const * ctx, BKEnum attr, BKInt * outVa
  * BK_INVALID_ATTRIBUTE if attribute is unkown
  * BK_INVALID_VALUE if pointer is invalid for this attribute
  */
-extern BKInt BKContextSetPtr (BKContext * ctx, BKEnum attr, void * ptr);
+extern BKInt BKContextSetPtr (BKContext * ctx, BKEnum attr, void * ptr) BK_DEPRECATED_FUNC ("Use 'BKSetPtr' instead");
 
 /**
  * Get pointer
@@ -147,7 +153,7 @@ extern BKInt BKContextSetPtr (BKContext * ctx, BKEnum attr, void * ptr);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unkown
  */
-extern BKInt BKContextGetPtr (BKContext const * ctx, BKEnum attr, void * outPtr);
+extern BKInt BKContextGetPtr (BKContext const * ctx, BKEnum attr, void * outPtr) BK_DEPRECATED_FUNC ("Use 'BKGetPtr' instead");
 
 /**
  * Generate frames
