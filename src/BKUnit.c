@@ -553,6 +553,11 @@ BKInt BKUnitSetPtr (BKUnit * unit, BKEnum attr, void * ptr)
 
 			values = ptr;
 
+			if (values == NULL) {
+				values [0] = 0;
+				values [1] = -1;
+			}
+
 			BKUnitUpdateSampleRange (unit, values [0], values [1]);
 
 			break;

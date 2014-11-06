@@ -143,16 +143,11 @@ extern void BKUnitDetach (BKUnit * unit);
  *   Has the same effect as setting the volume to 0 but does not change volume settings
  *   Can eighter be 0 or 1
  *   Default is 0
- * BK_SAMPLE_OFFSET
- *   Frames offset from which the sample should start playing
- *   If BK_SAMPLE_REPEAT is set the sample it will start playing again from
- *   this offset
- *   Default is 0
- *   Will be reset to default when changing sample
- * BK_SAMPLE_END
- *   End (but not including) frame offset to which the sample should be played
- *   If set to 0 it is set to the maximum offset
- *   Default is number of frames of the current sample
+ * BK_SAMPLE_RANGE
+ *   Frames range of the sample to play
+ *   The first value is the start offset and the second one is the end offset
+ *   If the end offset is less than start offset, th sample is played reversed
+ *   Set to NULL to reset
  *   Will be reset to default when changing sample
  * BK_SAMPLE_REPEAT
  *   Repeat sample if set to 1
