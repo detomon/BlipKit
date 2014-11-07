@@ -30,16 +30,44 @@ enum
 	BK_CLOCK_FLAG_COPY_MASK = 0,
 };
 
-BKInt BKClockInit (BKClock * clock, BKTime period, BKCallback * callback)
-{
-	memset (clock, 0, sizeof (BKClock));
+extern BKClass BKClockClass;
+extern BKClass BKDividerClass;
 
-	if (callback)
+BKInt BKClockInitGeneric (BKClock * clock, BKTime period, BKCallback * callback)
+{
+	if (callback) {
 		clock -> callback = (* callback);
+	}
 
 	clock -> time     = BK_TIME_ZERO;
 	clock -> nextTime = BK_TIME_ZERO;
 	clock -> period   = period;
+
+	return 0;
+}
+
+BKInt BKClockInit (BKClock * clock, BKTime period, BKCallback * callback)
+{
+	if (BKObjectInit (clock, & BKClockClass, sizeof (*clock)) < 0) {
+		return -1;
+	}
+
+	if (BKClockInitGeneric (clock, period, callback) < 0) {
+		return -1;
+	}
+
+	return 0;
+}
+
+BKInt BKClockAlloc (BKClock ** outClock, BKTime period, BKCallback * callback)
+{
+	if (BKObjectAlloc ((void **) outClock, & BKClockClass, 0) < 0) {
+		return -1;
+	}
+
+	if (BKClockInitGeneric (*outClock, period, callback) < 0) {
+		return -1;
+	}
 
 	return 0;
 }
@@ -54,8 +82,6 @@ void BKClockDispose (BKClock * clock)
 		nextDivider = divider;
 		BKDividerDetach (divider);
 	}
-
-	memset (clock, 0, sizeof (BKClock));
 }
 
 BKInt BKClockAttach (BKClock * clock, BKContext * ctx, BKClock * beforeClock)
@@ -147,7 +173,7 @@ void BKClockReset (BKClock * clock)
 	for (BKDivider * divider = clock -> dividers.firstDivider; divider; divider = divider -> nextDivider)
 		BKDividerReset (divider);
 
-	clock -> flags   &= ~BK_CLOCK_FLAG_RESET; // clear reset flag
+	clock -> object.flags &= ~BK_CLOCK_FLAG_RESET; // clear reset flag
 	clock -> counter  = 0;
 	clock -> time     = BK_TIME_ZERO;
 	clock -> nextTime = BK_TIME_ZERO;
@@ -217,15 +243,40 @@ BKInt BKClockTick (BKClock * clock)
 	return result;
 }
 
-BKInt BKDividerInit (BKDivider * divider, BKUInt count, BKCallback * callback)
+static BKInt BKDividerInitGeneric (BKDivider * divider, BKUInt count, BKCallback * callback)
 {
-	memset (divider, 0, sizeof (BKDivider));
-
 	divider -> divider = BKMax (1, count);
 	divider -> counter = 0;
 
-	if (callback)
+	if (callback) {
 		divider -> callback = * callback;
+	}
+
+	return 0;
+}
+
+BKInt BKDividerInit (BKDivider * divider, BKUInt count, BKCallback * callback)
+{
+	if (BKObjectInit (divider, & BKDividerClass, sizeof (*divider)) < 0) {
+		return -1;
+	}
+
+	if (BKDividerInitGeneric (divider, count, callback) < 0) {
+		return -1;
+	}
+
+	return 0;
+}
+
+BKInt BKDividerAlloc (BKDivider ** outDivider, BKUInt count, BKCallback * callback)
+{
+	if (BKObjectAlloc ((void **) outDivider, & BKDividerClass, 0) < 0) {
+		return -1;
+	}
+
+	if (BKDividerInitGeneric (*outDivider, count, callback) < 0) {
+		return -1;
+	}
 
 	return 0;
 }
@@ -314,3 +365,15 @@ void BKDividerReset (BKDivider * divider)
 {
 	divider -> counter = 0;
 }
+
+BKClass BKClockClass =
+{
+	.instanceSize = sizeof (BKClock),
+	.dispose      = (BKDisposeFunc) BKClockDispose,
+};
+
+BKClass BKDividerClass =
+{
+	.instanceSize = sizeof (BKDivider),
+	.dispose      = (BKDisposeFunc) BKDividerDispose,
+};

@@ -224,7 +224,7 @@ int main (int argc, char * argv [])
 	SDL_CloseAudio ();
 
 
-	BKDividerDispose (& divider);
+	BKDispose (& divider);
 	BKDispose (& noise);
 	BKDispose (& triangle);
 	BKDispose (& ctx);

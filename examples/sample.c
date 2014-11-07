@@ -235,7 +235,7 @@ int main (int argc, char * argv [])
 	SDL_PauseAudio (1);
 	SDL_CloseAudio ();
 
-	BKDividerDispose (& divider);
+	BKDispose (& divider);
 	BKDispose (& sample);
 	BKDispose (& instrument);
 	BKDispose (& sampleTrack);

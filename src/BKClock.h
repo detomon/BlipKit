@@ -24,7 +24,7 @@
 #ifndef _BK_CLOCK_H_
 #define _BK_CLOCK_H_
 
-#include "BKBase.h"
+#include "BKObject.h"
 #include "BKTime.h"
 
 /**
@@ -42,6 +42,7 @@ typedef struct BKClock        BKClock;
 
 struct BKDivider
 {
+	BKObject         object;
 	BKDividerGroup * group;
 	BKDivider      * prevDivider;
 	BKDivider      * nextDivider;
@@ -58,7 +59,7 @@ struct BKDividerGroup
 
 struct BKClock
 {
-	BKUInt         flags;
+	BKObject       object;
 	void         * ctx;
 	BKClock      * prevClock;
 	BKClock      * nextClock;
@@ -76,9 +77,14 @@ struct BKClock
 extern BKInt BKClockInit (BKClock * clock, BKTime period, BKCallback * callback);
 
 /**
+ * Allocate clock
+ */
+extern BKInt BKClockAlloc (BKClock ** outClock, BKTime period, BKCallback * callback);
+
+/**
  * Dispose clock
  */
-extern void BKClockDispose (BKClock * clock);
+extern void BKClockDispose (BKClock * clock) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Attach clock
@@ -121,9 +127,14 @@ extern BKInt BKClockTick (BKClock * clock);
 extern BKInt BKDividerInit (BKDivider * divider, BKUInt count, BKCallback * callback);
 
 /**
+ * Allocate divider
+ */
+extern BKInt BKDividerAlloc (BKDivider ** outDivider, BKUInt count, BKCallback * callback);
+
+/**
  * Dispose divider
  */
-extern void BKDividerDispose (BKDivider * divider);
+extern void BKDividerDispose (BKDivider * divider) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");;
 
 /**
  * Add divider to clock
