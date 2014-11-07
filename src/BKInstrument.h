@@ -64,7 +64,7 @@ struct BKInstrumentState
 
 struct BKInstrument
 {
-	BKUInt              flags;
+	BKObject            object;
 	BKUInt              numSequences;
 	BKInstrumentState * stateList;
 	BKSequence        * sequences [BK_MAX_SEQUENCES];
@@ -76,9 +76,14 @@ struct BKInstrument
 extern BKInt BKInstrumentInit (BKInstrument * instr);
 
 /**
+ * Allocate instrument
+ */
+extern BKInt BKInstrumentAlloc (BKInstrument ** outInstr);
+
+/**
  * Dispose instrument and detach from all tracks
  */
-extern void BKInstrumentDispose (BKInstrument * instr);
+extern void BKInstrumentDispose (BKInstrument * instr) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Detach instrument from all tracks

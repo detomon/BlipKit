@@ -37,6 +37,8 @@ BKInt const sequenceDefaultValue [BK_MAX_SEQUENCES] =
 	[BK_SEQUENCE_DUTY_CYCLE] = 0,
 };
 
+extern BKClass BKInstrumentClass;
+
 static void BKInstrumentStateAddToInstrument (BKInstrumentState * state, BKInstrument * instr);
 static void BKInstrumentStateRemoveFromInstrument (BKInstrumentState * state);
 
@@ -76,7 +78,18 @@ static void BKInstrumentResetStates (BKInstrument * instr, BKEnum event)
 
 BKInt BKInstrumentInit (BKInstrument * instr)
 {
-	memset (instr, 0, sizeof (BKInstrument));
+	if (BKObjectInit (instr, & BKInstrumentClass, sizeof (*instr)) < 0) {
+		return -1;
+	}
+
+	return 0;
+}
+
+BKInt BKInstrumentAlloc (BKInstrument ** outInstr)
+{
+	if (BKObjectAlloc ((void **) outInstr, & BKInstrumentClass, 0) < 0) {
+		return -1;
+	}
 
 	return 0;
 }
@@ -93,8 +106,6 @@ void BKInstrumentDispose (BKInstrument * instr)
 		if (sequence)
 			BKSequenceDispose (sequence);
 	}
-
-	memset (instr, 0, sizeof (BKInstrument));
 }
 
 void BKInstrumentDetach (BKInstrument * instr)
@@ -109,7 +120,7 @@ BKInt BKInstrumentInitCopy (BKInstrument * copy, BKInstrument const * original)
 
 	memset (copy, 0, sizeof (sizeof (BKInstrument)));
 
-	copy -> flags = (original -> flags & BK_INSTR_FLAG_COPY_MASK);
+	copy -> object.flags = (original -> object.flags & BK_INSTR_FLAG_COPY_MASK);
 	copy -> numSequences = original -> numSequences;
 
 	for (BKInt i = 0; i < original -> numSequences; i ++) {
@@ -221,7 +232,7 @@ BKInt BKInstrumentSetEnvelopeADSR (BKInstrument * instr, BKUInt attack, BKUInt d
  */
 static void BKInstrumentStateAddToInstrument (BKInstrumentState * state, BKInstrument * instr)
 {
-	if (state -> instrument == NULL && instr && (instr -> flags & BK_INSTR_FLAG_STATE_LIST_LOCK) == 0) {
+	if (state -> instrument == NULL && instr && (instr -> object.flags & BK_INSTR_FLAG_STATE_LIST_LOCK) == 0) {
 		state -> instrument = instr;
 		state -> prevState  = NULL;
 		state -> nextState  = instr -> stateList;
@@ -242,7 +253,7 @@ static void BKInstrumentStateRemoveFromInstrument (BKInstrumentState * state)
 {
 	BKInstrument * instr = state -> instrument;
 
-	if (instr != NULL && (instr -> flags & BK_INSTR_FLAG_STATE_LIST_LOCK) == 0) {
+	if (instr != NULL && (instr -> object.flags & BK_INSTR_FLAG_STATE_LIST_LOCK) == 0) {
 		if (state -> prevState)
 			state -> prevState -> nextState = state -> nextState;
 
@@ -379,3 +390,9 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 		}
 	}
 }
+
+BKClass BKInstrumentClass =
+{
+	.instanceSize = sizeof (BKInstrument),
+	.dispose      = (BKDisposeFunc) BKInstrumentDispose,
+};
