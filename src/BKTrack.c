@@ -583,8 +583,9 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 		}
 
 		if (track -> waveform == BK_SAMPLE) {
-			if (track -> curNote == -1 || track -> unit.sample.repeat == 0)
-				BKUnitSetAttr (& track -> unit, BK_PHASE, 0);
+			if (track -> curNote == -1 || track -> unit.sample.repeat == 0) {
+				BKUnitSetAttr (& track -> unit, BK_PHASE, -1);
+			}
 		}
 
 		track -> curNote         = note;

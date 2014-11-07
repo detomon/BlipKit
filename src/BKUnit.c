@@ -383,7 +383,17 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			if (unit -> waveform != BK_SAMPLE) {
 				value = BKClamp (value, 0, unit -> phase.count - 1);
 			}
-			else  {
+			else {
+				// reset to sample start
+				if (value < 0) {
+					if (unit -> sample.end > unit -> sample.offset) {
+						value = 0;
+					}
+					else {
+						value = unit -> sample.length - 1;
+					}
+				}
+
 				value = BKClamp (value, 0, unit -> sample.length - 1);
 				BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_BEGIN);
 			}
@@ -814,7 +824,7 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 		unit -> sample.timeFrac &= BK_FINT20_FRAC;
 
 		// reset if phase exceeds end
-		if (unit -> phase.phase >= unit -> sample.length) {
+		if ((BKInt) unit -> phase.phase >= (BKInt) unit -> sample.length) {
 			reset = 1;
 		}
 		// reset if phase exceeds end (reversed)
