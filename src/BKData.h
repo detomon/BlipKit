@@ -113,7 +113,7 @@ extern BKInt BKDataAlloc (BKData ** outData);
 /**
  * Dispose data and detach from all tracks
  */
-extern void BKDataDispose (BKData * data);
+extern void BKDataDispose (BKData * data) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Detach data from all tracks
@@ -136,7 +136,7 @@ extern BKInt BKDataInitCopy (BKData * copy, BKData const * original);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value);
+extern BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value) BK_DEPRECATED_FUNC ("Use 'BKSetAttr' instead");
 
 /**
  * Get attribute
@@ -148,26 +148,7 @@ extern BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue);
-
-/**
- * No attributes defined
- *
- * Errors:
- * Always returns BK_INVALID_ATTRIBUTE
- */
-extern BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr);
-
-/**
- * Get attribute
- *
- * BK_NUM_SAMPLE
- * BK_NUM_CHANNELS
- *
- * Errors:
- * BK_INVALID_ATTRIBUTE if attribute is unknown
- */
-extern BKInt BKDataGetPtr (BKData const * data, BKEnum attr, void * outPtr);
+extern BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue) BK_DEPRECATED_FUNC ("Use 'BKGetAttr' instead");
 
 /**
  * Set frames

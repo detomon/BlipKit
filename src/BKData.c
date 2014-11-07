@@ -246,36 +246,6 @@ BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue)
 	return 0;
 }
 
-BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr)
-{
-	switch (attr) {
-		default: {
-			return BK_INVALID_ATTRIBUTE;
-			break;
-		}
-	}
-
-	return 0;
-}
-
-BKInt BKDataGetPtr (BKData const * data, BKEnum attr, void * outPtr)
-{
-	void ** ptrRef = outPtr;
-
-	switch (attr) {
-		case BK_SAMPLE: {
-			* ptrRef = data -> frames;
-			break;
-		}
-		default: {
-			return BK_INVALID_ATTRIBUTE;
-			break;
-		}
-	}
-
-	return 0;
-}
-
 BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy)
 {
 	BKUInt    size;
@@ -819,16 +789,6 @@ BKInt BKDataConvert (BKData * data, BKDataConvertInfo * info)
 	return 0;
 }
 
-static BKInt BKDataSetPtrSize (BKData * data, BKEnum attr, void * ptr, BKSize size)
-{
-	return BKDataSetPtr (data, attr, ptr);
-}
-
-static BKInt BKDataGetPtrSize (BKData * data, BKEnum attr, void * outPtr, BKSize size)
-{
-	return BKDataGetPtr (data, attr, outPtr);
-}
-
 static void BKDataDisposeObject (BKData * data)
 {
 	BKDataDetach (data);
@@ -843,7 +803,5 @@ BKClass const BKDataClass =
 	.instanceSize = sizeof (BKData),
 	.setAttr      = (void *) BKDataSetAttr,
 	.getAttr      = (void *) BKDataGetAttr,
-	.setPtr       = (void *) BKDataSetPtrSize,
-	.getPtr       = (void *) BKDataGetPtrSize,
 	.dispose      = (void *) BKDataDisposeObject,
 };
