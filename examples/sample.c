@@ -67,7 +67,7 @@ static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
 	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
 
 	BKInt range [2] = {offset, offset + 200};
-	BKTrackSetPtr (& sampleTrack, BK_SAMPLE_RANGE, range);
+	BKSetPtr (& sampleTrack, BK_SAMPLE_RANGE, range, sizeof (range));
 	offset += 1;
 
 	if (offset > 2000)
@@ -94,7 +94,7 @@ BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 
 	// Set track note
 	if (note != -3)
-		BKTrackSetAttr (& sampleTrack, BK_NOTE, note);
+		BKSetAttr (& sampleTrack, BK_NOTE, note);
 
 	i ++;
 
@@ -117,29 +117,35 @@ int main (int argc, char * argv [])
 
 	BKTrackInit (& sampleTrack, BK_SQUARE);
 
-	BKTrackSetAttr (& sampleTrack, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& sampleTrack, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr (& sampleTrack, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
+	BKSetAttr (& sampleTrack, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 
 	BKTrackAttach (& sampleTrack, & ctx);
 
+	FILE * file = fopen ("itemland3.raw", "rb");
+
+	BKDataInit (& sample);
+
 	// Load raw sound data
-	BKDataInitAndLoadRawAudio (& sample, "itemland3.raw", 16, 1, BK_LITTLE_ENDIAN);
+	BKDataLoadRaw (& sample, file, 16, 1, BK_LITTLE_ENDIAN);
+
+	fclose (file);
 
 	// Normalize frames to maximum amplitude
 	BKDataNormalize (& sample);
 
 	// Tune sample pitch to BK_C_4 (approximately)
-	BKDataSetAttr (& sample, BK_SAMPLE_PITCH, -0.9 * BK_FINT20_UNIT);
+	BKSetAttr (& sample, BK_SAMPLE_PITCH, -0.9 * BK_FINT20_UNIT);
 
 	// Set data object as sample
-	BKTrackSetPtr (& sampleTrack, BK_SAMPLE, & sample);
+	BKSetPtr (& sampleTrack, BK_SAMPLE, & sample, 0);
 
 	// set play range
 	BKInt range [2] = {600, 800};
-	BKTrackSetPtr (& sampleTrack, BK_SAMPLE_RANGE, range);
+	BKSetPtr (& sampleTrack, BK_SAMPLE_RANGE, range, sizeof (range));
 
 	// repeat play range
-	BKTrackSetAttr (& sampleTrack, BK_SAMPLE_REPEAT, 1);
+	BKSetAttr (& sampleTrack, BK_SAMPLE_REPEAT, 1);
 
 	//// instrument with release sequence
 	BKInstrumentInit (& instrument);
@@ -156,13 +162,13 @@ int main (int argc, char * argv [])
 	BKInstrumentSetSequence (& instrument, BK_SEQUENCE_VOLUME, volumeSequence, NUM_VOLUME_PHASES, 0, 1);
 
 	// Attach instrument to track
-	BKTrackSetPtr (& sampleTrack, BK_INSTRUMENT, & instrument);
+	BKSetPtr (& sampleTrack, BK_INSTRUMENT, & instrument, 0);
 
-	//BKTrackSetAttr (& sampleTrack, BK_NOTE, BK_C_4 * BK_FINT20_UNIT);
+	//BKSetAttr (& sampleTrack, BK_NOTE, BK_C_4 * BK_FINT20_UNIT);
 	//BKInt const arpeggio [] = {6, 0, 0, 4 * BK_FINT20_UNIT, 4 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT};
-	//BKTrackSetPtr (& sampleTrack, BK_ARPEGGIO, arpeggio);
-	//BKTrackSetAttr (& sampleTrack, BK_EFFECT_PORTAMENTO, 2000);
-	//BKTrackSetAttr (& sampleTrack, BK_NOTE, BK_C_0 * BK_FINT20_UNIT);
+	//BKSetPtr (& sampleTrack, BK_ARPEGGIO, arpeggio);
+	//BKSetAttr (& sampleTrack, BK_EFFECT_PORTAMENTO, 2000);
+	//BKSetAttr (& sampleTrack, BK_NOTE, BK_C_0 * BK_FINT20_UNIT);
 
 	// Callback struct used for initializing divider
 	BKCallback callback;
@@ -216,7 +222,7 @@ int main (int argc, char * argv [])
 
 		// Do stuff ...
 		//BKInt vibrato [2] = {16, 3 * BK_FINT20_UNIT};
-		//BKTrackSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato);
+		//BKSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato);
 
 		//SDL_UnlockAudio ();
 
@@ -230,10 +236,10 @@ int main (int argc, char * argv [])
 	SDL_CloseAudio ();
 
 	BKDividerDispose (& divider);
-	BKDataDispose (& sample);
-	BKInstrumentDispose (& instrument);
-	BKTrackDispose (& sampleTrack);
-	BKContextDispose (& ctx);
+	BKDispose (& sample);
+	BKDispose (& instrument);
+	BKDispose (& sampleTrack);
+	BKDispose (& ctx);
 
     return 0;
 }

@@ -80,7 +80,7 @@ BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 
 	// Set track note
 	if (note != -3)
-		BKTrackSetAttr (& track, BK_NOTE, note);
+		BKSetAttr (& track, BK_NOTE, note);
 
 	i ++;
 
@@ -103,11 +103,11 @@ int main (int argc, char * argv [])
 
 	BKTrackInit (& track, BK_SQUARE);
 
-	BKTrackSetAttr (& track, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& track, BK_VOLUME,        0.5 * BK_MAX_VOLUME);
+	BKSetAttr (& track, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
+	BKSetAttr (& track, BK_VOLUME,        0.5 * BK_MAX_VOLUME);
 
 	// portamento
-	BKTrackSetAttr (& track, BK_EFFECT_PORTAMENTO, 35);
+	BKSetAttr (& track, BK_EFFECT_PORTAMENTO, 35);
 
 	BKTrackAttach (& track, & ctx);
 
@@ -127,7 +127,7 @@ int main (int argc, char * argv [])
 
 	BKInstrumentSetEnvelope (& instrument, BK_SEQUENCE_PANNING, panning, 4, 1, 2);
 
-	BKTrackSetPtr (& track, BK_INSTRUMENT, & instrument);
+	BKSetPtr (& track, BK_INSTRUMENT, & instrument, 0);
 	////
 
 	// Callback struct used for initializing divider
@@ -181,7 +181,7 @@ int main (int argc, char * argv [])
 		SDL_LockAudio ();
 
 		//BKInt vibrato [2] = {16, 3 * BK_FINT20_UNIT};
-		//BKTrackSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato);
+		//BKSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato);
 
 		SDL_UnlockAudio ();
 
@@ -196,9 +196,9 @@ int main (int argc, char * argv [])
 
 
 	BKDividerDispose (& divider);
-	BKInstrumentDispose (& instrument);
-	BKTrackDispose (& track);
-	BKContextDispose (& ctx);
+	BKDispose (& instrument);
+	BKDispose (& track);
+	BKDispose (& ctx);
 
     return 0;
 }

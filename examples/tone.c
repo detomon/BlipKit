@@ -74,14 +74,14 @@ int main (int argc, char * argv [])
 
 	BKTrackInit (& square, BK_SQUARE);
 
-	BKTrackSetAttr (& square, BK_MASTER_VOLUME, 0.1 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& square, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& square, BK_DUTY_CYCLE,    8);
-	BKTrackSetAttr (& square, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
+	BKSetAttr (& square, BK_MASTER_VOLUME, 0.1 * BK_MAX_VOLUME);
+	BKSetAttr (& square, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr (& square, BK_DUTY_CYCLE,    8);
+	BKSetAttr (& square, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
 
 	// set tremolo effect
 	BKInt tremolo [2] = {18, 0.5 * BK_MAX_VOLUME};
-	BKTrackSetPtr (& square, BK_EFFECT_TREMOLO, tremolo);
+	BKSetPtr (& square, BK_EFFECT_TREMOLO, tremolo, sizeof (tremolo));
 
 	// attach to context
 	BKTrackAttach (& square, & ctx);
@@ -122,8 +122,8 @@ int main (int argc, char * argv [])
 	SDL_CloseAudio ();
 
 
-	BKTrackDispose (& square);
-	BKContextDispose (& ctx);
+	BKDispose (& square);
+	BKDispose (& ctx);
 
     return 0;
 }

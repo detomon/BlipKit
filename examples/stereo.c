@@ -74,64 +74,64 @@ int main (int argc, char * argv [])
 
 	BKTrackInit (& left, BK_NOISE);
 
-	BKTrackSetAttr (& left, BK_MASTER_VOLUME, 0.03 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& left, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& left, BK_PANNING,      -BK_MAX_VOLUME);
-	BKTrackSetAttr (& left, BK_NOTE,          BK_A_1 * BK_FINT20_UNIT);
+	BKSetAttr (& left, BK_MASTER_VOLUME, 0.03 * BK_MAX_VOLUME);
+	BKSetAttr (& left, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr (& left, BK_PANNING,      -BK_MAX_VOLUME);
+	BKSetAttr (& left, BK_NOTE,          BK_A_1 * BK_FINT20_UNIT);
 
 	BKTrackAttach (& left, & ctx);
 
 
 	BKTrackInit (& right, BK_NOISE);
 
-	BKTrackSetAttr (& right, BK_MASTER_VOLUME, 0.03 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& right, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& right, BK_PANNING,      +BK_MAX_VOLUME);
-	BKTrackSetAttr (& right, BK_NOTE,          BK_A_1 * BK_FINT20_UNIT);
-	BKTrackSetAttr (& right, BK_PHASE,         16000);
+	BKSetAttr (& right, BK_MASTER_VOLUME, 0.03 * BK_MAX_VOLUME);
+	BKSetAttr (& right, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr (& right, BK_PANNING,      +BK_MAX_VOLUME);
+	BKSetAttr (& right, BK_NOTE,          BK_A_1 * BK_FINT20_UNIT);
+	BKSetAttr (& right, BK_PHASE,         16000);
 
 	BKTrackAttach (& right, & ctx);
 
 
 	BKTrackInit (& square1, BK_SQUARE);
 
-	BKTrackSetAttr (& square1, BK_MASTER_VOLUME, 0.025 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& square1, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& square1, BK_DUTY_CYCLE,    5);
-	BKTrackSetAttr (& square1, BK_PANNING,      -0.5 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& square1, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
+	BKSetAttr (& square1, BK_MASTER_VOLUME, 0.025 * BK_MAX_VOLUME);
+	BKSetAttr (& square1, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr (& square1, BK_DUTY_CYCLE,    5);
+	BKSetAttr (& square1, BK_PANNING,      -0.5 * BK_MAX_VOLUME);
+	BKSetAttr (& square1, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
 
 	BKTrackAttach (& square1, & ctx);
 
 
 	BKTrackInit (& square2, BK_SQUARE);
 
-	BKTrackSetAttr (& square2, BK_MASTER_VOLUME, 0.025 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& square2, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& square2, BK_DUTY_CYCLE,    7);
-	BKTrackSetAttr (& square2, BK_PANNING,      +0.5 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& square2, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
+	BKSetAttr (& square2, BK_MASTER_VOLUME, 0.025 * BK_MAX_VOLUME);
+	BKSetAttr (& square2, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr (& square2, BK_DUTY_CYCLE,    7);
+	BKSetAttr (& square2, BK_PANNING,      +0.5 * BK_MAX_VOLUME);
+	BKSetAttr (& square2, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
 
 	BKTrackAttach (& square2, & ctx);
 
 
 	BKInt vibrato [2] = {1300, 12 * BK_FINT20_UNIT};
-	BKTrackSetPtr (& left, BK_EFFECT_VIBRATO, vibrato);
+	BKSetPtr (& left, BK_EFFECT_VIBRATO, vibrato, sizeof (vibrato));
 
 	BKInt vibrato2 [2] = {1700, 12 * BK_FINT20_UNIT};
-	BKTrackSetPtr (& right, BK_EFFECT_VIBRATO, vibrato2);
+	BKSetPtr (& right, BK_EFFECT_VIBRATO, vibrato2, sizeof (vibrato2));
 
 	BKInt tremolo [2] = {400, 0.8 * BK_MAX_VOLUME};
-	BKTrackSetPtr (& square1, BK_EFFECT_TREMOLO, tremolo);
+	BKSetPtr (& square1, BK_EFFECT_TREMOLO, tremolo, sizeof (tremolo));
 
 	BKInt vibrato3 [2] = {700, 3 * BK_FINT20_UNIT};
-	BKTrackSetPtr (& square1, BK_EFFECT_VIBRATO, vibrato3);
+	BKSetPtr (& square1, BK_EFFECT_VIBRATO, vibrato3, sizeof (vibrato3));
 
 	BKInt tremolo2 [2] = {800, 0.8 * BK_MAX_VOLUME};
-	BKTrackSetPtr (& square2, BK_EFFECT_TREMOLO, tremolo2);
+	BKSetPtr (& square2, BK_EFFECT_TREMOLO, tremolo2, sizeof (tremolo2));
 
 	BKInt vibrato4 [2] = {200, 3 * BK_FINT20_UNIT};
-	BKTrackSetPtr (& square2, BK_EFFECT_VIBRATO, vibrato4);
+	BKSetPtr (& square2, BK_EFFECT_VIBRATO, vibrato4, sizeof (vibrato4));
 
 
 
@@ -171,11 +171,11 @@ int main (int argc, char * argv [])
 	SDL_CloseAudio ();
 
 
-	BKTrackDispose (& left);
-	BKTrackDispose (& right);
-	BKTrackDispose (& square1);
-	BKTrackDispose (& square2);
-	BKContextDispose (& ctx);
+	BKDispose (& left);
+	BKDispose (& right);
+	BKDispose (& square1);
+	BKDispose (& square2);
+	BKDispose (& ctx);
 
     return 0;
 }

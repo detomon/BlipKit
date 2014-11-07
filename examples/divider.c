@@ -86,17 +86,17 @@ BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 		note *= BK_FINT20_UNIT;
 
 	// Set track note
-	BKTrackSetAttr (& sawtooth, BK_NOTE, note);
+	BKSetAttr (& sawtooth, BK_NOTE, note);
 
 	if (note >= 0)
 		note += 7 * BK_FINT20_UNIT;
 
-	BKTrackSetAttr (& triangle, BK_NOTE, note);
+	BKSetAttr (& triangle, BK_NOTE, note);
 
 	if (note2 >= 0)
 		note2 *= BK_FINT20_UNIT;
 
-	BKTrackSetAttr (& square, BK_NOTE, note2);
+	BKSetAttr (& square, BK_NOTE, note2);
 
 
 	i ++;
@@ -120,19 +120,19 @@ int main (int argc, char * argv [])
 
 	BKTrackInit (& square, BK_SQUARE);
 
-	BKTrackSetAttr (& square, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& square, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& square, BK_DUTY_CYCLE,    2);
+	BKSetAttr (& square, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
+	BKSetAttr (& square, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr (& square, BK_DUTY_CYCLE,    2);
 
 	BKTrackInit (& sawtooth, BK_SAWTOOTH);
 
-	BKTrackSetAttr (& sawtooth, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& sawtooth, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr (& sawtooth, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
+	BKSetAttr (& sawtooth, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 
 	BKTrackInit (& triangle, BK_TRIANGLE);
 
-	BKTrackSetAttr (& triangle, BK_MASTER_VOLUME, 0.3 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& triangle, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr (& triangle, BK_MASTER_VOLUME, 0.3 * BK_MAX_VOLUME);
+	BKSetAttr (& triangle, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 
 	BKInstrument instrument;
 
@@ -146,15 +146,15 @@ int main (int argc, char * argv [])
 	BKInstrumentSetSequence (& instrument, BK_SEQUENCE_VOLUME, sequence, 6, 0, 1);
 
 	BKInt vibrato [2] = {12, 0.25 * BK_FINT20_UNIT};
-	BKTrackSetPtr (& square, BK_EFFECT_VIBRATO, vibrato);
+	BKSetPtr (& square, BK_EFFECT_VIBRATO, vibrato, sizeof (vibrato));
 
 
 	BKTrackAttach (& square, & ctx);
 	BKTrackAttach (& sawtooth, & ctx);
 	BKTrackAttach (& triangle, & ctx);
 
-	BKTrackSetPtr (& square, BK_INSTRUMENT, & instrument);
-	BKTrackSetPtr (& sawtooth, BK_INSTRUMENT, & instrument);
+	BKSetPtr (& square, BK_INSTRUMENT, & instrument, 0);
+	BKSetPtr (& sawtooth, BK_INSTRUMENT, & instrument, 0);
 
 	// Callback struct used for initializing divider
 	BKCallback callback;
@@ -208,7 +208,7 @@ int main (int argc, char * argv [])
 		SDL_LockAudio ();
 
 		//BKInt vibrato [2] = {16, 3 * BK_FINT20_UNIT};
-		//BKTrackSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato);
+		//BKSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato, sizeof (vibrato));
 
 		SDL_UnlockAudio ();
 		*/

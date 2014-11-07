@@ -85,7 +85,7 @@ BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 
 	// Set track note
 	if (note != -3)
-		BKTrackSetAttr (& organ, BK_NOTE, note);
+		BKSetAttr (& organ, BK_NOTE, note);
 
 	i ++;
 
@@ -108,35 +108,37 @@ int main (int argc, char * argv [])
 
 	BKTrackInit (& organ, BK_SQUARE);
 
-	BKTrackSetAttr (& organ, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& organ, BK_VOLUME,        0.5 * BK_MAX_VOLUME);
+	BKSetAttr (& organ, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
+	BKSetAttr (& organ, BK_VOLUME,        0.5 * BK_MAX_VOLUME);
 
 	// portamento
-	BKTrackSetAttr (& organ, BK_EFFECT_PORTAMENTO, 15);
+	BKSetAttr (& organ, BK_EFFECT_PORTAMENTO, 15);
 
 	// tremolo
-	BKInt const tremolo [2] = {12, 0.66 * BK_MAX_VOLUME};
-	BKTrackSetPtr (& organ, BK_EFFECT_TREMOLO, tremolo);
+	BKInt tremolo [2] = {12, 0.66 * BK_MAX_VOLUME};
+	BKSetPtr (& organ, BK_EFFECT_TREMOLO, tremolo, sizeof (tremolo));
 
 	BKTrackAttach (& organ, & ctx);
 
 	//// custom waveform
 	#define NUM_PHASES 16
 
-	BKFrame const phases [NUM_PHASES] = {
+	BKFrame phases [NUM_PHASES] = {
 		 0, +1, +3, +6,
 		+4, +5, +6, +7,
 		 0, +1, +2, +3,
 		-1,  0, -5, -6,
 	};
 
-	BKDataInitWithFrames (& organWaveform, phases, NUM_PHASES, 1, 1);
+	BKDataInit (& organWaveform);
+
+	BKDataSetFrames (& organWaveform, phases, NUM_PHASES, 1, 1);
 
 	// Normalize frames to maximum amplitude
 	BKDataNormalize (& organWaveform);
 
 	// Set data object as waveform
-	BKTrackSetPtr (& organ, BK_WAVEFORM, & organWaveform);
+	BKSetPtr (& organ, BK_WAVEFORM, & organWaveform, 0);
 	////
 
 	//// instrument with release sequence
@@ -154,7 +156,7 @@ int main (int argc, char * argv [])
 
 	BKInstrumentSetSequence (& instrument, BK_SEQUENCE_VOLUME, volumeSequence, NUM_SEQUENCE_PHASES, 0, 1);
 
-	BKTrackSetPtr (& organ, BK_INSTRUMENT, & instrument);
+	BKSetPtr (& organ, BK_INSTRUMENT, & instrument, 0);
 	////
 
 	// Callback struct used for initializing divider
@@ -208,7 +210,7 @@ int main (int argc, char * argv [])
 		SDL_LockAudio ();
 
 		//BKInt vibrato [2] = {16, 3 * BK_FINT20_UNIT};
-		//BKTrackSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato);
+		//BKSetPtr (& sawtooth, BK_EFFECT_VIBRATO, vibrato, , sizeof (vibrato));
 
 		SDL_UnlockAudio ();
 
@@ -223,10 +225,10 @@ int main (int argc, char * argv [])
 
 
 	BKDividerDispose (& divider);
-	BKDataDispose (& organWaveform);
-	BKInstrumentDispose (& instrument);
-	BKTrackDispose (& organ);
-	BKContextDispose (& ctx);
+	BKDispose (& organWaveform);
+	BKDispose (& instrument);
+	BKDispose (& organ);
+	BKDispose (& ctx);
 
     return 0;
 }
