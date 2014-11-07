@@ -156,13 +156,6 @@ extern BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue) 
 extern BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy);
 
 /**
- * Data from frames
- * `numFrames` must be at least 2
- * `numChannel` must be between 1 and BK_MAX_CHANNELS
- */
-extern BKInt BKDataInitWithFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy);
-
-/**
  * Set frame data and convert to internal format
  * `params` can be a combination of endian and bit flags e.g:
  *   BK_LITTLE_ENDIAN | BK_16_BIT_SIGNED
@@ -171,25 +164,17 @@ extern BKInt BKDataInitWithFrames (BKData * data, BKFrame const * frames, BKUInt
 extern BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params);
 
 /**
- * Initialize data object with frame data and convert to internal format
- * `params` can be a combination of endian and bit flags e.g:
- *   BK_LITTLE_ENDIAN | BK_16_BIT_SIGNED
- * Endianness only affects data with more than 8 bits per frame
- */
-extern BKInt BKDataInitWithData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params);
-
-/**
  * Load frames from raw audio file
  * Calls `BKDataSetData` with the data of the file
  */
-extern BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKEnum bits, BKUInt numChannels, BKEnum endian);
+extern BKInt BKDataLoadRaw (BKData * data, FILE * file, BKEnum bits, BKUInt numChannels, BKEnum endian);
 
 /**
  * Load frames from WAVE audio file
  * Only 16 and 8 bit PCM format is supported
  * File `file` is not closed
  */
-extern BKInt BKDataInitAndLoadWAVE (BKData * data, FILE * file);
+extern BKInt BKDataLoadWAVE (BKData * data, FILE * file);
 
 /**
  * Normalize frames to maximum possible values

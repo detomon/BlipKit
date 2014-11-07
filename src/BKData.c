@@ -479,15 +479,6 @@ static BKInt BKDataConvertFromBits (BKFrame * outFrames, void const * data, BKUI
 	return 0;
 }
 
-BKInt BKDataInitWithFrames (BKData * data, BKFrame const * phases, BKUInt numFrames, BKUInt numChannels, BKInt copy)
-{
-	if (BKDataInit (data) == 0) {
-		return BKDataSetFrames (data, phases, numFrames, numChannels, copy);
-	}
-
-	return -1;
-}
-
 BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params)
 {
 	BKUInt    endian = (params & BK_ENDIAN_MASK);
@@ -532,48 +523,28 @@ BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKU
 	return 0;
 }
 
-BKInt BKDataInitWithData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params)
+BKInt BKDataLoadRaw (BKData * data, FILE * file, BKUInt numBits, BKUInt numChannels, BKEnum endian)
 {
-	if (BKDataInit (data) == 0) {
-		return BKDataSetData (data, frameData, dataSize, numChannels, params);
-	}
-
-	return -1;
-}
-
-BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBits, BKUInt numChannels, BKEnum endian)
-{
-	int    file;
 	off_t  size;
 	void * frames;
 	BKEnum params;
 	BKInt  ret = 0;
 
-	if (BKDataInit (data) < 0)
-		return BK_INVALID_RETURN_VALUE;
-
-	file = open (path, O_RDONLY);
-
-	if (file < 0)
-		return BK_FILE_ERROR;
-
-	size = lseek (file, 0, SEEK_END);
+	fseek (file, 0, SEEK_END);
+	size = ftell (file);
 
 	if (size < 0) {
-		close (file);
 		return BK_FILE_ERROR;
 	}
 
 	frames = malloc (size);
 
 	if (frames == NULL) {
-		close (file);
 		return BK_ALLOCATION_ERROR;
 	}
 
-	lseek (file, 0, SEEK_SET);
-	read (file, frames, size);
-	close (file);
+	fseek (file, 0, SEEK_SET);
+	fread (frames, sizeof (char), size, file);
 
 	if (BKDataParamFromNumBits (& params, numBits, 0) < 0) {
 		free (frames);
@@ -590,16 +561,12 @@ BKInt BKDataInitAndLoadRawAudio (BKData * data, char const * path, BKUInt numBit
 	return ret;
 }
 
-BKInt BKDataInitAndLoadWAVE (BKData * data, FILE * file)
+BKInt BKDataLoadWAVE (BKData * data, FILE * file)
 {
 	BKWaveFileReader reader;
 	BKInt numChannels, sampleRate, numFrames;
 	BKFrame * frames;
 	BKSize size;
-
-	if (BKDataInit (data) < 0) {
-		return BK_INVALID_RETURN_VALUE;
-	}
 
 	if (BKWaveFileReaderInit (& reader, file) < 0) {
 		return BK_INVALID_RETURN_VALUE;
