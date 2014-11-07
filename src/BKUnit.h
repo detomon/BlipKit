@@ -143,6 +143,8 @@ extern void BKUnitDetach (BKUnit * unit);
  *   Has the same effect as setting the volume to 0 but does not change volume settings
  *   Can eighter be 0 or 1
  *   Default is 0
+ * BK_SAMPLE
+ *   Set a sample object to play
  * BK_SAMPLE_RANGE
  *   Frames range of the sample to play
  *   The first value is the start offset and the second one is the end offset

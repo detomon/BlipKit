@@ -148,6 +148,8 @@ extern void BKTrackDetach (BKTrack * track);
  *   Value must be multiplied by BK_FINT20_UNIT
  *   To release the note the value is BK_NOTE_RELEASE
  *   To mute the note the value is BK_NOTE_MUTE
+ * BK_INSTRUMENT
+ *   Set an instrument object
  * BK_PITCH
  *   Set note pitch. This value will be added to every note.
  * BK_ARPEGGIO_DIVIDER
