@@ -32,11 +32,11 @@ This code demonstrates the basic steps to generate audio data of a square wave i
 	BKTrackInit (& track, BK_SQUARE);
 
 	// Set mix and note volume
-	BKTrackSetAttr (& track, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
-	BKTrackSetAttr (& track, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr (& track, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
+	BKSetAttr (& track, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 
 	// Set note A in octave 3
-	BKTrackSetAttr (& track, BK_NOTE, BK_A_3 * BK_FINT20_UNIT);
+	BKSetAttr (& track, BK_NOTE, BK_A_3 * BK_FINT20_UNIT);
 
 	// Enable tremolo effect
 	BKInt tremolo [2] = {20, 0.66 * BK_MAX_VOLUME};
