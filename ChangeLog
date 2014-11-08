@@ -1,3 +1,12 @@
+Changes in BlipKit 0.11:
+  Release date: 2014-11-08
+
+* Deprecate some functions in favour of: BKSetAttr, BKGetAttr, BKSetPtr, BKGetPtr and BKDispose
+* Fixes in BKTrack
+* Fixes in BKUnit
+* Fixes in BKWaveFileReader
+* Improved sample rendering
+
 Changes in BlipKit 0.10:
   Release date: 2014-10-13
 
