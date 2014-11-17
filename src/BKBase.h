@@ -111,6 +111,10 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
  */
 #define BK_FIRST_ELEMENT_PTR ((void *) -1)
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 /**
  * Macro functions
  */

@@ -54,17 +54,12 @@ typedef struct
 } BKFFT;
 
 /**
- * Create FFT object
+ * Allocate FFT object
  *
  * `numSamples` should be a power of 2 otherwise it is rounded up to the next
  * higher power of 2. If no memory could be allocated NULL is returned.
  */
-extern BKFFT * BKFFTCreate (BKUSize numSamples);
-
-/**
- * Dispose FFT object
- */
-extern void BKFFTDispose (BKFFT * fft);
+extern BKInt BKFFTAlloc (BKFFT ** outFFT, BKUSize numSamples);
 
 /**
  * Load new samples
