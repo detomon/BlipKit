@@ -415,13 +415,20 @@ BKInt BKTrackInit (BKTrack * track, BKEnum waveform)
 
 BKInt BKTrackAlloc (BKTrack ** outTrack, BKEnum waveform)
 {
+	BKUInt flags;
+
 	if (BKObjectAlloc ((void **) outTrack, & BKTrackClass, 0) < 0) {
 		return -1;
 	}
 
+	flags = (*outTrack) -> unit.object.flags & BKObjectFlagMask;
+
 	if (BKTrackInitGeneric (*outTrack, waveform) < 0) {
 		return -1;
 	}
+
+	// cleared by `BKUnitInit`
+	(*outTrack) -> unit.object.flags |= flags;
 
 	return 0;
 }
