@@ -8,6 +8,7 @@ libblipkit_a_SOURCES = \
 	BKClock.c \
 	BKContext.c \
 	BKData.c \
+	BKFFT.c \
 	BKInstrument.c \
 	BKInterpolation.c \
 	BKObject.c \
@@ -23,9 +24,11 @@ HEADER_LIST = \
 	BKBase.h \
 	BKBuffer.h \
 	BKClock.h \
+	BKComplex.h \
 	BKContext.h \
 	BKData.h \
 	BKData_internal.h \
+	BKFFT.h \
 	BKInstrument.h \
 	BKInstrument_internal.h \
 	BKInterpolation.h \

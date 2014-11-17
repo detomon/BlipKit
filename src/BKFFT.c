@@ -22,6 +22,9 @@
  */
 
 #include "BKFFT.h"
+#include "BKObject.h"
+
+extern BKClass BKFFTClass;
 
 /**
  * Returns the next higher power of 2
@@ -182,7 +185,7 @@ static void BKComplexListCopyReal (BKComplexComp re [], BKComplex const points [
 	}
 }
 
-BKFFT * BKFFTCreate (BKUSize numSamples)
+BKInt BKFFTAlloc (BKFFT ** outFFT, BKUSize numSamples)
 {
 	BKFFT * fft;
 	BKUSize size;
@@ -195,18 +198,14 @@ BKFFT * BKFFTCreate (BKUSize numSamples)
 	// allocate all arrays at once
 	// [BKFFT struct] + [input] + [output] + [bitRevMap] + [unitWaves]
 
-	size = sizeof (BKFFT)
-	     + numSamples * sizeof (BKComplexComp)
+	size = numSamples * sizeof (BKComplexComp)
 	     + numSamples * sizeof (BKComplex)
 	     + numSamples * sizeof (BKInt)
 	     + numSamples * sizeof (BKComplex);
 
-	fft = malloc (size);
-
-	if (fft == NULL)
-		return NULL;
-
-	memset (fft, 0, size);
+	if (BKObjectAlloc ((void **) & fft, & BKFFTClass, size) < 0) {
+		return -1;
+	}
 
 	fft -> numSamples = numSamples;
 	fft -> numBits    = numBits;
@@ -218,13 +217,13 @@ BKFFT * BKFFTCreate (BKUSize numSamples)
 	BKFFTBitRevMapMake (fft -> bitRevMap, numSamples);
 	BKFFTUnitWaveMake (fft -> unitWave, numSamples);
 
-	return fft;
+	*outFFT = fft;
+
+	return 0;
 }
 
-void BKFFTDispose (BKFFT * fft)
+static void BKFFTDispose (BKFFT * fft)
 {
-	if (fft)
-		free (fft);
 }
 
 BKInt BKFFTSamplesLoad (BKFFT * fft, BKComplexComp const samples [], BKUSize numSamples, BKEnum options)
@@ -346,3 +345,9 @@ void BKFFTClear (BKFFT * fft)
 	memset (fft -> input, 0, fft -> numSamples * sizeof (BKComplexComp));
 	memset (fft -> output, 0, fft -> numSamples * sizeof (BKComplex));
 }
+
+BKClass BKFFTClass =
+{
+	.instanceSize = sizeof (BKFFT),
+	.dispose      = (BKDisposeFunc) BKFFTDispose,
+};
