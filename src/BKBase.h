@@ -129,7 +129,7 @@ typedef unsigned BKEnum;
  * Define offsetof if needed
  */
 #ifndef offsetof
-#define offsetof(s, f) ((size_t) & ((s *) NULL) -> f)
+#define offsetof(s, f) ((BKSize) & ((s *) NULL) -> f)
 #endif
 
 /**

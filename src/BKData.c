@@ -525,7 +525,7 @@ BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKU
 
 BKInt BKDataLoadRaw (BKData * data, FILE * file, BKUInt numBits, BKUInt numChannels, BKEnum endian)
 {
-	off_t  size;
+	BKSize size;
 	void * frames;
 	BKEnum params;
 	BKInt  ret = 0;
@@ -678,7 +678,7 @@ static void BKDataReduceBits (BKFrame * outFrames, BKFrame * frames, BKSize leng
 				dither = (dither & 1) ? -deltaDither : deltaDither;
 
 				// smooth dither
-				ditherFactor = powf (BKAbs ((sum / ditherSmoothLength)) / maxValue, ditherCurve);
+				ditherFactor = pow (BKAbs ((sum / ditherSmoothLength)) / maxValue, ditherCurve);
 				ditherFactor = (1.0 - ditherSlope) + (ditherFactor * ditherSlope);
 				dither *= ditherFactor;
 

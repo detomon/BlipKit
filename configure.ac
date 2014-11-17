@@ -7,7 +7,6 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # Checks for programs.
 AC_PROG_AWK
-AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_RANLIB
 AC_PROG_INSTALL
@@ -16,16 +15,12 @@ AC_PROG_MAKE_SET
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h limits.h stddef.h stdint.h stdlib.h string.h termios.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h limits.h math.h stddef.h stdint.h stdlib.h string.h termios.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_INT64_T
-AC_TYPE_OFF_T
-AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
-AC_CHECK_HEADER_STDBOOL
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 
