@@ -44,6 +44,10 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 {
 	BKContext * ctx = unit -> ctx;
 
+	if (ctx == NULL) {
+		return BK_INVALID_STATE;
+	}
+
 	switch (type) {
 		// set data as custom waveform
 		case BK_WAVEFORM: {
