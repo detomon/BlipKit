@@ -447,6 +447,7 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 		}
 		case BK_SAMPLE_PERIOD: {
 			unit -> sample.period = BKClamp (value, BK_MIN_SAMPLE_PERIOD, BK_MAX_SAMPLE_PERIOD);
+			unit -> sample.period = BKAbs (unit -> sample.period);
 
 			// reverse sample direction
 			if (unit -> sample.offset > unit -> sample.end)
@@ -747,7 +748,7 @@ static BKInt BKUnitResetSample (BKUnit * unit)
 
 	if (numWrap) {
 		// phase %= numWrap
-		if (unit -> sample.offset < unit -> sample.end) {
+		if (unit -> sample.period >= 0) {
 			do {
 				unit -> phase.phase -= numWrap;
 			}
@@ -915,7 +916,7 @@ void BKUnitClear (BKUnit * unit)
 
 	// reverse period if needed
 	if (unit -> sample.offset > unit -> sample.end)
-		unit -> sample.period = -unit -> sample.period;
+		unit -> sample.period = -BKAbs (unit -> sample.period);
 }
 
 void BKUnitReset (BKUnit * unit)
