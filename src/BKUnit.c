@@ -414,7 +414,8 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			break;
 		}
 		case BK_PERIOD: {
-			unit -> period = BKMax (value, BK_MIN_PERIOD);
+			value = BKMax (BKAbs (value), BK_MIN_PERIOD);
+			unit -> period = value;
 			break;
 		}
 		case BK_VOLUME: {
@@ -442,17 +443,31 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			break;
 		}
 		case BK_SAMPLE_REPEAT: {
+			switch (value) {
+				case BK_NO_REPEAT:
+				case BK_REPEAT:
+				case BK_PALINDROME: {
+					break;
+				}
+				default: {
+					value = BK_NO_REPEAT;
+					break;
+				}
+			}
+
 			unit -> sample.repeat = value;
 			break;
 		}
 		case BK_SAMPLE_PERIOD: {
-			unit -> sample.period = BKClamp (value, BK_MIN_SAMPLE_PERIOD, BK_MAX_SAMPLE_PERIOD);
-			unit -> sample.period = BKAbs (unit -> sample.period);
+			value = BKAbs (value);
+			value = BKClamp (value, BK_MIN_SAMPLE_PERIOD, BK_MAX_SAMPLE_PERIOD);
 
-			// reverse sample direction
-			if (unit -> sample.offset > unit -> sample.end)
-				unit -> sample.period = -unit -> sample.period;
+			// reverse if negative
+			if (unit -> sample.period < 0) {
+				value = -value;
+			}
 
+			unit -> sample.period = value;
 			break;
 		}
 		case BK_HALT_SILENT_PHASE: {
@@ -739,47 +754,89 @@ static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime, BKInt adva
 	return time;
 }
 
+/**
+ * Wrap sample phase if it exceeds the sample range boundary
+ */
+static BKInt BKUnitWrapSamplePhase (BKUnit * unit)
+{
+	BKInt resetDir = 0;
+	BKInt length   = unit -> sample.length;
+
+	// reset if phase exceeds end
+	if ((BKInt) unit -> phase.phase >= (BKInt) unit -> sample.length) {
+		// phase %= length
+		while ((BKInt) unit -> phase.phase >= length) {
+			unit -> phase.phase -= length;
+		}
+		resetDir = 1;
+	}
+	// reset if phase exceeds end (reversed)
+	else if ((BKInt) unit -> phase.phase < 0) {
+		// phase %= length
+		while ((BKInt) unit -> phase.phase < 0) {
+			unit -> phase.phase += length;
+		}
+		resetDir = -1;
+	}
+
+	return resetDir;
+}
+
 static BKInt BKUnitResetSample (BKUnit * unit)
 {
-	BKInt numWrap;
+	BKInt repeat, resetDir;
+	BKInt mode = 0;
 	BKInt halt = 0;
 
-	numWrap = unit -> sample.length;
+	repeat = unit -> sample.repeat;
 
-	if (numWrap) {
-		// phase %= numWrap
-		if (unit -> sample.period >= 0) {
-			do {
-				unit -> phase.phase -= numWrap;
-			}
-			while (unit -> phase.phase >= numWrap);
-		}
-		else {
-			do {
-				unit -> phase.phase += numWrap;
-			}
-			while ((BKInt) unit -> phase.phase < 0);
-		}
-	}
-
-	// callback function
 	if (unit -> sample.callback.func) {
-		BKInt ret = BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_RESET);
-
-		// repeat sample if BK_SAMPLE_REPEAT is returned from callback
-		if (ret != BK_SAMPLE_REPEAT)
-			halt = 1;
+		repeat = BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_RESET);
 	}
-	// repeat attribute
-	else if (unit -> sample.repeat <= 0) {
+
+	resetDir = BKUnitWrapSamplePhase (unit);
+
+	switch (repeat) {
+		default:
+		case BK_NO_REPEAT: {
+			mode = 0;
+			break;
+		}
+		case BK_REPEAT: {
+			mode = resetDir;
+			break;
+		}
+		case BK_PALINDROME: {
+			if (resetDir == 1) {
+				unit -> phase.phase = unit -> sample.length - unit -> phase.phase - 1;
+			}
+			else if (resetDir == -1) {
+				unit -> phase.phase = unit -> sample.length - unit -> phase.phase;
+			}
+			mode = -resetDir;
+			break;
+		}
+	}
+
+	// halt
+	if (mode == 0) {
 		halt = 1;
 	}
+	// set direction
+	else {
+		unit -> sample.period = BKAbs (unit -> sample.period);
 
-	if (halt) {
-		unit -> mute = 1;
+		// reverse
+		if (mode == -1) {
+			unit -> sample.period = -unit -> sample.period;
+		}
 	}
 
 	unit -> sample.repeatCount ++;
+
+	if (halt) {
+		BKSetAttr (unit, BK_MUTE, 1);
+	}
 
 	return halt;
 }
@@ -795,18 +852,17 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 	BKBuffer * channel;
 	BKInt      pulse, delta, chanDelta;
 	BKFrame  * frames;
-	BKInt      reset = 0;
 
 	// muted
-	if (unit -> mute)
+	if (unit -> mute) {
 		return endTime;
+	}
 
 	// prevent invalid sample length
 	if (BKAbs ((BKInt) unit -> sample.end - (BKInt) unit -> sample.offset) < 2)
 		return endTime;
 
 	for (time = unit -> time; time < endTime; time += BK_FINT20_UNIT) {
-		reset  = 0;
 		frames = & unit -> sample.frames [unit -> phase.phase * unit -> sample.numChannels];
 
 		// update each channel
@@ -828,18 +884,11 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 		unit -> phase.phase += (unit -> sample.timeFrac >> BK_FINT20_SHIFT) - (lastTime >> BK_FINT20_SHIFT);
 		unit -> sample.timeFrac &= BK_FINT20_FRAC;
 
-		// reset if phase exceeds end
-		if ((BKInt) unit -> phase.phase >= (BKInt) unit -> sample.length) {
-			reset = 1;
-		}
-		// reset if phase exceeds end (reversed)
-		else if ((BKInt) unit -> phase.phase < 0) {
-			reset = 1;
-		}
-
-		if (reset) {
-			if (BKUnitResetSample (unit) == 1)
+		// check phase boundary
+		if ((BKInt) unit -> phase.phase < 0 || (BKInt) unit -> phase.phase >= (BKInt) unit -> sample.length) {
+			if (BKUnitResetSample (unit) == 1) {
 				break;
+			}
 		}
 	}
 

@@ -285,6 +285,16 @@ enum
 };
 
 /**
+ * Repeat options
+ */
+enum
+{
+	BK_NO_REPEAT,
+	BK_REPEAT,
+	BK_PALINDROME,
+};
+
+/**
  * Return codes
  */
 enum
