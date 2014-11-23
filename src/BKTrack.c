@@ -587,6 +587,8 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 
 			if (track -> flags & BKInstrumentFlag)
 				BKTrackInstrumentAttack (track);
+
+			track -> arpeggio.offset = 0;
 		}
 
 		if (track -> waveform == BK_SAMPLE) {
@@ -595,8 +597,7 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 			}
 		}
 
-		track -> curNote         = note;
-		track -> arpeggio.offset = 0;
+		track -> curNote = note;
 
 		BKUnitSetAttr (& track -> unit, BK_MUTE, 0);
 	}
