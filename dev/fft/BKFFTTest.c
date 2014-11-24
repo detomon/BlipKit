@@ -21,14 +21,13 @@
  * IN THE SOFTWARE.
  */
 
-#include <math.h>
-#include <stdio.h>
-#include <limits.h>
+#include "BKBase.h"
 #include "BKFFT.h"
-#include "BKComplex.h"
 
 int main (int argc, char const * argv [])
 {
+	BKFFT * fft;
+
 	// the buffer will be 16 sample wide
 	int n = 16;
 
@@ -36,7 +35,8 @@ int main (int argc, char const * argv [])
 	BKComplexComp x [n];
 
 	// create FFT object
-	BKFFT * fft = BKFFTCreate (n);
+
+	BKFFTAlloc (& fft, n);
 
 	printf ("Input:\n");
 
@@ -82,7 +82,7 @@ int main (int argc, char const * argv [])
 		printf ("%4d % lf % lf\n", i, re, im);
 	}
 
-	BKFFTDispose (fft);
+	BKDispose (fft);
 
 	return 0;
 }
