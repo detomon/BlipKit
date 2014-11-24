@@ -33,8 +33,6 @@ AC_CONFIG_FILES([
   Makefile
   src/Makefile
   examples/Makefile
-  dev/step_phases/Makefile
-  dev/tone_periods/Makefile
 ])
 
 # Define flags.
