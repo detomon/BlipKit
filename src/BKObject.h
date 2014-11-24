@@ -48,6 +48,7 @@ enum BKObjectFlag
 {
 	BKObjectFlagInitialized = 1 << 24,
 	BKObjectFlagAllocated   = 1 << 25,
+	BKObjectFlagLocked      = 1 << 26, // used to prevent recursion
 	BKObjectFlagMask        = ~((1 << 24) - 1),
 	BKObjectFlagUsableMask  = (1 << 24) - 1,
 };
