@@ -24,6 +24,10 @@
 #ifndef _BK_BASE_H_
 #define _BK_BASE_H_
 
+#ifdef HAVE_CONFIG_H
+#	include "config.h"
+#endif
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
