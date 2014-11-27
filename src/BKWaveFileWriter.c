@@ -61,21 +61,18 @@ static BKInt BKCheckFile (FILE * file)
 	int fd, mode;
 
 	if (fseek (file, 0, SEEK_CUR)) {
-		fprintf (stderr, "BKWaveFileWriterInit: file is not seekable\n");
-		return -1;
+		return BK_FILE_NOT_SEEKABLE_ERROR;
 	}
 
 	fd   = fileno (file);
-	mode = fcntl (fd, F_GETFL);
+	mode = fcntl (fd, F_GETFL) & O_ACCMODE;
 
 	if (mode < 0) {
-		fprintf (stderr, "BKWaveFileWriterInit: could not determine file mode\n");
-		return -1;
+		return BK_FILE_ERROR;
 	}
 
-	if ((mode & O_ACCMODE) != O_RDWR) {
-		fprintf (stderr, "BKWaveFileWriterInit: file must be read/writable\n");
-		return -1;
+	if (mode != O_RDWR && mode != O_WRONLY) {
+		return BK_FILE_NOT_WRITABLE_ERROR;
 	}
 
 	return 0;
@@ -83,8 +80,10 @@ static BKInt BKCheckFile (FILE * file)
 
 BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numChannels, BKInt sampleRate)
 {
-	if (BKCheckFile (file) < 0) {
-		return -1;
+	BKInt res;
+
+	if ((res = BKCheckFile (file)) != 0) {
+		return res;
 	}
 
 	if (BKObjectInit (writer, & BKWaveFileWriterClass, sizeof (*writer)) < 0) {
@@ -184,35 +183,30 @@ BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * f
 
 BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer)
 {
-	BKSize               offset;
-	BKWaveFileHeader     header;
-	BKWaveFileHeaderData dataHeader;
+	BKSize   offset;
+	uint32_t chunkSize;
 
-	offset = writer -> initOffset;
-	fseek (writer -> file, offset, SEEK_SET);
-	fread (& header, sizeof (header), 1, writer -> file);
-
-	header.chunkSize = writer -> fileSize;
+	offset = writer -> initOffset + offsetof (BKWaveFileHeader, chunkSize);
+	chunkSize = writer -> fileSize;
 
 	if (writer -> reverseEndian) {
-		header.chunkSize = BKInt32Reverse (header.chunkSize);
+		chunkSize = BKInt32Reverse (chunkSize);
 	}
 
 	fseek (writer -> file, offset, SEEK_SET);
-	fwrite (& header, sizeof (header), 1, writer -> file);
+	fwrite (& chunkSize, sizeof (chunkSize), 1, writer -> file);
 
 	offset = writer -> initOffset + sizeof (BKWaveFileHeader) + sizeof (BKWaveFileHeaderFmt);
-	fseek (writer -> file, offset, SEEK_SET);
-	fread (& dataHeader, sizeof (dataHeader), 1, writer -> file);
+	offset += offsetof (BKWaveFileHeaderData, subchunkSize);
 
-	dataHeader.subchunkSize = writer -> dataSize;
+	chunkSize = writer -> dataSize;
 
 	if (writer -> reverseEndian) {
-		dataHeader.subchunkSize = BKInt32Reverse (dataHeader.subchunkSize);
+		chunkSize = BKInt32Reverse (chunkSize);
 	}
 
 	fseek (writer -> file, offset, SEEK_SET);
-	fwrite (& dataHeader, sizeof (dataHeader), 1, writer -> file);
+	fwrite (& chunkSize, sizeof (chunkSize), 1, writer -> file);
 
 	fseek (writer -> file, 0, SEEK_END);
 	fflush (writer -> file);
