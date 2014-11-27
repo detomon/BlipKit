@@ -72,7 +72,7 @@ BKInt BKClockAlloc (BKClock ** outClock, BKTime period, BKCallback * callback)
 	return 0;
 }
 
-void BKClockDispose (BKClock * clock)
+static void BKClockDisposeObject (BKClock * clock)
 {
 	BKDivider * nextDivider;
 
@@ -82,6 +82,11 @@ void BKClockDispose (BKClock * clock)
 		nextDivider = divider;
 		BKDividerDetach (divider);
 	}
+}
+
+void BKClockDispose (BKClock * clock)
+{
+	BKDispose (clock);
 }
 
 BKInt BKClockAttach (BKClock * clock, BKContext * ctx, BKClock * beforeClock)
@@ -281,7 +286,7 @@ BKInt BKDividerAlloc (BKDivider ** outDivider, BKUInt count, BKCallback * callba
 	return 0;
 }
 
-void BKDividerDispose (BKDivider * divider)
+static void BKDividerDisposeObject (BKDivider * divider)
 {
 	BKDividerGroup * group = divider -> group;
 
@@ -304,6 +309,11 @@ void BKDividerDispose (BKDivider * divider)
 
 		divider -> group = NULL;
 	}
+}
+
+void BKDividerDispose (BKDivider * divider)
+{
+	BKDispose (divider);
 }
 
 BKInt BKDividerAttachToClock (BKDivider * divider, BKClock * clock)
@@ -369,11 +379,11 @@ void BKDividerReset (BKDivider * divider)
 BKClass BKClockClass =
 {
 	.instanceSize = sizeof (BKClock),
-	.dispose      = (BKDisposeFunc) BKClockDispose,
+	.dispose      = (BKDisposeFunc) BKClockDisposeObject,
 };
 
 BKClass BKDividerClass =
 {
 	.instanceSize = sizeof (BKDivider),
-	.dispose      = (BKDisposeFunc) BKDividerDispose,
+	.dispose      = (BKDisposeFunc) BKDividerDisposeObject,
 };

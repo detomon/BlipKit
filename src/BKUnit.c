@@ -207,11 +207,16 @@ BKInt BKUnitInit (BKUnit * unit, BKEnum waveform)
 	return 0;
 }
 
-void BKUnitDispose (BKUnit * unit)
+void BKUnitDisposeObject (BKUnit * unit)
 {
 	BKDataStateSetData (& unit -> sample.dataState, NULL);
 
 	BKUnitDetach (unit);
+}
+
+void BKUnitDispose (BKUnit * unit)
+{
+	BKDispose (unit);
 }
 
 BKInt BKUnitAttach (BKUnit * unit, BKContext * ctx)
@@ -994,7 +999,7 @@ static BKInt BKUnitGetPtrSize (BKUnit * unit, BKEnum attr, void * outPtr, BKSize
 BKClass BKUnitClass =
 {
 	.instanceSize = sizeof (BKUnit),
-	.dispose      = (BKDisposeFunc) BKUnitDispose,
+	.dispose      = (BKDisposeFunc) BKUnitDisposeObject,
 	.setAttr      = (BKSetAttrFunc) BKUnitSetAttr,
 	.getAttr      = (BKGetAttrFunc) BKUnitGetAttr,
 	.setPtr       = (BKSetPtrFunc)  BKUnitSetPtrSize,

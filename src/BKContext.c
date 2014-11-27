@@ -99,7 +99,7 @@ extern BKInt BKContextAlloc (BKContext ** outCtx, BKUInt numChannels, BKUInt sam
 	return 0;
 }
 
-void BKContextDispose (BKContext * ctx)
+static void BKContextDisposeObject (BKContext * ctx)
 {
 	BKUnit   * nextUnit;
 	BKClock  * nextClock;
@@ -123,10 +123,15 @@ void BKContextDispose (BKContext * ctx)
 	if (ctx -> channels)
 		free (ctx -> channels);
 
-	BKClockDispose (& ctx -> masterClock);
+	BKDispose (& ctx -> masterClock);
 }
 
-BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value)
+void BKContextDispose (BKContext * ctx)
+{
+	BKDispose (ctx);
+}
+
+BKInt BKContextSetAttrInt (BKContext * ctx, BKEnum attr, BKInt value)
 {
 	switch (attr) {
 		case BK_ARPEGGIO_DIVIDER:
@@ -146,7 +151,12 @@ BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value)
 	return 0;
 }
 
-BKInt BKContextGetAttr (BKContext const * ctx, BKEnum attr, BKInt * outValue)
+BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value)
+{
+	return BKContextSetAttrInt (ctx, attr, value);
+}
+
+BKInt BKContextGetAttrInt (BKContext const * ctx, BKEnum attr, BKInt * outValue)
 {
 	BKInt value = 0;
 
@@ -170,7 +180,12 @@ BKInt BKContextGetAttr (BKContext const * ctx, BKEnum attr, BKInt * outValue)
 	return 0;
 }
 
-BKInt BKContextSetPtr (BKContext * ctx, BKEnum attr, void * ptr)
+BKInt BKContextGetAttr (BKContext const * ctx, BKEnum attr, BKInt * outValue)
+{
+	return BKContextGetAttrInt (ctx, attr, outValue);
+}
+
+static BKInt BKContextSetPtrObj (BKContext * ctx, BKEnum attr, void * ptr, BKSize size)
 {
 	switch (attr) {
 		case BK_CLOCK_PERIOD: {
@@ -194,7 +209,12 @@ BKInt BKContextSetPtr (BKContext * ctx, BKEnum attr, void * ptr)
 	return 0;
 }
 
-BKInt BKContextGetPtr (BKContext const * ctx, BKEnum attr, void * outPtr)
+BKInt BKContextSetPtr (BKContext * ctx, BKEnum attr, void * ptr)
+{
+	return BKContextSetPtrObj (ctx, attr, ptr, 0);
+}
+
+static BKInt BKContextGetPtrObj (BKContext const * ctx, BKEnum attr, void * outPtr, BKSize size)
 {
 	switch (attr) {
 		case BK_CLOCK_PERIOD: {
@@ -216,6 +236,11 @@ BKInt BKContextGetPtr (BKContext const * ctx, BKEnum attr, void * outPtr)
 	}
 
 	return 0;
+}
+
+BKInt BKContextGetPtr (BKContext const * ctx, BKEnum attr, void * outPtr)
+{
+	return BKContextGetPtrObj (ctx, attr, outPtr, 0);
 }
 
 BKInt BKContextGenerate (BKContext * ctx, BKFrame outFrames [], BKUInt size)
@@ -474,22 +499,12 @@ BKInt BKContextAttachDivider (BKContext * ctx, BKDivider * divider, BKEnum type)
 	return 0;
 }
 
-static BKInt BKContextSetPtrSize (BKContext * ctx, BKEnum attr, void * ptr, BKSize size)
-{
-	return BKContextSetPtr (ctx, attr, ptr);
-}
-
-static BKInt BKContextGetPtrSize (BKContext * ctx, BKEnum attr, void * outPtr, BKSize size)
-{
-	return BKContextSetPtr (ctx, attr, outPtr);
-}
-
 BKClass BKContextClass =
 {
 	.instanceSize = sizeof (BKContext),
-	.dispose      = (BKDisposeFunc) BKContextDispose,
-	.setAttr      = (BKSetAttrFunc) BKContextSetAttr,
-	.getAttr      = (BKGetAttrFunc) BKContextGetAttr,
-	.setPtr       = (BKSetPtrFunc)  BKContextSetPtrSize,
-	.getPtr       = (BKGetPtrFunc)  BKContextGetPtrSize,
+	.dispose      = (BKDisposeFunc) BKContextDisposeObject,
+	.setAttr      = (BKSetAttrFunc) BKContextSetAttrInt,
+	.getAttr      = (BKGetAttrFunc) BKContextGetAttrInt,
+	.setPtr       = (BKSetPtrFunc)  BKContextSetPtrObj,
+	.getPtr       = (BKGetPtrFunc)  BKContextGetPtrObj,
 };

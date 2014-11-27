@@ -38,6 +38,11 @@ static void BKTrackSetNote (BKTrack * track, BKInt note);
 static void BKTrackSetInstrument (BKTrack * track, BKInstrument * instrument);
 static void BKTrackInstrumentUpdateFlags (BKTrack * track, BKInt all);
 
+extern BKInt BKContextSetAttrInt (BKContext * ctx, BKEnum attr, BKInt value);
+extern BKInt BKContextGetAttrInt (BKContext const * ctx, BKEnum attr, BKInt * outValue);
+
+extern void BKUnitDisposeObject (BKUnit * unit);
+
 static BKInt BKTrackInstrStateCallback (BKEnum event, BKTrack * track)
 {
 	switch (event) {
@@ -489,12 +494,17 @@ void BKTrackClear (BKTrack * track)
 	BKSetAttr (track, BK_MUTE, 1);
 }
 
-void BKTrackDispose (BKTrack * track)
+static void BKTrackDisposeObject (BKTrack * track)
 {
 	BKInstrumentStateSetInstrument (& track -> instrState, NULL);
 
 	BKTrackDetach (track);
-	BKUnitDispose (& track -> unit);
+	BKUnitDisposeObject (& track -> unit);
+}
+
+void BKTrackDispose (BKTrack * track)
+{
+	BKDispose (track);
 }
 
 BKInt BKTrackAttach (BKTrack * track, BKContext * ctx)
@@ -504,7 +514,7 @@ BKInt BKTrackAttach (BKTrack * track, BKContext * ctx)
 	ret = BKUnitAttach (& track -> unit, ctx);
 
 	if (ret == 0) {
-		BKContextSetAttr (ctx, BK_CLOCK_TYPE_EFFECT, 1);
+		BKContextSetAttrInt (ctx, BK_CLOCK_TYPE_EFFECT, 1);
 
 		BKContextAttachDivider (ctx, & track -> divider, BK_CLOCK_TYPE_EFFECT);
 
@@ -657,7 +667,7 @@ static void BKTrackSetInstrument (BKTrack * track, BKInstrument * instrument)
 	BKTrackInstrumentUpdateFlags (track, 1);
 }
 
-BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value)
+static BKInt BKTrackSetAttrInt (BKTrack * track, BKEnum attr, BKInt value)
 {
 	BKInt ret = 0;
 	BKInt values [2];
@@ -754,7 +764,12 @@ BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value)
 	return ret;
 }
 
-BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
+BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value)
+{
+	return BKTrackSetAttrInt (track, attr, value);
+}
+
+static BKInt BKTrackGetAttrInt (BKTrack const * track, BKEnum attr, BKInt * outValue)
 {
 	BKInt ret   = 0;
 	BKInt value = 0;
@@ -817,6 +832,11 @@ BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
 	* outValue = value;
 
 	return 0;
+}
+
+BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue)
+{
+	return BKTrackGetAttrInt (track, attr, outValue);
 }
 
 BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, void const * inValues, BKUInt size)
@@ -954,7 +974,7 @@ BKInt BKTrackGetEffect (BKTrack const * track, BKEnum effect, void * outValues, 
 	return 0;
 }
 
-BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
+static BKInt BKTrackSetPtrObj (BKTrack * track, BKEnum attr, void * ptr, BKSize size)
 {
 	BKInt res;
 	BKInt oldAttr;
@@ -1034,7 +1054,12 @@ BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
 	return 0;
 }
 
-BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr)
+BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr)
+{
+	return BKTrackSetPtrObj (track, attr, ptr, 0);
+}
+
+static BKInt BKTrackGetPtrObj (BKTrack const * track, BKEnum attr, void * outPtr, BKSize size)
 {
 	BKInt res = 0;
 	void ** ptrRef = outPtr;
@@ -1078,22 +1103,17 @@ BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr)
 	return 0;
 }
 
-static BKInt BKTrackSetPtrSize (BKTrack * track, BKEnum attr, void * ptr, BKSize size)
+BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr)
 {
-	return BKTrackSetPtr (track, attr, ptr);
-}
-
-static BKInt BKTrackGetPtrSize (BKTrack * track, BKEnum attr, void * outPtr, BKSize size)
-{
-	return BKTrackSetPtr (track, attr, outPtr);
+	return BKTrackGetPtrObj (track, attr, outPtr, 0);
 }
 
 BKClass BKTrackClass =
 {
 	.instanceSize = sizeof (BKTrack),
-	.dispose      = (BKDisposeFunc) BKTrackDispose,
-	.setAttr      = (BKSetAttrFunc) BKTrackSetAttr,
-	.getAttr      = (BKGetAttrFunc) BKTrackGetAttr,
-	.setPtr       = (BKSetPtrFunc)  BKTrackSetPtrSize,
-	.getPtr       = (BKGetPtrFunc)  BKTrackGetPtrSize,
+	.dispose      = (BKDisposeFunc) BKTrackDisposeObject,
+	.setAttr      = (BKSetAttrFunc) BKTrackSetAttrInt,
+	.getAttr      = (BKGetAttrFunc) BKTrackGetAttrInt,
+	.setPtr       = (BKSetPtrFunc)  BKTrackSetPtrObj,
+	.getPtr       = (BKGetPtrFunc)  BKTrackGetPtrObj,
 };

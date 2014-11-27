@@ -93,7 +93,7 @@ BKInt BKInstrumentAlloc (BKInstrument ** outInstr)
 	return 0;
 }
 
-void BKInstrumentDispose (BKInstrument * instr)
+static void BKInstrumentDisposeObject (BKInstrument * instr)
 {
 	BKSequence * sequence;
 
@@ -105,6 +105,11 @@ void BKInstrumentDispose (BKInstrument * instr)
 		if (sequence)
 			BKSequenceDispose (sequence);
 	}
+}
+
+void BKInstrumentDispose (BKInstrument * instr)
+{
+	BKDispose (instr);
 }
 
 void BKInstrumentDetach (BKInstrument * instr)
@@ -393,5 +398,5 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 BKClass BKInstrumentClass =
 {
 	.instanceSize = sizeof (BKInstrument),
-	.dispose      = (BKDisposeFunc) BKInstrumentDispose,
+	.dispose      = (BKDisposeFunc) BKInstrumentDisposeObject,
 };

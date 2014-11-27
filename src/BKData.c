@@ -169,6 +169,15 @@ BKInt BKDataAlloc (BKData ** outData)
 	return BKObjectAlloc ((void *) outData, & BKDataClass, 0);
 }
 
+static void BKDataDisposeObject (BKData * data)
+{
+	BKDataDetach (data);
+
+	if (data -> frames && (data -> object.flags & BK_DATA_FLAG_COPY)) {
+		free (data -> frames);
+	}
+}
+
 void BKDataDispose (BKData * data)
 {
 	BKDispose (data);
@@ -201,7 +210,7 @@ BKInt BKDataInitCopy (BKData * copy, BKData const * original)
 	return 0;
 }
 
-BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value)
+static BKInt BKDataSetAttrInt (BKData * data, BKEnum attr, BKInt value)
 {
 	switch (attr) {
 		case BK_SAMPLE_PITCH: {
@@ -217,7 +226,12 @@ BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value)
 	return 0;
 }
 
-BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue)
+BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value)
+{
+	return BKDataSetAttrInt (data, attr, value);
+}
+
+static BKInt BKDataGetAttrInt (BKData const * data, BKEnum attr, BKInt * outValue)
 {
 	BKInt value = 0;
 
@@ -243,6 +257,11 @@ BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue)
 	* outValue = value;
 
 	return 0;
+}
+
+BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue)
+{
+	return BKDataGetAttrInt (data, attr, outValue);
 }
 
 BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy)
@@ -755,19 +774,10 @@ BKInt BKDataConvert (BKData * data, BKDataConvertInfo * info)
 	return 0;
 }
 
-static void BKDataDisposeObject (BKData * data)
-{
-	BKDataDetach (data);
-
-	if (data -> frames && (data -> object.flags & BK_DATA_FLAG_COPY)) {
-		free (data -> frames);
-	}
-}
-
 BKClass const BKDataClass =
 {
 	.instanceSize = sizeof (BKData),
-	.setAttr      = (void *) BKDataSetAttr,
-	.getAttr      = (void *) BKDataGetAttr,
+	.setAttr      = (void *) BKDataSetAttrInt,
+	.getAttr      = (void *) BKDataGetAttrInt,
 	.dispose      = (void *) BKDataDisposeObject,
 };
