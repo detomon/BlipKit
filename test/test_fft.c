@@ -18,12 +18,12 @@ int main (int argc, char const * argv [])
 	res = BKFFTAlloc (& fft, n);
 
 	if (res != 0) {
-		fprintf (stderr, "Allocation failed\n");
+		fprintf (stderr, "Allocation failed (%d)\n", res);
 		return 99;
 	}
 
 	if (fft == INVALID_PTR || fft == NULL) {
-		fprintf (stderr, "Invalid pointer\n");
+		fprintf (stderr, "Invalid pointer (%p)\n", fft);
 		return 99;
 	}
 

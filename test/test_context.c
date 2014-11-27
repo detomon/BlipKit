@@ -10,12 +10,12 @@ int main (int argc, char const * argv [])
 	res = BKContextAlloc (& ctx, 2, 44100);
 
 	if (res != 0) {
-		fprintf (stderr, "Return value != 0\n");
+		fprintf (stderr, "Allocation failed (%d)\n", res);
 		return 99;
 	}
 
 	if (ctx == INVALID_PTR || ctx == NULL) {
-		fprintf (stderr, "Invalid pointer\n");
+		fprintf (stderr, "Invalid pointer (%p)\n", ctx);
 		return 99;
 	}
 
@@ -26,12 +26,12 @@ int main (int argc, char const * argv [])
 	res = BKContextAlloc (& ctx, 999, 9999999);
 
 	if (ctx -> numChannels != BK_MAX_CHANNELS) {
-		fprintf (stderr, "Invalid clamped value for channels\n");
+		fprintf (stderr, "Invalid clamped value for channels (%d)\n", ctx -> numChannels);
 		return 99;
 	}
 
 	if (ctx -> sampleRate != BK_MAX_SAMPLE_RATE) {
-		fprintf (stderr, "Invalid clamped value for sample rate\n");
+		fprintf (stderr, "Invalid clamped value for sample rate (%d)\n", ctx -> sampleRate);
 		return 99;
 	}
 

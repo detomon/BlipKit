@@ -10,12 +10,12 @@ int main (int argc, char const * argv [])
 	res = BKTrackAlloc (& track, BK_SQUARE);
 
 	if (res != 0) {
-		fprintf (stderr, "Return value != 0\n");
+		fprintf (stderr, "Track allocation failed (%d)\n", res);
 		return 99;
 	}
 
 	if (track == INVALID_PTR || track == NULL) {
-		fprintf (stderr, "Invalid pointer\n");
+		fprintf (stderr, "Invalid pointer (%p)\n", track);
 		return 99;
 	}
 
@@ -26,7 +26,7 @@ int main (int argc, char const * argv [])
 	res = BKTrackAlloc (& track, -345876);
 
 	if (track -> waveform != 0) {
-		fprintf (stderr, "Invalid initial value\n");
+		fprintf (stderr, "Invalid initial value (%d)\n", res);
 		return 99;
 	}
 
@@ -37,14 +37,14 @@ int main (int argc, char const * argv [])
 	res = BKContextAlloc (& ctx, 2, 44100);
 
 	if (res != 0) {
-		fprintf (stderr, "Return value != 0\n");
+		fprintf (stderr, "Context allocation failed (%d)\n", res);
 		return 99;
 	}
 
 	res = BKTrackAttach (track, ctx);
 
 	if (res != 0) {
-		fprintf (stderr, "Not attached\n");
+		fprintf (stderr, "Not attached (%d)\n", res);
 		return 99;
 	}
 
