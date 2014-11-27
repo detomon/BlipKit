@@ -24,7 +24,6 @@
 #ifndef _BK_WAVE_FILE_WRITER_H_
 #define _BK_WAVE_FILE_WRITER_H_
 
-#include <stdio.h>
 #include "BKBase.h"
 #include "BKData.h"
 

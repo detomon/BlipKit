@@ -21,9 +21,9 @@
  * IN THE SOFTWARE.
  */
 
+#include <fcntl.h>
 #include "BKWaveFileWriter.h"
 #include "BKWaveFile_internal.h"
-#include <fcntl.h>
 
 /**
  * https://ccrma.stanford.edu/courses/422/projects/WaveFormat/

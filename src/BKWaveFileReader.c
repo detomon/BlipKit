@@ -21,9 +21,9 @@
  * IN THE SOFTWARE.
  */
 
+#include <fcntl.h>
 #include "BKWaveFileReader.h"
 #include "BKWaveFile_internal.h"
-#include <fcntl.h>
 
 extern BKClass BKWaveFileReaderClass;
 

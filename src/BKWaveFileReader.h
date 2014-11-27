@@ -24,7 +24,6 @@
 #ifndef _BK_WAVE_FILE_READER_H_
 #define _BK_WAVE_FILE_READER_H_
 
-#include <stdio.h>
 #include "BKBase.h"
 #include "BKData.h"
 
