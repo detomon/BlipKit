@@ -207,6 +207,8 @@ BKInt BKFFTAlloc (BKFFT ** outFFT, BKUSize numSamples)
 		return -1;
 	}
 
+	memset (& fft [1], 0, size);
+
 	fft -> numSamples = numSamples;
 	fft -> numBits    = numBits;
 	fft -> input      = (void *) & fft [1];
