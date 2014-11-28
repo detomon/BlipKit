@@ -583,14 +583,17 @@ BKInt BKUnitSetPtr (BKUnit * unit, BKEnum attr, void * ptr)
 			break;
 		}
 		case BK_SAMPLE_RANGE: {
+			BKInt range [2];
+
 			if (unit -> waveform != BK_SAMPLE)
 				return BK_INVALID_STATE;
 
 			values = ptr;
 
 			if (values == NULL) {
-				values [0] = 0;
-				values [1] = -1;
+				range [0] = 0;
+				range [1] = -1;
+				values = range;
 			}
 
 			BKUnitUpdateSampleRange (unit, values [0], values [1]);
