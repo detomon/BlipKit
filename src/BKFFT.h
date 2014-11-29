@@ -24,8 +24,7 @@
 #ifndef _BK_FFT_H_
 #define _BK_FFT_H_
 
-#include <math.h>
-#include "BKBase.h"
+#include "BKObject.h"
 #include "BKComplex.h"
 
 enum
@@ -45,6 +44,7 @@ enum
  */
 typedef struct
 {
+	BKObject        object;
 	BKUSize         numSamples; // number of samples
 	BKUSize         numBits;    // convenient access to log2(numSamples)
 	BKComplexComp * input;      // len: numSamples

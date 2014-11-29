@@ -21,8 +21,11 @@
  * IN THE SOFTWARE.
  */
 
+#include <math.h>
 #include "BKFFT.h"
 #include "BKObject.h"
+
+extern BKClass BKFFTClass;
 
 extern BKClass BKFFTClass;
 
@@ -206,6 +209,8 @@ BKInt BKFFTAlloc (BKFFT ** outFFT, BKUSize numSamples)
 	if (BKObjectAlloc ((void **) & fft, & BKFFTClass, size) < 0) {
 		return -1;
 	}
+
+	memset (& fft [1], 0, size);
 
 	fft -> numSamples = numSamples;
 	fft -> numBits    = numBits;

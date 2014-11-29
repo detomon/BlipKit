@@ -152,8 +152,8 @@ extern void BKUnitDetach (BKUnit * unit);
  *   Set to NULL to reset
  *   Will be reset to default when changing sample
  * BK_SAMPLE_REPEAT
- *   Repeat sample if set to 1
- *   Default is 0
+ *   Set sample repeat mode: `BK_REPEAT`, `BK_PALINDROME`
+ *   Default is `BK_NO_REPEAT`
  *   Use `BK_SAMPLE_CALLBACK` to have more control
  *   Will be ignored if `BK_SAMPLE_CALLBACK` is set
  * BK_SAMPLE_PERIOD

@@ -48,6 +48,7 @@ enum BKObjectFlag
 {
 	BKObjectFlagInitialized = 1 << 24,
 	BKObjectFlagAllocated   = 1 << 25,
+	BKObjectFlagLocked      = 1 << 26, // used to prevent recursion
 	BKObjectFlagMask        = ~((1 << 24) - 1),
 	BKObjectFlagUsableMask  = (1 << 24) - 1,
 };
@@ -91,7 +92,8 @@ extern BKInt BKObjectInit (void * object, BKClass const * isa, BKSize guardSize)
  * Allocate object
  *
  * Allocate and a new object with class `isa`
- * Optionally `extraSize` bytes are reserved after object
+ * Optionally `extraSize` bytes are reserved after object.
+ * The extra byte are not emptied.
  * Returns 0 on success
  *
  * Return errors:

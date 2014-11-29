@@ -21,13 +21,42 @@
  * IN THE SOFTWARE.
  */
 
+#include <fcntl.h>
 #include "BKWaveFileReader.h"
 #include "BKWaveFile_internal.h"
 
 extern BKClass BKWaveFileReaderClass;
 
+static BKInt BKCheckFile (FILE * file)
+{
+	int fd, mode;
+
+	if (fseek (file, 0, SEEK_CUR)) {
+		return BK_FILE_NOT_SEEKABLE_ERROR;
+	}
+
+	fd   = fileno (file);
+	mode = fcntl (fd, F_GETFL) & O_ACCMODE;
+
+	if (mode < 0) {
+		return BK_FILE_ERROR;
+	}
+
+	if (mode != O_RDWR && mode != O_RDONLY) {
+		return BK_FILE_NOT_READABLE_ERROR;
+	}
+
+	return 0;
+}
+
 BKInt BKWaveFileReaderInit (BKWaveFileReader * reader, FILE * file)
 {
+	BKInt res;
+
+	if ((res = BKCheckFile (file)) != 0) {
+		return res;
+	}
+
 	if (BKObjectInit (reader, & BKWaveFileReaderClass, sizeof (*reader)) < 0) {
 		return -1;
 	}

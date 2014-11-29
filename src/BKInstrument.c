@@ -25,8 +25,7 @@
 
 enum
 {
-	BK_INSTR_FLAG_STATE_LIST_LOCK = 1 << 0,
-	BK_INSTR_FLAG_COPY_MASK       = 0,
+	BK_INSTR_FLAG_COPY_MASK = 0,
 };
 
 BKInt const sequenceDefaultValue [BK_MAX_SEQUENCES] =
@@ -94,7 +93,7 @@ BKInt BKInstrumentAlloc (BKInstrument ** outInstr)
 	return 0;
 }
 
-void BKInstrumentDispose (BKInstrument * instr)
+static void BKInstrumentDisposeObject (BKInstrument * instr)
 {
 	BKSequence * sequence;
 
@@ -106,6 +105,11 @@ void BKInstrumentDispose (BKInstrument * instr)
 		if (sequence)
 			BKSequenceDispose (sequence);
 	}
+}
+
+void BKInstrumentDispose (BKInstrument * instr)
+{
+	BKDispose (instr);
 }
 
 void BKInstrumentDetach (BKInstrument * instr)
@@ -232,7 +236,7 @@ BKInt BKInstrumentSetEnvelopeADSR (BKInstrument * instr, BKUInt attack, BKUInt d
  */
 static void BKInstrumentStateAddToInstrument (BKInstrumentState * state, BKInstrument * instr)
 {
-	if (state -> instrument == NULL && instr && (instr -> object.flags & BK_INSTR_FLAG_STATE_LIST_LOCK) == 0) {
+	if (state -> instrument == NULL && instr && (instr -> object.flags & BKObjectFlagLocked) == 0) {
 		state -> instrument = instr;
 		state -> prevState  = NULL;
 		state -> nextState  = instr -> stateList;
@@ -253,7 +257,7 @@ static void BKInstrumentStateRemoveFromInstrument (BKInstrumentState * state)
 {
 	BKInstrument * instr = state -> instrument;
 
-	if (instr != NULL && (instr -> object.flags & BK_INSTR_FLAG_STATE_LIST_LOCK) == 0) {
+	if (instr != NULL && (instr -> object.flags & BKObjectFlagLocked) == 0) {
 		if (state -> prevState)
 			state -> prevState -> nextState = state -> nextState;
 
@@ -394,5 +398,5 @@ void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase)
 BKClass BKInstrumentClass =
 {
 	.instanceSize = sizeof (BKInstrument),
-	.dispose      = (BKDisposeFunc) BKInstrumentDispose,
+	.dispose      = (BKDisposeFunc) BKInstrumentDisposeObject,
 };

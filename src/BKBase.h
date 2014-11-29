@@ -24,9 +24,16 @@
 #ifndef _BK_BASE_H_
 #define _BK_BASE_H_
 
+#define __USE_POSIX
+
+#ifdef HAVE_CONFIG_H
+#	include "config.h"
+#endif
+
 #include <stddef.h>
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -110,6 +117,10 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
  * Misc
  */
 #define BK_FIRST_ELEMENT_PTR ((void *) -1)
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 /**
  * Macro functions
@@ -281,6 +292,16 @@ enum
 };
 
 /**
+ * Repeat options
+ */
+enum
+{
+	BK_NO_REPEAT,
+	BK_REPEAT,
+	BK_PALINDROME,
+};
+
+/**
  * Return codes
  */
 enum
@@ -295,6 +316,9 @@ enum
 	BK_INVALID_NUM_BITS,
 	BK_INVALID_RETURN_VALUE,
 	BK_FILE_ERROR,
+	BK_FILE_NOT_READABLE_ERROR,
+	BK_FILE_NOT_WRITABLE_ERROR,
+	BK_FILE_NOT_SEEKABLE_ERROR,
 	BK_OTHER_ERROR,
 };
 

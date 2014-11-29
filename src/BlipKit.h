@@ -34,6 +34,7 @@
 #include "BKContext.h"
 #include "BKData.h"
 #include "BKInstrument.h"
+#include "BKObject.h"
 #include "BKTime.h"
 #include "BKTone.h"
 #include "BKTrack.h"

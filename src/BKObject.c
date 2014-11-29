@@ -149,15 +149,27 @@ BKInt BKGetPtr (void const * object, BKEnum attr, void * outPtr, BKSize size)
 void BKDispose (void * object)
 {
 	BKObject * obj = object;
-	BKClass const * isa = obj -> isa;
-	BKUInt flags = obj -> flags;
+	BKClass const * isa;
+	BKUInt flags;
 
-	if (obj == NULL || (flags & BKObjectFlagInitialized) == 0) {
+	if (obj == NULL) {
 		return;
 	}
 
-	if (isa && isa -> dispose) {
+	isa = obj -> isa;
+
+	if (isa == NULL) {
+		return;
+	}
+
+	if (isa -> dispose) {
 		isa -> dispose (obj);
+	}
+
+	flags = obj -> flags;
+
+	if ((flags & BKObjectFlagInitialized) == 0) {
+		return;
 	}
 
 	memset (obj, 0, isa -> instanceSize);

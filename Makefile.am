@@ -1,4 +1,4 @@
-SUBDIRS = src examples
+SUBDIRS = src examples test
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
