@@ -23,6 +23,9 @@
 
 #include <math.h>
 #include "BKFFT.h"
+#include "BKObject.h"
+
+extern BKClass BKFFTClass;
 
 extern BKClass BKFFTClass;
 
