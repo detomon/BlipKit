@@ -1,11 +1,11 @@
-.DS_Store
-.deps
-.svn
 *.a
 *.cache
 *.log
 *.o
 *.trs
+.DS_Store
+.deps
+.svn
 /aclocal.m4
 /ar-lib
 /compile
