@@ -197,7 +197,7 @@ static BKInt BKInstrumentSetSequenceValues (BKInstrument * instr, BKSequenceFunc
 
 		for (BKInstrumentState * state = instr -> stateList; state; state = state -> nextState) {
 			BKInstrumentStateSetDefaultValues (state);
-			BKInstrumentStateSetPhase (state, BK_SEQUENCE_PHASE_ATTACK);
+			BKInstrumentStateSetPhase (state, BK_SEQUENCE_PHASE_MUTE);
 		}
 
 		BKInstrumentResetStates (instr, BK_INSTR_STATE_EVENT_RESET);
