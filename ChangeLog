@@ -1,3 +1,9 @@
+Changes in BlipKit 0.11.3:
+  Release date: 2015-01-07
+
+* Fixed error in instrument sequences
+* Fixed compiler warnings
+
 Changes in BlipKit 0.11.2:
   Release date: 2014-11-29
 
