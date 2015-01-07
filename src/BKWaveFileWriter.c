@@ -187,7 +187,7 @@ BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer)
 	uint32_t chunkSize;
 
 	offset = writer -> initOffset + offsetof (BKWaveFileHeader, chunkSize);
-	chunkSize = writer -> fileSize;
+	chunkSize = (uint32_t) writer -> fileSize;
 
 	if (writer -> reverseEndian) {
 		chunkSize = BKInt32Reverse (chunkSize);
@@ -199,7 +199,7 @@ BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer)
 	offset = writer -> initOffset + sizeof (BKWaveFileHeader) + sizeof (BKWaveFileHeaderFmt);
 	offset += offsetof (BKWaveFileHeaderData, subchunkSize);
 
-	chunkSize = writer -> dataSize;
+	chunkSize = (uint32_t) writer -> dataSize;
 
 	if (writer -> reverseEndian) {
 		chunkSize = BKInt32Reverse (chunkSize);
