@@ -543,10 +543,16 @@ BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKU
 
 BKInt BKDataLoadRaw (BKData * data, FILE * file, BKUInt numBits, BKUInt numChannels, BKEnum endian)
 {
-	BKSize size;
+	BKSize offset, size;
 	void * frames;
 	BKEnum params;
 	BKInt  ret = 0;
+
+	offset = ftell (file);
+
+	if (offset < 0) {
+		return BK_FILE_ERROR;
+	}
 
 	fseek (file, 0, SEEK_END);
 	size = ftell (file);
@@ -555,13 +561,14 @@ BKInt BKDataLoadRaw (BKData * data, FILE * file, BKUInt numBits, BKUInt numChann
 		return BK_FILE_ERROR;
 	}
 
+	size -= offset;
 	frames = malloc (size);
 
 	if (frames == NULL) {
 		return BK_ALLOCATION_ERROR;
 	}
 
-	fseek (file, 0, SEEK_SET);
+	fseek (file, offset, SEEK_SET);
 	fread (frames, sizeof (char), size, file);
 
 	if (BKDataParamFromNumBits (& params, numBits, 0) < 0) {
