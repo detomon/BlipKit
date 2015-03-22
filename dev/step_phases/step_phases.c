@@ -27,10 +27,19 @@
 
 static BKFrame stepPhases [BK_STEP_UNIT][BK_STEP_WIDTH];
 
-static void BKBufferCalcStepPhases (void)
+int main (int argc, char const * argv [])
 {
 	int const size = BK_STEP_WIDTH;
 	double phasef [size];
+
+	printf (
+		"/**\n"
+		" * Bandlimited step phases\n"
+		" * Generated with `%s`\n"
+		" */\n"
+		"static BKFrame const stepPhases [BK_STEP_UNIT][BK_STEP_WIDTH] =\n{\n",
+		__FILE__
+	);
 
 	// step phase
 	for (int phase = 0; phase < BK_STEP_UNIT; phase ++) {
@@ -73,19 +82,14 @@ static void BKBufferCalcStepPhases (void)
 		// correct round-off error
 		stepPhases [phase][size / 2] += (BK_FRAME_MAX - sum);
 
-		printf ("{");
-
-		for (BKInt i = 0; i < size; i ++)
+		for (BKInt i = 0; i < size; i ++) {
 			printf ("%6d, ", stepPhases [phase][i]);
+		}
 
 		printf ("},\n");
 	}
-	printf ("\n");
-}
 
-int main (int argc, char const * argv [])
-{
-	BKBufferCalcStepPhases ();
+	printf ("};\n\n");
 
 	return 0;
 }

@@ -26,6 +26,7 @@
 /**
  * Frational periods
  * Multiplied by the sample rate gives the wave length of a tone
+ * Generated with `tone_periods.c`
  */
 static BKUInt const tonePeriods [(BK_MAX_PIANO_TONE - BK_MIN_PIANO_TONE) + 1] =
 {
@@ -40,6 +41,12 @@ static BKUInt const tonePeriods [(BK_MAX_PIANO_TONE - BK_MIN_PIANO_TONE) + 1] =
 	  125,
 };
 
+/**
+ * Logarithmic `BKFUInt20` values with base 2 (n / 12)
+ * where index 48 (`BK_C_4`) represents factor 1.0
+ * index 36 represent factor 0.5, index 60 represents factor 2.0, and so on
+ * Generated with `tone_periods.c`
+ */
 static BKUInt const log2Periods [(BK_MAX_SAMPLE_TONE - BK_MIN_SAMPLE_TONE) + 1] =
 {
 	   65536,    69432,    73561,    77935,    82570,    87480,    92681,    98193,   104031,   110217,   116771,   123715,

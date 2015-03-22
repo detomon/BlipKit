@@ -25,6 +25,7 @@
 
 /**
  * Bandlimited step phases
+ * Generated with `step_phases.c`
  */
 static BKFrame const stepPhases [BK_STEP_UNIT][BK_STEP_WIDTH] =
 {

@@ -32,8 +32,16 @@ static void BKCalcTonePeriods (void)
 	double freq;
 	BKFUInt20 period;
 
-	printf ("static BKUInt const tonePeriods [(BK_MAX_PIANO_TONE - BK_MIN_PIANO_TONE) + 1] =\n");
-	printf ("{\n\t");
+	printf (
+		"/**\n"
+		" * Frational periods\n"
+		" * Multiplied by the sample rate gives the wave length of a tone\n"
+		" * Generated with `%s`\n"
+		" */\n"
+		"static BKUInt const tonePeriods [(BK_MAX_PIANO_TONE - BK_MIN_PIANO_TONE) + 1] =\n"
+		"{\n\t",
+		__FILE__
+	);
 
 	for (BKInt i = BK_MIN_PIANO_TONE, c = 0; i <= BK_MAX_PIANO_TONE; i ++, c ++) {
 		freq = baseFreq * pow (2.0, ((double) i / 12.0));
@@ -55,8 +63,17 @@ static void BKCalcLog2Periods (void)
 {
 	BKUInt period;
 
-	printf ("static BKUInt const log2Periods [(BK_MAX_SAMPLE_TONE - BK_MIN_SAMPLE_TONE) + 1] =\n");
-	printf ("{\n\t");
+	printf (
+		"/**\n"
+		" * Logarithmic `BKFUInt20` values with base 2 (n / 12)\n"
+		" * where index 48 (`BK_C_4`) represents factor 1.0\n"
+		" * index 36 represent factor 0.5, index 60 represents factor 2.0, and so on\n"
+		" * Generated with `%s`\n"
+		" */\n"
+		"static BKUInt const log2Periods [(BK_MAX_SAMPLE_TONE - BK_MIN_SAMPLE_TONE) + 1] =\n"
+		"{\n\t",
+		__FILE__
+	);
 
 	for (BKInt i = BK_MIN_SAMPLE_TONE, c = 0; i <= BK_MAX_SAMPLE_TONE; i ++, c ++) {
 		period = pow (2.0, ((double) i / 12.0)) * BK_FINT20_UNIT;
