@@ -167,7 +167,7 @@ extern BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSi
  * Load frames from raw audio file
  * Calls `BKDataSetData` with the data of the file
  */
-extern BKInt BKDataLoadRaw (BKData * data, FILE * file, BKEnum bits, BKUInt numChannels, BKEnum endian);
+extern BKInt BKDataLoadRaw (BKData * data, FILE * file, BKUInt numChannels, BKEnum params);
 
 /**
  * Load frames from WAVE audio file

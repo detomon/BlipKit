@@ -541,11 +541,10 @@ BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKU
 	return 0;
 }
 
-BKInt BKDataLoadRaw (BKData * data, FILE * file, BKUInt numBits, BKUInt numChannels, BKEnum endian)
+BKInt BKDataLoadRaw (BKData * data, FILE * file, BKUInt numChannels, BKEnum params)
 {
 	BKSize offset, size;
 	void * frames;
-	BKEnum params;
 	BKInt  ret = 0;
 
 	offset = ftell (file);
@@ -570,14 +569,6 @@ BKInt BKDataLoadRaw (BKData * data, FILE * file, BKUInt numBits, BKUInt numChann
 
 	fseek (file, offset, SEEK_SET);
 	fread (frames, sizeof (char), size, file);
-
-	if (BKDataParamFromNumBits (& params, numBits, 0) < 0) {
-		free (frames);
-		return BK_INVALID_ATTRIBUTE;
-	}
-
-	data -> numBits = numBits;
-	params |= endian;
 
 	ret = BKDataSetData (data, frames, (BKUInt) size, numChannels, params);
 

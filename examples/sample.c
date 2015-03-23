@@ -127,7 +127,7 @@ int main (int argc, char * argv [])
 	BKDataInit (& sample);
 
 	// Load raw sound data
-	BKDataLoadRaw (& sample, file, 16, 1, BK_LITTLE_ENDIAN);
+	BKDataLoadRaw (& sample, file, 1, BK_16_BIT_SIGNED | BK_LITTLE_ENDIAN);
 
 	fclose (file);
 
