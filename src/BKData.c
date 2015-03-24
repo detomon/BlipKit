@@ -372,42 +372,6 @@ static BKInt BKDataNumBitsFromParam (BKEnum param, BKUInt * outNumBits, BKInt * 
 	return 0;
 }
 
-static BKInt BKDataParamFromNumBits (BKEnum * outParam, BKUInt numBits, BKInt isSigned)
-{
-	BKEnum param = 0;
-
-	switch (numBits) {
-		case 1: {
-			param = BK_1_BIT_UNSIGNED;
-			break;
-		}
-		case 2: {
-			param = BK_2_BIT_UNSIGNED;
-			break;
-		}
-		case 4: {
-			param = BK_4_BIT_UNSIGNED;
-			break;
-		}
-		case 8: {
-			param = isSigned ? BK_8_BIT_SIGNED : BK_8_BIT_UNSIGNED;
-			break;
-		}
-		case 16: {
-			param = BK_16_BIT_SIGNED;
-			break;
-		}
-		default: {
-			return BK_INVALID_ATTRIBUTE;
-			break;
-		}
-	}
-
-	* outParam = param;
-
-	return 0;
-}
-
 static BKInt BKDataCalculateNumFramesFromNumBits (BKUInt dataSize, BKUInt numBits, BKUInt numChannels)
 {
 	BKInt numFrames = 0;
