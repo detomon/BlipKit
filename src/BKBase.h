@@ -191,6 +191,15 @@ struct BKCallbackInfo
 #define BK_ATTR_TYPE_MASK (~((1 << BK_ATTR_TYPE_SHIFT) - 1))
 
 /**
+ * Inline keyword
+ */
+#ifndef _MSC_VER
+#	define BK_INLINE static inline
+#else
+#	define BK_INLINE static __inline
+#endif
+
+/**
  * Context attributes
  */
 enum

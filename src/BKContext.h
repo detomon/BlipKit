@@ -211,14 +211,14 @@ extern BKInt BKContextAttachDivider (BKContext * ctx, BKDivider * divider, BKEnu
 
 #if BK_USE_64_BIT
 
-static BKTime BKTimeFromSeconds (BKContext * ctx, double seconds)
+BK_INLINE BKTime BKTimeFromSeconds (BKContext * ctx, double seconds)
 {
 	return (BKTime) ctx -> sampleRate * BK_FINT20_UNIT * seconds;
 }
 
 #else /* ! BK_USE_64_BIT */
 
-static BKTime BKTimeFromSeconds (BKContext * ctx, double seconds)
+BK_INLINE BKTime BKTimeFromSeconds (BKContext * ctx, double seconds)
 {
 	BKTime time;
 	double samples = ctx -> sampleRate * seconds;

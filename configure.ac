@@ -63,7 +63,7 @@ AC_CONFIG_FILES([
 ])
 
 # Define flags.
-BK_STD_CFLAGS="-std=c99 -Wall -Wno-unused-function"
+BK_STD_CFLAGS="-std=c99 -Wall"
 
 # Run tests.
 AC_RUN_IFELSE([AC_LANG_SOURCE([[
