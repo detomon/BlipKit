@@ -1,6 +1,5 @@
 AM_CFLAGS = @BK_STD_CFLAGS@ -I$(srcdir)/../src -L$(srcdir)/../src
-#AM_LDFLAGS = -lblipkit @SDL_CFLAGS@
-BK_LDADD = -lblipkit @SDL_CFLAGS@
+BK_LDADD = ../src/libblipkit.a @SDL_CFLAGS@
 
 EXTRA_PROGRAMS = \
 	tone \
@@ -9,7 +8,8 @@ EXTRA_PROGRAMS = \
 	scratch \
 	waveform \
 	envelope \
-	sample
+	sample \
+	sample_sustain
 
 # LDFLAGS should be used for linking libraries not LDADD
 # But some newer GCC versions need to have the linkings at the end
@@ -34,3 +34,6 @@ envelope_LDADD = $(BK_LDADD)
 
 sample_SOURCES = sample.c
 sample_LDADD = $(BK_LDADD)
+
+sample_sustain_SOURCES = sample_sustain.c
+sample_sustain_LDADD = $(BK_LDADD)
