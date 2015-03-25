@@ -9,6 +9,7 @@ EXTRA_PROGRAMS = \
 	waveform \
 	envelope \
 	sample \
+	arpeggio \
 	sample_sustain
 
 # LDFLAGS should be used for linking libraries not LDADD
@@ -34,6 +35,9 @@ envelope_LDADD = $(BK_LDADD)
 
 sample_SOURCES = sample.c
 sample_LDADD = $(BK_LDADD)
+
+arpeggio_SOURCES = arpeggio.c
+arpeggio_LDADD = $(BK_LDADD)
 
 sample_sustain_SOURCES = sample_sustain.c
 sample_sustain_LDADD = $(BK_LDADD)
