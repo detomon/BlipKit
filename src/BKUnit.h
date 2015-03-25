@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2014 Simon Schoenenberger
+ * Copyright (c) 2015 Simon Schoenenberger
  * http://blipkit.monoxid.net/
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -26,6 +26,14 @@
 
 #include "BKContext.h"
 #include "BKData_internal.h"
+
+enum
+{
+	BKUnitFlagSampleSustainRange = 1 << 0, // has `BK_SAMPLE_SUSTAIN_RANGE` set
+	BKUnitFlagSampleSustainJump  = 1 << 1, // should jump immediately to release phase
+	BKUnitFlagRelease            = 1 << 2, // set release phase
+	BKUnitFlagsClearMask         = ~7,
+};
 
 typedef struct BKUnitFuncs BKUnitFuncs;
 
@@ -83,8 +91,10 @@ struct BKUnit
 		BKUInt      length;
 		BKUInt      offset;
 		BKUInt      end;
-		BKUInt      repeat;
+		BKUInt      repeatMode;
 		BKUInt      repeatCount;
+		BKUInt      sustainOffset; // relative to `offset`
+		BKUInt      sustainEnd;    // relative to `offset`
 		BKFInt20    timeFrac;
 		BKFInt20    period;
 		BKCallback  callback;
@@ -151,6 +161,7 @@ extern void BKUnitDetach (BKUnit * unit);
  *   If the end offset is less than start offset, th sample is played reversed
  *   Set to NULL to reset
  *   Will be reset to default when changing sample
+ *   Disables `BK_SAMPLE_SUSTAIN_RANGE` when updating
  * BK_SAMPLE_REPEAT
  *   Set sample repeat mode: `BK_REPEAT`, `BK_PALINDROME`
  *   Default is `BK_NO_REPEAT`
@@ -159,6 +170,14 @@ extern void BKUnitDetach (BKUnit * unit);
  * BK_SAMPLE_PERIOD
  *   Set speed at which the sample is played
  *   Default is BK_FINT20_UNIT
+ * BK_SAMPLE_SUSTAIN_RANGE
+ *   Set range to repeat when sample is played
+ *   `BK_SAMPLE_REPEAT` does not affect sustain range
+ *   Will be disabled when changing sample
+ * BK_SAMPLE_IMMED_RELEASE
+ *   Jump immediately to release phase when `BK_FLAG_RELEASE` is set
+ * BK_FLAG_RELEASE
+ *   Set release phase
  * BK_HALT_SILENT_PHASE
  *   Phase does stop cycling when muted or volume is 0
  *   This is automatically set when using BK_TRIANGLE and disabled on other waveforms

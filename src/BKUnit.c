@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2014 Simon Schoenenberger
+ * Copyright (c) 2015 Simon Schoenenberger
  * http://blipkit.monoxid.net/
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -89,29 +89,36 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 					return BK_INVALID_NUM_FRAMES;
 				}
 				else {
-					unit -> waveform           = BK_SAMPLE;
-					unit -> phase.count        = 1;  // prevent divion by 0
-					unit -> sample.length      = data -> numFrames;
-					unit -> sample.numChannels = data -> numChannels;
-					unit -> sample.offset      = 0;
-					unit -> sample.end         = data -> numFrames;
-					unit -> sample.frames      = data -> frames;
-					unit -> phase.phase        = 0; // reset phase
-					unit -> sample.repeat      = 0;
-					unit -> sample.repeatCount = 0;
+					unit -> waveform             = BK_SAMPLE;
+					unit -> phase.count          = 1;  // prevent divion by 0
+					unit -> sample.length        = data -> numFrames;
+					unit -> sample.numChannels   = data -> numChannels;
+					unit -> sample.offset        = 0;
+					unit -> sample.end           = data -> numFrames;
+					unit -> sample.frames        = data -> frames;
+					unit -> phase.phase          = 0; // reset phase
+					unit -> sample.repeatMode    = 0;
+					unit -> sample.repeatCount   = 0;
+					unit -> sample.sustainOffset = 0;
+					unit -> sample.sustainEnd    = 0;
 
 					BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_BEGIN);
 				}
 			}
 			// disable sample
 			else if (unit -> waveform == BK_SAMPLE) {
-				unit -> waveform      = 0;
-				unit -> sample.offset = 0;
-				unit -> sample.end    = 0;
-				unit -> sample.frames = NULL;
-				unit -> phase.phase   = 0; // reset phase
-				unit -> sample.repeat = 0;
+				unit -> waveform             = 0;
+				unit -> sample.offset        = 0;
+				unit -> sample.end           = 0;
+				unit -> sample.sustainOffset = 0;
+				unit -> sample.sustainEnd    = 0;
+				unit -> sample.frames        = NULL;
+				unit -> phase.phase          = 0; // reset phase
+				unit -> sample.repeatMode    = 0;
 			}
+
+			// clear flags
+			unit -> object.flags &= ~(BKUnitFlagSampleSustainRange | BKUnitFlagSampleSustainJump | BKUnitFlagRelease);
 
 			break;
 		}
@@ -323,6 +330,46 @@ static void BKUnitUpdateSampleRange (BKUnit * unit, BKInt offset, BKInt end)
 	unit -> phase.phase = newPhase;
 }
 
+static void BKUnitUpdateSampleSustainRange (BKUnit * unit, BKInt offset, BKInt end)
+{
+	BKInt tmp;
+	BKInt sampleLength;
+
+	if (unit -> sample.dataState.data == NULL) {
+		return;
+	}
+
+	sampleLength = unit -> sample.dataState.data -> numFrames;
+
+	if (offset < 0) {
+		offset += sampleLength + 1;
+	}
+
+	if (end < 0) {
+		end += sampleLength + 1;
+	}
+
+	offset = BKClamp (offset, 0, sampleLength);
+	end    = BKClamp (end, 0, sampleLength);
+
+	if (end < offset) {
+		tmp    = offset;
+		offset = end;
+		end    = tmp;
+	}
+
+	// clear flag
+	unit -> object.flags &= ~BKUnitFlagSampleSustainRange;
+
+	// set flag if range has length
+	if (offset != end) {
+		unit -> object.flags |= BKUnitFlagSampleSustainRange;
+	}
+
+	unit -> sample.sustainOffset = offset;
+	unit -> sample.sustainEnd    = end;
+}
+
 BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 {
 	switch (attr) {
@@ -460,7 +507,7 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 				}
 			}
 
-			unit -> sample.repeat = value;
+			unit -> sample.repeatMode = value;
 			break;
 		}
 		case BK_SAMPLE_PERIOD: {
@@ -473,6 +520,30 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			}
 
 			unit -> sample.period = value;
+			break;
+		}
+		case BK_SAMPLE_IMMED_RELEASE: {
+			value = value ? BKUnitFlagSampleSustainJump : 0;
+			unit -> object.flags = (unit -> object.flags & ~BKUnitFlagSampleSustainJump) | value;
+			break;
+		}
+		case BK_FLAG_RELEASE: {
+			if (unit -> object.flags & BKUnitFlagSampleSustainRange) {
+				value = value ? BKUnitFlagRelease : 0;
+				unit -> object.flags = (unit -> object.flags & ~BKUnitFlagRelease) | value;
+
+				if (value) {
+					if ((unit -> object.flags & BKUnitFlagSampleSustainJump) && unit -> mute == 0) {
+						if (unit -> sample.period > 0) {
+							unit -> phase.phase = unit -> sample.sustainEnd;
+						}
+						else {
+							unit -> phase.phase = BKMax (0, (BKInt) unit -> sample.sustainOffset - 1);
+						}
+					}
+				}
+			}
+
 			break;
 		}
 		case BK_HALT_SILENT_PHASE: {
@@ -533,11 +604,19 @@ BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue)
 			break;
 		}
 		case BK_SAMPLE_REPEAT: {
-			value = unit -> sample.repeat;
+			value = unit -> sample.repeatMode;
 			break;
 		}
 		case BK_SAMPLE_PERIOD: {
 			value = BKAbs (unit -> sample.period);
+			break;
+		}
+		case BK_SAMPLE_IMMED_RELEASE: {
+			value = (unit -> object.flags & BKUnitFlagSampleSustainJump) ? 1 : 0;
+			break;
+		}
+		case BK_FLAG_RELEASE: {
+			value = (unit -> object.flags & BKUnitFlagRelease) ? 1 : 0;
 			break;
 		}
 		case BK_HALT_SILENT_PHASE: {
@@ -597,6 +676,25 @@ BKInt BKUnitSetPtr (BKUnit * unit, BKEnum attr, void * ptr)
 			}
 
 			BKUnitUpdateSampleRange (unit, values [0], values [1]);
+			BKUnitUpdateSampleSustainRange (unit, 0, 0);
+
+			break;
+		}
+		case BK_SAMPLE_SUSTAIN_RANGE: {
+			BKInt range [2];
+
+			if (unit -> waveform != BK_SAMPLE)
+				return BK_INVALID_STATE;
+
+			values = ptr;
+
+			if (values == NULL || values [0] == values [1]) {
+				range [0] = 0;
+				range [1] = 0;
+				values = range;
+			}
+
+			BKUnitUpdateSampleSustainRange (unit, values [0], values [1]);
 
 			break;
 		}
@@ -637,6 +735,11 @@ BKInt BKUnitGetPtr (BKUnit const * unit, BKEnum attr, void * outPtr)
 		case BK_SAMPLE_RANGE: {
 			values [0] = unit -> sample.offset;
 			values [1] = unit -> sample.end;
+			break;
+		}
+		case BK_SAMPLE_SUSTAIN_RANGE: {
+			values [0] = unit -> sample.sustainOffset;
+			values [1] = unit -> sample.sustainEnd;
 			break;
 		}
 		default: {
@@ -763,27 +866,29 @@ static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime, BKInt adva
 }
 
 /**
- * Wrap sample phase if it exceeds the sample range boundary
+ * Wrap sample phase in given range
  */
-static BKInt BKUnitWrapSamplePhase (BKUnit * unit)
+static BKInt BKUnitWrapSamplePhase (BKUnit * unit, BKInt min, BKInt max)
 {
 	BKInt resetDir = 0;
-	BKInt length   = unit -> sample.length;
+	BKInt length   = max - min;
 
 	// reset if phase exceeds end
-	if ((BKInt) unit -> phase.phase >= (BKInt) unit -> sample.length) {
+	if ((BKInt) unit -> phase.phase >= max) {
 		// phase %= length
-		while ((BKInt) unit -> phase.phase >= length) {
+		while ((BKInt) unit -> phase.phase >= max) {
 			unit -> phase.phase -= length;
 		}
+
 		resetDir = 1;
 	}
 	// reset if phase exceeds end (reversed)
-	else if ((BKInt) unit -> phase.phase < 0) {
+	else if ((BKInt) unit -> phase.phase < min) {
 		// phase %= length
-		while ((BKInt) unit -> phase.phase < 0) {
+		while ((BKInt) unit -> phase.phase < min) {
 			unit -> phase.phase += length;
 		}
+
 		resetDir = -1;
 	}
 
@@ -792,19 +897,19 @@ static BKInt BKUnitWrapSamplePhase (BKUnit * unit)
 
 static BKInt BKUnitResetSample (BKUnit * unit)
 {
-	BKInt repeat, resetDir;
+	BKInt repeatMode, resetDir;
 	BKInt mode = 0;
 	BKInt halt = 0;
 
-	repeat = unit -> sample.repeat;
+	repeatMode = unit -> sample.repeatMode;
 
 	if (unit -> sample.callback.func) {
-		repeat = BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_RESET);
+		repeatMode = BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_RESET);
 	}
 
-	resetDir = BKUnitWrapSamplePhase (unit);
+	resetDir = BKUnitWrapSamplePhase (unit, 0, unit -> sample.length);
 
-	switch (repeat) {
+	switch (repeatMode) {
 		default:
 		case BK_NO_REPEAT: {
 			mode = 0;
@@ -898,6 +1003,20 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 				break;
 			}
 		}
+
+		// check for sustain range boundary
+		if ((unit -> object.flags & BKUnitFlagSampleSustainRange) && !(unit -> object.flags & BKUnitFlagRelease)) {
+			if (unit -> sample.period > 0) {
+				if ((BKInt) unit -> phase.phase >= (BKInt) unit -> sample.sustainEnd) {
+					unit -> phase.phase = unit -> sample.sustainOffset;
+				}
+			}
+			else {
+				if ((BKInt) unit -> phase.phase < (BKInt) unit -> sample.sustainOffset) {
+					unit -> phase.phase = unit -> sample.sustainEnd - 1;
+				}
+			}
+		}
 	}
 
 	return time;
@@ -955,13 +1074,16 @@ void BKUnitClear (BKUnit * unit)
 	BKUnitSetData (unit, BK_WAVEFORM, NULL);
 	BKUnitSetData (unit, BK_SAMPLE, NULL);
 
+	unit -> object.flags    &= BKUnitFlagsClearMask;
 	unit -> phase.wrap      = 0;
 	unit -> phase.wrapCount = 0;
 
 	unit -> sample.offset                     = 0;
 	unit -> sample.end                        = 0;
-	unit -> sample.repeat                     = 0;
+	unit -> sample.repeatMode                 = 0;
 	unit -> sample.repeatCount                = 0;
+	unit -> sample.sustainOffset              = 0;
+	unit -> sample.sustainEnd                 = 0;
 	unit -> sample.period                     = BK_FINT20_UNIT;
 	unit -> sample.timeFrac                   = 0;
 	unit -> sample.dataState.callback         = (void *) BKUnitSampleDataStateCallback;

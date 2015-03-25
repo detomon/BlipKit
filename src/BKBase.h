@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2014 Simon Schoenenberger
+ * Copyright (c) 2015 Simon Schoenenberger
  * http://blipkit.monoxid.net/
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -234,11 +234,14 @@ enum
 	BK_VOLUME_7,
 	BK_MUTE,
 	BK_PITCH,
-	BK_SAMPLE_RANGE,
-	BK_SAMPLE_REPEAT,
+	BK_SAMPLE_RANGE,         // full range to play
+	BK_SAMPLE_REPEAT,        // repeat mode BK_NO_REPEAT, BK_REPEAT, BK_PALINDROME
+	BK_SAMPLE_SUSTAIN_RANGE, // sustain repeat range
+	BK_SAMPLE_IMMED_RELEASE, // should immediately jump to sustain end when releasing
 	BK_SAMPLE_PERIOD,
 	BK_SAMPLE_PITCH,
 	BK_SAMPLE_CALLBACK,
+	BK_FLAG_RELEASE,         // Set release phase
 	BK_NOTE,
 	BK_ARPEGGIO,
 	BK_PANNING,

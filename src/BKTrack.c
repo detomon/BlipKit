@@ -610,12 +610,17 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 		track -> curNote = note;
 
 		BKUnitSetAttr (& track -> unit, BK_MUTE, 0);
+		BKUnitSetAttr (& track -> unit, BK_FLAG_RELEASE, 0);
 	}
 	else if (note == BK_NOTE_RELEASE) {
 		track -> curNote = -1;
 
 		if (track -> flags & BKInstrumentFlag) {
 			BKTrackInstrumentRelease (track);
+			BKUnitSetAttr (& track -> unit, BK_FLAG_RELEASE, 1);
+		}
+		else if (track -> unit.object.flags & BKUnitFlagSampleSustainRange) {
+			BKUnitSetAttr (& track -> unit, BK_FLAG_RELEASE, 1);
 		}
 		else {
 			// halt portamento
@@ -633,6 +638,7 @@ static void BKTrackSetNote (BKTrack * track, BKInt note)
 			BKTrackInstrumentMute (track);
 
 		BKUnitSetAttr (& track -> unit, BK_MUTE, 1);
+		BKUnitSetAttr (& track -> unit, BK_FLAG_RELEASE, 0);
 	}
 
 	track -> flags |= BKTrackAttrUpdateFlagNote;
