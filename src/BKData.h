@@ -77,6 +77,8 @@ struct BKData
 	BKUInt        numFrames;
 	BKUInt        numChannels;
 	BKFInt20      samplePitch;
+	BKUInt        sustainOffset;
+	BKUInt        sustainEnd;
 	BKFrame     * frames;
 	BKDataState * stateList;
 };
@@ -132,6 +134,9 @@ extern BKInt BKDataInitCopy (BKData * copy, BKData const * original);
  *   The sample pitch can be corrected with this value.
  *   Value is multiple of BK_FINT20_UNIT.
  *   This attribute must be set before the data object is attached to a track.
+ * BK_SAMPLE_SUSTAIN_RANGE
+ *   Set range to repeat when sample is played
+ *   Will be copied to track when setting sample
  *
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown

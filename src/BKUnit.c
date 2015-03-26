@@ -39,6 +39,7 @@ static BKFrame const BKSinePhases [BK_SINE_PHASES] =
 };
 
 static BKEnum BKUnitCallSampleCallback (BKUnit * unit, BKEnum event);
+static void BKUnitUpdateSampleSustainRange (BKUnit * unit, BKInt offset, BKInt end);
 
 static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum event)
 {
@@ -103,6 +104,8 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 					unit -> sample.sustainEnd    = 0;
 
 					BKUnitCallSampleCallback (unit, BK_EVENT_SAMPLE_BEGIN);
+
+					BKBitUnset (unit -> object.flags, BKUnitFlagSampleSustainRange | BKUnitFlagSampleSustainJump | BKUnitFlagRelease);
 				}
 			}
 			// disable sample
@@ -115,10 +118,9 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 				unit -> sample.frames        = NULL;
 				unit -> phase.phase          = 0; // reset phase
 				unit -> sample.repeatMode    = 0;
-			}
 
-			// clear flags
-			unit -> object.flags &= ~(BKUnitFlagSampleSustainRange | BKUnitFlagSampleSustainJump | BKUnitFlagRelease);
+				BKBitUnset (unit -> object.flags, BKUnitFlagSampleSustainRange | BKUnitFlagSampleSustainJump | BKUnitFlagRelease);
+			}
 
 			break;
 		}
@@ -139,6 +141,12 @@ static BKInt BKUnitSetData (BKUnit * unit, BKEnum type, BKData * data)
 
 	if (res == 0) {
 		BKDataStateSetData (& unit -> sample.dataState, data);
+
+		// has sustain range
+		if (data -> sustainOffset != data -> sustainEnd) {
+			BKUnitUpdateSampleSustainRange (unit, data -> sustainOffset, data -> sustainEnd);
+
+		}
 	}
 	// unset data when failed
 	else {
@@ -358,13 +366,7 @@ static void BKUnitUpdateSampleSustainRange (BKUnit * unit, BKInt offset, BKInt e
 		end    = tmp;
 	}
 
-	// clear flag
-	unit -> object.flags &= ~BKUnitFlagSampleSustainRange;
-
-	// set flag if range has length
-	if (offset != end) {
-		unit -> object.flags |= BKUnitFlagSampleSustainRange;
-	}
+	BKBitSetCond (unit -> object.flags, BKUnitFlagSampleSustainRange, offset != end);
 
 	unit -> sample.sustainOffset = offset;
 	unit -> sample.sustainEnd    = end;

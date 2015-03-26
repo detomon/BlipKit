@@ -264,6 +264,78 @@ BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue)
 	return BKDataGetAttrInt (data, attr, outValue);
 }
 
+BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr)
+{
+	BKInt * values;
+
+	switch (attr) {
+		case BK_SAMPLE_SUSTAIN_RANGE: {
+			BKInt tmp;
+			BKInt range [2];
+			BKInt sampleLength = data -> numFrames;
+			BKInt offset, end;
+
+			values = ptr;
+
+			if (values == NULL || values [0] == values [1]) {
+				range [0] = 0;
+				range [1] = 0;
+				values = range;
+			}
+
+			offset = values [0];
+			end    = values [1];
+
+			if (offset < 0) {
+				offset += sampleLength + 1;
+			}
+
+			if (end < 0) {
+				end += sampleLength + 1;
+			}
+
+			offset = BKClamp (offset, 0, sampleLength);
+			end    = BKClamp (end, 0, sampleLength);
+
+			if (end < offset) {
+				tmp    = offset;
+				offset = end;
+				end    = tmp;
+			}
+
+			data -> sustainOffset = offset;
+			data -> sustainEnd    = end;
+
+			break;
+		}
+		default: {
+			return BK_INVALID_ATTRIBUTE;
+			break;
+		}
+	}
+
+	return 0;
+}
+
+BKInt BKDataGetPtr (BKData const * data, BKEnum attr, void * outPtr)
+{
+	BKInt * values = outPtr;
+
+	switch (attr) {
+		case BK_SAMPLE_SUSTAIN_RANGE: {
+			values [0] = data -> sustainOffset;
+			values [1] = data -> sustainEnd;
+			break;
+		}
+		default: {
+			return BK_INVALID_ATTRIBUTE;
+			break;
+		}
+	}
+
+	return 0;
+}
+
 BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy)
 {
 	BKUInt    size;
@@ -741,5 +813,7 @@ BKClass const BKDataClass =
 	.instanceSize = sizeof (BKData),
 	.setAttr      = (void *) BKDataSetAttrInt,
 	.getAttr      = (void *) BKDataGetAttrInt,
+	.setPtr       = (void *) BKDataSetPtr,
+	.getPtr       = (void *) BKDataGetPtr,
 	.dispose      = (void *) BKDataDisposeObject,
 };

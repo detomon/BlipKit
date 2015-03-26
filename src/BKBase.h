@@ -131,6 +131,17 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #define BKAbs(a) ((a) < 0 ? -(a) : (a))
 #define BKCmp(a, b) ((a) < (b) ? -1 : ((a) > (b) ? 1 : 0))
 
+#define BKBitSet(var, mask) ((var) |= (mask))
+#define BKBitUnset(var, mask) ((var) &= ~(mask))
+
+/**
+ * Contitionally set or clear bit mask
+ *
+ * `cond` must be 0 or 1
+ * http://graphics.stanford.edu/~seander/bithacks.html#ConditionalSetOrClearBitsWithoutBranching
+ */
+#define BKBitSetCond(var, mask, cond) ((var) ^= (-(cond) ^ (var)) & (mask))
+
 /**
  * Enum type
  */
