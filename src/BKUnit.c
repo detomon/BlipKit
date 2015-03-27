@@ -141,11 +141,14 @@ static BKInt BKUnitSetData (BKUnit * unit, BKEnum type, BKData * data)
 
 	if (res == 0) {
 		BKDataStateSetData (& unit -> sample.dataState, data);
+		data = unit -> sample.dataState.data;
 
-		// has sustain range
-		if (data -> sustainOffset != data -> sustainEnd) {
-			BKUnitUpdateSampleSustainRange (unit, data -> sustainOffset, data -> sustainEnd);
+		if (data) {
+			// has sustain range
+			if (data -> sustainOffset != data -> sustainEnd) {
+				BKUnitUpdateSampleSustainRange (unit, data -> sustainOffset, data -> sustainEnd);
 
+			}
 		}
 	}
 	// unset data when failed
