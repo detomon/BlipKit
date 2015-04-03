@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT([BlipKit],[0.12],[simon@monoxid.net],[blipkit],[http://blipkit.monoxid.net])
+AC_INIT([BlipKit],[0.12],[simon@monoxid.net],[blipkit],[http://blipkit.audio])
 
 AC_CONFIG_SRCDIR([src/BKBase.c])
 AC_CONFIG_HEADER([config.h])
