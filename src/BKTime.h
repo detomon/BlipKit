@@ -48,7 +48,7 @@ BK_INLINE BKInt BKTimeGetTime (BKTime a)
 
 BK_INLINE BKFUInt20 BKTimeGetFrac (BKTime a)
 {
-	return (a & BK_FINT20_SHIFT);
+	return (a & BK_FINT20_FRAC);
 }
 
 BK_INLINE BKFUInt20 BKTimeGetFUInt20 (BKTime a)
