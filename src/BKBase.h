@@ -143,6 +143,16 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #define BKBitSetCond(var, mask, cond) ((var) ^= (-(cond) ^ (var)) & (mask))
 
 /**
+ * Set mask if `cond` is 1
+ */
+#define BKBitCond(mask, cond) (~((cond) - 1) & mask)
+
+/**
+ * Set mask if cond is != 0
+ */
+#define BKBitCond2(mask, cond) (~(((cond) != 0) - 1) & mask)
+
+/**
  * Enum type
  */
 typedef unsigned BKEnum;
