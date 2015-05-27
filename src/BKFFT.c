@@ -27,8 +27,6 @@
 
 extern BKClass BKFFTClass;
 
-extern BKClass BKFFTClass;
-
 /**
  * Returns the next higher power of 2
  * which is the same as ceil(log2(value))
