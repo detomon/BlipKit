@@ -826,7 +826,7 @@ static BKInt BKTrackGetAttrInt (BKTrack const * track, BKEnum attr, BKInt * outV
 			if (ret != 0)
 				return ret;
 
-			* outValue = values [0];
+			value = values [0];
 			break;
 		}
 		default: {
