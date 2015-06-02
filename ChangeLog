@@ -1,3 +1,9 @@
+Changes in BlipKit 0.12.1:
+  Release date: 2015-06-02
+
+* Add missing headers in main header
+* Fix `BKTimeGetFrac`
+
 Changes in BlipKit 0.12:
   Release date: 2015-03-27
 

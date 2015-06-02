@@ -3,6 +3,7 @@
 *.log
 *.o
 *.trs
+*~
 .DS_Store
 .deps
 .svn
