@@ -50,7 +50,7 @@ static void BKContextUpdateMasterClocks (BKContext * ctx)
 	BKClockInit (& ctx -> masterClock, clockPeriod, & callback);  // then advance effects
 }
 
-BKInt BKContextInitGeneric (BKContext * ctx, BKUInt numChannels, BKUInt sampleRate)
+static BKInt BKContextInitGeneric (BKContext * ctx, BKUInt numChannels, BKUInt sampleRate)
 {
 	BKBuffer * channel;
 
@@ -156,7 +156,7 @@ BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value)
 	return BKContextSetAttrInt (ctx, attr, value);
 }
 
-BKInt BKContextGetAttrInt (BKContext const * ctx, BKEnum attr, BKInt * outValue)
+static BKInt BKContextGetAttrInt (BKContext const * ctx, BKEnum attr, BKInt * outValue)
 {
 	BKInt value = 0;
 

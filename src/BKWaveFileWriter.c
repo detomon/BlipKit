@@ -99,7 +99,7 @@ BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numCha
 	return 0;
 }
 
-void BKWaveFileWriterDispose (BKWaveFileWriter * writer)
+static void BKWaveFileWriterDispose (BKWaveFileWriter * writer)
 {
 }
 

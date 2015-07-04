@@ -264,7 +264,7 @@ BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue)
 	return BKDataGetAttrInt (data, attr, outValue);
 }
 
-BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr)
+static BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr)
 {
 	BKInt * values;
 
@@ -317,7 +317,7 @@ BKInt BKDataSetPtr (BKData * data, BKEnum attr, void * ptr)
 	return 0;
 }
 
-BKInt BKDataGetPtr (BKData const * data, BKEnum attr, void * outPtr)
+static BKInt BKDataGetPtr (BKData const * data, BKEnum attr, void * outPtr)
 {
 	BKInt * values = outPtr;
 

@@ -66,7 +66,7 @@ BKInt BKWaveFileReaderInit (BKWaveFileReader * reader, FILE * file)
 	return 0;
 }
 
-void BKWaveFileReaderDispose (BKWaveFileReader * reader)
+static void BKWaveFileReaderDispose (BKWaveFileReader * reader)
 {
 }
 

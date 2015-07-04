@@ -33,7 +33,7 @@ enum
 extern BKClass BKClockClass;
 extern BKClass BKDividerClass;
 
-BKInt BKClockInitGeneric (BKClock * clock, BKTime period, BKCallback * callback)
+static BKInt BKClockInitGeneric (BKClock * clock, BKTime period, BKCallback * callback)
 {
 	if (callback) {
 		clock -> callback = (* callback);

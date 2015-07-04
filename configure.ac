@@ -63,7 +63,13 @@ AC_CONFIG_FILES([
 ])
 
 # Define flags.
-BK_STD_CFLAGS="-std=c99 -Wall"
+BK_STD_CFLAGS="-std=c99 -Wall \
+    -Wmissing-prototypes \
+    -Wmissing-declarations \
+    -Wstrict-prototypes \
+    -Wformat-security \
+    -Wmissing-format-attribute \
+    -Winline"
 
 # Run tests.
 AC_RUN_IFELSE([AC_LANG_SOURCE([[
