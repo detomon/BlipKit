@@ -24,18 +24,52 @@
 #include "BKUnit_internal.h"
 #include "BKData_internal.h"
 
+#define MAV BK_MAX_VOLUME
+#define MIV -BK_MAX_VOLUME
+
 extern BKClass BKUnitClass;
 
-static BKFrame const BKSinePhases [BK_SINE_PHASES] =
+static BKFrame const squarePhases [BK_SQUARE_PHASES + 1][BK_SQUARE_PHASES] =
 {
-	     0,   6392,  12539,  18204,
-	 23169,  27244,  30272,  32137,
-	 32767,  32137,  30272,  27244,
-	 23169,  18204,  12539,   6392,
-	     0,  -6392, -12539, -18204,
-	-23169, -27244, -30272, -32137,
-	-32767, -32137, -30272, -27244,
-	-23169, -18204, -12539,  -6392,
+	{  0,   MAV, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0},
+	{  0,   MAV, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0},
+	{  0,   0,   MAV, MAV, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0},
+	{  0,   0,   MAV, MAV, MAV, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0},
+	{  0,   0,   0,   MAV, MAV, MAV, MAV, 0,   0,   0,   0,   0,   0,   0,   0,   0},
+	{  0,   0,   0,   MAV, MAV, MAV, MAV, MAV, 0,   0,   0,   0,   0,   0,   0,   0},
+	{  0,   0,   0,   0,   MAV, MAV, MAV, MAV, MAV, MAV, 0,   0,   0,   0,   0,   0},
+	{  0,   0,   0,   0,   MAV, MAV, MAV, MAV, MAV, MAV, MAV, 0,   0,   0,   0,   0},
+	{  0,   0,   0,   0,   0,   MAV, MAV, MAV, MAV, MAV, MAV, MAV, MAV, 0,   0,   0},
+
+	{  0,   0,   0,   0,   0,   0,   MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, 0},
+	{  0,   0,   0,   0,   0,   MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, 0},
+	{  0,   0,   0,   0,   MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, 0},
+	{  0,   0,   0,   MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, 0},
+	{  0,   0,   MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, 0},
+	{  0,   MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, 0},
+	{  MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, 0},
+	{  MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, MIV, 0},
+};
+
+static BKFrame const trianglePhases [BK_TRIANGLE_PHASES] =
+{
+	     0,   2047,   4095,   6143,   8191,  10239,  12287,  14335,
+	 14335,  12287,  10239,   8191,   6143,   4095,   2047,      0,
+	 -2047,  -4095,  -6143,  -8191, -10239, -12287, -14335, -16383,
+	-16383, -14335, -12287, -10239,  -8191,  -6143,  -4095,  -2047,
+};
+
+static BKFrame const sawtoothPhases [BK_SAWTOOTH_PHASES] =
+{
+	 32766,  27305,  21844,  16383,  10922,   5461,      0,
+};
+
+static BKFrame const sinePhases [BK_SINE_PHASES] =
+{
+	     0,   6392,  12539,  18204,  23169,  27244,  30272,  32137,
+	 32767,  32137,  30272,  27244,  23169,  18204,  12539,   6392,
+	     0,  -6392, -12539, -18204, -23169, -27244, -30272, -32137,
+	-32767, -32137, -30272, -27244, -23169, -18204, -12539,  -6392,
 };
 
 static BKEnum BKUnitCallSampleCallback (BKUnit * unit, BKEnum event);
@@ -763,7 +797,7 @@ BKInt BKUnitGetPtr (BKUnit const * unit, BKEnum attr, void * outPtr)
 static BKInt BKUnitNextPhase (BKUnit * unit)
 {
 	BKInt  amp = 0;
-	BKUInt phase, phase0;
+	BKUInt phase;
 
 	phase = unit -> phase.phase;
 
@@ -777,17 +811,13 @@ static BKInt BKUnitNextPhase (BKUnit * unit)
 
 	switch (unit -> waveform) {
 		case BK_SQUARE: {
-			 // shift phase to reduce volume peak at begin
-			phase0 = (phase + BK_SQUARE_PHASES / 4) & (BK_SQUARE_PHASES - 1);
-			amp    = phase0 < unit -> dutyCycle ? BK_MAX_VOLUME : 0;
-			phase  = (phase + 1) & (BK_SQUARE_PHASES - 1);
+			amp   = squarePhases [unit -> dutyCycle][phase];
+			phase = (phase + 1) & (BK_SQUARE_PHASES - 1);
 			break;
 		}
 		case BK_TRIANGLE: {
-			phase0 = (phase + BK_TRIANGLE_PHASES / 4) & (BK_TRIANGLE_PHASES - 1);
-			amp    = (phase0 < (BK_TRIANGLE_PHASES / 2) ? phase0 : (BK_TRIANGLE_PHASES - phase0 - 1)) - 8;
-			amp    = amp * BK_MAX_VOLUME / (BK_TRIANGLE_PHASES / 2);
-			phase  = (phase + 1) & (BK_TRIANGLE_PHASES - 1);
+			amp   = trianglePhases [phase];
+			phase = (phase + 1) & (BK_TRIANGLE_PHASES - 1);
 			break;
 		}
 		case BK_NOISE: {
@@ -798,22 +828,26 @@ static BKInt BKUnitNextPhase (BKUnit * unit)
 			break;
 		}
 		case BK_SAWTOOTH: {
-			amp = ((BK_SAWTOOTH_PHASES - phase - 1) * (BK_MAX_VOLUME / (BK_SAWTOOTH_PHASES - 1)));
+			amp = sawtoothPhases [phase];
 			phase ++;
-			if (phase >= BK_SAWTOOTH_PHASES)
+
+			if (phase >= BK_SAWTOOTH_PHASES) {
 				phase = 0;
+			}
 			break;
 		}
 		case BK_SINE: {
-			amp   = BKSinePhases [phase] / 2;
+			amp   = sinePhases [phase] / 2;
 			phase = (phase + 1) & (BK_SINE_PHASES - 1);
 			break;
 		}
 		case BK_CUSTOM: {
 			amp = unit -> sample.frames [phase];
 			phase ++;
-			if (phase >= unit -> phase.count)
+
+			if (phase >= unit -> phase.count) {
 				phase = 0;
+			}
 			break;
 		}
 	}
