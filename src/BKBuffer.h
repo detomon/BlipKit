@@ -53,6 +53,11 @@ struct BKBuffer
 };
 
 /**
+ * Step phases
+ */
+extern BKFrame const BKBufferStepPhases [BK_STEP_UNIT][BK_STEP_WIDTH];
+
+/**
  * Initialize buffer
  */
 extern BKInt BKBufferInit (BKBuffer * buf);
@@ -65,12 +70,12 @@ extern void BKBufferDispose (BKBuffer * buf);
 /**
  * Add pulse at time offset
  */
-extern BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse);
+BK_INLINE BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse);
 
 /**
  * Add single frame at time offset
  */
-extern BKInt BKBufferAddFrame (BKBuffer * buf, BKFUInt20 time, BKFrame frame);
+BK_INLINE BKInt BKBufferAddFrame (BKBuffer * buf, BKFUInt20 time, BKFrame frame);
 
 /**
  * Set time of last update
@@ -96,5 +101,41 @@ extern BKInt BKBufferSize (BKBuffer const * buf);
  * Clear data
  */
 extern void BKBufferClear (BKBuffer * buf);
+
+BK_INLINE BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
+{
+	BKUInt frac;
+	BKUInt offset;
+	BKInt * frames;
+	BKFrame const * phase;
+
+	time   = buf -> time + time;
+	offset = time >> BK_FINT20_SHIFT;
+
+	frac = time & BK_FINT20_FRAC;               // frame fraction
+	frac >>= (BK_FINT20_SHIFT - BK_STEP_SHIFT); // step fraction
+
+	phase  = BKBufferStepPhases [frac];
+	frames = & buf -> frames [offset];
+
+	// add step
+	for (BKInt i = 0; i < BK_STEP_WIDTH; i ++) {
+		frames [i] += phase [i] * pulse;
+	}
+
+	return 0;
+}
+
+BK_INLINE BKInt BKBufferAddFrame (BKBuffer * buf, BKFUInt20 time, BKFrame frame)
+{
+	BKUInt offset;
+
+	time   = buf -> time + time;
+	offset = time >> BK_FINT20_SHIFT;
+
+	buf -> frames [offset] += BK_MAX_VOLUME * frame;
+
+	return 0;
+}
 
 #endif /* ! _BK_BUFFER_H_ */

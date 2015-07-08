@@ -27,7 +27,7 @@
  * Bandlimited step phases
  * Generated with `step_phases.c`
  */
-static BKFrame const stepPhases [BK_STEP_UNIT][BK_STEP_WIDTH] =
+BKFrame const BKBufferStepPhases [BK_STEP_UNIT][BK_STEP_WIDTH] =
 {
 	{     0,     -3,     13,    -37,     87,   -192,    483,  32755,   -468,    189,    -86,     36,    -13,      3,      0, },
 	{     0,      3,    -13,     36,    -86,    189,   -468,  32755,    483,   -192,     87,    -37,     13,     -3,      0, },
@@ -73,41 +73,6 @@ BKInt BKBufferInit (BKBuffer * buf)
 void BKBufferDispose (BKBuffer * buf)
 {
 	BKBufferClear (buf);
-}
-
-BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
-{
-	BKUInt          frac;
-	BKUInt          offset;
-	BKInt         * frames;
-	BKFrame const * phase;
-
-	time   = buf -> time + time;
-	offset = time >> BK_FINT20_SHIFT;
-
-	frac = time & BK_FINT20_FRAC;               // frame fraction
-	frac >>= (BK_FINT20_SHIFT - BK_STEP_SHIFT); // step fraction
-
-	phase  = stepPhases [frac];
-	frames = & buf -> frames [offset];
-
-	// add step
-	for (BKInt i = 0; i < BK_STEP_WIDTH; i ++)
-		frames [i] += phase [i] * pulse;
-
-	return 0;
-}
-
-BKInt BKBufferAddFrame (BKBuffer * buf, BKFUInt20 time, BKFrame frame)
-{
-	BKUInt offset;
-
-	time   = buf -> time + time;
-	offset = time >> BK_FINT20_SHIFT;
-
-	buf -> frames [offset] += BK_MAX_VOLUME * frame;
-
-	return 0;
 }
 
 BKInt BKBufferEnd (BKBuffer * buf, BKFUInt20 time)
