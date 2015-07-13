@@ -862,7 +862,7 @@ static BKInt BKUnitNextPhase (BKUnit * unit)
  */
 static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime, BKInt advanceSilentPhase)
 {
-	BKFUInt20  time = 0;
+	BKFUInt20  time = 0, deltaTime;
 	BKInt      volume;
 	BKBuffer * channel;
 	BKInt      pulse, lastPulse, delta, chanDelta;
@@ -895,6 +895,21 @@ static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime, BKInt adva
 				lastPulse = delta;
 
 				BKBufferAddPulse (channel, time, chanDelta);
+			}
+
+			if (unit -> waveform == BK_SQUARE) {
+				deltaTime = endTime + (BK_SQUARE_PHASES - unit -> phase.phase - 1) * unit -> period;
+
+				// run until time
+				for (; time < deltaTime; time += unit -> period) {
+					pulse = BKUnitNextPhase (unit);
+					delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+
+					chanDelta = delta - lastPulse;
+					lastPulse = delta;
+
+					BKBufferAddPulse (channel, time, chanDelta);
+				}
 			}
 
 			unit -> lastPulse [i] = lastPulse;
