@@ -90,7 +90,6 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 				if (data -> numFrames >= 2) {
 					unit -> waveform           = BK_CUSTOM;
 					unit -> phase.count        = data -> numFrames;
-					unit -> phase.haltSilence  = 1;
 					unit -> phase.phase        = 0;
 					unit -> sample.offset      = 0;
 					unit -> sample.end         = data -> numFrames;
@@ -431,32 +430,26 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 			switch (value) {
 				case 0: {
 					unit -> phase.count = BK_SQUARE_PHASES;
-					unit -> phase.haltSilence = 1;
 					break;
 				}
 				case BK_SQUARE: {
 					unit -> phase.count = BK_SQUARE_PHASES;
-					unit -> phase.haltSilence = 1;
 					break;
 				}
 				case BK_TRIANGLE: {
 					unit -> phase.count = BK_TRIANGLE_PHASES;
-					unit -> phase.haltSilence = 1;
 					break;
 				}
 				case BK_NOISE: {
 					unit -> phase.count = BK_NOISE_PHASES;
-					unit -> phase.haltSilence = 0;
 					break;
 				}
 				case BK_SAWTOOTH: {
 					unit -> phase.count = BK_SAWTOOTH_PHASES;
-					unit -> phase.haltSilence = 1;
 					break;
 				}
 				case BK_SINE: {
 					unit -> phase.count = BK_SINE_PHASES;
-					unit -> phase.haltSilence = 1;
 					break;
 				}
 				default: {
@@ -585,10 +578,6 @@ BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value)
 
 			break;
 		}
-		case BK_HALT_SILENT_PHASE: {
-			unit -> phase.haltSilence = (value != 0);
-			break;
-		}
 		default: {
 			return BK_INVALID_ATTRIBUTE;
 			break;
@@ -656,10 +645,6 @@ BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue)
 		}
 		case BK_FLAG_RELEASE: {
 			value = (unit -> object.flags & BKUnitFlagRelease) ? 1 : 0;
-			break;
-		}
-		case BK_HALT_SILENT_PHASE: {
-			value = unit -> phase.haltSilence;
 			break;
 		}
 		default: {
@@ -860,7 +845,7 @@ static BKInt BKUnitNextPhase (BKUnit * unit)
 /**
  * Fills buffer with waveform to specified time
  */
-static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime, BKInt advanceSilentPhase)
+static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime)
 {
 	BKFUInt20  time = 0, deltaTime;
 	BKInt      volume;
@@ -879,7 +864,7 @@ static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime, BKInt adva
 		if (unit -> mute)
 			volume = 0;
 
-		if (volume || advanceSilentPhase) {
+		if (volume) {
 			channel   = & unit -> ctx -> channels [i];
 			lastPulse = unit -> lastPulse [i];
 
@@ -1090,7 +1075,7 @@ BKInt BKUnitRun (BKUnit * unit, BKFUInt20 endTime)
 			case BK_SAWTOOTH:
 			case BK_SINE:
 			case BK_CUSTOM: {
-				time = BKUnitRunWaveform (unit, endTime, (unit -> phase.haltSilence == 0));
+				time = BKUnitRunWaveform (unit, endTime);
 				break;
 			}
 			case BK_SAMPLE: {

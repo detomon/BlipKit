@@ -81,7 +81,6 @@ struct BKUnit
 		BKUInt wrap;
 		BKInt  wrapCount;
 		BKUInt count;
-		BKInt  haltSilence;
 	} phase;
 
 	// samples
