@@ -19,12 +19,12 @@ int main (int argc, char const * argv [])
 
 	if (res != 0) {
 		fprintf (stderr, "Allocation failed (%d)\n", res);
-		return 99;
+		return RESULT_ERROR;
 	}
 
 	if (fft == INVALID_PTR || fft == NULL) {
 		fprintf (stderr, "Invalid pointer (%p)\n", fft);
-		return 99;
+		return RESULT_ERROR;
 	}
 
 	// fill samples
@@ -54,12 +54,12 @@ int main (int argc, char const * argv [])
 
 		if (BKAbs (rex - rey) > 0.000001) {
 			fprintf (stderr, "Sample at index %d differs from origin value (%f %f)\n", i, rex, rey);
-			return 99;
+			return RESULT_ERROR;
 		}
 
 		if (BKAbs (imx) > 0.000001) {
 			fprintf (stderr, "Imaginary part at index %d not 0 %f\n", i, imx);
-			return 99;
+			return RESULT_ERROR;
 		}
 	}
 
