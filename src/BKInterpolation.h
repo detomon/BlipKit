@@ -63,7 +63,7 @@ extern void BKSlideStateSetValueAndSteps (BKSlideState * state, BKInt endValue, 
  * This is the same as calling `BKSlideStateSetValueAndSteps` without changing
  * the `steps`.
  */
-extern void BKSlideStateSetValue (BKSlideState * state, BKInt endValue);
+BK_INLINE void BKSlideStateSetValue (BKSlideState * state, BKInt endValue);
 
 /**
  * Set only the `steps` to reach the `endValue`
@@ -71,7 +71,7 @@ extern void BKSlideStateSetValue (BKSlideState * state, BKInt endValue);
  * This is the same as calling `BKSlideStateSetValueAndSteps` without changing
  * the `endValue`.
  */
-extern void BKSlideStateSetSteps (BKSlideState * state, BKInt steps);
+BK_INLINE void BKSlideStateSetSteps (BKSlideState * state, BKInt steps);
 
 /**
  * Halt slide
@@ -82,19 +82,19 @@ extern void BKSlideStateSetSteps (BKSlideState * state, BKInt steps);
  * If `setEndValue` is 1 the state value is set immediately to `endValue`
  * otherwise the interpolated value keeps its current value.
  */
-extern void BKSlideStateHalt (BKSlideState * state, BKInt setEndValue);
+BK_INLINE void BKSlideStateHalt (BKSlideState * state, BKInt setEndValue);
 
 /**
  * Make slide step
  *
  * Every call slides the value by one step until the end value is reached.
  */
-extern void BKSlideStateStep (BKSlideState * state);
+BK_INLINE void BKSlideStateStep (BKSlideState * state);
 
 /**
  * Get the current interpolated value
  */
-extern BKInt BKSlideStateGetValue (BKSlideState const * state);
+BK_INLINE BKInt BKSlideStateGetValue (BKSlideState const * state);
 
 /**
  * Initialize a interval state struct
@@ -128,7 +128,7 @@ extern void BKIntervalStateSetDeltaAndSteps (BKIntervalState * state, BKInt delt
  * This is the same as calling `BKIntervalStateSetDeltaAndSteps` without
  * changing the `steps`.
  */
-extern void BKIntervalStateSetDelta (BKIntervalState * state, BKInt delta);
+BK_INLINE void BKIntervalStateSetDelta (BKIntervalState * state, BKInt delta);
 
 /**
  * Set only `steps` for each phase
@@ -136,7 +136,7 @@ extern void BKIntervalStateSetDelta (BKIntervalState * state, BKInt delta);
  * This is the same as calling `BKIntervalStateSetDeltaAndSteps` without
  * changing the `delta` value.
  */
-extern void BKIntervalStateSetSteps (BKIntervalState * state, BKInt steps);
+BK_INLINE void BKIntervalStateSetSteps (BKIntervalState * state, BKInt steps);
 
 /**
  * Make oscillation step
@@ -148,6 +148,82 @@ extern void BKIntervalStateStep (BKIntervalState * state);
 /**
  * Get the current oscillated value
  */
-extern BKInt BKIntervalStateGetValue (BKIntervalState const * state);
+BK_INLINE BKInt BKIntervalStateGetValue (BKIntervalState const * state);
+
+
+BK_INLINE void BKSlideStateSetValue (BKSlideState * state, BKInt endValue)
+{
+	BKSlideStateSetValueAndSteps (state, endValue, state -> steps);
+}
+
+BK_INLINE  void BKSlideStateSetSteps (BKSlideState * state, BKInt steps)
+{
+	BKSlideStateSetValueAndSteps (state, (state -> endValue >> state -> valueShift), steps);
+}
+
+BK_INLINE  void BKSlideStateHalt (BKSlideState * state, BKInt setEndValue)
+{
+	state -> step = 0;
+
+	if (setEndValue) {
+		state -> value = state -> endValue;
+	}
+}
+
+BK_INLINE  void BKSlideStateStep (BKSlideState * state)
+{
+	if (state -> step > 0) {
+		state -> value += state -> stepDelta;
+		state -> step --;
+
+		if (state -> step <= 0) {
+			state -> value = state -> endValue;
+		}
+	}
+}
+
+BK_INLINE  BKInt BKSlideStateGetValue (BKSlideState const * state)
+{
+	BKInt value = state -> value;
+
+	// Without round bias the step values from 0 to 1 in 10 steps
+	// would look like this:
+	//   0 0 0 0 0 0 0 0 0 1
+	// With round bias they look like this:
+	//   0 0 0 0 0 1 1 1 1 1
+	// This also works with negative values
+
+	value += state -> roundBias;
+	value >>= state -> valueShift;
+
+	return value;
+}
+
+BK_INLINE void BKIntervalStateSetDelta (BKIntervalState * state, BKInt delta)
+{
+	BKIntervalStateSetDeltaAndSteps (state, delta, state -> steps);
+}
+
+BK_INLINE void BKIntervalStateSetSteps (BKIntervalState * state, BKInt steps)
+{
+	BKIntervalStateSetDeltaAndSteps (state, (state -> delta >> state -> valueShift), steps);
+}
+
+BK_INLINE BKInt BKIntervalStateGetValue (BKIntervalState const * state)
+{
+	BKInt value = state -> value;
+
+	// Without round bias the step values from 0 to 1 in 10 steps
+	// would look like this:
+	//   0 0 0 0 0 0 0 0 0 1
+	// With round bias they look like this:
+	//   0 0 0 0 0 1 1 1 1 1
+	// This also works with negative values
+
+	value += state -> roundBias;
+	value >>= state -> valueShift;
+
+	return value;
+}
 
 #endif /* ! _BK_INTERPOLATION_H_ */

@@ -55,52 +55,6 @@ void BKSlideStateSetValueAndSteps (BKSlideState * state, BKInt endValue, BKInt s
 	}
 }
 
-void BKSlideStateSetValue (BKSlideState * state, BKInt endValue)
-{
-	BKSlideStateSetValueAndSteps (state, endValue, state -> steps);
-}
-
-void BKSlideStateSetSteps (BKSlideState * state, BKInt steps)
-{
-	BKSlideStateSetValueAndSteps (state, (state -> endValue >> state -> valueShift), steps);
-}
-
-void BKSlideStateHalt (BKSlideState * state, BKInt setEndValue)
-{
-	state -> step = 0;
-
-	if (setEndValue)
-		state -> value = state -> endValue;
-}
-
-void BKSlideStateStep (BKSlideState * state)
-{
-	if (state -> step > 0) {
-		state -> value += state -> stepDelta;
-		state -> step --;
-
-		if (state -> step <= 0)
-			state -> value = state -> endValue;
-	}
-}
-
-BKInt BKSlideStateGetValue (BKSlideState const * state)
-{
-	BKInt value = state -> value;
-
-	// Without round bias the step values from 0 to 1 in 10 steps
-	// would look like this:
-	//   0 0 0 0 0 0 0 0 0 1
-	// With round bias they look like this:
-	//   0 0 0 0 0 1 1 1 1 1
-	// This also works with negative values
-
-	value += state -> roundBias;
-	value >>= state -> valueShift;
-
-	return value;
-}
-
 void BKIntervalStateInit (BKIntervalState * state, BKInt maxValue)
 {
 	BKInt valueShift;
@@ -192,16 +146,6 @@ void BKIntervalStateSetDeltaAndSteps (BKIntervalState * state, BKInt delta, BKIn
 	}
 }
 
-void BKIntervalStateSetDelta (BKIntervalState * state, BKInt delta)
-{
-	BKIntervalStateSetDeltaAndSteps (state, delta, state -> steps);
-}
-
-void BKIntervalStateSetSteps (BKIntervalState * state, BKInt steps)
-{
-	BKIntervalStateSetDeltaAndSteps (state, (state -> delta >> state -> valueShift), steps);
-}
-
 void BKIntervalStateStep (BKIntervalState * state)
 {
 	BKInt value, stepDelta;
@@ -248,21 +192,4 @@ void BKIntervalStateStep (BKIntervalState * state)
 			state -> step      = 0;
 		}
 	}
-}
-
-BKInt BKIntervalStateGetValue (BKIntervalState const * state)
-{
-	BKInt value = state -> value;
-
-	// Without round bias the step values from 0 to 1 in 10 steps
-	// would look like this:
-	//   0 0 0 0 0 0 0 0 0 1
-	// With round bias they look like this:
-	//   0 0 0 0 0 1 1 1 1 1
-	// This also works with negative values
-
-	value += state -> roundBias;
-	value >>= state -> valueShift;
-
-	return value;
 }
