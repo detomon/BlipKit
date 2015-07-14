@@ -1129,6 +1129,7 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 	BKInt      volume;
 	BKBuffer * channel;
 	BKInt      pulse, delta, chanDelta;
+	BKInt      checkBounds;
 	BKFrame  * frames;
 
 	// muted
@@ -1137,8 +1138,11 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 	}
 
 	// prevent invalid sample length
-	if (BKAbs ((BKInt) unit -> sample.end - (BKInt) unit -> sample.offset) < 2)
+	if (BKAbs ((BKInt) unit -> sample.end - (BKInt) unit -> sample.offset) < 2) {
 		return endTime;
+	}
+
+	checkBounds = (unit -> object.flags & BKUnitFlagSampleSustainRange) && !(unit -> object.flags & BKUnitFlagRelease);
 
 	for (time = unit -> time; time < endTime; time += BK_FINT20_UNIT) {
 		frames = & unit -> sample.frames [unit -> phase.phase * unit -> sample.numChannels];
@@ -1170,7 +1174,7 @@ static BKFUInt20 BKUnitRunSample (BKUnit * unit, BKFUInt20 endTime)
 		}
 
 		// check for sustain range boundary
-		if ((unit -> object.flags & BKUnitFlagSampleSustainRange) && !(unit -> object.flags & BKUnitFlagRelease)) {
+		if (checkBounds) {
 			if (unit -> sample.period > 0) {
 				if ((BKInt) unit -> phase.phase >= (BKInt) unit -> sample.sustainEnd) {
 					unit -> phase.phase = unit -> sample.sustainOffset;
