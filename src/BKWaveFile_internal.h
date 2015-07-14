@@ -54,7 +54,7 @@ struct BKWaveFileHeaderData
 	char     data [];
 };
 
-static BKInt BKSystemIsBigEndian (void)
+BK_INLINE BKInt BKSystemIsBigEndian (void)
 {
 	union { BKUInt i; char c [4]; } sentinel;
 
@@ -63,7 +63,7 @@ static BKInt BKSystemIsBigEndian (void)
 	return sentinel.c[0] == 0x01;
 }
 
-static uint32_t BKInt32Reverse (uint32_t i)
+BK_INLINE uint32_t BKInt32Reverse (uint32_t i)
 {
 	char c;
 	union { uint32_t i; char c [4]; } sentinel;
@@ -76,7 +76,7 @@ static uint32_t BKInt32Reverse (uint32_t i)
 	return i;
 }
 
-static uint16_t BKInt16Reverse (uint16_t i)
+BK_INLINE uint16_t BKInt16Reverse (uint16_t i)
 {
 	char c;
 	union { uint16_t i; char c [2]; } sentinel;
