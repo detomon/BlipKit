@@ -80,12 +80,12 @@ BK_INLINE BKInt BKBufferAddFrame (BKBuffer * buf, BKFUInt20 time, BKFrame frame)
 /**
  * Set time of last update
  */
-extern BKInt BKBufferEnd (BKBuffer * buf, BKFUInt20 time);
+BK_INLINE BKInt BKBufferEnd (BKBuffer * buf, BKFUInt20 time);
 
 /**
  * Advance time
  */
-extern BKInt BKBufferShift (BKBuffer * buf, BKFUInt20 time);
+BK_INLINE BKInt BKBufferShift (BKBuffer * buf, BKFUInt20 time);
 
 /**
  * Read frames
@@ -95,12 +95,47 @@ extern BKInt BKBufferRead (BKBuffer * buf, BKFrame outFrames [], BKUInt size, BK
 /**
  * Get current buffer size
  */
-extern BKInt BKBufferSize (BKBuffer const * buf);
+BK_INLINE BKInt BKBufferSize (BKBuffer const * buf);
 
 /**
  * Clear data
  */
 extern void BKBufferClear (BKBuffer * buf);
+
+
+BK_INLINE BKInt BKBufferEnd (BKBuffer * buf, BKFUInt20 time)
+{
+	BKUInt offset;
+
+	time   = buf -> time + time;
+	offset = time >> BK_FINT20_SHIFT;
+
+	if (offset > buf -> capacity) {
+		buf -> capacity = offset;
+	}
+
+	return 0;
+}
+
+BK_INLINE BKInt BKBufferShift (BKBuffer * buf, BKFUInt20 time)
+{
+	BKFUInt20 maxShift;
+
+	maxShift = buf -> capacity << BK_FINT20_SHIFT;
+
+	if (buf -> time + time > maxShift) {
+		time = maxShift - buf -> time;
+	}
+
+	buf -> time += time;
+
+	return 0;
+}
+
+BK_INLINE BKInt BKBufferSize (BKBuffer const * buf)
+{
+	return buf -> time >> BK_FINT20_SHIFT;
+}
 
 BK_INLINE BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 {

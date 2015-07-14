@@ -75,38 +75,6 @@ void BKBufferDispose (BKBuffer * buf)
 	BKBufferClear (buf);
 }
 
-BKInt BKBufferEnd (BKBuffer * buf, BKFUInt20 time)
-{
-	BKUInt offset;
-
-	time   = buf -> time + time;
-	offset = time >> BK_FINT20_SHIFT;
-
-	if (offset > buf -> capacity)
-		buf -> capacity = offset;
-
-	return 0;
-}
-
-BKInt BKBufferShift (BKBuffer * buf, BKFUInt20 time)
-{
-	BKFUInt20 maxShift;
-
-	maxShift = buf -> capacity << BK_FINT20_SHIFT;
-
-	if (buf -> time + time > maxShift)
-		time = maxShift - buf -> time;
-
-	buf -> time += time;
-
-	return 0;
-}
-
-BKInt BKBufferSize (BKBuffer const * buf)
-{
-	return buf -> time >> BK_FINT20_SHIFT;
-}
-
 BKInt BKBufferRead (BKBuffer * buf, BKFrame outFrames [], BKUInt size, BKUInt interlace)
 {
 	BKInt * frames = & buf -> frames [0];
