@@ -775,71 +775,193 @@ BKInt BKUnitGetPtr (BKUnit const * unit, BKEnum attr, void * outPtr)
 	return 0;
 }
 
-/**
- * Get next phase of current waveform
- * Returns 0 if no waveform is set
- */
-static BKInt BKUnitNextPhase (BKUnit * unit)
+static BKFUInt20 BKUnitRunWaveformSquare (BKUnit * unit, BKBuffer * channel, BKInt * lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime)
 {
-	BKInt  amp = 0;
-	BKUInt phase;
+	BKInt  pulse;
+	BKInt  dutyCycle = unit -> dutyCycle;
+	BKInt  delta, chanDelta;
+	BKInt  lastPulse = *lastPulseRef;
+	BKUInt phase = unit -> phase.phase;
 
-	phase = unit -> phase.phase;
+	// run until time
+	for (; time < endTime; time += unit -> period) {
+		pulse = squarePhases [dutyCycle][phase];
+		phase = (phase + 1) & (BK_SQUARE_PHASES - 1);
 
-	// wrap phase
-	if (unit -> phase.wrap) {
-		if (-- unit -> phase.wrapCount <= 0) {
-			unit -> phase.wrapCount = unit -> phase.wrap;
-			phase = 0;
-		}
-	}
+		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
 
-	switch (unit -> waveform) {
-		case BK_SQUARE: {
-			amp   = squarePhases [unit -> dutyCycle][phase];
-			phase = (phase + 1) & (BK_SQUARE_PHASES - 1);
-			break;
-		}
-		case BK_TRIANGLE: {
-			amp   = trianglePhases [phase];
-			phase = (phase + 1) & (BK_TRIANGLE_PHASES - 1);
-			break;
-		}
-		case BK_NOISE: {
-			phase = phase ?: 0x4a41;  // must not be 0
-			amp   = ((phase >> 0) ^ (phase >> 2) ^ (phase >> 3) ^ (phase >> 5)) & 1;
-			phase = (phase >> 1) | (amp << 15);
-			amp   = amp ? BK_MAX_VOLUME / 2 : -BK_MAX_VOLUME / 2;
-			break;
-		}
-		case BK_SAWTOOTH: {
-			amp = sawtoothPhases [phase];
-			phase ++;
+		chanDelta = delta - lastPulse;
+		lastPulse = delta;
 
-			if (phase >= BK_SAWTOOTH_PHASES) {
-				phase = 0;
-			}
-			break;
-		}
-		case BK_SINE: {
-			amp   = sinePhases [phase] / 2;
-			phase = (phase + 1) & (BK_SINE_PHASES - 1);
-			break;
-		}
-		case BK_CUSTOM: {
-			amp = unit -> sample.frames [phase];
-			phase ++;
-
-			if (phase >= unit -> phase.count) {
-				phase = 0;
-			}
-			break;
-		}
+		BKBufferAddPulse (channel, time, chanDelta);
 	}
 
 	unit -> phase.phase = phase;
+	*lastPulseRef = lastPulse;
 
-	return amp;
+	return time;
+}
+
+static BKFUInt20 BKUnitRunWaveformTriangle (BKUnit * unit, BKBuffer * channel, BKInt * lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime)
+{
+	BKInt  pulse;
+	BKInt  delta, chanDelta;
+	BKInt  lastPulse = *lastPulseRef;
+	BKUInt phase = unit -> phase.phase;
+
+	// run until time
+	for (; time < endTime; time += unit -> period) {
+		pulse = trianglePhases [phase];
+		phase = (phase + 1) & (BK_TRIANGLE_PHASES - 1);
+
+		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+
+		chanDelta = delta - lastPulse;
+		lastPulse = delta;
+
+		BKBufferAddPulse (channel, time, chanDelta);
+	}
+
+	unit -> phase.phase = phase;
+	*lastPulseRef = lastPulse;
+
+	return time;
+}
+
+static BKFUInt20 BKUnitRunWaveformNoise (BKUnit * unit, BKBuffer * channel, BKInt * lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime)
+{
+	BKInt  pulse;
+	BKInt  delta, chanDelta;
+	BKInt  lastPulse = *lastPulseRef;
+	BKUInt phase = unit -> phase.phase;
+	BKUInt wrap = unit -> phase.wrap;
+	BKUInt wrapCount = unit -> phase.wrapCount;
+
+	// must not be 0
+	if (!phase) {
+		phase = 0x4a41;
+	}
+
+	// run until time
+	for (; time < endTime; time += unit -> period) {
+		if (wrap) {
+			if (-- wrapCount <= 0) {
+				wrapCount = wrap;
+				phase = 0x4a41;
+			}
+		}
+
+		pulse = ((phase >> 0) ^ (phase >> 2) ^ (phase >> 3) ^ (phase >> 5)) & 1;
+		phase = (phase >> 1) | (pulse << 15);
+		pulse = pulse ? BK_MAX_VOLUME / 2 : -BK_MAX_VOLUME / 2;
+
+		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+
+		chanDelta = delta - lastPulse;
+		lastPulse = delta;
+
+		BKBufferAddPulse (channel, time, chanDelta);
+	}
+
+	unit -> phase.phase = phase;
+	unit -> phase.wrapCount = wrapCount;
+	*lastPulseRef = lastPulse;
+
+	return time;
+}
+
+static BKFUInt20 BKUnitRunWaveformSawtooth (BKUnit * unit, BKBuffer * channel, BKInt * lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime)
+{
+	BKInt  pulse;
+	BKInt  delta, chanDelta;
+	BKInt  lastPulse = *lastPulseRef;
+	BKUInt phase = unit -> phase.phase;
+
+	// run until time
+	for (; time < endTime; time += unit -> period) {
+		pulse = sawtoothPhases [phase];
+
+		if (++ phase >= BK_SAWTOOTH_PHASES) {
+			phase = 0;
+		}
+
+		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+
+		chanDelta = delta - lastPulse;
+		lastPulse = delta;
+
+		BKBufferAddPulse (channel, time, chanDelta);
+	}
+
+	unit -> phase.phase = phase;
+	*lastPulseRef = lastPulse;
+
+	return time;
+}
+
+static BKFUInt20 BKUnitRunWaveformSine (BKUnit * unit, BKBuffer * channel, BKInt * lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime)
+{
+	BKInt  pulse;
+	BKInt  delta, chanDelta;
+	BKInt  lastPulse = *lastPulseRef;
+	BKUInt phase = unit -> phase.phase;
+
+	// run until time
+	for (; time < endTime; time += unit -> period) {
+		pulse = sinePhases [phase] / 2;
+		phase = (phase + 1) & (BK_SINE_PHASES - 1);
+
+		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+
+		chanDelta = delta - lastPulse;
+		lastPulse = delta;
+
+		BKBufferAddPulse (channel, time, chanDelta);
+	}
+
+	unit -> phase.phase = phase;
+	*lastPulseRef = lastPulse;
+
+	return time;
+}
+
+static BKFUInt20 BKUnitRunWaveformCustom (BKUnit * unit, BKBuffer * channel, BKInt * lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime)
+{
+	BKInt  pulse;
+	BKInt  delta, chanDelta;
+	BKInt  lastPulse = *lastPulseRef;
+	BKUInt phase = unit -> phase.phase;
+	BKUInt wrap = unit -> phase.wrap;
+	BKUInt wrapCount = unit -> phase.wrapCount;
+
+	// run until time
+	for (; time < endTime; time += unit -> period) {
+		if (wrap) {
+			if (-- wrapCount <= 0) {
+				wrapCount = wrap;
+				phase = 0;
+			}
+		}
+
+		pulse = unit -> sample.frames [phase];
+
+		if (++ phase >= unit -> phase.count) {
+			phase = 0;
+		}
+
+		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+
+		chanDelta = delta - lastPulse;
+		lastPulse = delta;
+
+		BKBufferAddPulse (channel, time, chanDelta);
+	}
+
+	unit -> phase.phase = phase;
+	unit -> phase.wrapCount = wrapCount;
+	*lastPulseRef = lastPulse;
+
+	return time;
 }
 
 /**
@@ -847,43 +969,62 @@ static BKInt BKUnitNextPhase (BKUnit * unit)
  */
 static BKFUInt20 BKUnitRunWaveform (BKUnit * unit, BKFUInt20 endTime)
 {
-	BKFUInt20  time = 0, deltaTime;
+	BKFUInt20  time = 0;
 	BKInt      volume;
 	BKBuffer * channel;
-	BKInt      pulse, lastPulse, delta, chanDelta;
-	BKInt      origPhase, origPhaseWrapCount;
+	BKInt      lastPulse;
+	BKInt      origPhase, origWrapCount;
 
-	origPhase          = unit -> phase.phase;
-	origPhaseWrapCount = unit -> phase.wrapCount;
+	origPhase = unit -> phase.phase;
+	origWrapCount = unit -> phase.wrapCount;
+
+	if (unit -> mute) {
+		return time;
+	}
 
 	// update each channel
 	for (BKInt i = 0; i < unit -> ctx -> numChannels; i ++) {
 		volume = unit -> volume [i];
 
-		// mute sets volume to 0
-		if (unit -> mute)
-			volume = 0;
-
-		if (volume) {
-			channel   = & unit -> ctx -> channels [i];
-			lastPulse = unit -> lastPulse [i];
-
-			unit -> phase.phase     = origPhase;
-			unit -> phase.wrapCount = origPhaseWrapCount;
-
-			// run until time
-			for (time = unit -> time; time < endTime; time += unit -> period) {
-				pulse = BKUnitNextPhase (unit);
-				delta = (pulse * volume) >> BK_VOLUME_SHIFT;
-
-				chanDelta = delta - lastPulse;
-				lastPulse = delta;
-
-				BKBufferAddPulse (channel, time, chanDelta);
-			}
-
-			unit -> lastPulse [i] = lastPulse;
+		if (!volume) {
+			continue;
 		}
+
+		channel   = & unit -> ctx -> channels [i];
+		lastPulse = unit -> lastPulse [i];
+		time      = unit -> time;
+
+		unit -> phase.phase = origPhase;
+		unit -> phase.wrapCount = origWrapCount;
+
+		switch (unit -> waveform) {
+			case BK_SQUARE: {
+				time = BKUnitRunWaveformSquare (unit, channel, &lastPulse, volume, time, endTime);
+				break;
+			}
+			case BK_TRIANGLE: {
+				time = BKUnitRunWaveformTriangle (unit, channel, &lastPulse, volume, time, endTime);
+				break;
+			}
+			case BK_NOISE: {
+				time = BKUnitRunWaveformNoise (unit, channel, &lastPulse, volume, time, endTime);
+				break;
+			}
+			case BK_SAWTOOTH: {
+				time = BKUnitRunWaveformSawtooth (unit, channel, &lastPulse, volume, time, endTime);
+				break;
+			}
+			case BK_SINE: {
+				time = BKUnitRunWaveformSine (unit, channel, &lastPulse, volume, time, endTime);
+				break;
+			}
+			case BK_CUSTOM: {
+				time = BKUnitRunWaveformCustom (unit, channel, &lastPulse, volume, time, endTime);
+				break;
+			}
+		}
+
+		unit -> lastPulse [i] = lastPulse;
 	}
 
 	return time;
