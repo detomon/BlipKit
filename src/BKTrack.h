@@ -41,14 +41,17 @@ enum
 	BKPortamentoFlag               = 1 << (BK_EFFECT_PORTAMENTO    + BK_EFFECT_FLAG_SHIFT),
 	BKTremoloFlag                  = 1 << (BK_EFFECT_TREMOLO       + BK_EFFECT_FLAG_SHIFT),
 	BKVibratoFlag                  = 1 << (BK_EFFECT_VIBRATO       + BK_EFFECT_FLAG_SHIFT),
+
 	BKInstrumentFlag               = 1 << 0,
 	BKArpeggioFlag                 = 1 << 1,
 	BKPanningEnabledFlag           = 1 << 2,
 	BKTriangleIgnoresVolumeFlag    = 1 << 3,
 	BKIgnoreVolumeFlag             = 1 << 4,
+
 	BKTrackAttrUpdateFlagVolume    = 1 << 5,
 	BKTrackAttrUpdateFlagNote      = 1 << 6,
 	BKTrackAttrUpdateFlagDutyCycle = 1 << 7,
+
 	BKEffectMask                   = BKPortamentoFlag | BKVolumeSlideFlag
 	| BKPanningSlideFlag | BKTremoloFlag | BKVibratoFlag,
 };
