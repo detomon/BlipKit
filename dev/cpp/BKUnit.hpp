@@ -21,31 +21,36 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef _BK_INSTRUMENT_CPP_H_
-#define _BK_INSTRUMENT_CPP_H_
+#ifndef _BK_UNIT_CPP_H_
+#define _BK_UNIT_CPP_H_
 
 #include "BlipKit.h"
+#include "BKContext.hpp"
 
 namespace BlipKit
 {
-	class Instrument;
+	class Unit;
 }
 
-class BlipKit::Instrument
+class BlipKit::Unit
 {
 
 public:
-	BKInstrument instr;
+	BKUnit unit;
 
-	Instrument () { BKInstrumentInit (& instr); }
-	~Instrument () { BKInstrumentDispose (& instr); }
+	Unit (BKEnum waveform) { BKUnitInit (& unit, waveform); }
 
-	BKSequence const * getSequence (BKUInt slot) const { return BKInstrumentGetSequence (& instr, slot); }
-	BKInt setSequence (BKUInt slot, BKInt const * values, BKUInt length, BKInt repeatStart, BKInt repeatLength)
-	{
-		return BKInstrumentSetSequence (& instr, slot, values, length, repeatStart, repeatLength);
-	}
+	~Unit () { BKDispose (& unit); }
+
+	BKInt attach (BlipKit::Context & ctx) { return BKUnitAttach (& unit, & ctx.ctx); }
+	void detach (void) { BKUnitDetach (& unit); }
+
+	BKInt setAttr (BKEnum attr, BKInt value) { return BKSetAttr (& unit, attr, value); }
+	BKInt getAttr (BKEnum attr, BKInt * outValue) const { return BKGetAttr (& unit, attr, outValue); }
+
+	BKInt setPtr (BKEnum attr, void * ptr, size_t size) { return BKSetPtr (& unit, attr, ptr, size); }
+	BKInt getPtr (BKEnum attr, void * outPtr, size_t size) const { return BKGetPtr (& unit, attr, outPtr, size); }
 
 };
 
-#endif /* ! _BK_INSTRUMENT_CPP_H_ */
+#endif /* ! _BK_UNIT_CPP_H_ */

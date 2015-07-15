@@ -24,12 +24,8 @@
 #ifndef _BK_TEST_CPP_H_
 #define _BK_TEST_CPP_H_
 
-extern "C" {
-	#include "BlipKit.h"
-}
-
 #include <iostream>
-#include "BlipKitCPP.h"
+#include "BlipKit.hpp"
 
 using namespace std;
 using namespace BlipKit;

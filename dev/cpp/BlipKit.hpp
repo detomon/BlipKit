@@ -21,36 +21,15 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef _BK_UNIT_CPP_H_
-#define _BK_UNIT_CPP_H_
+#ifndef _BLIP_KIT_CPP_H_
+#define _BLIP_KIT_CPP_H_
 
 #include "BlipKit.h"
-#include "BKContextCPP.h"
+#include "BKClock.hpp"
+#include "BKContext.hpp"
+#include "BKData.hpp"
+#include "BKInstrument.hpp"
+#include "BKTrack.hpp"
+#include "BKUnit.hpp"
 
-namespace BlipKit
-{
-	class Unit;
-}
-
-class BlipKit::Unit
-{
-
-public:
-	BKUnit unit;
-
-	Unit (BKEnum waveform) { BKUnitInit (& unit, waveform); }
-	
-	~Unit () { BKUnitDispose (& unit); }
-	
-	BKInt attach (BlipKit::Context & ctx) { return BKUnitAttach (& unit, & ctx.ctx); }
-	void detach (void) { BKUnitDetach (& unit); }
-	
-	BKInt setAttr (BKEnum attr, BKInt value) { return BKUnitSetAttr (& unit, attr, value); }
-	BKInt getAttr (BKEnum attr, BKInt * outValue) const { return BKUnitGetAttr (& unit, attr, outValue); }
-
-	BKInt setPtr (BKEnum attr, void * ptr) { return BKUnitSetPtr (& unit, attr, ptr); }
-	BKInt getPtr (BKEnum attr, void * outPtr) const { return BKUnitGetPtr (& unit, attr, outPtr); }
-
-};
-
-#endif /* ! _BK_UNIT_CPP_H_ */
+#endif /* ! _BLIP_KIT_CPP_H_ */

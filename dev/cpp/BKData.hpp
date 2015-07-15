@@ -45,23 +45,29 @@ public:
 
 	Data (BKFrame const * frames, BKUInt numFrames, BKUInt numChannels)
 	{
-		if (BKDataInitWithFrames (& data, frames, numFrames, numChannels, true) < 0)
+		BKDataInit (& data);
+
+		if (BKDataSetFrames (& data, frames, numFrames, numChannels, true) != 0) {
 			throw std::bad_alloc ();
+		}
 	}
 
-	Data (char const * path, BKEnum bits, BKUInt numChannels, BKEnum endian)
+	Data (char const * path, FILE * file, BKUInt numChannels, BKEnum params)
 	{
-		if (BKDataInitAndLoadRawAudio (& data, path, bits, numChannels, endian) < 0)
+		BKDataInit (& data);
+
+		if (BKDataLoadRaw (& data, file, numChannels, params) != 0) {
 			throw std::bad_alloc ();
+		}
 	}
 
-	~Data () { BKDataDispose (& data); }
+	~Data () { BKDispose (& data); }
 
-	BKInt setAttr (BKEnum attr, BKInt value) { return BKDataSetAttr (& data, attr, value); }
-	BKInt getAttr (BKEnum attr, BKInt * outValue) const { return BKDataGetAttr (& data, attr, outValue); }
+	BKInt setAttr (BKEnum attr, BKInt value) { return BKSetAttr (& data, attr, value); }
+	BKInt getAttr (BKEnum attr, BKInt * outValue) const { return BKGetAttr (& data, attr, outValue); }
 
-	BKInt setPtr (BKEnum attr, void * ptr) { return BKDataSetPtr (& data, attr, ptr); }
-	BKInt getPtr (BKEnum attr, void * outPtr) const { return BKDataGetPtr (& data, attr, outPtr); }
+	BKInt setPtr (BKEnum attr, void * ptr, size_t size) { return BKSetPtr (& data, attr, ptr, size); }
+	BKInt getPtr (BKEnum attr, void * outPtr, size_t size) const { return BKGetPtr (& data, attr, outPtr, size); }
 
 	BKInt setFrames (BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy) { return BKDataSetFrames (& data, frames, numFrames, numChannels, copy); }
 

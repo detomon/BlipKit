@@ -25,7 +25,7 @@
 #define _BK_TRACK_CPP_H_
 
 #include "BlipKit.h"
-#include "BKContextCPP.h"
+#include "BKContext.hpp"
 
 namespace BlipKit
 {
@@ -45,16 +45,16 @@ public:
 		}
 	}
 
-	~Track () { BKTrackDispose (& track); }
+	~Track () { BKDispose (& track); }
 
 	BKInt attach (BlipKit::Context & ctx) { return BKTrackAttach (& track, & ctx.ctx); }
 	void detach (void) { BKTrackDetach (& track); }
 
-	BKInt setAttr (BKEnum attr, BKInt value) { return BKTrackSetAttr (& track, attr, value); }
-	BKInt getAttr (BKEnum attr, BKInt * outValue) const { return BKTrackGetAttr (& track, attr, outValue); }
+	BKInt setAttr (BKEnum attr, BKInt value) { return BKSetAttr (& track, attr, value); }
+	BKInt getAttr (BKEnum attr, BKInt * outValue) const { return BKGetAttr (& track, attr, outValue); }
 
-	BKInt setPtr (BKEnum attr, void * ptr) { return BKTrackSetPtr (& track, attr, ptr); }
-	BKInt getPtr (BKEnum attr, void * outPtr) const { return BKTrackGetPtr (& track, attr, outPtr); }
+	BKInt setPtr (BKEnum attr, void * ptr, size_t size) { return BKSetPtr (& track, attr, ptr, size); }
+	BKInt getPtr (BKEnum attr, void * outPtr, size_t size) const { return BKGetPtr (& track, attr, outPtr, size); }
 
 	BKInt setEffect (BKEnum effect, void const * ptr, BKUInt size) { return BKTrackSetEffect (& track, effect, ptr, size); }
 	BKInt getEffect (BKEnum effect, void * outValues, BKUInt size) const { return BKTrackGetEffect (& track, effect, outValues, size); }

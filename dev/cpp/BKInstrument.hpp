@@ -21,14 +21,31 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef _BLIP_KIT_CPP_H_
-#define _BLIP_KIT_CPP_H_
+#ifndef _BK_INSTRUMENT_CPP_H_
+#define _BK_INSTRUMENT_CPP_H_
 
-#include "BKClockCPP.h"
-#include "BKContextCPP.h"
-#include "BKDataCPP.h"
-#include "BKInstrumentCPP.h"
-#include "BKTrackCPP.h"
-#include "BKUnitCPP.h"
+#include "BlipKit.h"
 
-#endif /* ! _BLIP_KIT_CPP_H_ */
+namespace BlipKit
+{
+	class Instrument;
+}
+
+class BlipKit::Instrument
+{
+
+public:
+	BKInstrument instr;
+
+	Instrument () { BKInstrumentInit (& instr); }
+	~Instrument () { BKDispose (& instr); }
+
+	BKSequence const * getSequence (BKUInt slot) const { return BKInstrumentGetSequence (& instr, slot); }
+	BKInt setSequence (BKUInt slot, BKInt const * values, BKUInt length, BKInt repeatStart, BKInt repeatLength)
+	{
+		return BKInstrumentSetSequence (& instr, slot, values, length, repeatStart, repeatLength);
+	}
+
+};
+
+#endif /* ! _BK_INSTRUMENT_CPP_H_ */

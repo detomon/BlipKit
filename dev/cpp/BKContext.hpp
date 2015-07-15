@@ -25,7 +25,7 @@
 #define _BK_CONTEXT_CPP_H_
 
 #include "BlipKit.h"
-#include "BKClockCPP.h"
+#include "BKClock.hpp"
 
 namespace BlipKit
 {
@@ -45,13 +45,13 @@ public:
 		}
 	}
 
-	~Context () { BKContextDispose (& ctx); }
+	~Context () { BKDispose (& ctx); }
 
-	BKInt setAttr (BKEnum attr, BKInt value) { return BKContextSetAttr (& ctx, attr, value); }
-	BKInt getAttr (BKEnum attr, BKInt * outValue) const { return BKContextGetAttr (& ctx, attr, outValue); }
+	BKInt setAttr (BKEnum attr, BKInt value) { return BKSetAttr (& ctx, attr, value); }
+	BKInt getAttr (BKEnum attr, BKInt * outValue) const { return BKGetAttr (& ctx, attr, outValue); }
 
-	BKInt setPtr (BKEnum attr, void * ptr) { return BKContextSetPtr (& ctx, attr, ptr); }
-	BKInt getPtr (BKEnum attr, void * outPtr) const { return BKContextGetPtr (& ctx, attr, outPtr); }
+	BKInt setPtr (BKEnum attr, void * ptr, size_t size) { return BKSetPtr (& ctx, attr, ptr, size); }
+	BKInt getPtr (BKEnum attr, void * outPtr, size_t size) const { return BKGetPtr (& ctx, attr, outPtr, size); }
 
 	BKInt generate (BKFrame outFrames [], BKUInt size) { return BKContextGenerate (& ctx, outFrames, size); }
 	void run (BKFUInt20 endTime) { BKContextRun (& ctx, endTime); }
