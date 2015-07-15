@@ -201,38 +201,36 @@ static void BKTrackUpdateIgnoreVolume (BKTrack * track)
 	if (track -> waveform == BK_TRIANGLE) {
 		if (track -> flags & BKTriangleIgnoresVolumeFlag) {
 			track -> flags |= BKIgnoreVolumeFlag;
-			return;
 		}
 	}
-
-	track -> flags &= ~BKIgnoreVolumeFlag;
+	else {
+		track -> flags &= ~BKIgnoreVolumeFlag;
+	}
 }
 
 static void BKTrackArpeggioSetNotes (BKTrack * track, BKInt * arpeggio, BKInt count)
 {
-	track -> arpeggio.count = count;
+	BKArpeggioState * state = & track -> arpeggio;
 
-	track -> arpeggio.delta  = 0;
-	track -> arpeggio.offset = 0;
+	state -> count  = count;
+	state -> delta  = 0;
+	state -> offset = 0;
 
-	if (count > 0) {
-		memcpy (track -> arpeggio.notes, arpeggio, count * sizeof (BKInt));
-		track -> flags |= BKArpeggioFlag;
-	}
-	else {
-		track -> flags &= ~BKArpeggioFlag;
-	}
+	memcpy (state -> notes, arpeggio, count * sizeof (BKInt));
+	BKBitSetCond (track -> flags, BKArpeggioFlag, count > 0);
 
 	track -> flags |= BKTrackAttrUpdateFlagNote;
 }
 
 static void BKTrackArpeggioTick (BKTrack * track)
 {
-	track -> arpeggio.delta = track -> arpeggio.notes [track -> arpeggio.offset];
-	track -> arpeggio.offset ++;
+	BKArpeggioState * state = & track -> arpeggio;
 
-	if (track -> arpeggio.offset >= track -> arpeggio.count)
-		track -> arpeggio.offset = 0;
+	state -> delta = state -> notes [state -> offset ++];
+
+	if (state -> offset >= state -> count) {
+		state -> offset = 0;
+	}
 
 	track -> flags |= BKTrackAttrUpdateFlagNote;
 }
@@ -245,17 +243,29 @@ static void BKTrackInstrumentTick (BKTrack * track, BKInt level)
 
 static void BKTrackInstrumentUpdateFlags (BKTrack * track, BKInt all)
 {
-	if (track -> instrState.states[BK_SEQUENCE_VOLUME].sequence || all)
-		track -> flags |= BKTrackAttrUpdateFlagVolume;
+	BKSequenceState * states = track -> instrState.states;
 
-	if (track -> instrState.states[BK_SEQUENCE_PANNING].sequence || all)
-		track -> flags |= BKTrackAttrUpdateFlagVolume;
+	if (all) {
+		track -> flags |= BKTrackAttrUpdateFlagVolume | BKTrackAttrUpdateFlagVolume
+			| BKTrackAttrUpdateFlagNote | BKTrackAttrUpdateFlagDutyCycle;
+	}
+	else {
+		if (states [BK_SEQUENCE_VOLUME].sequence) {
+			track -> flags |= BKTrackAttrUpdateFlagVolume;
+		}
 
-	if (track -> instrState.states[BK_SEQUENCE_ARPEGGIO].sequence || all)
-		track -> flags |= BKTrackAttrUpdateFlagNote;
+		if (states [BK_SEQUENCE_PANNING].sequence) {
+			track -> flags |= BKTrackAttrUpdateFlagVolume;
+		}
 
-	if (track -> instrState.states[BK_SEQUENCE_DUTY_CYCLE].sequence || all)
-		track -> flags |= BKTrackAttrUpdateFlagDutyCycle;
+		if (states [BK_SEQUENCE_ARPEGGIO].sequence) {
+			track -> flags |= BKTrackAttrUpdateFlagNote;
+		}
+
+		if (states [BK_SEQUENCE_DUTY_CYCLE].sequence) {
+			track -> flags |= BKTrackAttrUpdateFlagDutyCycle;
+		}
+	}
 }
 
 static void BKTrackEffectTick (BKTrack * track)
@@ -741,13 +751,7 @@ static BKInt BKTrackSetAttrInt (BKTrack * track, BKEnum attr, BKInt value)
 			break;
 		}
 		case BK_TRIANGLE_IGNORES_VOLUME: {
-			if (value) {
-				track -> flags |= BKTriangleIgnoresVolumeFlag;
-			}
-			else {
-				track -> flags &= ~BKTriangleIgnoresVolumeFlag;
-			}
-
+			BKBitSetCond (track -> flags, BKTriangleIgnoresVolumeFlag, value != 0);
 			BKTrackUpdateIgnoreVolume (track);
 
 			break;
