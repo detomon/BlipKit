@@ -1,3 +1,12 @@
+Changes in BlipKit 0.13:
+  Release date: 2015-07-15
+
+* Remove deprecated functions
+* Remove attribute `BK_HALT_SILENCE_PHASE`
+* Rewritten waveform generation functions
+* Make some functions inlined
+* Optimized some code
+
 Changes in BlipKit 0.12.1:
   Release date: 2015-06-02
 
