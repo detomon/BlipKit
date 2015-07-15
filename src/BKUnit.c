@@ -27,6 +27,8 @@
 #define MAV BK_MAX_VOLUME
 #define MIV -BK_MAX_VOLUME
 
+extern void BKUnitDisposeObject (BKUnit * unit);
+
 extern BKClass BKUnitClass;
 
 static BKFrame const squarePhases [BK_SQUARE_PHASES + 1][BK_SQUARE_PHASES] =
@@ -263,11 +265,6 @@ void BKUnitDisposeObject (BKUnit * unit)
 	BKDataStateSetData (& unit -> sample.dataState, NULL);
 
 	BKUnitDetach (unit);
-}
-
-void BKUnitDispose (BKUnit * unit)
-{
-	BKDispose (unit);
 }
 
 BKInt BKUnitAttach (BKUnit * unit, BKContext * ctx)

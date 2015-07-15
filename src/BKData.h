@@ -104,6 +104,8 @@ struct BKDataConvertInfo
 
 /**
  * Initialize data object
+ *
+ * Disposing with `BKDispose` detaches the object from all tracks
  */
 extern BKInt BKDataInit (BKData * data);
 
@@ -111,11 +113,6 @@ extern BKInt BKDataInit (BKData * data);
  * Allocate data object
  */
 extern BKInt BKDataAlloc (BKData ** outData);
-
-/**
- * Dispose data and detach from all tracks
- */
-extern void BKDataDispose (BKData * data) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Detach data from all tracks

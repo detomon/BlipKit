@@ -82,11 +82,6 @@ extern BKInt BKClockInit (BKClock * clock, BKTime period, BKCallback * callback)
 extern BKInt BKClockAlloc (BKClock ** outClock, BKTime period, BKCallback * callback);
 
 /**
- * Dispose clock
- */
-extern void BKClockDispose (BKClock * clock) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
-
-/**
  * Attach clock
  * If `beforeClock` is not NULL `clock` is attached before `beforeClock`
  * `beforeClock` can have the values BK_LAST_ELEMENT_PTR and BK_FIRST_ELEMENT_PTR
@@ -130,11 +125,6 @@ extern BKInt BKDividerInit (BKDivider * divider, BKUInt count, BKCallback * call
  * Allocate divider
  */
 extern BKInt BKDividerAlloc (BKDivider ** outDivider, BKUInt count, BKCallback * callback);
-
-/**
- * Dispose divider
- */
-extern void BKDividerDispose (BKDivider * divider) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");;
 
 /**
  * Add divider to clock

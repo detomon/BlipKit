@@ -178,11 +178,6 @@ static void BKDataDisposeObject (BKData * data)
 	}
 }
 
-void BKDataDispose (BKData * data)
-{
-	BKDispose (data);
-}
-
 void BKDataDetach (BKData * data)
 {
 	if (data == NULL)

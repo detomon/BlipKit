@@ -84,11 +84,6 @@ static void BKClockDisposeObject (BKClock * clock)
 	}
 }
 
-void BKClockDispose (BKClock * clock)
-{
-	BKDispose (clock);
-}
-
 BKInt BKClockAttach (BKClock * clock, BKContext * ctx, BKClock * beforeClock)
 {
 	if (clock -> ctx == NULL) {
@@ -309,11 +304,6 @@ static void BKDividerDisposeObject (BKDivider * divider)
 
 		divider -> group = NULL;
 	}
-}
-
-void BKDividerDispose (BKDivider * divider)
-{
-	BKDispose (divider);
 }
 
 BKInt BKDividerAttachToClock (BKDivider * divider, BKClock * clock)

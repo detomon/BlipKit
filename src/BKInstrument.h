@@ -72,6 +72,8 @@ struct BKInstrument
 
 /**
  * Initalize instrument
+ *
+ * Disposing with `BKDispose` detaches the object from all tracks
  */
 extern BKInt BKInstrumentInit (BKInstrument * instr);
 
@@ -79,11 +81,6 @@ extern BKInt BKInstrumentInit (BKInstrument * instr);
  * Allocate instrument
  */
 extern BKInt BKInstrumentAlloc (BKInstrument ** outInstr);
-
-/**
- * Dispose instrument and detach from all tracks
- */
-extern void BKInstrumentDispose (BKInstrument * instr) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Detach instrument from all tracks

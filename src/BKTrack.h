@@ -97,6 +97,8 @@ struct BKTrack
 
 /**
  * Initialize track
+ *
+ * Disposing with `BKDispose` detaches the object from the context
  */
 extern BKInt BKTrackInit (BKTrack * track, BKEnum waveform);
 
@@ -114,11 +116,6 @@ extern void BKTrackReset (BKTrack * track);
  * Reset track values
  */
 extern void BKTrackClear (BKTrack * track);
-
-/**
- * Dispose track
- */
-extern void BKTrackDispose (BKTrack * track) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Attach to context

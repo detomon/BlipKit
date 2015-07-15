@@ -24,6 +24,8 @@
 #include "BKContext.h"
 #include "BKUnit.h"
 
+extern BKInt BKContextSetAttrInt (BKContext * ctx, BKEnum attr, BKInt value);
+
 extern BKClass BKContextClass;
 
 static BKEnum BKContextTick (BKCallbackInfo * info, BKContext * ctx)
@@ -124,11 +126,6 @@ static void BKContextDisposeObject (BKContext * ctx)
 		free (ctx -> channels);
 
 	BKDispose (& ctx -> masterClock);
-}
-
-void BKContextDispose (BKContext * ctx)
-{
-	BKDispose (ctx);
 }
 
 BKInt BKContextSetAttrInt (BKContext * ctx, BKEnum attr, BKInt value)

@@ -107,11 +107,6 @@ static void BKInstrumentDisposeObject (BKInstrument * instr)
 	}
 }
 
-void BKInstrumentDispose (BKInstrument * instr)
-{
-	BKDispose (instr);
-}
-
 void BKInstrumentDetach (BKInstrument * instr)
 {
 	BKInstrumentResetStates (instr, BK_INSTR_STATE_EVENT_DISPOSE);

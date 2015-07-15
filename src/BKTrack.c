@@ -512,11 +512,6 @@ static void BKTrackDisposeObject (BKTrack * track)
 	BKUnitDisposeObject (& track -> unit);
 }
 
-void BKTrackDispose (BKTrack * track)
-{
-	BKDispose (track);
-}
-
 BKInt BKTrackAttach (BKTrack * track, BKContext * ctx)
 {
 	BKInt ret;

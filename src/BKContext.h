@@ -85,6 +85,8 @@ struct BKContext
  * `numChannels` may be between 1 and BK_MAX_CHANNELS
  * `sampleRate` may be between BK_MIN_SAMPLE_RATE AND BK_MAX_SAMPLE_RATE
  *
+ * Disposing with `BKDispose` detaches all tracks
+ *
  * Error:
  * BK_ALLOCATION_ERROR if memory could not be allocated
  */
@@ -94,12 +96,6 @@ extern BKInt BKContextInit (BKContext * ctx, BKUInt numChannels, BKUInt sampleRa
  * Allocate context and initialize with `BKContextInit`
  */
 extern BKInt BKContextAlloc (BKContext ** outCtx, BKUInt numChannels, BKUInt sampleRate);
-
-/**
- * Dispose context and resources
- * This does not dispose attached units but detaches them
- */
-extern void BKContextDispose (BKContext * ctx) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Set attribute

@@ -104,15 +104,12 @@ struct BKUnit
 /**
  * Initialize unit
  *
+ * Disposing with `BKDispose` detaches the object from the context
+ *
  * Errors:
  * -1
  */
 extern BKInt BKUnitInit (BKUnit * unit, BKEnum waveform);
-
-/**
- * Dispose unit
- */
-extern void BKUnitDispose (BKUnit * unit) BK_DEPRECATED_FUNC ("Use 'BKDispose' instead");
 
 /**
  * Attach to context
