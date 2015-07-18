@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include "BKBuffer.h"
 
-static BKFrame stepPhases [BK_STEP_UNIT][BK_STEP_WIDTH];
+static BKInt stepPhases [BK_STEP_UNIT][BK_STEP_WIDTH];
 
 int main (int argc, char const * argv [])
 {
@@ -37,7 +37,7 @@ int main (int argc, char const * argv [])
 		" * Bandlimited step phases\n"
 		" * Generated with `%s`\n"
 		" */\n"
-		"static BKFrame const stepPhases [BK_STEP_UNIT][BK_STEP_WIDTH] =\n{\n",
+		"BKInt const BKBufferStepPhases [BK_STEP_UNIT][BK_STEP_WIDTH] =\n{\n",
 		__FILE__
 	);
 
@@ -46,6 +46,8 @@ int main (int argc, char const * argv [])
 		double sumf  = 0.0;
 		BKInt  value = 0;
 		BKInt  sum   = 0;
+
+		printf ("\t{");
 
 		// phase offset
 		for (BKInt i = 0; i < size; i ++) {

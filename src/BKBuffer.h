@@ -30,7 +30,7 @@
 #define BK_STEP_UNIT (1 << BK_STEP_SHIFT)
 #define BK_STEP_FRAC (BK_STEP_UNIT - 1)
 
-#define BK_STEP_WIDTH 15
+#define BK_STEP_WIDTH 16
 #define BK_HIGH_PASS_SHIFT 22
 
 #define BK_BUFFER_CAPACITY ((1 << (BK_INT_SHIFT - BK_FINT20_SHIFT)) + BK_STEP_WIDTH + 1)
@@ -55,7 +55,7 @@ struct BKBuffer
 /**
  * Step phases
  */
-extern BKFrame const BKBufferStepPhases [BK_STEP_UNIT][BK_STEP_WIDTH];
+extern BKInt const BKBufferStepPhases [BK_STEP_UNIT][BK_STEP_WIDTH];
 
 /**
  * Initialize buffer
@@ -142,7 +142,7 @@ BK_INLINE BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 	BKUInt frac;
 	BKUInt offset;
 	BKInt * frames;
-	BKFrame const * phase;
+	BKInt const * phase;
 
 	time   = buf -> time + time;
 	offset = time >> BK_FINT20_SHIFT;
@@ -153,10 +153,24 @@ BK_INLINE BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 	phase  = BKBufferStepPhases [frac];
 	frames = & buf -> frames [offset];
 
+/*#if BK_USE_INTRINSIC
+	__m128i stepv, pulsev, framesv;
+
+	pulsev = _mm_set1_epi32 (pulse);
+
+	// add step
+	for (BKInt i = 0; i < BK_STEP_WIDTH; i += 4) {
+		stepv   = _mm_load_si128 ((__m128i *) & phase [i]);
+		framesv = _mm_loadu_si128 ((__m128i *) & frames [i]);
+		framesv = _mm_add_epi32 (framesv, _mm_mullo_epi32 (stepv, pulsev));
+		_mm_storeu_si128 ((__m128i *) & frames [i], framesv);
+	}
+#else*/
 	// add step
 	for (BKInt i = 0; i < BK_STEP_WIDTH; i ++) {
 		frames [i] += phase [i] * pulse;
 	}
+/*#endif*/
 
 	return 0;
 }
