@@ -77,14 +77,28 @@ int main (int argc, char * argv [])
 	BKSetAttr (& square, BK_MASTER_VOLUME, 0.1 * BK_MAX_VOLUME);
 	BKSetAttr (& square, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
 	BKSetAttr (& square, BK_DUTY_CYCLE,    8);
-	BKSetAttr (& square, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
+	BKSetAttr (& square, BK_NOTE,          BK_C_4 * BK_FINT20_UNIT);
 
 	// set tremolo effect
-	BKInt tremolo [2] = {18, 0.5 * BK_MAX_VOLUME};
-	BKSetPtr (& square, BK_EFFECT_TREMOLO, tremolo, sizeof (tremolo));
+	BKInt tremolo [2] = {18, 0.5 * BK_FINT20_UNIT};
+	BKSetPtr (& square, BK_EFFECT_VIBRATO, tremolo, sizeof (tremolo));
+
+	BKInstrument instr;
+
+	BKInstrumentInit (&instr);
+
+	BKInt dutyCycle [9] = {4, 6, 4, 2, 2, 1, 7, 8, 7};
+	BKInt arpeggio [4] = {0, 4 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT, -12 * BK_FINT20_UNIT};
+	BKInt panning [4] = {0, BK_MAX_VOLUME * 0.5, 0, -BK_MAX_VOLUME * 0.5};
+
+	BKInstrumentSetSequence (&instr, BK_SEQUENCE_DUTY_CYCLE, dutyCycle, 9, 0, 9);
+	BKInstrumentSetSequence (&instr, BK_SEQUENCE_ARPEGGIO, arpeggio, 4, 0, 4);
+	BKInstrumentSetSequence (&instr, BK_SEQUENCE_PANNING, panning, 4, 0, 4);
 
 	// attach to context
 	BKTrackAttach (& square, & ctx);
+
+	BKSetPtr (& square, BK_INSTRUMENT, & instr, sizeof (& instr));
 
 	SDL_Init (SDL_INIT_AUDIO);
 
