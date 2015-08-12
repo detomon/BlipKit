@@ -354,6 +354,11 @@ enum
 	BK_OTHER_ERROR,
 };
 
+/**
+ * Get name of error
+ */
+extern char const * BKStatusGetName (BKEnum status);
+
 #if __GNUC__
 #define BK_DEPRECATED_FUNC(msg) __attribute__((deprecated(msg)))
 #endif
