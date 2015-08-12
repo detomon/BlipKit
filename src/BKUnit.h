@@ -25,7 +25,7 @@
 #define _BK_UNIT_H_
 
 #include "BKContext.h"
-#include "BKData_internal.h"
+#include "BKData.h"
 
 enum
 {

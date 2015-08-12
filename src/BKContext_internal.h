@@ -21,35 +21,17 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef _BK_UNIT_INTERN_H_
-#define _BK_UNIT_INTERN_H_
+#ifndef _BK_CONTEXT_INTERN_H_
+#define _BK_CONTEXT_INTERN_H_
 
-#include "BKUnit.h"
-
-/*
- */
-extern BKInt BKUnitRun (BKUnit * unit, BKFUInt20 endTime);
-
-/*
- */
-extern void BKUnitEnd (BKUnit * unit, BKFUInt20 time);
+#include "BKContext.h"
 
 /**
- * Reset unit values and buffer state
  */
-extern void BKUnitReset (BKUnit * unit);
+extern BKInt BKContextSetAttrInt (BKContext * ctx, BKEnum attr, BKInt value);
 
 /**
- * Reset unit values
  */
-extern void BKUnitClear (BKUnit * unit);
+extern BKInt BKContextGetAttrInt (BKContext const * ctx, BKEnum attr, BKInt * outValue);
 
-/*
- */
-extern BKInt BKUnitSampleDataStateCallback (BKEnum event, BKUnit * unit);
-
-/*
- */
-extern void BKUnitDisposeObject (BKUnit * unit);
-
-#endif /* ! _BK_UNIT_INTERN_H_ */
+#endif /* ! _BK_CONTEXT_INTERN_H_ */

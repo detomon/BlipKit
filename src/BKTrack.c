@@ -23,6 +23,9 @@
 
 #include "BKTrack.h"
 #include "BKTone.h"
+#include "BKContext_internal.h"
+#include "BKUnit_internal.h"
+#include "BKInstrument_internal.h"
 
 #define BK_TRACK_EFFECT_MAX_STEPS (1 << 16)
 
@@ -37,11 +40,6 @@ static BKInt BKTrackRun (BKTrack * track, BKFUInt20 endTime);
 static void BKTrackSetNote (BKTrack * track, BKInt note);
 static void BKTrackSetInstrument (BKTrack * track, BKInstrument * instrument);
 static void BKTrackInstrumentUpdateFlags (BKTrack * track, BKInt all);
-
-extern BKInt BKContextSetAttrInt (BKContext * ctx, BKEnum attr, BKInt value);
-extern BKInt BKContextGetAttrInt (BKContext const * ctx, BKEnum attr, BKInt * outValue);
-
-extern void BKUnitDisposeObject (BKUnit * unit);
 
 static BKInt BKTrackInstrStateCallback (BKEnum event, BKTrack * track)
 {

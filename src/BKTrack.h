@@ -24,8 +24,8 @@
 #ifndef _BK_TRACK_H_
 #define _BK_TRACK_H_
 
-#include "BKUnit_internal.h"
-#include "BKInstrument_internal.h"
+#include "BKUnit.h"
+#include "BKInstrument.h"
 #include "BKInterpolation.h"
 
 #define BK_EFFECT_FLAG_SHIFT (16 - BK_EFFECT_TYPE - 1)
