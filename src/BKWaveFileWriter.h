@@ -48,7 +48,7 @@ struct BKWaveFileWriter
  * `file`. Number of channels `numChannels` defines the layout of the frames
  * which will be appended. `sampleRate` defines the play speed.
  *
- * The file is closed when disposing with `BKDispose`
+ * The file and terminated and closed when disposing with `BKDispose`
  */
 extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numChannels, BKInt sampleRate);
 

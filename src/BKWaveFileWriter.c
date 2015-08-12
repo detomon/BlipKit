@@ -25,6 +25,12 @@
 #include "BKWaveFileWriter.h"
 #include "BKWaveFile_internal.h"
 
+enum
+{
+	BKWaveFileFlagHeaderWritten = 1 << 0,
+	BKWaveFileFlagTerminated    = 1 << 1,
+};
+
 /**
  * https://ccrma.stanford.edu/courses/422/projects/WaveFormat/
  */
@@ -101,6 +107,9 @@ BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numCha
 
 static void BKWaveFileWriterDispose (BKWaveFileWriter * writer)
 {
+	if (!(writer -> object.flags & BKWaveFileFlagTerminated)) {
+		BKWaveFileWriterTerminate (writer);
+	}
 }
 
 static BKInt BKWaveFileWriterWriteHeader (BKWaveFileWriter * writer)
@@ -139,6 +148,8 @@ static BKInt BKWaveFileWriterWriteHeader (BKWaveFileWriter * writer)
 
 	writer -> fileSize += ftell (writer -> file) - 8;
 
+	writer -> object.flags |= BKWaveFileFlagHeaderWritten;
+
 	return 0;
 }
 
@@ -149,7 +160,7 @@ BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * f
 	BKSize  bufferSize = 1024;
 	BKFrame buffer [bufferSize];
 
-	if (writer -> dataSize == 0) {
+	if (!(writer -> object.flags & BKWaveFileFlagHeaderWritten)) {
 		if (BKWaveFileWriterWriteHeader (writer) < 0) {
 			return -1;
 		}
@@ -177,6 +188,8 @@ BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * f
 
 	writer -> fileSize += dataSize;
 	writer -> dataSize += dataSize;
+
+	writer -> object.flags &= ~BKWaveFileFlagTerminated;
 
 	return 0;
 }
@@ -210,6 +223,8 @@ BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer)
 
 	fseek (writer -> file, 0, SEEK_END);
 	fflush (writer -> file);
+
+	writer -> object.flags |= BKWaveFileFlagTerminated;
 
 	return 0;
 }
