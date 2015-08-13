@@ -35,8 +35,8 @@
 
 #define BK_BUFFER_CAPACITY ((1 << (BK_INT_SHIFT - BK_FINT20_SHIFT)) + BK_STEP_WIDTH + 1)
 
-#if BK_BUFFER_CAPACITY > 4112
-#error Capacity exceeds 4112?
+#if BK_BUFFER_CAPACITY > 4113
+#error Capacity exceeds 4113?
 #endif
 
 typedef struct BKBuffer BKBuffer;
