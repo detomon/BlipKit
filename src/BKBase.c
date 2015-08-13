@@ -42,7 +42,7 @@ static char const * const statusNames [] =
 	[BK_STATUS_IDX (BK_OTHER_ERROR)]             = "Other error",
 };
 
-char const * BKVersion = BK_VERSION;
+char const * const BKVersion = BK_VERSION;
 
 char const * BKStatusGetName (BKEnum status)
 {
