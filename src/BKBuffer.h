@@ -153,24 +153,10 @@ BK_INLINE BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 	phase  = BKBufferStepPhases [frac];
 	frames = & buf -> frames [offset];
 
-/*#if BK_USE_INTRINSIC
-	__m128i stepv, pulsev, framesv;
-
-	pulsev = _mm_set1_epi32 (pulse);
-
-	// add step
-	for (BKInt i = 0; i < BK_STEP_WIDTH; i += 4) {
-		stepv   = _mm_load_si128 ((__m128i *) & phase [i]);
-		framesv = _mm_loadu_si128 ((__m128i *) & frames [i]);
-		framesv = _mm_add_epi32 (framesv, _mm_mullo_epi32 (stepv, pulsev));
-		_mm_storeu_si128 ((__m128i *) & frames [i], framesv);
-	}
-#else*/
 	// add step
 	for (BKInt i = 0; i < BK_STEP_WIDTH; i ++) {
 		frames [i] += phase [i] * pulse;
 	}
-/*#endif*/
 
 	return 0;
 }
