@@ -95,17 +95,6 @@ BK_INLINE BKComplex BKComplexMult (BKComplex a, BKComplex b)
 }
 
 /**
- * Multiply `a` by inverse of `b` (a * 1 / b)
- */
-BK_INLINE BKComplex BKComplexMultInverse (BKComplex a, BKComplex b)
-{
-	return (BKComplex) {
-		a.re *  b.re + a.im * b.im,
-		a.re * -b.im + a.im * b.re
-	};
-}
-
-/**
  * Divide two complex numbers
  */
 BK_INLINE BKComplex BKComplexDiv (BKComplex a, BKComplex b)
