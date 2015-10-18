@@ -19,7 +19,12 @@ test_fft_LDADD = $(BK_LDADD)
 test_wave_SOURCES = test_wave.c
 test_wave_LDADD = $(BK_LDADD)
 
-TESTS_ENVIRONMENT = top_builddir=$(top_builddir)
+TESTS_ENVIRONMENT = \
+	top_builddir=$(top_builddir); \
+	# Enable malloc debugging where available
+	export MallocScribble=1; \
+	export MallocPreScribble=1; \
+	export MallocGuardEdges=1;
 
 TESTS = \
 	test_context \
