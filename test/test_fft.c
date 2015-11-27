@@ -17,15 +17,8 @@ int main (int argc, char const * argv [])
 
 	res = BKFFTAlloc (& fft, n);
 
-	if (res != 0) {
-		fprintf (stderr, "Allocation failed (%d)\n", res);
-		return RESULT_ERROR;
-	}
-
-	if (fft == INVALID_PTR || fft == NULL) {
-		fprintf (stderr, "Invalid pointer (%p)\n", fft);
-		return RESULT_ERROR;
-	}
+	assert (res == 0);
+	assert (fft != INVALID_PTR && fft != NULL);
 
 	// fill samples
 	// 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0
@@ -52,15 +45,8 @@ int main (int argc, char const * argv [])
 		BKComplexComp imx = BKComplexImag (x);
 		BKComplexComp rey = y [i];
 
-		if (BKAbs (rex - rey) > 0.000001) {
-			fprintf (stderr, "Sample at index %d differs from origin value (%f %f)\n", i, rex, rey);
-			return RESULT_ERROR;
-		}
-
-		if (BKAbs (imx) > 0.000001) {
-			fprintf (stderr, "Imaginary part at index %d not 0 %f\n", i, imx);
-			return RESULT_ERROR;
-		}
+		assert (BKAbs (rex - rey) <= 0.000001);
+		assert (BKAbs (imx) <= 0.000001);
 	}
 
 	BKDispose (fft);

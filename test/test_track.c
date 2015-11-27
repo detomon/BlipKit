@@ -9,15 +9,8 @@ int main (int argc, char const * argv [])
 
 	res = BKTrackAlloc (& track, BK_SQUARE);
 
-	if (res != 0) {
-		fprintf (stderr, "Track allocation failed (%d)\n", res);
-		return RESULT_ERROR;
-	}
-
-	if (track == INVALID_PTR || track == NULL) {
-		fprintf (stderr, "Invalid pointer (%p)\n", track);
-		return RESULT_ERROR;
-	}
+	assert (res == 0);
+	assert (track != INVALID_PTR && track != NULL);
 
 	BKDispose (track);
 
@@ -25,10 +18,7 @@ int main (int argc, char const * argv [])
 
 	res = BKTrackAlloc (& track, -345876);
 
-	if (track -> waveform != 0) {
-		fprintf (stderr, "Invalid initial value (%d)\n", res);
-		return RESULT_ERROR;
-	}
+	assert (track -> waveform == 0);
 
 	// check for allocation
 
@@ -36,24 +26,15 @@ int main (int argc, char const * argv [])
 
 	res = BKContextAlloc (& ctx, 2, 44100);
 
-	if (res != 0) {
-		fprintf (stderr, "Context allocation failed (%d)\n", res);
-		return RESULT_ERROR;
-	}
+	assert (res == 0);
 
 	res = BKTrackAttach (track, ctx);
 
-	if (res != 0) {
-		fprintf (stderr, "Not attached (%d)\n", res);
-		return RESULT_ERROR;
-	}
+	assert (res == 0);
 
 	BKTrackDetach (track);
 
-	if (track -> unit.ctx != NULL) {
-		fprintf (stderr, "Not detached\n");
-		return RESULT_ERROR;
-	}
+	assert (track -> unit.ctx == NULL);
 
 	BKDispose (track);
 	BKDispose (ctx);
