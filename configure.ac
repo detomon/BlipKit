@@ -82,10 +82,10 @@ AC_CANONICAL_HOST
 
 case $host_os in
   darwin* )
-      SDL_CFLAGS="-framework SDL"
+      SDL_CFLAGS="-framework SDL2"
       ;;
   *)
-      SDL_CFLAGS="`sdl-config --cflags` `sdl-config --libs`"
+      SDL_CFLAGS="`sdl2-config --cflags` `sdl2-config --libs`"
      ;;
 esac
 
