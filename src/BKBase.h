@@ -36,6 +36,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define BK_INLINE static inline
+
 /**
  * Version
  */
@@ -210,15 +212,6 @@ struct BKCallbackInfo
  */
 #define BK_ATTR_TYPE_SHIFT 12
 #define BK_ATTR_TYPE_MASK (~((1 << BK_ATTR_TYPE_SHIFT) - 1))
-
-/**
- * Inline keyword
- */
-#ifndef _MSC_VER
-#	define BK_INLINE static inline
-#else
-#	define BK_INLINE static __inline
-#endif
 
 /**
  * Context attributes
