@@ -21,11 +21,7 @@
  * IN THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <termios.h>
-#include <unistd.h>
-#include "BlipKit.h"
-#include <SDL/SDL.h>
+#include "common.h"
 
 typedef struct {
 	BKInt numChannels;
@@ -63,7 +59,7 @@ static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
 	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
 }
 
-BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
+static BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 {
 	static BKInt notes [32] = {
 		BK_C_4, -1, BK_F_4, -1,
@@ -126,10 +122,6 @@ BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 
 	return 0;
 }
-
-#ifdef main
-#undef main
-#endif
 
 int main (int argc, char * argv [])
 {

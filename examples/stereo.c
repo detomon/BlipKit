@@ -21,11 +21,7 @@
  * IN THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <termios.h>
-#include <unistd.h>
-#include "BlipKit.h"
-#include <SDL/SDL.h>
+#include "common.h"
 
 typedef struct {
 	BKInt numChannels;
@@ -60,10 +56,6 @@ static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
 
 	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
 }
-
-#ifdef main
-#undef main
-#endif
 
 int main (int argc, char * argv [])
 {
