@@ -1,3 +1,10 @@
+Changes in BlipKit 0.13.2:
+  Release date: 2015-12-27
+
+* Using better detection for SDL (with preference for version 2)
+* Raised low-cut frequency for output buffer
+* Cleaned up examples
+
 Changes in BlipKit 0.13.1:
   Release date: 2015-10-10
 
