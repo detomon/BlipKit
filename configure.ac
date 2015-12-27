@@ -21,14 +21,14 @@ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 check_headers="fcntl.h limits.h math.h stddef.h stdint.h stdlib.h string.h unistd.h"
 
 AC_ARG_ENABLE([64-bit],
-  [  --disable-64-bit        use only 32 bit integers],
-  [with_64_bit=${enableval}],
-  [with_64_bit=yes])
+	[  --disable-64-bit        use only 32 bit integers],
+	[with_64_bit=${enableval}],
+	[with_64_bit=yes])
 
 AC_ARG_ENABLE([examples],
-  [  --disable-examples      do not build for running examples],
-  [sdl_examples=${enableval}],
-  [sdl_examples=yes])
+	[  --disable-examples      do not build for running examples],
+	[sdl_examples=${enableval}],
+	[sdl_examples=yes])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_INT16_T
@@ -37,14 +37,14 @@ AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 
 if test "x${with_64_bit}" = xyes; then
-  AC_TYPE_INT64_T
-  AC_DEFINE(BK_USE_64_BIT, 1, [Define to 1 if configure had option --enable-64-bit])
+	AC_TYPE_INT64_T
+	AC_DEFINE(BK_USE_64_BIT, 1, [Define to 1 if configure had option --enable-64-bit])
 else
-  AC_DEFINE(BK_USE_64_BIT, 0, [Define to 1 if configure had option --enable-64-bit])
+	AC_DEFINE(BK_USE_64_BIT, 0, [Define to 1 if configure had option --enable-64-bit])
 fi
 
 if test "x${sdl_examples}" = xyes; then
-  check_headers="$check_headers termios.h"
+	check_headers="$check_headers termios.h"
 fi
 
 # Checks for header files.
@@ -56,42 +56,35 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memmove memset pow])
 
 AC_CONFIG_FILES([
-  Makefile
-  src/Makefile
-  examples/Makefile
-  test/Makefile
+	Makefile
+	src/Makefile
+	examples/Makefile
+	test/Makefile
 ])
 
 # Define flags.
 BK_STD_CFLAGS="-std=c99 -Wall \
-    -Wmissing-prototypes \
-    -Wmissing-declarations \
-    -Wstrict-prototypes \
-    -Wformat-security \
-    -Wmissing-format-attribute \
-    -Winline"
+	-Wmissing-prototypes \
+	-Wmissing-declarations \
+	-Wstrict-prototypes \
+	-Wformat-security \
+	-Wmissing-format-attribute \
+	-Winline"
 
 # Run tests.
 AC_RUN_IFELSE([AC_LANG_SOURCE([[
-int main () { return !((-15 >> 2) == -4); }
-]])],[],[AC_MSG_ERROR(Host CPU seems not to handle shifting of negative values as expected)
-],[])
+	int main () {
+		return !((-15 >> 2) == -4);
+	}
+]])], [], [
+	AC_MSG_ERROR(Host CPU seems not to handle shifting of negative values as expected)
+])
 
 # Set platform specific values.
 AC_CANONICAL_HOST
 
-case $host_os in
-  darwin* )
-      SDL_CFLAGS="-framework SDL2"
-      ;;
-  *)
-      SDL_CFLAGS="`sdl2-config --cflags` `sdl2-config --libs`"
-     ;;
-esac
-
 if test "x${sdl_examples}" = xyes; then
-  echo "using SDL linking flags: $SDL_CFLAGS"
-  AC_SUBST(SDL_CFLAGS)
+	m4_include([check-sdl.m4])
 fi
 
 AC_SUBST(BK_STD_CFLAGS)
