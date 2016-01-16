@@ -9,16 +9,31 @@ AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
+m4_include([common.m4])
+
 # Checks for programs.
-AC_PROG_AWK
 AC_PROG_CC
-AC_PROG_RANLIB
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+AC_PROG_RANLIB
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
-check_headers="fcntl.h limits.h math.h stddef.h stdint.h stdlib.h string.h unistd.h"
+AM_CFLAGS="$CFLAGS"
+
+# Define flags.
+AM_CFLAGS="$AM_CFLAGS -Wall \
+	-Wmissing-prototypes \
+	-Wmissing-declarations \
+	-Wstrict-prototypes \
+	-Wformat-security \
+	-Wmissing-format-attribute \
+	-Winline"
+
+CHECK_COMPILE_FLAG([-std=c11], [AM_CFLAGS])
+
+# Checks for header files.
+AC_CHECK_HEADERS([fcntl.h stddef.h stdint.h stdlib.h string.h unistd.h])
 
 AC_ARG_ENABLE([64-bit],
 	[  --disable-64-bit        use only 32 bit integers],
@@ -44,11 +59,8 @@ else
 fi
 
 if test "x${sdl_examples}" = xyes; then
-	check_headers="$check_headers termios.h"
+	AC_CHECK_HEADERS(termios.h)
 fi
-
-# Checks for header files.
-AC_CHECK_HEADERS($check_headers)
 
 # Checks for library functions.
 AC_FUNC_MALLOC
@@ -62,31 +74,13 @@ AC_CONFIG_FILES([
 	test/Makefile
 ])
 
-# Define flags.
-BK_STD_CFLAGS="-std=c99 -Wall \
-	-Wmissing-prototypes \
-	-Wmissing-declarations \
-	-Wstrict-prototypes \
-	-Wformat-security \
-	-Wmissing-format-attribute \
-	-Winline"
-
 # Run tests.
-AC_RUN_IFELSE([AC_LANG_SOURCE([[
-	int main () {
-		return !((-15 >> 2) == -4);
-	}
-]])], [], [
-	AC_MSG_ERROR(Host CPU seems not to handle shifting of negative values as expected)
-])
-
-# Set platform specific values.
-AC_CANONICAL_HOST
+CHECK_SIGNED_SHIFT()
 
 if test "x${sdl_examples}" = xyes; then
-	m4_include([check-sdl.m4])
+	CHECK_SDL()
 fi
 
-AC_SUBST(BK_STD_CFLAGS)
+AC_SUBST([AM_CFLAGS])
 
 AC_OUTPUT

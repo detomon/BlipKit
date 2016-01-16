@@ -1,4 +1,4 @@
-AM_CFLAGS = @BK_STD_CFLAGS@
+AM_CFLAGS = @AM_CFLAGS@
 
 lib_LIBRARIES = libblipkit.a
 
