@@ -62,8 +62,8 @@ typedef int32_t  BKInt;
 typedef uint32_t BKUInt;
 typedef int16_t  BKFrame;
 
-typedef long          BKSize;
-typedef unsigned long BKUSize;
+typedef intptr_t  BKSize;
+typedef uintptr_t BKUSize;
 
 #define BK_FINT20_SHIFT 20
 #define BK_FINT20_UNIT (1 << BK_FINT20_SHIFT)
