@@ -1,5 +1,4 @@
-BlipKit
-=======
+# BlipKit
 
 BlipKit is a C library for creating the beautiful sound of old sound chips.
 
@@ -12,12 +11,11 @@ BlipKit is a C library for creating the beautiful sound of old sound chips.
 
 Manual: <http://blipkit.audio>
 
-Basic Example
--------------
+## Basic Example
 
 This code demonstrates the basic steps to generate audio data of a square wave in the note A with enabled tremolo effect:
 
-```C
+```c
 // Context object
 BKContext ctx;
 
@@ -60,42 +58,40 @@ BKContextGenerate (& ctx, frames, 512);
 // the first frame of the right channel at frames[1] and so on
 ```
 
-Building the Library
---------------------
+## Building the Library
 
 First execute `autogen.sh` in the base directory to generate the build system:
 
-```Shell
+```sh
 blipkit$ sh ./autogen.sh
 ```
 
 Next execute `configure` in the base directory:
 
-```Shell
+```sh
 blipkit$ ./configure
 ```
 
 Then execute `make` to build `libblipkit.a` in the `src` directory:
 
-```Shell
+```sh
 blipkit$ make
 ```
 
 Optionally, you may want to execute `sudo make install` to install the library
 and headers on your system:
 
-```Shell
+```sh
 blipkit$ sudo make install
 ```
 
-Building and Running Examples
------------------------------
+## Building and Running Examples
 
 All examples use SDL (<http://www.libsdl.org>) to output sound, so you have to
 install it first. Execute `make examplename` to build an example in the
 `examples` directory.
 
-```Shell
+```sh
 blipkit/examples$ make tone
 blipkit/examples$ make divider
 blipkit/examples$ make stereo
@@ -106,11 +102,10 @@ blipkit/examples$ make envelope
 
 Finally, run examples like this:
 
-```Shell
+```sh
 blipkit/examples$ ./tone
 ```
 
-License
--------
+## License
 
 This library is distributed under the MIT license. See `LICENSE`.
