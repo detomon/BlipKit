@@ -130,6 +130,7 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 					unit -> sample.offset        = 0;
 					unit -> sample.end           = data -> numFrames;
 					unit -> sample.frames        = data -> frames;
+					unit -> sample.period        = BKAbs (unit -> sample.period);
 					unit -> phase.phase          = 0; // reset phase
 					unit -> sample.repeatMode    = 0;
 					unit -> sample.repeatCount   = 0;
@@ -174,15 +175,6 @@ static BKInt BKUnitSetData (BKUnit * unit, BKEnum type, BKData * data)
 
 	if (res == 0) {
 		BKDataStateSetData (& unit -> sample.dataState, data);
-		data = unit -> sample.dataState.data;
-
-		if (data) {
-			// has sustain range
-			if (data -> sustainOffset != data -> sustainEnd) {
-				BKUnitUpdateSampleSustainRange (unit, data -> sustainOffset, data -> sustainEnd);
-
-			}
-		}
 	}
 	// unset data when failed
 	else {
