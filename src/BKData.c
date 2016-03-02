@@ -460,8 +460,20 @@ static BKInt BKDataCalculateNumFramesFromNumBits (BKUInt dataSize, BKUInt numBit
 
 static BKInt BKDataConvertFromBits (BKFrame * outFrames, void const * data, BKUInt dataSize, BKUInt numBits, BKInt isSigned, BKInt reverseEndian, BKUInt numChannels)
 {
+	BKSize mask;
 	unsigned char const * charData = data;
 	unsigned char c;
+
+	switch (numBits) {
+		case  1: mask = 1; break;
+		case  2: mask = 1; break;
+		case  4: mask = 1; break;
+		case  8: mask = 1; break;
+		default:
+		case 16: mask = 2; break;
+	}
+
+	dataSize -= (dataSize % (mask * numChannels));
 
 	for (charData = data; (void *) charData < data + dataSize;) {
 		switch (numBits) {
