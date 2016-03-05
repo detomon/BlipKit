@@ -1,0 +1,116 @@
+#ifndef _BK_HASH_TABLE_H_
+#define _BK_HASH_TABLE_H_
+
+#include "BKBase.h"
+
+typedef struct BKHashTable         BKHashTable;
+typedef struct BKHashTableIterator BKHashTableIterator;
+
+struct BKHashTable
+{
+	size_t size;
+	size_t capIdx;
+	size_t occupied;
+	struct BKHashTableBucket {
+		size_t hash;
+		char * key;
+		union {
+			void  * item;
+			int64_t value;
+		};
+	} * buckets;
+};
+
+struct BKHashTableIterator
+{
+	struct BKHashTableBucket const * buckets;
+	struct BKHashTableBucket const * bucketsEnd;
+};
+
+extern size_t const BKHashTableSizes [];
+
+/**
+ * Initialize hash table
+ */
+#define BK_HASH_TABLE_INIT ((BKHashTable) {0})
+
+/**
+ * Dispose hash table
+ */
+extern void BKHashTableDispose (BKHashTable * table);
+
+/**
+ * Lookup item by key
+ *
+ * Returns 1 if key is found
+ */
+extern BKInt BKHashTableLookup (BKHashTable const * table, char const * key, void ** outItem);
+
+/**
+ * Lookup or insert item by key
+ *
+ * Returns 1 if item has been inserted
+ */
+extern BKInt BKHashTableLookupOrInsert (BKHashTable * table, char const * key, void *** outItemRef);
+
+/**
+ * Remove item by key
+ */
+extern BKInt BKHashTableRemove (BKHashTable * table, char const * key);
+
+/**
+ * Get hash table size
+ */
+BK_INLINE size_t BKHashTableSize (BKHashTable const * table);
+
+/**
+ * Initialize hash table interator
+ */
+BK_INLINE void BKHashTableIteratorInit (BKHashTableIterator * itor, BKHashTable const * table);
+
+/**
+ * Get next key/item pair from hash table iterator
+ */
+BK_INLINE BKInt BKHashTableIteratorNext (BKHashTableIterator * itor, char const ** outKey, void ** outItem);
+
+/**
+ * Empty hash table and keep capacity
+ */
+extern void BKHashTableEmpty (BKHashTable * table);
+
+
+// --- Inline implementations
+
+BK_INLINE size_t BKHashTableSize (BKHashTable const * table)
+{
+	return table -> size;
+}
+
+BK_INLINE void BKHashTableIteratorInit (BKHashTableIterator * itor, BKHashTable const * table)
+{
+	itor -> buckets = table -> buckets;
+	itor -> bucketsEnd = &table -> buckets [BKHashTableSizes [table -> capIdx]];
+}
+
+BK_INLINE BKInt BKHashTableIteratorNext (BKHashTableIterator * itor, char const ** outKey, void ** outItem)
+{
+	if (itor -> buckets >= itor -> bucketsEnd) {
+		return 0;
+	}
+
+	while (itor -> buckets < itor -> bucketsEnd) {
+		if (itor -> buckets -> key > (char const *)1) {
+			*outKey = itor -> buckets -> key;
+			*outItem = itor -> buckets -> item;
+			itor -> buckets ++;
+
+			return 1;
+		}
+
+		itor -> buckets ++;
+	}
+
+	return 0;
+}
+
+#endif /* ! _BK_STRING_H_  */
