@@ -31,10 +31,10 @@ void BKStringDispose (BKString * str)
 	*str = BK_STRING_INIT;
 }
 
-BKInt BKStringReserve (BKString * str, size_t size)
+BKInt BKStringReserve (BKString * str, BKUSize size)
 {
 	uint8_t * chars;
-	size_t cap;
+	BKUSize cap;
 
 	cap = str -> len + size;
 	cap = (cap + 8ULL) & ~(8ULL - 1);
@@ -65,7 +65,7 @@ BKInt BKStringAppend (BKString * str, char const * chars)
 	return BKStringAppendLen (str, (char *) chars, strlen ((void *) chars));
 }
 
-BKInt BKStringAppendLen (BKString * str, char const * chars, size_t len)
+BKInt BKStringAppendLen (BKString * str, char const * chars, BKUSize len)
 {
 	if (str -> len + len >= str -> cap) {
 		if (BKStringReserve (str, len) != 0) {
@@ -102,7 +102,7 @@ BKInt BKStringAppendFormatArgs (BKString * str, char const * format, va_list arg
 	int res = 0;
 	int length;
 	uint8_t * buf;
-	size_t cap;
+	BKUSize cap;
 	va_list args2;
 
 	va_copy (args2, args);
@@ -144,19 +144,31 @@ error:
 	return res;
 }
 
-BKInt BKStringCompare (BKString const * str, BKString const * other)
+BKInt BKStringCompare (BKString const * str, char const * chars)
 {
-	size_t len = str -> len < other -> len ? str -> len : other -> len;
-	int cmp = memcmp ((void *) str -> str, (void *) other -> str, len);
+	return BKStringCompareLen (str, chars, strlen (chars));
+}
+
+BKInt BKStringCompareLen (BKString const * str, char const * chars, BKUSize len)
+{
+	int cmp;
+
+	len = str -> len < len ? str -> len : len;
+	cmp = memcmp ((void *) str -> str, chars, len);
 
 	if (cmp != 0) {
 		return cmp;
 	}
 
-	return str -> len < other -> len ? -1 : str -> len != other -> len;
+	return str -> len < len ? -1 : str -> len != len;
 }
 
-BKInt BKStringSubstring (BKString const * str, BKString * substr, size_t offset, size_t length)
+BKInt BKStringCompareString (BKString const * str, BKString const * other)
+{
+	return BKStringCompareLen (str, (char *) other -> str, other -> len);
+}
+
+BKInt BKStringSubstring (BKString const * str, BKString * substr, BKUSize offset, BKUSize length)
 {
 	BKStringEmpty (substr);
 
@@ -171,11 +183,35 @@ BKInt BKStringSubstring (BKString const * str, BKString * substr, size_t offset,
 	return BKStringAppendLen (substr, (char *) str -> str + offset, length);
 }
 
+BKInt BKStringReplaceInRange (BKString * str, BKString const * substr, BKUSize offset, BKUSize length)
+{
+	BKInt res = 0;
+	BKSize lenDiff;
+
+	offset = BKMin (offset, str -> len);
+	length = BKMin (length, str -> len - offset);
+	lenDiff = substr -> len - length;
+
+	if (lenDiff > 0) {
+		if ((res = BKStringReserve (str, lenDiff)) != 0) {
+			return res;
+		}
+	}
+
+	memmove (&str -> str [offset + substr -> len], &str -> str [offset + length], str -> len - (offset + length));
+	memcpy (&str -> str [offset], substr -> str, substr -> len);
+
+	str -> len += lenDiff;
+	str -> str [str -> len] = '\0';
+
+	return res;
+}
+
 BKInt BKStringDirname (BKString const * str, BKString * dirname)
 {
 	BKInt res = 0;
 	uint8_t const * c;
-	size_t size;
+	BKUSize size;
 
 	if (!str -> len) {
 		BKStringEmpty (dirname);
@@ -233,12 +269,12 @@ BKInt BKStringAppendPathSegment (BKString * str, BKString const * segment)
 
 BKString * BKStringEscape (BKString * buffer, char const * str)
 {
-	size_t len = strlen ((char *) str);
+	BKUSize len = strlen ((char *) str);
 
 	BKStringEmpty (buffer);
 	BKStringReserve (buffer, len + (len >> 2));
 
-	for (size_t i = 0; i < len; i ++) {
+	for (BKUSize i = 0; i < len; i ++) {
 		uint8_t c = str [i];
 		int e = escapeChars [c];
 

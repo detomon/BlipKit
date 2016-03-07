@@ -2,7 +2,7 @@
 
 #define SEG_MIN_CAPACITY 4096
 
-static BKByteBufferSegment * BKByteBufferSegmentAllocate (size_t size)
+static BKByteBufferSegment * BKByteBufferSegmentAllocate (BKUSize size)
 {
 	BKByteBufferSegment * seg;
 
@@ -45,9 +45,9 @@ void BKByteBufferClear (BKByteBuffer * buf)
 	buf -> ptrEnd = buf -> cur -> data + buf -> cur -> size;
 }
 
-static size_t BKByteBufferRemainingSize (BKByteBuffer const * buf)
+static BKUSize BKByteBufferRemainingSize (BKByteBuffer const * buf)
 {
-	size_t size = 0;
+	BKUSize size = 0;
 	BKByteBufferSegment const * seg;
 
 	if (buf -> cur) {
@@ -62,9 +62,9 @@ static size_t BKByteBufferRemainingSize (BKByteBuffer const * buf)
 	return size;
 }
 
-size_t BKByteBufferSize (BKByteBuffer const * buf)
+BKUSize BKByteBufferSize (BKByteBuffer const * buf)
 {
-	size_t size = 0;
+	BKUSize size = 0;
 	BKByteBufferSegment const * seg;
 
 	for (seg = buf -> first; seg != buf -> cur; seg = seg -> next) {
@@ -78,10 +78,10 @@ size_t BKByteBufferSize (BKByteBuffer const * buf)
 	return size;
 }
 
-BKInt BKByteBufferReserve (BKByteBuffer * buf, size_t size)
+BKInt BKByteBufferReserve (BKByteBuffer * buf, BKUSize size)
 {
-	size_t segSize;
-	size_t remaining = BKByteBufferRemainingSize (buf);
+	BKUSize segSize;
+	BKUSize remaining = BKByteBufferRemainingSize (buf);
 	BKByteBufferSegment * seg;
 
 	if (remaining < size) {
@@ -125,7 +125,7 @@ BKInt BKByteBufferReserve (BKByteBuffer * buf, size_t size)
 
 BKInt BKByteBufferMakeContinuous (BKByteBuffer * buf)
 {
-	size_t size;
+	BKUSize size;
 	BKByteBufferSegment * segment;
 
 	size = BKByteBufferSize (buf);
@@ -147,10 +147,10 @@ BKInt BKByteBufferMakeContinuous (BKByteBuffer * buf)
 	return 0;
 }
 
-BKInt _BKByteBufferWrite (BKByteBuffer * buf, void const * bytes, size_t size)
+BKInt _BKByteBufferWrite (BKByteBuffer * buf, void const * bytes, BKUSize size)
 {
 	BKInt res;
-	size_t remaining;
+	BKUSize remaining;
 	BKByteBufferSegment * seg;
 
 	if ((res = BKByteBufferReserve (buf, size)) != 0) {
@@ -183,9 +183,9 @@ BKInt _BKByteBufferWrite (BKByteBuffer * buf, void const * bytes, size_t size)
 	return 0;
 }
 
-size_t BKByteBufferCopy (BKByteBuffer const * buf, void * outBytes)
+BKUSize BKByteBufferCopy (BKByteBuffer const * buf, void * outBytes)
 {
-	size_t size = 0;
+	BKUSize size = 0;
 	BKByteBufferSegment * seg;
 
 	for (seg = buf -> first; seg != buf -> cur; seg = seg -> next) {

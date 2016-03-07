@@ -31,7 +31,7 @@ typedef struct BKByteBufferSegment BKByteBufferSegment;
 
 struct BKByteBufferSegment
 {
-	size_t                size;
+	BKUSize               size;
 	BKByteBufferSegment * next;
 	uint8_t               data [];
 };
@@ -68,7 +68,7 @@ BK_INLINE BKInt BKByteBufferAppendByte (BKByteBuffer * buf, uint8_t byte);
 /**
  * Append `bytes` with `size`
  */
-BK_INLINE BKInt BKByteBufferAppendBytes (BKByteBuffer * buf, void const * bytes, size_t size);
+BK_INLINE BKInt BKByteBufferAppendBytes (BKByteBuffer * buf, void const * bytes, BKUSize size);
 
 /**
  * Append 16 bit integer
@@ -88,12 +88,12 @@ BK_INLINE BKInt BKByteBufferAppendInt64 (BKByteBuffer * buf, uint64_t i);
 /**
  * Get size of buffer
  */
-extern size_t BKByteBufferSize (BKByteBuffer const * buf);
+extern BKUSize BKByteBufferSize (BKByteBuffer const * buf);
 
 /**
  * Reserve space for at least `size` bytes
  */
-extern BKInt BKByteBufferReserve (BKByteBuffer * buf, size_t size);
+extern BKInt BKByteBufferReserve (BKByteBuffer * buf, BKUSize size);
 
 /**
  * Merge byte into single segment
@@ -106,7 +106,7 @@ extern BKInt BKByteBufferMakeContinuous (BKByteBuffer * buf);
  * `outBytes` needs to have space for at least the number of byte retreived
  * with `BKByteBufferSize`
  */
-extern size_t BKByteBufferCopy (BKByteBuffer const * buf, void * outBytes);
+extern BKUSize BKByteBufferCopy (BKByteBuffer const * buf, void * outBytes);
 
 
 // --- Inline implementations
@@ -126,9 +126,9 @@ BK_INLINE BKInt BKByteBufferAppendByte (BKByteBuffer * buf, uint8_t byte)
 	return 0;
 }
 
-extern BKInt _BKByteBufferWrite (BKByteBuffer * buf, void const * bytes, size_t size);
+extern BKInt _BKByteBufferWrite (BKByteBuffer * buf, void const * bytes, BKUSize size);
 
-BK_INLINE BKInt BKByteBufferAppendBytes (BKByteBuffer * buf, void const * bytes, size_t size)
+BK_INLINE BKInt BKByteBufferAppendBytes (BKByteBuffer * buf, void const * bytes, BKUSize size)
 {
 	BKInt res;
 

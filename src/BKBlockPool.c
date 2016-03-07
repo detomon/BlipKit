@@ -2,7 +2,7 @@
 
 #define DEFAULT_SEGMENT_CAPACITY 32
 
-BKInt BKBlockPoolInit (BKBlockPool * blockPool, BKSize blockSize, BKSize segmentCapacity)
+BKInt BKBlockPoolInit (BKBlockPool * blockPool, BKUSize blockSize, BKUSize segmentCapacity)
 {
 	memset (blockPool, 0, sizeof (*blockPool));
 

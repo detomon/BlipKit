@@ -35,10 +35,10 @@ typedef struct BKArray BKArray;
 
 struct BKArray
 {
-	void * items;
-	size_t len;
-	size_t cap;
-	size_t itemSize;
+	void  * items;
+	BKUSize len;
+	BKUSize cap;
+	BKUSize itemSize;
 };
 
 /**
@@ -54,12 +54,12 @@ extern void BKArrayDispose (BKArray * arr);
 /**
  * Reserve space for `size` items
  */
-extern BKInt BKArrayReserve (BKArray * arr, size_t size);
+extern BKInt BKArrayReserve (BKArray * arr, BKUSize size);
 
 /**
  * Reserve and empty slots
  */
-extern BKInt BKArrayResize (BKArray * arr, size_t size);
+extern BKInt BKArrayResize (BKArray * arr, BKUSize size);
 
 /**
  * Append empty item and return its pointer

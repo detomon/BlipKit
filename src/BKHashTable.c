@@ -2,7 +2,7 @@
 
 #define PLACEHOLDER_KEY ((char const *)1)
 
-size_t const BKHashTableSizes [30] =
+BKUSize const BKHashTableSizes [30] =
 {
 	0,
 	7,
@@ -36,9 +36,9 @@ size_t const BKHashTableSizes [30] =
 	2147483647,
 };
 
-static size_t BKHashTableHash (char const * key)
+static BKUSize BKHashTableHash (char const * key)
 {
-	size_t hash;
+	BKUSize hash;
 
 	for (hash = 0; *key; key ++) {
 		hash = (hash * 100003) ^ *key;
@@ -47,9 +47,9 @@ static size_t BKHashTableHash (char const * key)
 	return hash;
 }
 
-static struct BKHashTableBucket * BKHashTableBucketLookup (struct BKHashTableBucket * buckets, size_t size, size_t hash, char const * key)
+static struct BKHashTableBucket * BKHashTableBucketLookup (struct BKHashTableBucket * buckets, BKUSize size, BKUSize hash, char const * key)
 {
-	size_t i = hash, perturb = hash;
+	BKUSize i = hash, perturb = hash;
 	struct BKHashTableBucket * bucket = & buckets [i % size];
 
 	while (bucket -> key) {
@@ -66,9 +66,9 @@ static struct BKHashTableBucket * BKHashTableBucketLookup (struct BKHashTableBuc
 	return bucket;
 }
 
-static BKInt BKHashTableResize (BKHashTable * table, size_t capIdx)
+static BKInt BKHashTableResize (BKHashTable * table, BKUSize capIdx)
 {
-	size_t size = BKHashTableSizes [capIdx];
+	BKUSize size = BKHashTableSizes [capIdx];
 	struct BKHashTableBucket * newBuckets;
 	struct BKHashTableBucket * bucket, * newBucket;
 
@@ -78,7 +78,7 @@ static BKInt BKHashTableResize (BKHashTable * table, size_t capIdx)
 		return -1;
 	}
 
-	for (size_t i = 0; i < BKHashTableSizes [table -> capIdx]; i ++) {
+	for (BKUSize i = 0; i < BKHashTableSizes [table -> capIdx]; i ++) {
 		bucket = & table -> buckets [i];
 
 		if (bucket -> key > PLACEHOLDER_KEY) {
@@ -102,7 +102,7 @@ void BKHashTableDispose (BKHashTable * table)
 {
 	struct BKHashTableBucket * bucket;
 
-	for (size_t i = 0; i < BKHashTableSizes [table -> capIdx]; i ++) {
+	for (BKUSize i = 0; i < BKHashTableSizes [table -> capIdx]; i ++) {
 		bucket = &table -> buckets [i];
 
 		if (bucket -> key > PLACEHOLDER_KEY) {
@@ -131,8 +131,8 @@ static BKInt BKHashTableShouldShrink (BKHashTable const * table)
 
 BKInt BKHashTableLookup (BKHashTable const * table, char const * key, void ** outItem)
 {
-	size_t hash;
-	size_t size = BKHashTableSizes [table -> capIdx];
+	BKUSize hash;
+	BKUSize size = BKHashTableSizes [table -> capIdx];
 	struct BKHashTableBucket * bucket;
 
 	if (!size) {
@@ -157,9 +157,9 @@ BKInt BKHashTableLookup (BKHashTable const * table, char const * key, void ** ou
 
 BKInt BKHashTableLookupOrInsert (BKHashTable * table, char const * key, void *** outItemRef)
 {
-	size_t capIdx;
-	size_t hash;
-	size_t size;
+	BKUSize capIdx;
+	BKUSize hash;
+	BKUSize size;
 	BKInt res = 0;
 	struct BKHashTableBucket * bucket = NULL;
 
@@ -204,9 +204,9 @@ BKInt BKHashTableLookupOrInsert (BKHashTable * table, char const * key, void ***
 
 BKInt BKHashTableRemove (BKHashTable * table, char const * key)
 {
-	size_t capIdx;
-	size_t hash;
-	size_t size;
+	BKUSize capIdx;
+	BKUSize hash;
+	BKUSize size;
 	struct BKHashTableBucket * bucket;
 
 	capIdx = table -> capIdx;
@@ -238,7 +238,7 @@ BKInt BKHashTableRemove (BKHashTable * table, char const * key)
 
 void BKHashTableEmpty (BKHashTable * table)
 {
-	for (size_t i = 0; i < BKHashTableSizes [table -> capIdx]; i ++) {
+	for (BKUSize i = 0; i < BKHashTableSizes [table -> capIdx]; i ++) {
 		table -> buckets [i].key = NULL;
 	}
 

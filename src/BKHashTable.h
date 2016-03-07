@@ -31,12 +31,12 @@ typedef struct BKHashTableIterator BKHashTableIterator;
 
 struct BKHashTable
 {
-	size_t size;
-	size_t capIdx;
-	size_t occupied;
+	BKUSize size;
+	BKUSize capIdx;
+	BKUSize occupied;
 	struct BKHashTableBucket {
-		size_t hash;
-		char * key;
+		BKUSize hash;
+		char  * key;
 		union {
 			void  * item;
 			int64_t value;
@@ -50,7 +50,7 @@ struct BKHashTableIterator
 	struct BKHashTableBucket const * bucketsEnd;
 };
 
-extern size_t const BKHashTableSizes [];
+extern BKUSize const BKHashTableSizes [];
 
 /**
  * Initialize hash table
@@ -84,7 +84,7 @@ extern BKInt BKHashTableRemove (BKHashTable * table, char const * key);
 /**
  * Get hash table size
  */
-BK_INLINE size_t BKHashTableSize (BKHashTable const * table);
+BK_INLINE BKUSize BKHashTableSize (BKHashTable const * table);
 
 /**
  * Initialize hash table interator
@@ -104,7 +104,7 @@ extern void BKHashTableEmpty (BKHashTable * table);
 
 // --- Inline implementations
 
-BK_INLINE size_t BKHashTableSize (BKHashTable const * table)
+BK_INLINE BKUSize BKHashTableSize (BKHashTable const * table)
 {
 	return table -> size;
 }

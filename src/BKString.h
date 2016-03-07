@@ -31,8 +31,8 @@ typedef struct BKString BKString;
 struct BKString
 {
 	uint8_t * str;
-	size_t    len;
-	size_t    cap;
+	BKUSize   len;
+	BKUSize   cap;
 };
 
 /**
@@ -53,7 +53,7 @@ extern void BKStringDispose (BKString * str);
 /**
  * Reserve space for `size` characters
  */
-extern BKInt BKStringReserve (BKString * str, size_t size);
+extern BKInt BKStringReserve (BKString * str, BKUSize size);
 
 /**
  * Append single character
@@ -68,7 +68,7 @@ extern BKInt BKStringAppend (BKString * str, char const * chars);
 /**
  * Append characters with `size`
  */
-extern BKInt BKStringAppendLen (BKString * str, char const * chars, size_t len);
+extern BKInt BKStringAppendLen (BKString * str, char const * chars, BKUSize len);
 
 /**
  * Append string
@@ -88,12 +88,32 @@ extern BKInt BKStringAppendFormatArgs (BKString * str, char const * format, va_l
 /**
  * Compare string
  */
-extern BKInt BKStringCompare (BKString const * str, BKString const * other);
+extern BKInt BKStringCompare (BKString const * str, char const * chars);
+
+/**
+ * Compare string
+ */
+extern BKInt BKStringCompareLen (BKString const * str, char const * chars, BKUSize len);
+
+/**
+ * Compare string
+ */
+extern BKInt BKStringCompareString (BKString const * str, BKString const * other);
 
 /**
  * Get substring
  */
-extern BKInt BKStringSubstring (BKString const * str, BKString * substr, size_t offset, size_t length);
+extern BKInt BKStringSubstring (BKString const * str, BKString * substr, BKUSize offset, BKUSize length);
+
+/**
+ * Get substring
+ */
+extern BKInt BKStringSubstring (BKString const * str, BKString * substr, BKUSize offset, BKUSize length);
+
+/**
+ * Replace chars in range
+ */
+extern BKInt BKStringReplaceInRange (BKString * str, BKString const * substr, BKUSize offset, BKUSize length);
 
 /**
  * Get directory name

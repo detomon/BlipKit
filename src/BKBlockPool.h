@@ -43,8 +43,8 @@ struct BKBlockPoolBlock
 
 struct BKBlockPool
 {
-	BKSize               blockSize;
-	BKSize               segmentSize;
+	BKUSize              blockSize;
+	BKUSize              segmentSize;
 	BKBlockPoolSegment * lastSegment;
 	void               * freePtr;
 	BKBlockPoolSegment * firstSegment;
@@ -54,7 +54,7 @@ struct BKBlockPool
 /**
  * Initialize block pool
  */
-extern BKInt BKBlockPoolInit (BKBlockPool * blockPool, BKSize blockSize, BKSize segmentCapacity);
+extern BKInt BKBlockPoolInit (BKBlockPool * blockPool, BKUSize blockSize, BKUSize segmentCapacity);
 
 /**
  * Dispose block pool

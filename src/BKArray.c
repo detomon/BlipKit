@@ -10,10 +10,10 @@ void BKArrayDispose (BKArray * arr)
 	}
 }
 
-BKInt BKArrayReserve (BKArray * arr, size_t size)
+BKInt BKArrayReserve (BKArray * arr, BKUSize size)
 {
 	void * items;
-	size_t cap;
+	BKUSize cap;
 
 	cap = arr -> len + size;
 	cap = (cap + 8ULL) & ~(8ULL - 1);
@@ -33,7 +33,7 @@ BKInt BKArrayReserve (BKArray * arr, size_t size)
 	return 0;
 }
 
-BKInt BKArrayResize (BKArray * arr, size_t size)
+BKInt BKArrayResize (BKArray * arr, BKUSize size)
 {
 	if (size > arr -> len) {
 		if (arr -> cap < size) {
