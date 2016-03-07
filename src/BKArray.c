@@ -49,14 +49,14 @@ BKInt BKArrayResize (BKArray * arr, size_t size)
 	return 0;
 }
 
-BKInt BKArrayAppendItems (BKArray * arr, void const * items, size_t size)
+BKInt BKArrayAppendItems (BKArray * arr, void const * items, size_t count)
 {
-	if (BKArrayReserve (arr, size) != 0) {
+	if (BKArrayReserve (arr, count) != 0) {
 		return -1;
 	}
 
-	memcpy (arr -> items + arr -> len * arr -> itemSize, items, size * arr -> itemSize);
-	arr -> len += size;
+	memcpy (arr -> items + arr -> len * arr -> itemSize, items, count * arr -> itemSize);
+	arr -> len += count;
 
 	return 0;
 }

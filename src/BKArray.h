@@ -19,7 +19,7 @@ struct BKArray
 #define BK_ARRAY_INIT(itemSize) ((BKArray) {NULL, 0, 0, (itemSize)})
 
 /**
- * Dispose array
+ * Free allocated space
  */
 extern void BKArrayDispose (BKArray * arr);
 
@@ -44,14 +44,15 @@ BK_INLINE void * BKArrayPush (BKArray * arr);
 BK_INLINE void BKArrayPop (BKArray * arr);
 
 /**
- * Get last item
+ * Get pointer to last item
  */
 BK_INLINE void * BKArrayLast (BKArray * arr);
 
 /**
- * Append `items` with `size`
+ * Append `count` `items`. The item size has to match that one given at
+ * initialization.
  */
-extern BKInt BKArrayAppendItems (BKArray * arr, void const * items, size_t size);
+extern BKInt BKArrayAppendItems (BKArray * arr, void const * items, size_t count);
 
 /**
  * Append items from `other` array
@@ -59,12 +60,12 @@ extern BKInt BKArrayAppendItems (BKArray * arr, void const * items, size_t size)
 extern BKInt BKArrayAppendArray (BKArray * arr, BKArray const * other);
 
 /**
- * Get item at index
+ * Get item at specified `index`. If `index` is out of bounds, `NULL` is returned.
  */
-BK_INLINE void * BKArrayItemAt (BKArray * arr, size_t idx);
+BK_INLINE void * BKArrayItemAt (BKArray * arr, size_t index);
 
 /**
- * Empty aray and keep capacity
+ * Empty array but keep allocated space
  */
 BK_INLINE void BKArrayEmpty (BKArray * arr);
 
@@ -100,13 +101,13 @@ BK_INLINE void * BKArrayLast (BKArray * arr)
 	return BKArrayItemAt (arr, arr -> len - 1);
 }
 
-BK_INLINE void * BKArrayItemAt (BKArray * arr, size_t idx)
+BK_INLINE void * BKArrayItemAt (BKArray * arr, size_t index)
 {
-	if (idx >= arr -> len) {
+	if (index >= arr -> len) {
 		return NULL;
 	}
 
-	return arr -> items + arr -> itemSize * idx;
+	return arr -> items + arr -> itemSize * index;
 }
 
 BK_INLINE void BKArrayEmpty (BKArray * arr)
