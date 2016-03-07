@@ -74,7 +74,7 @@ BK_INLINE void BKArrayPop (BKArray * arr);
 /**
  * Get pointer to last item
  */
-BK_INLINE void * BKArrayLast (BKArray * arr);
+BK_INLINE void * BKArrayLast (BKArray const * arr);
 
 /**
  * Append `count` `items`. The item size has to match that one given at
@@ -90,7 +90,7 @@ extern BKInt BKArrayAppendArray (BKArray * arr, BKArray const * other);
 /**
  * Get item at specified `index`. If `index` is out of bounds, `NULL` is returned.
  */
-BK_INLINE void * BKArrayItemAt (BKArray * arr, size_t index);
+BK_INLINE void * BKArrayItemAt (BKArray const * arr, size_t index);
 
 /**
  * Empty array but keep allocated space
@@ -124,12 +124,12 @@ BK_INLINE void BKArrayPop (BKArray * arr)
 	}
 }
 
-BK_INLINE void * BKArrayLast (BKArray * arr)
+BK_INLINE void * BKArrayLast (BKArray const * arr)
 {
 	return BKArrayItemAt (arr, arr -> len - 1);
 }
 
-BK_INLINE void * BKArrayItemAt (BKArray * arr, size_t index)
+BK_INLINE void * BKArrayItemAt (BKArray const * arr, size_t index)
 {
 	if (index >= arr -> len) {
 		return NULL;
