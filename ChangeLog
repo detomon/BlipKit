@@ -1,3 +1,10 @@
+Changes in BlipKit 0.14:
+  Release date: 2016-03-09
+
+* Add container objects: BKArray, BKBlockPool, BKByteBuffer, BKHashTable, BKString
+* Fix sample play direction when resetting
+* Fix data truncation when reading with `BKDataSetData`
+
 Changes in BlipKit 0.13.2:
   Release date: 2015-12-27
 
