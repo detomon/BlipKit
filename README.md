@@ -1,4 +1,5 @@
-# BlipKit
+BlipKit
+=======
 
 BlipKit is a C library for creating the beautiful sound of old sound chips.
 
@@ -11,7 +12,8 @@ BlipKit is a C library for creating the beautiful sound of old sound chips.
 
 Manual: <http://blipkit.audio>
 
-## Basic Example
+Basic Example
+-------------
 
 This code demonstrates the basic steps to generate audio data of a square wave in the note A with enabled tremolo effect:
 
@@ -58,7 +60,8 @@ BKContextGenerate (& ctx, frames, 512);
 // the first frame of the right channel at frames[1] and so on
 ```
 
-## Building the Library
+Building the Library
+--------------------
 
 First execute `autogen.sh` in the base directory to generate the build system:
 
@@ -85,7 +88,8 @@ and headers on your system:
 blipkit$ sudo make install
 ```
 
-## Building and Running Examples
+Building and Running Examples
+-----------------------------
 
 All examples use SDL (<http://www.libsdl.org>) to output sound, so you have to
 install it first. Execute `make examplename` to build an example in the
@@ -106,6 +110,7 @@ Finally, run examples like this:
 blipkit/examples$ ./tone
 ```
 
-## License
+License
+-------
 
 This library is distributed under the MIT license. See `LICENSE`.
