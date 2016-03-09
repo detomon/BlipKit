@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2015 Simon Schoenenberger
+ * Copyright (c) 2012-2016 Simon Schoenenberger
  * http://blipkit.audio
  *
  * Permission is hereby granted, free of charge, to any person obtaining
