@@ -38,7 +38,7 @@ struct BKString
 /**
  * Initialize string struct
  */
-#define BK_STRING_INIT ((BKString) {(uint8_t *) "", 0, 0})
+#define BK_STRING_INIT (BKString) {(uint8_t *) "", 0, 0}
 
 /**
  * Initialize string with chars

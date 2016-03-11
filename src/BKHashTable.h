@@ -55,7 +55,7 @@ extern BKUSize const BKHashTableSizes [];
 /**
  * Initialize hash table
  */
-#define BK_HASH_TABLE_INIT ((BKHashTable) {0})
+#define BK_HASH_TABLE_INIT (BKHashTable) {0}
 
 /**
  * Dispose hash table

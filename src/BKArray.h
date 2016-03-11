@@ -44,7 +44,7 @@ struct BKArray
 /**
  * Initialize array struct
  */
-#define BK_ARRAY_INIT(itemSize) ((BKArray) {NULL, 0, 0, (itemSize)})
+#define BK_ARRAY_INIT(itemSize) (BKArray) {NULL, 0, 0, (itemSize)}
 
 /**
  * Free allocated space
