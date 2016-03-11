@@ -46,10 +46,13 @@ AC_ARG_ENABLE([examples],
 	[sdl_examples=yes])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_UINT8_T
 AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_SIZE_T
 
 if test "x${with_64_bit}" = xyes; then
 	AC_TYPE_INT64_T
@@ -65,7 +68,7 @@ fi
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([memmove memset pow])
+AC_CHECK_FUNCS([memmove memset pow strdup])
 
 AC_CONFIG_FILES([
 	Makefile

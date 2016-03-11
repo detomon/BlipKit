@@ -354,6 +354,8 @@ extern char const * BKStatusGetName (BKEnum status);
 
 #if __GNUC__
 #define BK_DEPRECATED_FUNC(msg) __attribute__((deprecated(msg)))
+#else
+#define BK_DEPRECATED_FUNC
 #endif
 
 #endif /* !_BK_BASE_H_  */
