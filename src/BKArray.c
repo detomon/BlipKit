@@ -37,7 +37,7 @@ BKInt BKArrayResize (BKArray * arr, BKUSize size)
 {
 	if (size > arr -> len) {
 		if (arr -> cap < size) {
-			if (BKArrayReserve (arr, size - arr -> cap) != 0) {
+			if (BKArrayReserve (arr, size - arr -> len) != 0) {
 				return -1;
 			}
 		}
