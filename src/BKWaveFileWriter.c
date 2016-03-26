@@ -125,7 +125,7 @@ static BKInt BKWaveFileWriterWriteHeader (BKWaveFileWriter * writer)
 
 	numChannels = writer -> numChannels;
 	sampleRate  = writer -> sampleRate;
-	numBits     = 16;
+	numBits     = writer -> numBits;
 
 	fmtHeader.numChannels   = numChannels;
 	fmtHeader.sampleRate    = sampleRate;
@@ -153,12 +153,21 @@ static BKInt BKWaveFileWriterWriteHeader (BKWaveFileWriter * writer)
 	return 0;
 }
 
-BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * frames, BKInt numFrames)
+BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * frames, BKInt numFrames, BKInt numBits)
 {
 	BKSize  dataSize;
 	BKSize  writeSize;
 	BKSize  bufferSize = 1024;
 	BKFrame buffer [bufferSize];
+
+	if (!numBits) {
+		numBits = 16;
+	}
+	else if (numBits != 8 && numBits != 16) {
+		return -1;
+	}
+
+	writer -> numBits = numBits;
 
 	if (!(writer -> object.flags & BKWaveFileFlagHeaderWritten)) {
 		if (BKWaveFileWriterWriteHeader (writer) < 0) {
@@ -166,20 +175,30 @@ BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * f
 		}
 	}
 
-	dataSize = sizeof (BKFrame) * numFrames;
+	dataSize = (numBits / 8) * numFrames;
 
-	if (writer -> reverseEndian) {
+	//float f = 0.0;
+
+	if (writer -> reverseEndian || numBits != 16) {
 		while (numFrames) {
 			writeSize = BKMin (bufferSize, numFrames);
 
-			for (BKInt i = 0; i < writeSize; i ++) {
-				buffer [i] = BKInt16Reverse (frames [i]);
+			if (numBits == 8) {
+				for (BKInt i = 0; i < writeSize; i ++) {
+					((uint8_t *) buffer) [i] = (frames [i] >> 8) + 128;
+				}
+
+			}
+			else {
+				for (BKInt i = 0; i < writeSize; i ++) {
+					buffer [i] = BKInt16Reverse (frames [i]);
+				}
 			}
 
 			frames += writeSize;
 			numFrames -= writeSize;
 
-			fwrite (buffer, sizeof (BKFrame), writeSize, writer -> file);
+			fwrite (buffer, numBits / 8, writeSize, writer -> file);
 		}
 	}
 	else {
@@ -229,7 +248,7 @@ BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer)
 	return 0;
 }
 
-BKInt BKWaveFileWriteData (FILE * file, BKData const * data, BKInt sampleRate)
+BKInt BKWaveFileWriteData (FILE * file, BKData const * data, BKInt sampleRate, BKInt numBits)
 {
 	BKWaveFileWriter writer;
 
@@ -237,7 +256,7 @@ BKInt BKWaveFileWriteData (FILE * file, BKData const * data, BKInt sampleRate)
 		return -1;
 	}
 
-	BKWaveFileWriterAppendFrames (& writer, data -> frames, data -> numFrames * data -> numChannels);
+	BKWaveFileWriterAppendFrames (& writer, data -> frames, data -> numFrames * data -> numChannels, numBits);
 	BKWaveFileWriterTerminate (& writer);
 
 	BKDispose (& writer);

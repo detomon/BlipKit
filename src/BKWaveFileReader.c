@@ -195,7 +195,7 @@ BKInt BKWaveFileReaderReadHeader (BKWaveFileReader * reader, BKInt * outNumChann
 
 BKInt BKWaveFileReaderReadFrames (BKWaveFileReader * reader, BKFrame outFrames [])
 {
-	char    buffer [512];
+	char    buffer [1024];
 	char  * bufferPtr;
 	BKSize  readSize, writeSize;
 	BKSize  remainingSize;
@@ -242,7 +242,7 @@ BKInt BKWaveFileReaderReadFrames (BKWaveFileReader * reader, BKFrame outFrames [
 		switch (frameSize) {
 			case 1: {
 				while (readSize) {
-					frame = ((BKFrame) (* (char *) bufferPtr)) << 8;
+					frame = (((BKFrame) (* (uint8_t *) bufferPtr)) - 128) << 8;
 					(* outFrames ++) = frame;
 
 					bufferPtr += frameSize;

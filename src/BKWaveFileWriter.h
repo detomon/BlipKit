@@ -36,6 +36,7 @@ struct BKWaveFileWriter
 	BKSize   initOffset;
 	BKInt    sampleRate;
 	BKInt    numChannels;
+	BKInt    numBits;
 	BKSize   fileSize;
 	BKSize   dataSize;
 	BKInt    reverseEndian;
@@ -58,7 +59,7 @@ extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt
  * Write `frames` with length `numFrames` to WAVE file. The number of frames
  * should be a multiple of `numChannels` given at initialization.
  */
-extern BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * frames, BKInt numFrames);
+extern BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * frames, BKInt numFrames, BKInt numBits);
 
 /**
  * Terminate WAVE file
@@ -75,6 +76,6 @@ extern BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer);
  * containing the sound data. Data objects do not carry the sample rate of their
  * frames so the sample rate has to be given with `sampleRate`.
  */
-extern BKInt BKWaveFileWriteData (FILE * file, BKData const * data, BKInt sampleRate);
+extern BKInt BKWaveFileWriteData (FILE * file, BKData const * data, BKInt sampleRate, BKInt numBits);
 
 #endif /* ! _BK_WAVE_FILE_WRITER_H_ */
