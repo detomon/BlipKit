@@ -168,6 +168,21 @@ BKInt BKWaveFileReaderReadHeader (BKWaveFileReader * reader, BKInt * outNumChann
 		}
 
 		reader -> dataSize  = headerData.subchunkSize;
+
+		// read everything after data chunk if size not set
+		if (!reader -> dataSize) {
+			BKSize size;
+			BKSize cur = ftell (reader -> file);
+
+			if (fseek (reader -> file, 0, SEEK_END) < 0) {
+				return -1;
+			}
+
+			size = ftell (reader -> file);
+			fseek (reader -> file, cur, SEEK_SET);
+			reader -> dataSize = size - cur;
+		}
+
 		reader -> numFrames = (BKInt) reader -> dataSize / reader -> numChannels / frameSize;
 	}
 
