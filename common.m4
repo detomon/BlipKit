@@ -1,5 +1,7 @@
-# CHECK_COMPILE_FLAG(flags, output-var)
+# CHECK_COMPILE_FLAG(flags)
 # -------------------------------------
+# Checks if the compiler supports the given `flags`.
+# Append them to `CFLAGS` on success.
 m4_define([CHECK_COMPILE_FLAG], [dnl
 _check_flags=$1
 _saved_flags="$CFLAGS"
@@ -15,6 +17,7 @@ CFLAGS="$_saved_flags"
 
 # CHECK_SIGNED_SHIFT()
 # --------------------
+# Checks if the host CPU handles left shifting negative values correctly.
 m4_define([CHECK_SIGNED_SHIFT], [dnl
 AC_MSG_CHECKING([whether host CPU handles left shifting negative values as expected])
 AC_RUN_IFELSE([AC_LANG_SOURCE([[
@@ -28,6 +31,9 @@ AC_RUN_IFELSE([AC_LANG_SOURCE([[
 
 # CHECK_SDL()
 # -----------
+# Search for installed SDL libraries or frameworks.
+# Choose the latest version if found.
+# Outputs SDL_CFLAGS, SDL_CONFIG_NAME, SDL_NAME and SDL_VERSION.
 m4_define([CHECK_SDL], [dnl
 SDL_CFLAGS="$SDL_CFLAGS"
 SDL_CONFIG_NAME=
