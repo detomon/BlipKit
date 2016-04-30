@@ -1,3 +1,8 @@
+Changes in BlipKit 0.14.3:
+  Release date: 2016-04-30
+
+* Fix reading of 8-bit WAVE files
+
 Changes in BlipKit 0.14.2:
   Release date: 2016-03-12
 
