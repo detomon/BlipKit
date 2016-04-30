@@ -51,7 +51,7 @@ int main (int argc, char const * argv [])
 
 		assert (res == numFrames);
 
-		res = BKWaveFileWriterAppendFrames (& writer, frames, numChannels * numFrames);
+		res = BKWaveFileWriterAppendFrames (& writer, frames, numChannels * numFrames, 0);
 
 		assert (res == 0);
 	}
