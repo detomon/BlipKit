@@ -42,7 +42,7 @@ int main (int argc, char const * argv [])
 
 	assert (file != NULL);
 
-	res = BKWaveFileWriterInit (& writer, file, numChannels, sampleRate);
+	res = BKWaveFileWriterInit (& writer, file, numChannels, sampleRate, 0);
 
 	assert (res == 0);
 
@@ -51,7 +51,7 @@ int main (int argc, char const * argv [])
 
 		assert (res == numFrames);
 
-		res = BKWaveFileWriterAppendFrames (& writer, frames, numChannels * numFrames, 0);
+		res = BKWaveFileWriterAppendFrames (& writer, frames, numChannels * numFrames);
 
 		assert (res == 0);
 	}
