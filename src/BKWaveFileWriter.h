@@ -47,11 +47,12 @@ struct BKWaveFileWriter
  *
  * Prepare a writer object to write frames to an opened and writable file
  * `file`. Number of channels `numChannels` defines the layout of the frames
- * which will be appended. `sampleRate` defines the play speed.
+ * which will be appended. `sampleRate` defines the sample rate the given frames.
+ * `numBits` must be set to 8 or 16. If not given, the default is 16.
  *
  * The file and terminated and closed when disposing with `BKDispose`
  */
-extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numChannels, BKInt sampleRate);
+extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numChannels, BKInt sampleRate, BKInt numBits);
 
 /**
  * Append frames to WAVE file
@@ -59,7 +60,7 @@ extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt
  * Write `frames` with length `numFrames` to WAVE file. The number of frames
  * should be a multiple of `numChannels` given at initialization.
  */
-extern BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * frames, BKInt numFrames, BKInt numBits);
+extern BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * frames, BKInt numFrames);
 
 /**
  * Terminate WAVE file
@@ -74,7 +75,8 @@ extern BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer);
  *
  * `file` must be an opened and writable file. `data` is a data object
  * containing the sound data. Data objects do not carry the sample rate of their
- * frames so the sample rate has to be given with `sampleRate`.
+ * frames so the sample rate has to be given with `sampleRate`. `numBits` must
+ * be set to 8 or 16. If not given, the default is 16.
  */
 extern BKInt BKWaveFileWriteData (FILE * file, BKData const * data, BKInt sampleRate, BKInt numBits);
 
