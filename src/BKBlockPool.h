@@ -21,6 +21,16 @@
  * IN THE SOFTWARE.
  */
 
+/**
+ * @file
+ *
+ * A memory pool for fast allocation of memory blocks with the same size.
+ *
+ * Memory blocks are allocated in linked segments containing multiple blocks at
+ * once. If a segment is full, an new segment is allocated and linked to the
+ * previous one. Free blocks are single linked and reused when requested.
+ */
+
 #ifndef _BK_BLOCK_POOL_H_
 #define _BK_BLOCK_POOL_H_
 
@@ -30,54 +40,79 @@ typedef struct BKBlockPool        BKBlockPool;
 typedef struct BKBlockPoolSegment BKBlockPoolSegment;
 typedef struct BKBlockPoolBlock   BKBlockPoolBlock;
 
+/**
+ * A linked memory segment containing multiple blocks.
+ */
 struct BKBlockPoolSegment
 {
-	BKBlockPoolSegment * nextSegment;
-	char data [];
-};
-
-struct BKBlockPoolBlock
-{
-	BKBlockPoolBlock * nextBlock;
-};
-
-struct BKBlockPool
-{
-	BKUSize              blockSize;
-	BKUSize              segmentSize;
-	BKBlockPoolSegment * lastSegment;
-	void               * freePtr;
-	BKBlockPoolSegment * firstSegment;
-	BKBlockPoolBlock   * freeBlocks;
+	BKBlockPoolSegment * nextSegment; ///< The next block segment.
+	char data [];                     ///< Segment blocks.
 };
 
 /**
- * Initialize block pool
+ * An unused linked block.
+ */
+struct BKBlockPoolBlock
+{
+	BKBlockPoolBlock * nextBlock; ///< The next free block.
+};
+
+/**
+ * The memory pool struct.
+ */
+struct BKBlockPool
+{
+	BKUSize              blockSize;    ///< The block size.
+	BKUSize              segmentSize;  ///< The usable segment size.
+	BKBlockPoolSegment * lastSegment;  ///< The last linked memory segment
+	void               * freePtr;      ///< The next free block of the last segment.
+	BKBlockPoolSegment * firstSegment; ///< The first memory segment.
+	BKBlockPoolBlock   * freeBlocks;   ///< A linked list of reusable blocks.
+};
+
+/**
+ * Initialize block pool.
+ *
+ * @param blockPool The block pool to be initialized.
+ * @param blockSize The block size to be allocated.
+ * @param segmentCapacity The number of blocks in a segment. When 0 is given, the default is used.
+ * @return 0 on success.
  */
 extern BKInt BKBlockPoolInit (BKBlockPool * blockPool, BKUSize blockSize, BKUSize segmentCapacity);
 
 /**
- * Dispose block pool
+ * Dispose block pool and free all segments.
+ *
+ * @param blockPool The block pool to be disposed.
  */
 extern void BKBlockPoolDispose (BKBlockPool * blockPool);
 
 /**
- * Append segment (internal)
+ * Append segment (internal).
  */
 extern BKInt BKBlockPoolAppendSegment (BKBlockPool * blockPool);
 
 /**
- * Ensure that at least one block is present
+ * Ensure that at least one block is present.
+ *
+ * @param blockPool The block pool to ensure a block for.
+ * @return 0 on success.
  */
 extern BKInt BKBlockPoolEnsureBlock (BKBlockPool * blockPool);
 
 /**
- * Allocate block
+ * Allocate block.
+ *
+ * @param blockPool The block pool to allocate a block from.
+ * @return A new allocated and emptied block.
  */
 BK_INLINE void * BKBlockPoolAlloc (BKBlockPool * blockPool);
 
 /**
- * Free block
+ * Free block.
+ *
+ * @param blockPool The block pool to free a block from.
+ * @param block The block to be freed.
  */
 BK_INLINE void BKBlockPoolFree (BKBlockPool * blockPool, void * block);
 

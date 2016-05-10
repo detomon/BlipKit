@@ -21,6 +21,21 @@
  * IN THE SOFTWARE.
  */
 
+/**
+ * @file
+ *
+ * A WAVE file writer.
+ *
+ * @code{.c}
+ * BKWaveFileWriter writer;
+ *
+ * BKWaveFileWriterInit (& writer, file, 2, 44100, 16);
+ * BKWaveFileWriterAppendFrames (& writer, frames, numFrames);
+ * BKWaveFileWriterTerminate (& writer);
+ * BKDispose (& writer);
+ * @endcode
+ */
+
 #ifndef _BK_WAVE_FILE_WRITER_H_
 #define _BK_WAVE_FILE_WRITER_H_
 
@@ -29,33 +44,38 @@
 
 typedef struct BKWaveFileWriter BKWaveFileWriter;
 
+/**
+ * The WAVE file reader struct.
+ */
 struct BKWaveFileWriter
 {
-	BKObject object;
-	FILE   * file;
-	BKSize   initOffset;
-	BKInt    sampleRate;
-	BKInt    numChannels;
-	BKInt    numBits;
-	BKSize   fileSize;
-	BKSize   dataSize;
-	BKInt    reverseEndian;
+	BKObject object;        ///< The general object.
+	FILE   * file;          ///< The file to be written to.
+	BKSize   initOffset;    ///< The initial file cursor offset. Used to update the header when terminating.
+	BKInt    sampleRate;    ///< The sample rate to be written to the header.
+	BKInt    numChannels;   ///< Number of channels to be written to the header.
+	BKInt    numBits;       ///< Number of bits to be used to write the frames.
+	BKSize   fileSize;      ///< The number of bytes of the data chunk.
+	BKSize   dataSize;      ///< The number of data bytes written to the data chunk.
+	BKInt    reverseEndian; ///< Whether the endian order should be reversed.
+	                        ///< 16 bit frames are written in little-endian order.
+	                        ///< If the system uses big-endian order, the given frame bytes has to be reversed.
 };
 
 /**
- * Initialize WAVE file writer object
+ * Initialize WAVE file writer object.
  *
  * Prepare a writer object to write frames to an opened and writable file
  * `file`. Number of channels `numChannels` defines the layout of the frames
  * which will be appended. `sampleRate` defines the sample rate the given frames.
  * `numBits` must be set to 8 or 16. If not given, the default is 16.
  *
- * The file and terminated and closed when disposing with `BKDispose`
+ * The file is not closed when the reader is disposed with `BKDispose`.
  */
 extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numChannels, BKInt sampleRate, BKInt numBits);
 
 /**
- * Append frames to WAVE file
+ * Append frames to WAVE file.
  *
  * Write `frames` with length `numFrames` to WAVE file. The number of frames
  * should be a multiple of `numChannels` given at initialization.
@@ -63,15 +83,15 @@ extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt
 extern BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * frames, BKInt numFrames);
 
 /**
- * Terminate WAVE file
+ * Terminate WAVE file.
  *
- * If no more frames will be appended this function must be called to set the
+ * If no more frames will be appended, this function must be called to set the
  * required WAVE header values.
  */
 extern BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer);
 
 /**
- * Write data object to WAVE file
+ * Write data object to WAVE file.
  *
  * `file` must be an opened and writable file. `data` is a data object
  * containing the sound data. Data objects do not carry the sample rate of their
