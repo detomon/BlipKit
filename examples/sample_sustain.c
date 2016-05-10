@@ -107,12 +107,12 @@ int main (int argc, char * argv [])
 
 	BKTrackAttach (& sampleTrack, & ctx);
 
-	FILE * file = fopen ("itemland3.raw", "rb");
+	FILE * file = fopen ("itemland.wav", "rb");
 
 	BKDataInit (& sample);
 
 	// Load raw sound data
-	BKDataLoadRaw (& sample, file, 1, BK_16_BIT_SIGNED | BK_LITTLE_ENDIAN);
+	BKDataLoadWAVE (& sample, file);
 
 	fclose (file);
 
