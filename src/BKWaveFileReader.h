@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012-2015 Simon Schoenenberger
  * http://blipkit.audio
  *
