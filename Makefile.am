@@ -1,3 +1,9 @@
+DOC_CSS_DIR = doc/css
+
+doc: Doxyfile $(DOC_CSS_DIR)/*.css
+	sass $(DOC_CSS_DIR)/main.scss > $(DOC_CSS_DIR)/main.css
+	doxygen
+
 SUBDIRS = src examples test
 DIST_SUBDIRS = $(SUBDIRS)
 

@@ -6,6 +6,7 @@
 *~
 .DS_Store
 .deps
+.sass-cache
 .svn
 /aclocal.m4
 /ar-lib
@@ -20,5 +21,6 @@
 /missing
 /stamp-h1
 /test-driver
+html
 Makefile
 Makefile.in
