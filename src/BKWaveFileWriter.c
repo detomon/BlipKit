@@ -137,6 +137,7 @@ static BKInt BKWaveFileWriterWriteHeader (BKWaveFileWriter * writer)
 
 	fmtHeader.numChannels   = numChannels;
 	fmtHeader.sampleRate    = sampleRate;
+	fmtHeader.byteRate      = sampleRate * numChannels * numBits / 8;
 	fmtHeader.bitsPerSample = numBits;
 	fmtHeader.blockAlign    = numChannels * numBits / 8;
 	fmtHeader.byteRate      = sampleRate * fmtHeader.blockAlign;
