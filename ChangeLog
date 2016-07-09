@@ -1,3 +1,11 @@
+Changes in BlipKit 0.15:
+  Release date: 2016-07-09
+
+* Change WAVE file writer initialization
+* Add option BK_PULSE_KERNEL to BKContext
+	* BK_PULSE_KERNEL_SINC: Previously used pulse kernel based on `sinc` function. Tends to have more high frequencies.
+	* BK_PULSE_KERNEL_HARM: Newly added pulse kernel based on harmonic overtones; now used by default. Tends to have less high frequencies.
+
 Changes in BlipKit 0.14.3:
   Release date: 2016-04-30
 
