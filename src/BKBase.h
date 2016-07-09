@@ -222,6 +222,7 @@ enum
 	BK_NUM_CHANNELS,
 	BK_SAMPLE_RATE,
 	BK_TIME,
+	BK_PULSE_KERNEL,
 };
 
 /**
@@ -324,6 +325,24 @@ enum
 	BK_NO_REPEAT,
 	BK_REPEAT,
 	BK_PALINDROME,
+};
+
+/**
+ * Pulse kernels
+ */
+enum
+{
+	/**
+	 * Sinc based pulse kernel.
+	 * Tends to have more high frequencies.
+	 */
+	BK_PULSE_KERNEL_SINC,
+
+	/**
+	 * Overtone based pulse kernel.
+	 * Tends to have less high frequencies.
+	 */
+	BK_PULSE_KERNEL_HARM,
 };
 
 /**

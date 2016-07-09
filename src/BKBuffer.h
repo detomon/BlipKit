@@ -30,32 +30,42 @@
 #define BK_STEP_UNIT (1 << BK_STEP_SHIFT)
 #define BK_STEP_FRAC (BK_STEP_UNIT - 1)
 
-#define BK_STEP_WIDTH 16
+#define BK_STEP_WIDTH 32
 #define BK_HIGH_PASS_SHIFT 23
 
 #define BK_BUFFER_CAPACITY ((1 << (BK_INT_SHIFT - BK_FINT20_SHIFT)) + BK_STEP_WIDTH + 1)
 
-#if BK_BUFFER_CAPACITY > 4113
-#error Capacity exceeds 4113?
+#if BK_BUFFER_CAPACITY > 4129
+#error Capacity exceeds 4129?
 #endif
 
-typedef struct BKBuffer BKBuffer;
+typedef struct BKBuffer      BKBuffer;
+typedef struct BKBufferPulse BKBufferPulse;
 
 /**
  * Buffer
  */
 struct BKBuffer
 {
-	BKFUInt20 time;
-	BKUInt    capacity;                     // dynamic capacity
-	BKInt     accum;                        // amplitude accumulator
-	BKInt     frames [BK_BUFFER_CAPACITY];  // frame buffer
+	BKFUInt20             time;
+	BKUInt                capacity;                     // dynamic capacity
+	BKInt                 accum;                        // amplitude accumulator
+	BKInt                 frames [BK_BUFFER_CAPACITY];  // frame buffer
+	BKBufferPulse const * pulse;                        // Pulse kernel
+};
+
+/**
+ * Buffer pulse kernel
+ */
+struct BKBufferPulse
+{
+	BKInt frames [BK_STEP_UNIT][BK_STEP_WIDTH];
 };
 
 /**
  * Step phases
  */
-extern BKInt const BKBufferStepPhases [BK_STEP_UNIT][BK_STEP_WIDTH];
+extern BKBufferPulse const * const BKBufferPulseKernels [];
 
 /**
  * Initialize buffer
@@ -150,7 +160,7 @@ BK_INLINE BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 	frac = time & BK_FINT20_FRAC;               // frame fraction
 	frac >>= (BK_FINT20_SHIFT - BK_STEP_SHIFT); // step fraction
 
-	phase  = BKBufferStepPhases [frac];
+	phase  = buf -> pulse -> frames [frac];
 	frames = & buf -> frames [offset];
 
 	// add step

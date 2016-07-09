@@ -197,6 +197,21 @@ static BKInt BKContextSetPtrObj (BKContext * ctx, BKEnum attr, void * ptr, BKSiz
 
 			break;
 		}
+		case BK_PULSE_KERNEL: {
+			BKBuffer * channel;
+			BKBufferPulse const * pulse = ptr;
+
+			if (!pulse) {
+				pulse = BKBufferPulseKernels [BK_PULSE_KERNEL_HARM];
+			}
+
+			for (BKInt i = 0; i < ctx -> numChannels; i ++) {
+				channel = &ctx -> channels [i];
+				channel -> pulse = pulse;
+			}
+
+			break;
+		}
 		default: {
 			return BK_INVALID_ATTRIBUTE;
 			break;
@@ -224,6 +239,12 @@ static BKInt BKContextGetPtrObj (BKContext const * ctx, BKEnum attr, void * outP
 			BKTime * timeRef = outPtr;
 
 			* timeRef = ctx -> currentTime;
+			break;
+		}
+		case BK_PULSE_KERNEL: {
+			BKBufferPulse const ** pulseRef = outPtr;
+
+			* pulseRef = ctx -> channels [0].pulse;
 			break;
 		}
 		default: {

@@ -1,6 +1,9 @@
 AM_CFLAGS = @AM_CFLAGS@ -I$(srcdir)/../../src -L$(srcdir)/../../src
 
-EXTRA_PROGRAMS = step_phases
+EXTRA_PROGRAMS = sinc_phases harm_phases
 
-step_phases_SOURCES = \
-	step_phases.c
+sinc_phases_SOURCES = \
+	sinc_phases.c
+
+harm_phases_SOURCES = \
+	harm_phases.c
