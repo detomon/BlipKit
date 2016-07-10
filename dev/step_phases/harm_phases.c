@@ -43,7 +43,7 @@ int main (int argc, char const * argv [])
 
 	// step phase
 	for (int phase = 0; phase < BK_STEP_UNIT; phase ++) {
-		float wave[BK_STEP_UNIT + 1];
+		double wave[BK_STEP_UNIT + 1];
 		double shift = -((double) phase / BK_STEP_UNIT);
 
 		memset(wave, 0, sizeof(wave));
@@ -51,21 +51,21 @@ int main (int argc, char const * argv [])
 		printf ("\t{");
 
 		// phase offset
-		for (float n = 1; n <= 31; n += 2) {
-			for (float x = -size / 2; x <= size / 2; x++) {
-				float a = (x + shift) * M_PI / 31;
+		for (double n = 1; n <= 31; n += 2) {
+			for (double x = -size / 2; x <= size / 2; x++) {
+				double a = (x + shift) * M_PI / 31;
 
 				wave[(int) x + size / 2] += sin(n * a) / n;
 			}
 		}
 
-		float sum = 0;
+		double sum = 0;
 		double sumf = 0;
-		float last = wave[0];
+		double last = wave[0];
 		BKInt value = 0;
 
 		for (int i = 0; i <= size; i++) {
-			float diff = wave[i] - last;
+			double diff = wave[i] - last;
 			last = wave[i];
 			wave[i] = diff;
 			sumf += diff;
