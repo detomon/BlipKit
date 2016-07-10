@@ -59,7 +59,7 @@ struct BKBuffer
  */
 struct BKBufferPulse
 {
-	BKInt frames [BK_STEP_UNIT][BK_STEP_WIDTH];
+	BKFrame frames [BK_STEP_UNIT][BK_STEP_WIDTH];
 };
 
 /**
@@ -152,7 +152,7 @@ BK_INLINE BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 	BKUInt frac;
 	BKUInt offset;
 	BKInt * frames;
-	BKInt const * phase;
+	BKFrame const * phase;
 
 	time   = buf -> time + time;
 	offset = time >> BK_FINT20_SHIFT;
@@ -165,7 +165,7 @@ BK_INLINE BKInt BKBufferAddPulse (BKBuffer * buf, BKFUInt20 time, BKFrame pulse)
 
 	// add step
 	for (BKInt i = 0; i < BK_STEP_WIDTH; i ++) {
-		frames [i] += phase [i] * pulse;
+		frames [i] += (BKInt) phase [i] * pulse;
 	}
 
 	return 0;
