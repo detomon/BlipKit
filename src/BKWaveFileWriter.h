@@ -45,7 +45,7 @@
 typedef struct BKWaveFileWriter BKWaveFileWriter;
 
 /**
- * The WAVE file reader struct.
+ * The WAVE file writer struct.
  */
 struct BKWaveFileWriter
 {
@@ -71,6 +71,13 @@ struct BKWaveFileWriter
  * `numBits` must be set to 8 or 16. If not given, the default is 16.
  *
  * The file is not closed when the reader is disposed with `BKDispose`.
+ *
+ * @param writer The WAVE file writer to initialize.
+ * @param file The file to write to.
+ * @param numChannels The number of channels to write.
+ * @param sampleRate The sample rate to write.
+ * @param numBits The number of bits to write. Can be 8 or 16.
+ * @return 0 on success.
  */
 extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numChannels, BKInt sampleRate, BKInt numBits);
 
@@ -79,6 +86,11 @@ extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt
  *
  * Write `frames` with length `numFrames` to WAVE file. The number of frames
  * should be a multiple of `numChannels` given at initialization.
+ *
+ * @param writer The writer to append frames to.
+ * @param frames The frames to append.
+ * @param numFrames The number of frames to append.
+ * @return 0 on success.
  */
 extern BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * frames, BKInt numFrames);
 
@@ -87,6 +99,9 @@ extern BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame co
  *
  * If no more frames will be appended, this function must be called to set the
  * required WAVE header values.
+ *
+ * @param writer The writer to terminate.
+ * @return 0 on success.
  */
 extern BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer);
 
@@ -97,6 +112,12 @@ extern BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer);
  * containing the sound data. Data objects do not carry the sample rate of their
  * frames so the sample rate has to be given with `sampleRate`. `numBits` must
  * be set to 8 or 16. If not given, the default is 16.
+ *
+ * @param file The file to write to.
+ * @param data The data object to write.
+ * @param sampleRate The sample rate to write.
+ * @param numBits The number of bits to write.
+ * @return 0 on success. Can be 8 or 16.
  */
 extern BKInt BKWaveFileWriteData (FILE * file, BKData const * data, BKInt sampleRate, BKInt numBits);
 

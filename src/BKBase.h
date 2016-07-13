@@ -39,20 +39,20 @@
 #define BK_INLINE static inline
 
 /**
- * Version
+ * Version.
  */
 #define BK_VERSION "0.15"
 extern char const * const BKVersion;
 
 /**
- * Settings
+ * Settings.
  */
 #ifndef BK_USE_64_BIT
 #define BK_USE_64_BIT 1
 #endif
 
 /**
- * Integers and fixed point numbers
+ * Integers and fixed point numbers.
  */
 #define BK_INT_SHIFT    32
 #define BK_FRAME_SHIFT  16
@@ -73,7 +73,7 @@ typedef int32_t  BKFInt20;   // 12.20 fixed point signed
 typedef uint32_t BKFUInt20;  // 12.20 fixed point
 
 /**
- * Limits
+ * Limits.
  */
 #define BK_INT_MAX ((1U << (BK_INT_SHIFT - 1)) - 1)
 #define BK_FRAME_MAX ((1U << (BK_FRAME_SHIFT - 1)) - 1)
@@ -97,7 +97,7 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #define BK_MAX_GENERATE_SAMPLES ((1 << (BK_INT_SHIFT - BK_FINT20_SHIFT)) / 4)
 
 /**
- * Wave phases
+ * Wave phases.
  */
 #define BK_SQUARE_PHASES   16
 #define BK_TRIANGLE_PHASES 32
@@ -106,7 +106,7 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #define BK_SINE_PHASES     32
 
 /**
- * Default values
+ * Default values.
  */
 #define BK_DEFAULT_SAMPLE_RATE    44100
 #define BK_DEFAULT_CLOCK_RATE       240
@@ -116,7 +116,7 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #define BK_DEFAULT_DUTY_CYCLE         2
 
 /**
- * Misc
+ * Misc.
  */
 #define BK_FIRST_ELEMENT_PTR ((void *) -1)
 
@@ -125,7 +125,7 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #endif
 
 /**
- * Macro functions
+ * Macro functions.
  */
 #define BKMin(a, b) ((a) < (b) ? (a) : (b))
 #define BKMax(a, b) ((a) > (b) ? (a) : (b))
@@ -137,9 +137,9 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #define BKBitUnset(var, mask) ((var) &= ~(mask))
 
 /**
- * Contitionally set or clear bit mask
+ * Contitionally set or clear bit mask.
  *
- * `cond` must be 0 or 1
+ * `cond` must be 0 or 1.
  * http://graphics.stanford.edu/~seander/bithacks.html#ConditionalSetOrClearBitsWithoutBranching
  */
 #define BKBitSetCond(var, mask, cond) ((var) ^= (-(cond) ^ (var)) & (mask))
@@ -155,12 +155,12 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 #define BKBitCond2(mask, cond) (~(((cond) != 0) - 1) & mask)
 
 /**
- * Enum type
+ * General enum type.
  */
 typedef unsigned BKEnum;
 
 /**
- * Define offsetof if needed
+ * Define offsetof if not defined.
  */
 #ifndef offsetof
 #define offsetof(s, f) ((BKSize) & ((s *) NULL) -> f)

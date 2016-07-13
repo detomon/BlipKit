@@ -28,8 +28,7 @@
 extern BKClass BKFFTClass;
 
 /**
- * Returns the next higher power of 2
- * which is the same as ceil(log2(value))
+ * Returns the next higher power of 2 which is the same as ceil(log2(value)).
  */
 static BKUSize BKLog2 (BKSize value)
 {
@@ -47,7 +46,7 @@ static BKUSize BKLog2 (BKSize value)
 
 /**
  * Initialize array of binary reversed indices to map the input samples to their
- * decomposed position as needed by the transform algorithm
+ * decomposed position as needed by the transform algorithm.
  */
 static void BKFFTBitRevMapMake (BKInt indices [], BKUSize numIndices)
 {
@@ -70,11 +69,11 @@ static void BKFFTBitRevMapMake (BKInt indices [], BKUSize numIndices)
 }
 
 /**
- * Initialize unit sine and cosine waves
+ * Initialize unit sine and cosine waves.
  *
  * Due to the binary nature of the transform algorithm only one pre-calculated
  * sine and cosine wave is needed for all levels which then is strided with
- * different step size
+ * different step size.
  */
 static void BKFFTUnitWaveMake (BKComplex points [], BKUSize numPoints)
 {
@@ -88,9 +87,9 @@ static void BKFFTUnitWaveMake (BKComplex points [], BKUSize numPoints)
 }
 
 /**
- * Sort points by their bit reversal index
+ * Sort points by their bit reversal index.
  *
- * Sorting again will put them to their previous position
+ * Sorting again will put them to their previous position.
  */
 static void BKFFTSortBitReversed (BKComplex points [], BKUSize numPoints, BKInt bitRevMap [])
 {
@@ -110,7 +109,7 @@ static void BKFFTSortBitReversed (BKComplex points [], BKUSize numPoints, BKInt 
 
 /**
  * Multiply complex parts of every point in `points` with length `numPoints` by
- * `factor`
+ * `factor`.
  */
 static void BKComplexListScale (BKComplex points [], BKUSize numPoints, BKComplexComp factor)
 {
@@ -127,7 +126,7 @@ static void BKComplexListScale (BKComplex points [], BKUSize numPoints, BKComple
 
 /**
  * Invert the sign of the imaginary part of every point of `points` with length
- * `numPoints`
+ * `numPoints`.
  */
 static void BKComplexListConj (BKComplex points [], BKUSize numPoints)
 {
@@ -157,7 +156,7 @@ static void BKComplexListToPolar (BKComplex points [], BKUSize numPoints)
 }
 
 /**
- * Convert `points` with length `numPoints` to their rectangular form
+ * Convert `points` with length `numPoints` to their rectangular form.
  */
 static void BKComplexListToRectangular (BKComplex points [], BKUSize numPoints)
 {
@@ -177,7 +176,7 @@ static void BKComplexListToRectangular (BKComplex points [], BKUSize numPoints)
 }
 
 /**
- * Copy real part of `points` with length `numPoints` to `re`
+ * Copy real part of `points` with length `numPoints` to `re`.
  */
 static void BKComplexListCopyReal (BKComplexComp re [], BKComplex const points [], BKUSize numPoints)
 {
@@ -273,7 +272,7 @@ BKInt BKFFTSpectrumLoad (BKFFT * fft, BKComplex const points [], BKUSize numPoin
 */
 
 /**
- * The FFT algorithm
+ * The FFT algorithm.
  */
 static void BKFFTTransformForward (BKComplex points [], BKUSize numBits, BKComplex unitWave [])
 {
