@@ -66,48 +66,49 @@ Building the Library
 First execute `autogen.sh` in the base directory to generate the build system:
 
 ```sh
-blipkit$ sh ./autogen.sh
+sh ./autogen.sh
 ```
 
 Next execute `configure` in the base directory:
 
 ```sh
-blipkit$ ./configure
+./configure
 ```
 
 Then execute `make` to build `libblipkit.a` in the `src` directory:
 
 ```sh
-blipkit$ make
+make
 ```
 
-Optionally, you may want to execute `sudo make install` to install the library
-and headers on your system:
+Optionally, you may want to execute to install the library and headers on your system:
 
 ```sh
-blipkit$ sudo make install
+sudo make install
 ```
 
 Building and Running Examples
 -----------------------------
 
-All examples use SDL (<http://www.libsdl.org>) to output sound, so you have to
-install it first. Execute `make examplename` to build an example in the
-`examples` directory.
+All examples use SDL (<http://www.libsdl.org>) to output sound, so you have to install it first. Execute `make examplename` to build an example in the `examples` directory.
 
 ```sh
-blipkit/examples$ make tone
-blipkit/examples$ make divider
-blipkit/examples$ make stereo
-blipkit/examples$ make scratch
-blipkit/examples$ make waveform
-blipkit/examples$ make envelope
+# in `examples`
+
+make tone
+make divider
+make stereo
+make scratch
+make waveform
+make envelope
 ```
 
 Finally, run examples like this:
 
 ```sh
-blipkit/examples$ ./tone
+# in `examples`
+
+./tone
 ```
 
 License
