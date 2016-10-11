@@ -87,9 +87,7 @@ static BKInt BKHashTableResize (BKHashTable * table, BKUSize capIdx)
 		}
 	}
 
-	if (table -> buckets) {
-		free (table -> buckets);
-	}
+	free (table -> buckets);
 
 	table -> occupied = table -> size;
 	table -> capIdx   = capIdx;

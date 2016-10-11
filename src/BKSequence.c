@@ -453,8 +453,7 @@ BKInt BKSequenceCopy (BKSequence ** outSequence, BKSequence * sequence)
 
 void BKSequenceDispose (BKSequence * sequence)
 {
-	if (sequence)
-		free (sequence);
+	free (sequence);
 }
 
 BKInt BKSequenceStateSetPhase (BKSequenceState * state, BKEnum phase)

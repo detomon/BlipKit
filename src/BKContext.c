@@ -122,9 +122,7 @@ static void BKContextDisposeObject (BKContext * ctx)
 		BKBufferDispose (channel);
 	}
 
-	if (ctx -> channels)
-		free (ctx -> channels);
-
+	free (ctx -> channels);
 	BKDispose (& ctx -> masterClock);
 }
 
