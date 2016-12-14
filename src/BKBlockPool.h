@@ -88,11 +88,6 @@ extern BKInt BKBlockPoolInit (BKBlockPool * blockPool, BKUSize blockSize, BKUSiz
 extern void BKBlockPoolDispose (BKBlockPool * blockPool);
 
 /**
- * Append segment (internal).
- */
-extern BKInt BKBlockPoolAppendSegment (BKBlockPool * blockPool);
-
-/**
  * Ensure that at least one block is present.
  *
  * @param blockPool The block pool to ensure a block for.
