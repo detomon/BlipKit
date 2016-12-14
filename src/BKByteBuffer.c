@@ -128,21 +128,23 @@ BKInt BKByteBufferMakeContinuous (BKByteBuffer * buf)
 	BKUSize size;
 	BKByteBufferSegment * segment;
 
-	size = BKByteBufferSize (buf);
-	segment = BKByteBufferSegmentAllocate (size);
+	if (buf -> cur != buf -> first) {
+		size = BKByteBufferSize (buf);
+		segment = BKByteBufferSegmentAllocate (size);
 
-	if (!segment) {
-		return -1;
+		if (!segment) {
+			return -1;
+		}
+
+		BKByteBufferCopy (buf, segment -> data);
+		BKByteBufferFreeSegments (buf);
+
+		buf -> cur = segment;
+		buf -> last = segment;
+		buf -> first = segment;
+		buf -> ptr = segment -> data + size;
+		buf -> ptrEnd = &segment -> data [segment -> size];
 	}
-
-	BKByteBufferCopy (buf, segment -> data);
-	BKByteBufferFreeSegments (buf);
-
-	buf -> cur = segment;
-	buf -> last = segment;
-	buf -> first = segment;
-	buf -> ptr = segment -> data + size;
-	buf -> ptrEnd = &segment -> data [segment -> size];
 
 	return 0;
 }
