@@ -28,7 +28,7 @@ void BKBlockPoolDispose (BKBlockPool * blockPool)
 	memset (blockPool, 0, sizeof (*blockPool));
 }
 
-BKInt BKBlockPoolAppendSegment (BKBlockPool * blockPool)
+static BKInt BKBlockPoolAppendSegment (BKBlockPool * blockPool)
 {
 	BKBlockPoolSegment * segment;
 

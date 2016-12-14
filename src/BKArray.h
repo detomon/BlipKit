@@ -110,7 +110,7 @@ BK_INLINE void * BKArrayPush (BKArray * arr)
 		}
 	}
 
-	item = arr -> items + arr -> len * arr -> itemSize;
+	item = (char *) arr -> items + arr -> len * arr -> itemSize;
 	memset (item, 0, arr -> itemSize);
 	arr -> len ++;
 
@@ -135,7 +135,7 @@ BK_INLINE void * BKArrayItemAt (BKArray const * arr, size_t index)
 		return NULL;
 	}
 
-	return arr -> items + arr -> itemSize * index;
+	return (char *) arr -> items + arr -> itemSize * index;
 }
 
 BK_INLINE void BKArrayEmpty (BKArray * arr)

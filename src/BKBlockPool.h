@@ -131,7 +131,7 @@ BK_INLINE void * BKBlockPoolAlloc (BKBlockPool * blockPool)
 		memset (block, 0, blockPool -> blockSize);
 	}
 	else {
-		block = _BKBlockPoolAlloc (blockPool);
+		block = (BKBlockPoolBlock *) _BKBlockPoolAlloc (blockPool);
 	}
 
 	return block;
@@ -139,7 +139,7 @@ BK_INLINE void * BKBlockPoolAlloc (BKBlockPool * blockPool)
 
 BK_INLINE void BKBlockPoolFree (BKBlockPool * blockPool, void * block)
 {
-	BKBlockPoolBlock * blockPtr = block;
+	BKBlockPoolBlock * blockPtr = (BKBlockPoolBlock *) block;
 
 	if (!blockPtr) {
 		return;

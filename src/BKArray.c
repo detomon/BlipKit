@@ -42,7 +42,7 @@ BKInt BKArrayResize (BKArray * arr, BKUSize size)
 			}
 		}
 
-		memset (arr -> items + arr -> len * arr -> itemSize, 0, (size - arr -> len) * arr -> itemSize);
+		memset ((char *) arr -> items + arr -> len * arr -> itemSize, 0, (size - arr -> len) * arr -> itemSize);
 		arr -> len = size;
 	}
 
