@@ -1,6 +1,8 @@
 BlipKit
 =======
 
+[![Build Status](https://api.travis-ci.org/detomon/BlipKit.svg?branch=master)](https://travis-ci.org/detomon/BlipKit)
+
 BlipKit is a C library for creating the beautiful sound of old sound chips.
 
 - Generate waveforms: square, triangle, noise, sawtooth, sine and custom waveforms
