@@ -1,3 +1,8 @@
+Changes in BlipKit 0.15.2:
+  Release date: 2017-01-21
+
+* Use replacement for non-standard strdup
+
 Changes in BlipKit 0.15.1:
   Release date: 2016-10-08
 
