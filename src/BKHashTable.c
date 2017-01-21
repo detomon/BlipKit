@@ -153,6 +153,21 @@ BKInt BKHashTableLookup (BKHashTable const * table, char const * key, void ** ou
 	return 1;
 }
 
+static char * stringCopy(char const * str)
+{
+	char * newStr = NULL;
+
+	if (str) {
+		size_t len = strlen (str);
+
+		if ((newStr = malloc (len + 1))) {
+			strncpy (newStr, str, len);
+		}
+	}
+
+	return newStr;
+}
+
 BKInt BKHashTableLookupOrInsert (BKHashTable * table, char const * key, void *** outItemRef)
 {
 	BKUSize capIdx;
@@ -178,7 +193,7 @@ BKInt BKHashTableLookupOrInsert (BKHashTable * table, char const * key, void ***
 	bucket = BKHashTableBucketLookup (table -> buckets, size, hash, key);
 
 	if (bucket -> key <= PLACEHOLDER_KEY) {
-		key = strdup (key);
+		key = stringCopy (key);
 
 		if (!key) {
 			return -1;
