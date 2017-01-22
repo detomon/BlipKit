@@ -140,6 +140,10 @@ BK_INLINE BKString * BKStringEscapeString (BKString * buffer, BKString const * s
  */
 BK_INLINE void BKStringEmpty (BKString * str);
 
+/**
+ * Duplicate NUL-terminated string.
+ */
+extern char * BKStrdup (char const * str);
 
 // --- Inline implementations
 
