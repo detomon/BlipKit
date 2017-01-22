@@ -1,3 +1,8 @@
+Changes in BlipKit 0.15.3:
+  Release date: 2017-01-22
+
+* Fix string duplicate function
+
 Changes in BlipKit 0.15.2:
   Release date: 2017-01-21
 
