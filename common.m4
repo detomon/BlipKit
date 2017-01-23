@@ -24,7 +24,10 @@ AC_RUN_IFELSE([AC_LANG_SOURCE([[
 	int main () {
 		return !((-15 >> 2) == -4);
 	}
-]])], [], [
+]])], [
+	AC_MSG_RESULT(yes)
+], [
+	AC_MSG_RESULT(no)
 	AC_MSG_FAILURE(Host CPU seems not to handle shifting of negative values as expected)
 ])
 ])
