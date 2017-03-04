@@ -24,6 +24,7 @@
 #ifndef _BK_HASH_TABLE_H_
 #define _BK_HASH_TABLE_H_
 
+#include <stdarg.h>
 #include "BKBase.h"
 
 typedef struct BKHashTable         BKHashTable;
