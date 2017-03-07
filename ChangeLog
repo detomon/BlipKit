@@ -1,3 +1,9 @@
+Changes in BlipKit 0.15.4:
+  Release date: 2017-03-07
+
+* Remove erroneus compiler warning flags
+* Add missing stdarg.h header
+
 Changes in BlipKit 0.15.3:
   Release date: 2017-01-22
 
