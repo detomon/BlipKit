@@ -74,6 +74,12 @@ if test "x$SDL_CFLAGS" = x; then
 		])
 	fi
 
+	# Set default version
+	if test "x$SDL_VERSION" = x; then
+		SDL_VERSION=2
+		AC_DEFINE(BK_SDL_VERSION, 2, [Defines SDL version])
+	fi
+
 	# Set SDL version if headers found.
 	if test "x$SDL_VERSION" != x; then
 		SDL_NAME="SDL$SDL_VERSION"
@@ -95,7 +101,7 @@ if test "x$SDL_CFLAGS" = x; then
 	if test "x$SDL_CFLAGS" = x; then
 		case $host_os in
 			darwin*)
-				SDL_CFLAGS="-framework $SDL_NAME"
+				SDL_CFLAGS="-F/Library/Frameworks -framework $SDL_NAME"
 				;;
 			*)
 				SDL_CFLAGS="-I/usr/local/include/SDL2 -D_THREAD_SAFE -L/usr/local/lib -lSDL2"
