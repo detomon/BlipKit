@@ -29,6 +29,7 @@ AM_CFLAGS="$AM_CFLAGS -Wall \
 	-Wformat-security \
 	-Winline"
 
+# Use C11 standard.
 CHECK_COMPILE_FLAG([-std=c11], [AM_CFLAGS])
 
 # Checks for header files.
@@ -39,10 +40,13 @@ AC_ARG_ENABLE([64-bit],
 	[with_64_bit=${enableval}],
 	[with_64_bit=yes])
 
-AC_ARG_ENABLE([examples],
-	[  --disable-examples      do not build for running examples],
-	[sdl_examples=${enableval}],
-	[sdl_examples=yes])
+AC_ARG_WITH([sdl],
+	AS_HELP_STRING([--without-sdl], [do not link agains SDL library]))
+
+# Set default of with_sdl to yes.
+AS_IF([test "x$with_sdl" = "x"],
+	[with_sdl=yes],
+	[])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT8_T
@@ -60,7 +64,7 @@ else
 	AC_DEFINE(BK_USE_64_BIT, 0, [Define to 1 if configure had option --enable-64-bit])
 fi
 
-if test "x${sdl_examples}" = xyes; then
+if test "x$with_sdl" = xyes; then
 	AC_CHECK_HEADERS(termios.h)
 fi
 
@@ -79,7 +83,8 @@ AC_CONFIG_FILES([
 # Run tests.
 CHECK_SIGNED_SHIFT()
 
-if test "x${sdl_examples}" = xyes; then
+# Check for SDL.
+if test "x$with_sdl" = xyes; then
 	CHECK_SDL()
 fi
 
