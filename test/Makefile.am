@@ -1,5 +1,5 @@
 AM_CFLAGS = @AM_CFLAGS@ -I$(srcdir)/../src -L$(srcdir)/../src
-BK_LDADD = ../src/libblipkit.a @SDL_CFLAGS@
+BK_LDADD = ../src/libblipkit.a @SDL_CFLAGS@ -lm
 
 check_PROGRAMS = \
 	test_context \
