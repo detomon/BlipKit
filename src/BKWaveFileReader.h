@@ -71,7 +71,7 @@ struct BKWaveFileReader
  *
  * @param reader The reader to initialize.
  * @param file The file to write to.
- * @param 0 on success.
+ * @return 0 on success.
  */
 extern BKInt BKWaveFileReaderInit (BKWaveFileReader * reader, FILE * file);
 
