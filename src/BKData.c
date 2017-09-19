@@ -173,7 +173,7 @@ static void BKDataDisposeObject (BKData * data)
 {
 	BKDataDetach (data);
 
-	if (data -> frames && (data -> object.flags & BK_DATA_FLAG_COPY)) {
+	if (data -> object.flags & BK_DATA_FLAG_COPY) {
 		free (data -> frames);
 	}
 }
@@ -362,8 +362,7 @@ BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, 
 	}
 	else {
 		if (data -> object.flags & BK_DATA_FLAG_COPY) {
-			if (data -> frames)
-				free (data -> frames);
+			free (data -> frames);
 		}
 
 		newFrames = (BKFrame *) frames;
