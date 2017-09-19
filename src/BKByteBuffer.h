@@ -103,7 +103,7 @@ extern BKInt BKByteBufferMakeContinuous (BKByteBuffer * buf);
 /**
  * Copy byte into continuous buffer
  *
- * `outBytes` needs to have space for at least the number of byte retreived
+ * `outBytes` needs to have space for at least the number of byte retrieved
  * with `BKByteBufferSize`
  */
 extern BKUSize BKByteBufferCopy (BKByteBuffer const * buf, void * outBytes);
