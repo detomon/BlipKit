@@ -23,7 +23,8 @@
 
 /**
  * @file
- * Defines a generic resizable array
+ *
+ * A generic resizable array.
  */
 
 #ifndef _BK_ARRAY_H_
@@ -33,67 +34,103 @@
 
 typedef struct BKArray BKArray;
 
+/**
+ * The array struct.
+ */
 struct BKArray
 {
-	void  * items;
-	BKUSize len;
-	BKUSize cap;
-	BKUSize itemSize;
+	void  * items;    ///< The items.
+	BKUSize len;      ///< Number of items.
+	BKUSize cap;      ///< Array capacity
+	BKUSize itemSize; ///< Size if array item.
 };
 
 /**
- * Initialize array struct
+ * Initialize array struct.
  */
 #define BK_ARRAY_INIT(itemSize) (BKArray) {NULL, 0, 0, (itemSize)}
 
 /**
- * Free allocated space
+ * Free allocated space.
+ *
+ * @param arr The array to dispose.
  */
 extern void BKArrayDispose (BKArray * arr);
 
 /**
- * Reserve space for `size` items
+ * Reserve space for items.
+ *
+ * @param arr The array to reserve capacity for.
+ * @param size The additional number of items to reserve space for.
+ * @return 0 on success.
  */
 extern BKInt BKArrayReserve (BKArray * arr, BKUSize size);
 
 /**
- * Reserve and empty slots
+ * Resize the array to given size and empty appended items.
+ * If the given size is less than the current array length, nothing is done.
+ *
+ * @param arr The array to resize.
+ * @param size to new array size.
+ * @return 0 on success.
  */
 extern BKInt BKArrayResize (BKArray * arr, BKUSize size);
 
 /**
  * Append empty item and return its pointer
+ *
+ * @param arr The array to append an item to.
+ * @return A pointer to the new item or NULL on error.
  */
 BK_INLINE void * BKArrayPush (BKArray * arr);
 
 /**
- * Remove last item
+ * Remove last item.
+ *
+ * @param arr The array to remove the last item from.
  */
 BK_INLINE void BKArrayPop (BKArray * arr);
 
 /**
- * Get pointer to last item
+ * Get a pointer to last item.
+ *
+ * @param arr The array to get the last item from.
+ * @return A pointer to the last item or NULL if the array is empty.
  */
 BK_INLINE void * BKArrayLast (BKArray const * arr);
 
 /**
- * Append `count` `items`. The item size has to match that one given at
- * initialization.
+ * Append items. The item size has to match the one given at initialization.
+ *
+ * @param arr The array to append the items to.
+ * @param items The items to append.
+ * @param count The number of items to append.
+ * @return 0 on success.
  */
 extern BKInt BKArrayAppendItems (BKArray * arr, void const * items, size_t count);
 
 /**
- * Append items from `other` array
+ * Append items from other array.
+ *
+ * @param arr The array to append the items to.
+ * @param other An array to append the items from.
+ * @return 0 on success.
  */
 extern BKInt BKArrayAppendArray (BKArray * arr, BKArray const * other);
 
 /**
- * Get item at specified `index`. If `index` is out of bounds, `NULL` is returned.
+ * Get item at specified index.
+ *
+ * @param arr The array to get the item from.
+ * @param index The index to get the item at.
+ * @return A pointer to the item. If the index is out of bounds NULL is returned.
  */
 BK_INLINE void * BKArrayItemAt (BKArray const * arr, size_t index);
 
 /**
- * Empty array but keep allocated space
+ * Empty array but keep allocated space.
+ *
+ * @param arr The array to empty.
  */
 BK_INLINE void BKArrayEmpty (BKArray * arr);
 

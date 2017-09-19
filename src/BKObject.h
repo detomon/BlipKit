@@ -27,13 +27,13 @@
 #include "BKBase.h"
 
 /**
- * Object types
+ * Object types.
  */
 typedef struct BKClass  BKClass;
 typedef struct BKObject BKObject;
 
 /**
- * Instance functions
+ * Instance functions.
  */
 typedef BKInt (* BKSetAttrFunc) (void * object, BKEnum attr, BKInt value);
 typedef BKInt (* BKGetAttrFunc) (void const * object, BKEnum attr, BKInt * outValue);
@@ -42,121 +42,121 @@ typedef BKInt (* BKGetPtrFunc)  (void const * object, BKEnum attr, void * outPtr
 typedef BKInt (* BKDisposeFunc) (void * object);
 
 /**
- * Object flags
+ * Object flags.
  */
 enum BKObjectFlag
 {
-	BKObjectFlagInitialized = 1 << 24,
-	BKObjectFlagAllocated   = 1 << 25,
-	BKObjectFlagLocked      = 1 << 26, // used to prevent recursion
-	BKObjectFlagMask        = ~((1 << 24) - 1),
-	BKObjectFlagUsableMask  = (1 << 24) - 1,
+	BKObjectFlagInitialized = 1 << 24,          ///< Set if object was initialized.
+	BKObjectFlagAllocated   = 1 << 25,          ///< Set if object was allocated.
+	BKObjectFlagLocked      = 1 << 26,          ///< Used to prevent recursion.
+	BKObjectFlagMask        = ~((1 << 24) - 1), ///< Mask matching object flags
+	BKObjectFlagUsableMask  = (1 << 24) - 1,    ///< Mask matching private usable flags.
 };
 
 /**
- * Class
+ * The class.
  */
 struct BKClass
 {
-	BKUInt        flags;
-	BKSize        instanceSize;
-	BKDisposeFunc dispose;
-	BKSetAttrFunc setAttr;
-	BKGetAttrFunc getAttr;
-	BKSetPtrFunc  setPtr;
-	BKGetPtrFunc  getPtr;
+	BKUInt        flags;        ///< Class flags.
+	BKSize        instanceSize; ///< Size of object instance.
+	BKDisposeFunc dispose;      ///< Dispose function.
+	BKSetAttrFunc setAttr;      ///< Set attribute function.
+	BKGetAttrFunc getAttr;      ///< Get attribute function.
+	BKSetPtrFunc  setPtr;       ///< Set pointer function.
+	BKGetPtrFunc  getPtr;       ///< Get pointer function.
 };
 
 /**
- * Abstract object
+ * The object.
  */
 struct BKObject
 {
-	BKUInt flags;
-	BKClass const * isa;
+	BKUInt flags;        ///< The object flags.
+	BKClass const * isa; ///< The object class.
 };
 
 /**
- * Initialize object
+ * Initialize object with given class. @p guardSize is checked against the class'
+ * instance size to prevent overflow.
  *
- * Empty given struct and set class `isa`
- * `guardSize` is checked against the class' instance size to prevent overflow
- * Returns 0 on success
- *
- * Return errors:
- * BK_ALLOCATION_ERROR if `guardSize` differs from instance size given by class
+ * @param object The object to initialize.
+ * @param isa The object class.
+ * @param guardSize Has to match the instance size given in @p isa.
+ * @return 0 on success.
  */
 extern BKInt BKObjectInit (void * object, BKClass const * isa, BKSize guardSize);
 
 /**
- * Allocate object
+ * Allocate and a new object with class. Optionally @p extraSize bytes are
+ * reserved after object. The extra bytes are not emptied.
  *
- * Allocate and a new object with class `isa`
- * Optionally `extraSize` bytes are reserved after object.
- * The extra byte are not emptied.
- * Returns 0 on success
- *
- * Return errors:
- * BK_ALLOCATION_ERROR if allocation failed
+ * @param outObject A reference to an object pointer.
+ * @param isa The object class.
+ * @param extraSize The additional number of bytes to reserve after the object.
+ * @return 0 on success.
+ *   BK_ALLOCATION_ERROR if @p guardSize differs from instance size given by class.
  */
 extern BKInt BKObjectAlloc (void ** outObject, BKClass const * isa, BKSize extraSize);
 
 /**
- * Set attribute
+ * Set an integer attribute.
  *
- * Set a single integer attribute
- * Returns 0 on success
- *
- * Return errors:
- * BK_INVALID_ATTRIBUTE if attribute is unknown by object
- * BK_INVALID_VALUE if attribute value is invalid
- * BK_INVALID_STATE if object does not support setting attributes or is NULL
+ * @param object The object to set the attribute to.
+ * @param attr The attribute to set.
+ * @param value The attribute value to set.
+ * @return 0 on success.
+ *   BK_INVALID_ATTRIBUTE if attribute is unknown by object.
+ *   BK_INVALID_VALUE if attribute value is invalid.
+ *   BK_INVALID_STATE if object does not support setting attributes or is NULL.
  */
 extern BKInt BKSetAttr (void * object, BKEnum attr, BKInt value);
 
 /**
- * Get attribute
+ * Get an integer attribute.
  *
- * Get a single integer attribute
- * Returns 0 on success
- *
- * Return errors:
- * BK_INVALID_ATTRIBUTE if attribute is unknown by object
- * BK_INVALID_STATE if object does not support getting attributesor or is NULL
+ * @param object The object to get the attribute from.
+ * @param attr The attribute to get.
+ * @param outValue A reference to be set to the attribute value.
+ * @return 0 on success.
+ *   BK_INVALID_ATTRIBUTE if attribute is unknown by object.
+ *   BK_INVALID_STATE if object does not support setting attributes or is NULL.
  */
 extern BKInt BKGetAttr (void const * object, BKEnum attr, BKInt * outValue);
 
 /**
- * Set pointer
+ * Set a pointer attribute.
  *
- * Set a pointer attribute with size `size`
- * Returns 0 on success
- *
- * Return errors:
- * BK_INVALID_ATTRIBUTE if attribute is unknown by object
- * BK_INVALID_VALUE if attribute value is invalid
- * BK_INVALID_STATE if object does not support setting pointers or is NULL
+ * @param object The object to set the attribute to.
+ * @param attr The attribute to set.
+ * @param ptr The attribute value.
+ * @param The size of the attribute in bytes.
+ * @return 0 on success.
+ *   BK_INVALID_ATTRIBUTE if attribute is unknown by object
+ *   BK_INVALID_VALUE if attribute value is invalid
+ *   BK_INVALID_STATE if object does not support setting pointers or is NULL
  */
 extern BKInt BKSetPtr (void * object, BKEnum attr, void * ptr, BKSize size);
 
 /**
- * Get pointer
+ * Get a pointer attribute.
  *
- * Get a pointer attribute with size `size`
- * Returns 0 on success
- *
- * Return errors:
- * BK_INVALID_ATTRIBUTE if attribute is unknown by object
- * BK_INVALID_STATE if object does not support getting pointers or is NULL
+ * @param object The object to get the attribute from.
+ * @param attr The attribute to get.
+ * @param outPtr A reference in which the value will be copied into.
+ * @param size The size of the referenced value.
+ * @return 0 on success.
+ *   BK_INVALID_ATTRIBUTE if attribute is unknown by object
+ *   BK_INVALID_STATE if object does not support getting pointers or is NULL
  */
 extern BKInt BKGetPtr (void const * object, BKEnum attr, void * outPtr, BKSize size);
 
 /**
- * Dispose object
+ * Dispose object. Calls the class' dispose function. If the object was
+ * initialized with BKObjectInit, the object is emptied If the object was
+ * allocated with BKObjectAlloc, the object is freed.
  *
- * Calls the class' dispose function
- * If the object was initialized with `BKObjectInit`, the object is emptied
- * If the object was allocated with `BKObjectAlloc`, the object freed
+ * @param object The object to dispose.
  */
 extern void BKDispose (void * object);
 
