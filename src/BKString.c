@@ -267,7 +267,7 @@ BKInt BKStringAppendPathSegment (BKString * str, BKString const * segment)
 	return BKStringAppendString (str, segment);
 }
 
-BKString * BKStringEscape (BKString * buffer, char const * str)
+BKInt BKStringEscape (BKString * buffer, char const * str)
 {
 	BKUSize len = strlen ((char *) str);
 
@@ -291,7 +291,7 @@ BKString * BKStringEscape (BKString * buffer, char const * str)
 		}
 	}
 
-	return buffer;
+	return 0;
 }
 
 char * BKStrdup (char const * str)

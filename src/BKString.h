@@ -126,14 +126,22 @@ extern BKInt BKStringDirname (BKString const * str, BKString * dirname);
 extern BKInt BKStringAppendPathSegment (BKString * str, BKString const * segment);
 
 /**
- * Escape and write string `str` into `buffer` to be safely printable to console
+ * Escape and write string into given buffer to be safely printable to console.
+ *
+ * @param buffer The buffer to write th escpaed string to.
+ * @param str The string to escape.
+ * @return 0 on success
  */
-extern BKString * BKStringEscape (BKString * buffer, char const * str);
+extern BKInt BKStringEscape (BKString * buffer, char const * str);
 
 /**
- * Escape and write string `str` into `buffer` to be safely printable to console
+ * Escape and write string into given buffer to be safely printable to console.
+ *
+ * @param buffer The buffer to write th escpaed string to.
+ * @param str The string to escape.
+ * @return 0 on success
  */
-BK_INLINE BKString * BKStringEscapeString (BKString * buffer, BKString const * str);
+BK_INLINE BKInt BKStringEscapeString (BKString * buffer, BKString const * str);
 
 /**
  * Empty string and keep capacity
@@ -161,7 +169,7 @@ BK_INLINE BKInt BKStringAppendChar (BKString * str, uint8_t c)
 	return 0;
 }
 
-BK_INLINE BKString * BKStringEscapeString (BKString * buffer, BKString const * str)
+BK_INLINE BKInt BKStringEscapeString (BKString * buffer, BKString const * str)
 {
 	return BKStringEscape (buffer, (char *) str -> str);
 }
