@@ -1,3 +1,10 @@
+Changes in BlipKit 0.16:
+  Release date: 2017-09-21
+
+* Add missing stdarg.h in BKString.h
+* Use --with-sdl option instead if --enable-examples
+* Change return type of BKStringEscape to BKInt
+
 Changes in BlipKit 0.15.4:
   Release date: 2017-03-07
 
