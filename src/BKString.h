@@ -30,6 +30,7 @@
 #ifndef _BK_STRING_H_
 #define _BK_STRING_H_
 
+#include <stdarg.h>
 #include "BKBase.h"
 
 typedef struct BKString BKString;

@@ -1,5 +1,4 @@
 #include <string.h>
-#include <stdarg.h>
 #include "BKString.h"
 
 static uint8_t const escapeChars [256] =
