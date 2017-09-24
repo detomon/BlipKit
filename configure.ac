@@ -33,7 +33,7 @@ AM_CFLAGS="$AM_CFLAGS -Wall \
 CHECK_COMPILE_FLAG([-std=c11], [AM_CFLAGS])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h stdarg.h stddef.h stdint.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h math.h stdarg.h stddef.h stdint.h stdlib.h string.h unistd.h])
 
 AC_ARG_ENABLE([64-bit],
 	[  --disable-64-bit        use only 32 bit integers],
