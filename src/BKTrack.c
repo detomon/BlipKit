@@ -194,16 +194,11 @@ static void BKTrackUpdateUnit (BKTrack * track)
 
 static void BKTrackUpdateIgnoreVolume (BKTrack * track)
 {
-	track -> flags |= BKTrackAttrUpdateFlagVolume;
+	BKInt ignoreVolume = track -> waveform == BK_TRIANGLE
+		&& (track -> flags & BKTriangleIgnoresVolumeFlag);
 
-	if (track -> waveform == BK_TRIANGLE) {
-		if (track -> flags & BKTriangleIgnoresVolumeFlag) {
-			track -> flags |= BKIgnoreVolumeFlag;
-		}
-	}
-	else {
-		track -> flags &= ~BKIgnoreVolumeFlag;
-	}
+	BKBitSet (track -> flags, BKTrackAttrUpdateFlagVolume);
+	BKBitSetCond (track -> flags, BKIgnoreVolumeFlag, ignoreVolume != 0);
 }
 
 static void BKTrackArpeggioSetNotes (BKTrack * track, BKInt * arpeggio, BKInt count)
