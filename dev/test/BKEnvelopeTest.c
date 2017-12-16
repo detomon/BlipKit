@@ -210,7 +210,7 @@ int main (int argc, char * argv [])
 	//BKInstrumentSetSequence (& instrument, BK_SEQUENCE_VOLUME, volumeSequence, NUM_SEQUENCE_PHASES, 8, 1);
 	
 	BKInstrumentSetEnvelopADSR (& instrument, 20, 20, 0.75 * BK_MAX_VOLUME, 200);
-	BKInstrumentSetEnvelop (& instrument, BK_SEQUENCE_ARPEGGIO, arpeggio, 5, 0, 4);
+	BKInstrumentSetEnvelop (& instrument, BK_SEQUENCE_PITCH, arpeggio, 5, 0, 4);
 	BKInstrumentSetEnvelop (& instrument, BK_SEQUENCE_DUTY_CYCLE, dutyCycle, 2, 0, 1);
 	BKInstrumentSetEnvelop (& instrument, BK_SEQUENCE_PANNING, panning, 3, 0, 2);
 

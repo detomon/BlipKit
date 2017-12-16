@@ -84,7 +84,7 @@ int main (int argc, char * argv [])
 	BKInt panning [4] = {0, BK_MAX_VOLUME * 0.5, 0, -BK_MAX_VOLUME * 0.5};
 
 	BKInstrumentSetSequence (&instr, BK_SEQUENCE_DUTY_CYCLE, dutyCycle, 9, 0, 9);
-	BKInstrumentSetSequence (&instr, BK_SEQUENCE_ARPEGGIO, arpeggio, 4, 0, 4);
+	BKInstrumentSetSequence (&instr, BK_SEQUENCE_PITCH, arpeggio, 4, 0, 4);
 	BKInstrumentSetSequence (&instr, BK_SEQUENCE_PANNING, panning, 4, 0, 4);
 
 	// attach to context

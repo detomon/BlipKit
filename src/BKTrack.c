@@ -146,7 +146,7 @@ static void BKTrackUpdateUnitNote (BKTrack * track)
 		note += BKIntervalStateGetValue (& track -> vibrato);
 
 	if (track -> flags & BKInstrumentFlag)
-		note += track -> instrState.states[BK_SEQUENCE_ARPEGGIO].value;
+		note += track -> instrState.states[BK_SEQUENCE_PITCH].value;
 
 	note += track -> pitch;
 
@@ -251,7 +251,7 @@ static void BKTrackInstrumentUpdateFlags (BKTrack * track, BKInt all)
 			track -> flags |= BKTrackAttrUpdateFlagVolume;
 		}
 
-		if (states [BK_SEQUENCE_ARPEGGIO].sequence) {
+		if (states [BK_SEQUENCE_PITCH].sequence) {
 			track -> flags |= BKTrackAttrUpdateFlagNote;
 		}
 

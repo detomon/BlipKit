@@ -32,7 +32,7 @@ BKInt const sequenceDefaultValue [BK_MAX_SEQUENCES] =
 {
 	[BK_SEQUENCE_VOLUME]     = BK_MAX_VOLUME,
 	[BK_SEQUENCE_PANNING]    = 0,
-	[BK_SEQUENCE_ARPEGGIO]   = 0,
+	[BK_SEQUENCE_PITCH]      = 0,
 	[BK_SEQUENCE_DUTY_CYCLE] = 0,
 };
 

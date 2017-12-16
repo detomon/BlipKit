@@ -35,12 +35,11 @@ typedef BKInt (* BKInstrumentStateCallback) (BKEnum event, void * userInfo);
 
 enum
 {
-	BK_SEQUENCE_VOLUME,
-	BK_SEQUENCE_PANNING,
-	BK_SEQUENCE_PITCH,
-	BK_SEQUENCE_DUTY_CYCLE,
-	BK_MAX_SEQUENCES,
-	BK_SEQUENCE_ARPEGGIO = BK_SEQUENCE_PITCH, // deprecated
+	BK_SEQUENCE_VOLUME,     ///< The volume sequence.
+	BK_SEQUENCE_PANNING,    ///< The panning sequence.
+	BK_SEQUENCE_PITCH,      ///< The pitch sequence.
+	BK_SEQUENCE_DUTY_CYCLE, ///< The duty cycle sequence.
+	BK_MAX_SEQUENCES,       ///< Used internally.
 };
 
 enum
