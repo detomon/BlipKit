@@ -45,7 +45,7 @@ typedef struct BKUnitFuncs BKUnitFuncs;
  */
 
 typedef BKInt (* BKUnitRunFunc)   (void * unit, BKFUInt20 endTime);
-typedef BKInt (* BKUnitEndFunc)   (void * unit, BKFUInt20 time);
+typedef void (* BKUnitEndFunc)    (void * unit, BKFUInt20 time);
 typedef void  (* BKUnitResetFunc) (void * unit);
 
 struct BKUnit
