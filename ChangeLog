@@ -1,3 +1,9 @@
+Changes in BlipKit 0.16.1:
+  Release date: 2017-12-30
+
+* Fix BK_TRIANGLE_IGNORES_VOLUME flag
+* Fix function signature of BKUnitEndFunc
+
 Changes in BlipKit 0.16:
   Release date: 2017-09-21
 
