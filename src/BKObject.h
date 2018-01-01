@@ -39,7 +39,7 @@ typedef BKInt (* BKSetAttrFunc) (void * object, BKEnum attr, BKInt value);
 typedef BKInt (* BKGetAttrFunc) (void const * object, BKEnum attr, BKInt * outValue);
 typedef BKInt (* BKSetPtrFunc)  (void * object, BKEnum attr, void * ptr, BKSize size);
 typedef BKInt (* BKGetPtrFunc)  (void const * object, BKEnum attr, void * outPtr, BKSize size);
-typedef BKInt (* BKDisposeFunc) (void * object);
+typedef void  (* BKDisposeFunc) (void * object);
 
 /**
  * Object flags.
