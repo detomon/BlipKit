@@ -237,9 +237,15 @@ BKInt BKHashTableRemove (BKHashTable * table, char const * key)
 
 void BKHashTableEmpty (BKHashTable * table)
 {
-	for (BKUSize i = 0; i < BKHashTableSizes [table -> capIdx]; i ++) {
-		table -> buckets [i].key = NULL;
+	if (table -> occupied) {
+		for (BKUSize i = 0; i < BKHashTableSizes [table -> capIdx]; i ++) {
+			struct BKHashTableBucket* bucket = & table -> buckets [i];
+
+			bucket -> key = NULL;
+			bucket -> item = NULL;
+		}
 	}
 
 	table -> size = 0;
+	table -> occupied = 0;
 }
