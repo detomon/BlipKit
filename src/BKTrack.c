@@ -1034,7 +1034,7 @@ static BKInt BKTrackSetPtrObj (BKTrack * track, BKEnum attr, void * ptr, BKSize 
 					BKInt * arpeggio = ptr;
 					BKUInt  count    = 0;
 
-					if (arpeggio)
+					if (arpeggio && size)
 						count = BKMin (arpeggio [0], BK_MAX_ARPEGGIO);
 
 					BKTrackArpeggioSetNotes (track, & arpeggio [1], count);
