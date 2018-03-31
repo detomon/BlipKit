@@ -205,9 +205,11 @@ static void BKTrackArpeggioSetNotes (BKTrack * track, BKInt * arpeggio, BKInt co
 {
 	BKArpeggioState * state = & track -> arpeggio;
 
-	state -> count  = count;
-	state -> delta  = 0;
-	state -> offset = 0;
+	state -> count = count;
+
+	if (state -> offset >= state -> count) {
+		state -> offset = 0;
+	}
 
 	memcpy (state -> notes, arpeggio, count * sizeof (BKInt));
 	BKBitSetCond (track -> flags, BKArpeggioFlag, count > 0);
