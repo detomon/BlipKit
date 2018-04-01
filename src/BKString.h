@@ -225,7 +225,7 @@ BK_INLINE void BKStringEmpty (BKString * str);
 /**
  * Duplicate NUL-terminated string.
  *
- * @param The NUL-terminated string top copy.
+ * @param str The NUL-terminated string to copy.
  * @return A copy of the given string which can be released with `free`.
  */
 extern char * BKStrdup (char const * str);
