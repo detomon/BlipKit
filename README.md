@@ -12,7 +12,9 @@ BlipKit is a C library for creating the beautiful sound of old sound chips.
 - Use effects: portamento, tremolo, vibrato and some more
 - Load multi-channel samples and play them at different pitches
 
-Manual: <http://blipkit.audio>
+📖 Manual: <http://blipkit.audio>
+
+🎹 Also consider to check out the [bliplay](https://github.com/detomon/bliplay) project
 
 Basic Example
 -------------
