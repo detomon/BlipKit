@@ -1,3 +1,11 @@
+Changes in BlipKit 0.16.2:
+  Release date: 2018-04-01
+
+* Fix BKHashTableEmpty
+* Fix BKDisposeFunc
+* Fix handling of BK_ARPEGGIO attribute pointer
+* Only reset arpeggio sequence offset if necessary
+
 Changes in BlipKit 0.16.1:
   Release date: 2017-12-30
 
