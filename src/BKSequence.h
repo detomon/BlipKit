@@ -32,78 +32,60 @@ typedef struct BKSequenceFuncs BKSequenceFuncs;
 typedef struct BKSequencePhase BKSequencePhase;
 
 /**
- * Sequence phases
+ * Sequence phases.
  */
 enum
 {
-	// sequence state is muted (default)
-	BK_SEQUENCE_PHASE_MUTE,
-
-	// sequence state is in attack phase
-	BK_SEQUENCE_PHASE_ATTACK,
-
-	// sequence state is in release phase
-	BK_SEQUENCE_PHASE_RELEASE,
+	BK_SEQUENCE_PHASE_MUTE,    ///< Aequence state is muted (default).
+	BK_SEQUENCE_PHASE_ATTACK,  ///< Sequence state is in attack phase.
+	BK_SEQUENCE_PHASE_RELEASE, ///< Sequence state is in release phase.
 };
 
 /**
- * Step return values
+ * Step return values.
  */
 enum
 {
-	// no step
-	BK_SEQUENCE_RETURN_NONE = 0,
-
-	// normal step
-	BK_SEQUENCE_RETURN_STEP = 1 << 0,
-
-	// sustain sequence was restarted
-	BK_SEQUENCE_RETURN_REPEAT = 1 << 1,
-
-	// sequence has finished
-	BK_SEQUENCE_RETURN_FINISH = 1 << 2,
-
-	// mask for active sequence
+	BK_SEQUENCE_RETURN_NONE = 0,        ///< No step.
+	BK_SEQUENCE_RETURN_STEP = 1 << 0,   ///< Normal step.
+	BK_SEQUENCE_RETURN_REPEAT = 1 << 1, ///< Sustain sequence was restarted.
+	BK_SEQUENCE_RETURN_FINISH = 1 << 2, ///< Sequence has finished.
+	/** Mask for active sequence */
 	BK_SEQUENCE_RETURN_ACTIVE_MASK = BK_SEQUENCE_RETURN_STEP | BK_SEQUENCE_RETURN_REPEAT,
 };
 
 /**
- * Step levels
+ * Step levels.
  */
 enum
 {
-	// envelope step
-	BK_SEQUENCE_STEP_MAX,
-
-	// sequence step
-	BK_SEQUENCE_STEP_DIVIDED,
+	BK_SEQUENCE_STEP_MAX,     ///< Envelope step.
+	BK_SEQUENCE_STEP_DIVIDED, ///< Sequence step.
 };
 
 /**
- * Defines function prototypes of sequence types
+ * Defines function prototypes of sequence types.
  */
 struct BKSequenceFuncs
 {
-	// create a sequence or envelope
+	/** Create a sequence or envelope. */
 	BKInt (* create) (BKSequence ** outSequence, BKSequenceFuncs const * funcs, void const * values, BKUInt length, BKUInt sustainOffset, BKUInt sustainLength);
 
-	// advance state by one step
-	// `level` indicates the step level
+	/** Advance state by one step. `level` indicates the step level. */
 	BKEnum (* step) (BKSequenceState * state, BKEnum level);
 
-	// set current value of sequence
-	// e.g. before attacking duty cycle envelope to slide from current value
+	/** Set current value of sequence, e.g. before attacking duty cycle envelope to slide from current value. */
 	BKInt (* setValue) (BKSequenceState * state, BKInt value);
 
-	// set phase of sequence state
+	/** Set phase of sequence state. */
 	BKInt (* setPhase) (BKSequenceState * state, BKEnum phase);
 
-	// copy sequence
+	/** Copy sequence. */
 	BKInt (* copy) (BKSequence ** outCopy, BKSequence const * sequence);
 };
 
 /**
- * Defines phase used in envelope sequence
+ * Defines phase used in envelope sequence.
  */
 struct BKSequencePhase
 {
@@ -112,8 +94,7 @@ struct BKSequencePhase
 };
 
 /**
- * Defines a sequence
- * This can be a simple array of values or an envelope
+ * Defines a sequence. This can be a simple array of values or an envelope.
  */
 struct BKSequence
 {
@@ -129,7 +110,7 @@ struct BKSequence
 };
 
 /**
- * Holds the state of a sequence
+ * Holds the state of a sequence.
  */
 struct BKSequenceState
 {
@@ -152,37 +133,74 @@ extern BKSequenceFuncs const BKSequenceFuncsSimple;
 extern BKSequenceFuncs const BKSequenceFuncsEnvelope;
 
 /**
- * Create a sequence or envelope
+ * Create a sequence or envelope.
+ *
+ * @param outSequence A pointer to a sequence pointer.
+ * @param funcs The sequence or envelope functions.
+ * @param values The sequence values.
+ * @param length The number of sequence values.
+ * @param sustainOffset The beginning of the sustain range.
+ * @param sustainLength The length of the susutain range.
+ * @retval BK_SUCCESS
+ * @retval BK_ALLOCATION_ERROR
  */
 extern BKInt BKSequenceCreate (BKSequence ** outSequence, BKSequenceFuncs const * funcs, void const * values, BKUInt length, BKUInt sustainOffset, BKUInt sustainLength);
 
 /**
- * Create copy of sequence
+ * Create a copy of a sequence.
+ *
+ * @param outSequence A pointer to a sequence pointer.
+ * @param sequence The sequence to copy.
+ * @retval BK_SUCCESS
+ * @retval BK_ALLOCATION_ERROR
  */
 extern BKInt BKSequenceCopy (BKSequence ** outSequence, BKSequence * sequence);
 
 /**
- * Dispose sequence
+ * Dispose sequence.
+ *
+ * @param sequence The sequence to dispose.
  */
 extern void BKSequenceDispose (BKSequence * sequence);
 
 /**
- * Set new sequence
+ * Set new sequence.
+ *
+ * @param state The state to set the sequence to.
+ * @param sequence The sequence to set.
+ * @retval BK_SUCCESS
  */
 extern BKInt BKSequenceStateSetSequence (BKSequenceState * state, BKSequence * sequence);
 
 /**
- * Set phase
+ * Set state phase.
+ *
+ * @param state The state to set the phase.
+ * @param phase The phase to set.
+ * @retval BK_SEQUENCE_RETURN_NONE
+ * @retval BK_INVALID_ATTRIBUTE
+ * @retval BK_SEQUENCE_RETURN_FINISH
  */
 extern BKInt BKSequenceStateSetPhase (BKSequenceState * state, BKEnum phase);
 
 /**
- * Call step function
+ * Call step function.
+ *
+ * @param state The state to advance.
+ * @param level 0 for ticks; 1 for instrument steps.
+ * @retval BK_SEQUENCE_RETURN_NONE
+ * @retval BK_SEQUENCE_RETURN_STEP
+ * @retval BK_SEQUENCE_RETURN_REPEAT
+ * @retval BK_SEQUENCE_RETURN_FINISH
  */
 extern BKInt BKSequenceStateStep (BKSequenceState * state, BKEnum level);
 
 /**
- * Call setValue function
+ * Call setValue function.
+ *
+ * @param state The state.
+ * @param value The value to set.
+ * @retval BK_SUCCESS
  */
 extern BKInt BKSequenceStateSetValue (BKSequenceState * state, BKInt value);
 

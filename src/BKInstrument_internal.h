@@ -27,27 +27,45 @@
 #include "BKInstrument.h"
 
 /**
- * Initialize instrument state
+ * Initialize instrument state.
+ *
+ * @param state The instrument to initialize.
+ * @retval BK_SUCCESS
  */
 extern BKInt BKInstrumentStateInit (BKInstrumentState * state);
 
 /**
- * Set instrument
+ * Set instrument to state.
+ *
+ * @param state The state to set the instrument to.
+ * @param instr The instrument to set.
+ * @retval BK_SUCCESS
  */
 extern BKInt BKInstrumentStateSetInstrument (BKInstrumentState * state, BKInstrument * instr);
 
 /**
- * Get sequence value at offset
+ * Get sequence value at offset.
+ *
+ * @param state The state to get the value from.
+ * @param slot The sequence type.
+ * @param offset The sequence offset.
+ * @return The value at the given sequence offset.
  */
 extern BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState const * state, BKEnum slot, BKInt offset);
 
 /**
- * Advance state
+ * Advance state to the next sequence values.
+ *
+ * @param state The state to advance.
+ * @param level 0 for ticks; 1 for instrument steps.
  */
 extern void BKInstrumentStateTick (BKInstrumentState * state, BKInt level);
 
 /**
- * Set sequence phase
+ * Set sequence phase.
+ *
+ * @param state The state to set the sequence phase.
+ * @param phase BK_SEQUENCE_PHASE_ATTACK, BK_SEQUENCE_PHASE_RELEASE or BK_SEQUENCE_PHASE_MUTE
  */
 void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase);
 

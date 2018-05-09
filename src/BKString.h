@@ -55,6 +55,8 @@ struct BKString
  *
  * @param str The string to initialize.
  * @param chars A NUL-terminated string.
+ * @retval BK_SUCCESS
+ * @retval BK_ALLOCATION_ERROR
  */
 extern BKInt BKStringInit (BKString * str, char const * chars);
 
