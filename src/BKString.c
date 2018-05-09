@@ -48,7 +48,7 @@ BKInt BKStringReserve (BKString * str, BKUSize size)
 		chars = realloc (str -> str, cap);
 
 		if (!chars) {
-			return -1;
+			return BK_ALLOCATION_ERROR;
 		}
 
 		str -> str = chars;
@@ -68,7 +68,7 @@ BKInt BKStringAppendLen (BKString * str, char const * chars, BKUSize len)
 {
 	if (str -> len + len >= str -> cap) {
 		if (BKStringReserve (str, len) != 0) {
-			return -1;
+			return BK_ALLOCATION_ERROR;
 		}
 	}
 
@@ -258,7 +258,7 @@ BKInt BKStringAppendPathSegment (BKString * str, BKString const * segment)
 	if (str -> len) {
 		if (str -> str [str -> len - 1] != '/') {
 			if (BKStringAppendChar (str, '/') != 0) {
-				return -1;
+				return BK_ALLOCATION_ERROR;
 			}
 		}
 	}
