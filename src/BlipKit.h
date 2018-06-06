@@ -28,22 +28,15 @@
 extern "C" {
 #endif
 
-#include "BKArray.h"
 #include "BKBase.h"
-#include "BKBlockPool.h"
 #include "BKBuffer.h"
-#include "BKByteBuffer.h"
 #include "BKClock.h"
-#include "BKComplex.h"
 #include "BKContext.h"
 #include "BKData.h"
-#include "BKFFT.h"
-#include "BKHashTable.h"
 #include "BKInstrument.h"
 #include "BKInterpolation.h"
 #include "BKObject.h"
 #include "BKSequence.h"
-#include "BKString.h"
 #include "BKTime.h"
 #include "BKTone.h"
 #include "BKTrack.h"
