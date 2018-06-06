@@ -9,7 +9,7 @@ AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
-m4_include([common.m4])
+m4_include([m4/common.m4])
 
 # Checks for programs.
 AC_PROG_CC
