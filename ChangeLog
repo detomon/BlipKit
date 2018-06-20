@@ -1,3 +1,9 @@
+Changes in BlipKit 0.17.0:
+  Release date: 2018-05-20
+
+* Remove utility objects
+* Add basic CMake support
+
 Changes in BlipKit 0.16.2:
   Release date: 2018-04-01
 
