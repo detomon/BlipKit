@@ -35,7 +35,7 @@ struct BKExUnitTest
 
 	BKUnit * prevUnit;
 	BKUnit * nextUnit;
-	
+
 	BKFUInt20 time;
 };
 

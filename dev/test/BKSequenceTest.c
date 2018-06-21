@@ -1,3 +1,7 @@
+#if 0
+clang -Wall -O2 -I ../../src/ -o /tmp/`basename $0` $0 -lblipkit -lSDL2 && /tmp/`basename $0` $@; exit
+#endif
+
 /**
  * Copyright (c) 2012-2015 Simon Schoenenberger
  * http://blipkit.audio
@@ -32,14 +36,14 @@ int main (int argc, char const * argv [])
 	BKInt decay = 10;
 	BKInt sustain = max * 0.5;
 	BKInt release = 10;
-	
+
 	BKSequencePhase const phases [4] = {
 		{attack, max},
 		{decay, sustain},
 		{1, sustain},
 		{release, 0},
 	};*/
-	
+
 	BKSequencePhase const phases [4] = {
 		{5, 0},
 		{10, -100},
@@ -47,33 +51,33 @@ int main (int argc, char const * argv [])
 		{5, 0},
 	};
 
-	
+
 	BKInt values [] = {
 		24, 32, 64, 48, 32, 24, 16, 8,
 	};
 
 	BKSequence * sequence;
 	BKSequenceState state;
-	
+
 	BKSequenceCreate (& sequence, & BKSequenceFuncsEnvelope, phases, 4, 1, 2);
-	
+
 	memset (& state, 0, sizeof (state));
 
 	BKSequenceStateSetSequence (& state, sequence);
 
 	BKSequenceStateSetPhase (& state, BK_SEQUENCE_PHASE_ATTACK);
-	
+
 	for (BKInt i = 0; ; i ++) {
 		printf ("%d\n", state.value);
-		
+
 		if (BKSequenceStateStep (& state, 1) == BK_SEQUENCE_RETURN_FINISH)
 			break;
-		
+
 		if (i == 30)
 			BKSequenceStateSetPhase (& state, BK_SEQUENCE_PHASE_RELEASE);
 	}
-	
+
 	BKSequenceDispose (sequence);
-	
+
 	return 0;
 }

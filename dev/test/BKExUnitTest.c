@@ -37,7 +37,7 @@ static BKUnitFuncs const exUnitTestFuncs =
 static BKInt BKExUnitTestRun (BKExUnitTest * unit, BKFUInt20 endTime)
 {
 	BKFUInt20 time;
-	
+
 	for (time = unit -> time; time < endTime; time += BK_FINT20_UNIT) {
 		//BKBufferUpdateSample (& unit -> ctx -> channels [0], time, BK_MAX_VOLUME * 0.04);
 		//BKBufferUpdateSample (& unit -> ctx -> channels [1], time, BK_MAX_VOLUME * -0.04);
@@ -61,8 +61,8 @@ static void BKExUnitTestReset (BKExUnitTest * unit)
 BKInt BKExUnitTestInit (BKExUnitTest * unit)
 {
 	memset (unit, 0, sizeof (BKExUnitTest));
-	
+
 	unit -> funcs = (BKUnitFuncs *) & exUnitTestFuncs;
-	
+
 	return 0;
 }
