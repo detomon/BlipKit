@@ -32,7 +32,10 @@ BKContext     ctx;
 BKTrack       organ;
 BKData        organWaveform;
 BKInstrument  instrument;
-BKSDLUserData userData;
+BKSDLUserData userData = {
+	.numChannels = 2,
+	.sampleRate  = 44100,
+};
 BKDivider     divider;
 BKInt         i = 0;
 
@@ -93,10 +96,7 @@ static BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 
 int main (int argc, char * argv [])
 {
-	BKInt const numChannels = 2;
-	BKInt const sampleRate  = 44100;
-
-	BKContextInit (& ctx, numChannels, sampleRate);
+	BKContextInit (& ctx, userData.numChannels, userData.sampleRate);
 
 	BKTrackInit (& organ, BK_SQUARE);
 
@@ -149,13 +149,6 @@ int main (int argc, char * argv [])
 	BKInstrumentSetSequence (& instrument, BK_SEQUENCE_VOLUME, volumeSequence, NUM_SEQUENCE_PHASES, 0, 1);
 
 	BKSetPtr (& organ, BK_INSTRUMENT, & instrument, 0);
-	////
-
-	// Callback struct used for initializing divider
-	BKCallback callback;
-
-	callback.func     = dividerCallback;
-	callback.userInfo = NULL;
 
 	// We want 120 BPM
 	// The master clock ticks at 240 Hz
@@ -166,7 +159,10 @@ int main (int argc, char * argv [])
 	BKInt dividerValue = (60.0 / 150.0 / 4) * 240;
 
 	// Initialize divider with divider value and callback
-	BKDividerInit (& divider, dividerValue, & callback);
+	BKDividerInit (& divider, dividerValue, &(BKCallback) {
+		.func     = dividerCallback,
+		.userInfo = NULL,
+	});
 
 	// Attach the divider to the master clock
 	// When samples are generated the callback is called at the defined interval
@@ -174,17 +170,14 @@ int main (int argc, char * argv [])
 
 	SDL_Init (SDL_INIT_AUDIO);
 
-	SDL_AudioSpec wanted;
-
-	userData.numChannels = numChannels;
-	userData.sampleRate  = sampleRate;
-
-	wanted.freq     = sampleRate;
-	wanted.format   = AUDIO_S16SYS;
-	wanted.channels = numChannels;
-	wanted.samples  = 512;
-	wanted.callback = (void *) fill_audio;
-	wanted.userdata = & userData;
+	SDL_AudioSpec wanted = {
+		.freq     = userData.sampleRate,
+		.format   = AUDIO_S16SYS,
+		.channels = userData.numChannels,
+		.samples  = 512,
+		.callback = (void *) fill_audio,
+		.userdata = & userData,
+	};
 
 	if (SDL_OpenAudio (& wanted, NULL) < 0) {
 		fprintf (stderr, "Couldn't open audio: %s\n", SDL_GetError ());

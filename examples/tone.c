@@ -30,7 +30,10 @@ typedef struct {
 
 BKContext     ctx;
 BKTrack       square;
-BKSDLUserData userData;
+BKSDLUserData userData = {
+	.numChannels = 2,
+	.sampleRate  = 44100,
+};
 
 static int getchar_nocanon (unsigned tcflags)
 {
@@ -59,10 +62,7 @@ static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
 
 int main (int argc, char * argv [])
 {
-	BKInt const numChannels = 2;
-	BKInt const sampleRate  = 44100;
-
-	BKContextInit (& ctx, numChannels, sampleRate);
+	BKContextInit (& ctx, userData.numChannels, userData.sampleRate);
 
 	BKTrackInit (& square, BK_SQUARE);
 
@@ -94,17 +94,14 @@ int main (int argc, char * argv [])
 
 	SDL_Init (SDL_INIT_AUDIO);
 
-	SDL_AudioSpec wanted;
-
-	userData.numChannels = numChannels;
-	userData.sampleRate  = sampleRate;
-
-	wanted.freq     = sampleRate;
-	wanted.format   = AUDIO_S16SYS;
-	wanted.channels = numChannels;
-	wanted.samples  = 512;
-	wanted.callback = (void *) fill_audio;
-	wanted.userdata = & userData;
+	SDL_AudioSpec wanted = {
+		.freq     = userData.sampleRate,
+		.format   = AUDIO_S16SYS,
+		.channels = userData.numChannels,
+		.samples  = 512,
+		.callback = (void *) fill_audio,
+		.userdata = & userData,
+	};
 
 	if (SDL_OpenAudio (& wanted, NULL) < 0) {
 		fprintf (stderr, "Couldn't open audio: %s\n", SDL_GetError ());
