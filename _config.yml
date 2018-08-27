@@ -26,5 +26,5 @@ navigation:
  - title: bliplay
    url: http://play.blipkit.audio/
 
-gems:
+plugins:
   - jekyll-sitemap
