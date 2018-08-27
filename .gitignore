@@ -6,3 +6,4 @@ _site
 js/main.min.js
 .jekyll-metadata
 node_modules
+.sublime-grunt.cache
