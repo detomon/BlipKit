@@ -80,11 +80,4 @@ $(function () {
 		}
 	});
 
-	// wrap tabs in span
-	$('pre').each(function () {
-		var html = $(this).html();
-		html = html.replace(/\t/g, '<span class="tab">\t</span>');
-		$(this).html(html);
-	});
-
 });
