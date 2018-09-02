@@ -1,7 +1,5 @@
-<nav class="page-nav col-none">
+<nav class="page-nav tag-list col-none">
 	<input type="checkbox" class="nav-toggle" id="nav-toggle">
 	<label class="button nav-button" for="nav-toggle">Open page navigation</label>
-	<div class="page-nav-content">
-		{% include pagetree.html context="/" level = 0 %}
-	</div>
+	{% include tag-cloud.html %}
 </nav>

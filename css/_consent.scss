@@ -1,0 +1,66 @@
+.footer-banner {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 1em 0 1.5em;
+	position: fixed;
+	background: $link-color;
+	transition: transform 0.2s ease-out;
+	transition-delay: 1s;
+	transform: translateY(100%);
+	z-index: 1000;
+
+	.show-footer-banner & {
+		transform: translateY(0);
+		transition-duration: 0s;
+	}
+
+	p {
+		margin: 0;
+
+		& + p {
+			margin-top: 1em;
+		}
+	}
+
+	button {
+		margin: 0 0.25em;
+	}
+
+	.content {
+		transition: opacity 0.2s ease-out;
+	}
+
+	.content-text {
+		opacity: 1;
+
+		.consent-accepted &,
+		.consent-declined & {
+			opacity: 0;
+		}
+	}
+
+	.content-thanks,
+	.content-ok {
+		top: 50%;
+		left: 1.5em;
+		right: 1.5em;
+		position: absolute;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 0.2s ease-out;
+		transform: translateY(-50%);
+	}
+
+	.content-thanks {
+		.consent-accepted & {
+			opacity: 1;
+		}
+	}
+
+	.content-ok {
+		.consent-declined & {
+			opacity: 1;
+		}
+	}
+}

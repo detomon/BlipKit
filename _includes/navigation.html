@@ -1,15 +1,11 @@
 <nav class="site-nav">
 	<ul>
 {% for link in site.navigation %}
-	{% unless link.url contains "://" %}
-		{% capture url %}{{ site.baseurl }}{{ link.url | remove: "//" }}{% endcapture %}
-		{% assign current = nil %}
-		{% if page.url contains link.url %}
-			{% assign current = 'current' %}
-		{% endif %}
-	{% else %}
-		{% assign url = link.url %}
-	{% endunless %}
+	{% capture url %}{{ site.baseurl }}{{ link.url | remove: "//" }}{% endcapture %}
+	{% assign current = nil %}
+	{% if page.url contains link.url %}
+		{% assign current = 'current' %}
+	{% endif %}
 		<li class="{% if forloop.first %}first{% endif %} {{ current }} {% if forloop.last %}last{% endif %}">
 			<a href="{{ url }}">{{ link.title }}</a>
 		</li>

@@ -1,7 +1,7 @@
 .player {
 	margin: 0.5em;
 	vertical-align: middle;
-	@include display-inline();
+	display: inline-block;
 
 	.button {
 		width: 1em;
@@ -14,7 +14,7 @@
 		background-position: -100% 0%;
 		font-size: 3em;
 		text-indent: -9999px;
-		@include display-inline();
+		display: inline-block;
 
 		&:hover {
 			background-color: #202020;

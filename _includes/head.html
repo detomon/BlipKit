@@ -1,18 +1,18 @@
 <head>
 	<title>{% if page.title %}{% if page.full_title %}{{ page.full_title }}{% else %}{{ page.title }}{% endif %} · {{ site.short_title }}{% else %}{{ site.title }}{% endif %}</title>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width" />
-	<meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
-	<meta property="og:url" content="{{ site.url }}" />
-	<meta property="og:title" content="{{ site.title }}" />
-	<meta property="og:image" content="{{ "/monoxid.png" | prepend: site.url }}" />
-	<meta property="og:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
-	<meta name="apple-itunes-app" content="app-id=954158891" />
-	<link rel="canonical" href="{{ page.url | replace: 'index.html','' | prepend: site.baseurl | prepend: site.url }}" />
-	<link rel="stylesheet" href="{{ "/css/main.css" | prepend: site.baseurl }}" />
-	<link rel="icon" href="{{ "/favicon.png" | prepend: site.baseurl }}" type="image/png" />
-	<link rel="icon" href="{{ "/favicon.svg" | prepend: site.baseurl }}" type="image/svg+xml" />
-	<link rel="mask-icon" href="{{ "/favicon-mask.svg" | prepend: site.baseurl }}" color="#303030" />
-	<link rel="author" href="{{ site.baseurl }}/humans.txt" type="text/plain" />
-	<link href="feed.xml" rel="alternate" type="application/rss+xml" />
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+	<meta property="og:url" content="{{ site.url }}">
+	<meta property="og:title" content="{{ site.title }}">
+	<meta property="og:image" content="{{ "/monoxid.png" | prepend: site.url }}?{{site.time | date: '%s'}}">
+	<meta property="og:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+	<link rel="canonical" href="{{ page.url | replace: 'index.html','' | prepend: site.baseurl | prepend: site.url }}">
+	<link rel="stylesheet" href="{{ "/css/main.css" | prepend: site.baseurl }}?{{site.time | date: '%s'}}">
+	<link rel="icon" href="{{ "/favicon.png" | prepend: site.baseurl }}?{{site.time | date: '%s'}}" type="image/png">
+	<link rel="icon" href="{{ "/favicon.svg" | prepend: site.baseurl }}?{{site.time | date: '%s'}}" type="image/svg+xml">
+	<link rel="apple-touch-icon" href="{{ "/favicon-bg.png" | prepend: site.baseurl }}?{{site.time | date: '%s'}}.png">
+	<link rel="mask-icon" href="{{ "/favicon-mask.svg" | prepend: site.baseurl }}?{{site.time | date: '%s'}}" color="#303030">
+	<link rel="author" href="{{ site.baseurl }}/humans.txt" type="text/plain">
+	<link href="/feed.xml" rel="alternate" type="application/rss+xml">
 </head>

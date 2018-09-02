@@ -1,0 +1,16 @@
+<div class="page-nav-content">
+	<div class="title">All Tags</div>
+	<nav>
+		<ul>
+		{% assign tags = site.tags | sort %}
+		{% for tag in tags %}
+			{% capture tagname %}{{ tag | first | downcase }}{% endcapture %}
+			{% assign current = nil %}
+			{% if page.url contains tagname %}
+				{% assign current = 'current' %}
+			{% endif %}
+			<li class="{{ current }}"><a href="{{ site.baseurl }}/tag/{{ tagname }}/">{{ tag | first }} ({{ tag[1].size }})</a></li>
+		{% endfor %}
+		</ul>
+	</nav>
+</div>

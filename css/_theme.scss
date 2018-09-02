@@ -9,6 +9,14 @@ figure {
 	background: url(img/lines-gray.svg) center top fixed;
 }
 
+.color-inverted {
+	color: $off-white;
+
+	a {
+		text-decoration: underline;
+	}
+}
+
 .main-wrapper {
 	background: white;
 }
@@ -23,6 +31,10 @@ a {
 
 	&:hover {
 		color: $link-hover-color;
+	}
+
+	.color-inverted & {
+		color: $off-white;
 	}
 }
 
@@ -59,9 +71,12 @@ a,
 	color: white;
 	background: $link-color;
 	border-radius: 0.5em;
-	padding: 0.2em 0.66em;
+	padding: 0.2em 1em;
 	cursor: pointer;
-	@include display-inline();
+	border: 0;
+	-webkit-appearance: none;
+	appearance: none;
+	display: inline-block;
 	@each $vendor in $vendors {
 		#{$vendor}transition: background-color $transition-time, color $transition-time;
 	}
@@ -69,6 +84,18 @@ a,
 	&:hover {
 		color: white;
 		background-color: $link-hover-color;
+	}
+
+	&-secondary {
+		background: $text-color;
+	}
+
+	.color-inverted & {
+		background: $link-hover-color;
+
+		&-secondary {
+			background: $back-color;
+		}
 	}
 }
 
@@ -156,18 +183,18 @@ article {
 		margin-left: 0;
 		padding-left: 0.5em;
 		list-style: none;
+	}
 
-		li {
-			margin-left: 0;
-			padding-left: 1em;
-			list-style: none;
-			position: relative;
+	li {
+		margin-left: 0;
+		padding-left: 1em;
+		list-style: none;
+		position: relative;
 
-			&:before {
-				left: 0em;
-				position: absolute;
-				content: "-";
-			}
+		&:before {
+			left: 0em;
+			position: absolute;
+			content: "-";
 		}
 	}
 }

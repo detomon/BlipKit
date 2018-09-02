@@ -1,44 +1,4 @@
-@media only screen and (max-width: $small-screen-width) {
-
-	.site-nav {
-		ul {
-			display: none;
-		}
-	}
-
-	.page-nav {
-		top: 0;
-		left: 0;
-		right: 0;
-		width: auto;
-		position: absolute;
-		font-size: 1.5em;
-
-		& + .container {
-			margin-right: 0;
-
-			h1 {
-				padding-right: 1.66em;
-			}
-		}
-
-		.nav-button {
-			display: block;
-			transition: transform ease-out 0.15s;
-		}
-
-		& > .page-nav-content {
-			display: none;
-			background: white;
-			position: relative;
-			@include box-shadow(0px, 2em, 4em, white);
-
-		}
-	}
-
-}
-
-@media only screen and (max-width: 50em) {
+@media only screen and (max-width: $screen-size-max-l) {
 
 	h1 {
 		font-size: 1.8em;
@@ -60,12 +20,6 @@
 		font-size: 0.8em;
 	}
 
-	.post-list {
-		.title {
-			font-size: 1.92em;
-		}
-	}
-
 	.page-nav {
 		.nav-toggle {
 			&:checked ~ .page-nav-content {
@@ -80,10 +34,53 @@
 
 }
 
-@media only screen and (max-width: 30em) {
+@media only screen and (max-width: $screen-size-max-m) {
 
-	body {
-		font-size: 10pt;
+	.site-nav {
+		ul {
+			display: none;
+		}
+	}
+
+	.page-nav {
+		top: 0;
+		left: 0;
+		right: 0;
+		width: auto;
+		position: absolute;
+
+		& + .container {
+			margin-right: 0;
+
+			h1 {
+				padding-right: 1em;
+			}
+		}
+
+		$font-zoom: 1.25em;
+
+		.nav-button {
+			display: block;
+			font-size: $font-zoom;
+			transition: transform ease-out 0.15s;
+		}
+
+		& > .page-nav-content {
+			padding: 0 #{($column-padding / $font-zoom)}em $column-padding;
+			display: none;
+			background: white;
+			position: relative;
+			font-size: $font-zoom;
+			@include box-shadow(0px, 2em, 4em, white);
+		}
+	}
+
+}
+
+@media only screen and (max-width: $screen-size-max-s) {
+
+	html, body {
+		font-size: 13px;
 	}
 
 	.page-nav {

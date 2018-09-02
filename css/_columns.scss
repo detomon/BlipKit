@@ -1,0 +1,42 @@
+$columns: 12 !default;
+$column-padding: 0.5em !default;
+
+.row {
+	margin: 0 (-$column-padding);
+	padding: 0 $column-padding;
+	display: flex;
+	flex-flow: row wrap;
+	align-items: stretch;
+	justify-content: space-around;
+}
+
+@for $i from 1 through $columns {
+	.col-#{$i} {
+		padding: 0 $column-padding;
+		flex: $i;
+	}
+}
+
+.col-none {
+	padding: 0 $column-padding;
+	flex: none;
+}
+
+.col-min {
+	padding: 0 $column-padding;
+	flex: auto;
+	flex-grow: 0;
+}
+
+.col-max {
+	padding: 0 $column-padding;
+	flex: auto;
+	flex-grow: 1;
+}
+
+.col-full {
+	padding: 0 $column-padding;
+	flex: 1 0 auto;
+	width: 100%;
+	max-width: 100%;
+}

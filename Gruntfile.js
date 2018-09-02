@@ -5,7 +5,9 @@ module.exports = function(grunt) {
 
 		uglify: {
 			build: {
-				src: ['bower_components/u.js/dist/u.js', 'bower_components/u.js/dist/u.ie9.js', 'js/*.js', '!js/main.min.js'],
+				src: [
+					'js/main.js',
+				],
 				dest: 'js/main.min.js',
 				options: {
 					sourceMap: true,
@@ -22,7 +24,9 @@ module.exports = function(grunt) {
 			server: {
 				options: {
 					serve: true,
-					watch: true
+					watch: true,
+					drafts: true,
+					host: '0.0.0.0'
 				}
 			},
 		},
@@ -46,7 +50,6 @@ module.exports = function(grunt) {
 					annotation: '_site/css/'
 				},
 				processors: [
-					require('pixrem')(),
 					require('autoprefixer')({browsers: 'last 5 versions'}),
 					require('cssnano')()
 				]

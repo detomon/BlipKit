@@ -1,5 +1,5 @@
 {% capture html %}
-<ul class="page-nav-content">
+<ul>
 	{% if include.level == 0 %}
 		<li class="{% if page.url == "/" %}active{% endif %}">
 			<a href="{{ site.baseurl }}/">{{ "BlipKit" }}</a>
@@ -12,14 +12,11 @@
 		{% capture slug    %}{{ entry.url | split: "/"   | last                       }}{% endcapture %}
 		{% capture current %}{{ entry.url | remove: slug | remove: "//" | append: "/" }}{% endcapture %}
 
-		{% if entry.hide_from_nav %}
-		{% else %}
-			{% if current == include.context %}
+		{% if current == include.context %}
 			<li class="{% if page.url contains entry.url %}active{% endif %}">
 				<a href="{{ site.baseurl }}{{ entry.url }}">{{ entry.title }}</a>
 				{% include pagetree.html context=entry.url %}
 			</li>
-			{% endif %}
 		{% endif %}
 
 	{% endfor %}

@@ -2,20 +2,16 @@
 AddDefaultCharset utf-8
 
 # Content-Type and encoding
-AddType application/vnd.ms-fontobject eot
-AddType font/opentype                 otf
-AddType application/x-font-ttf        ttf ttc
-AddType font/x-woff                   woff
-AddType image/svg+xml                 svg svgz
-AddType image/x-icon                  ico
-AddType text/x-component              htc
-AddType audio/mp4                     m4a
-AddType video/mp4                     mp4 m4v
-AddType video/ogg                     ogg ogv
-AddType video/webm                    webm
-AddType text/plain                    blip
-AddType audio/wav                     wav
-AddEncoding                           gzip svgz
+AddType font/x-woff     woff
+AddType image/svg+xml   svg
+AddType image/x-icon    ico
+AddType audio/mp4       m4a
+AddType video/mp4       mp4 m4v
+AddType video/ogg       ogg ogv
+AddType video/webm      webm
+AddType text/plain      blip
+AddType audio/wav       wav
+AddType application/xml xsl
 
 # Compression
 <IfModule mod_deflate.c>
@@ -37,30 +33,17 @@ ExpiresByType image/png       "access plus 1 week"
 ExpiresByType image/svg+xml   "access plus 1 week"
 ExpiresByType text/html       "access plus 4 hour"
 
-# Force last version of IE
-<IfModule mod_setenvif.c>
-	<IfModule mod_headers.c>
-		BrowserMatch MSIE ie
-		Header set X-UA-Compatible "IE=Edge,chrome=1" env=ie
-	</IfModule>
-</IfModule>
-
-<IfModule mod_headers.c>
-	Header append Vary User-Agent
-</IfModule>
-
+# Options
 Options +FollowSymlinks
 
-ErrorDocument 404 /404/
+# Error Documents
+ErrorDocument 404 /errors/404/
+ErrorDocument 403 /errors/403/
+ErrorDocument 500 /errors/500/
 
+# Rewrites
 RewriteEngine On
 
-RewriteCond %{SERVER_NAME} ^blipkit.monoxid.net$
-RewriteRule ^(.*)$ http://blipkit.audio/$1 [R=permanent,QSA,L]
-
-# block
-RewriteCond %{HTTP_REFERER} success-seo.com [NC]
-RewriteCond %{HTTP_REFERER} 100dollars-seo.com [NC,OR]
-RewriteCond %{HTTP_REFERER} videos-for-your-business.com [NC,OR]
-RewriteCond %{HTTP_REFERER} semaltmedia.com [NC,OR]
-RewriteRule .* - [F]
+# Rewrite TLD to .net
+RewriteCond %{HTTP_HOST} ((.*\.)?monoxid)\.ch$
+RewriteRule (.*) https://%1.net/$1 [R=permanent,L,QSA]

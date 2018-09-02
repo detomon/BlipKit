@@ -1,4 +1,12 @@
-/* @group Layout */
+html {
+	box-sizing: border-box;
+}
+
+* {
+	&, &:before, &:after {
+		box-sizing: inherit;
+	}
+}
 
 html, body {
 	height: 100%;
@@ -8,15 +16,16 @@ body {
 	margin: 0;
 }
 
-.page-content, {
+.page-content {
 	max-width: $page-width;
 	margin: 0 auto;
-}
 
-.page-content {
+	@media only screen and (min-width: $screen-size-min-s) {
+		padding: 0 $column-padding;
+	}
+
 	.wrapper {
 		position: relative;
-		margin: 0 $line-height;
 	}
 }
 
@@ -25,6 +34,7 @@ body {
 	height: auto !important;
 	height: 100%;
 	margin: 0 auto #{-($footer-height)};
+	overflow: hidden;
 }
 
 .footer-push {
@@ -50,14 +60,9 @@ body {
 	margin-bottom: $header-height;
 }
 
-.site-footer,
-.site-header {
-	box-sizing: border-box;
-}
-
 .site-title {
 	width: 5.4em;
-	padding: 1em 0 0 0.66em;
+	padding: 1.2em 0 0 0.66em;
 	margin: 0 0.66em -1.5em 0;
 	float: left;
 
@@ -66,8 +71,14 @@ body {
 		padding-bottom: 44.44%;
 		display: block;
 		text-indent: -9999px;
-		@include background-resizable('img/logo.svg', 100%);
+		background: url('img/logo.svg') no-repeat;
+		background-size: contain;
 	}
+}
+
+.container {
+	/* prevents flex to grow if content is too wide */
+	overflow: hidden;
 }
 
 nav {
@@ -82,13 +93,13 @@ nav {
 	margin-left: 8em;
 
 	ul {
-		margin-left: 0;
+		margin-left: 3em;
 		display: block;
 	}
 
 	li {
 		line-height: $header-height;
-		@include display-inline();
+		display: inline-block;
 
 		& + li {
 			margin-left: 0.5em;
@@ -103,14 +114,10 @@ nav {
 }
 
 .page-nav {
-	width: 11em;
-	float: right;
+	width: 14rem;
 	position: relative;
 	z-index: 1;
-
-	& + .container {
-		margin-right: 13em;
-	}
+	order: 2;
 
 	ul ul {
 		margin-left: 1em;
@@ -130,12 +137,13 @@ nav {
 		margin: 0;
 		padding: 0;
 		top: 0;
-		right: 0;
+		right: $column-padding;
 		position: absolute;
 		z-index: 1;
 		text-indent: -9999px;
-		background-color: transparent;
-		@include background-resizable('img/nav.svg', 100%);
+		background: transparent url('img/nav.svg') no-repeat;
+		background-size: contain;
+
 		display: none;
 
 		&:hover {
@@ -150,6 +158,10 @@ nav {
 		position: absolute;
 		display: block;
 	}
+
+	.page-nav-content {
+		padding-bottom: 1em;
+	}
 }
 
 .page-meta-nav {
@@ -158,7 +170,7 @@ nav {
 
 	li.icon {
 		line-height: 2em;
-		@include display-inline();
+		display: inline-block;
 
 		& + li {
 			margin-left: 0.66em;
@@ -183,6 +195,10 @@ nav {
 			}
 		}
 	}
+}
+
+.pagination {
+	order: 9999;
 }
 
 .iframe-container {
@@ -210,8 +226,6 @@ nav {
 		position: absolute;
 	}
 }
-
-/* @end */
 
 @media print {
 

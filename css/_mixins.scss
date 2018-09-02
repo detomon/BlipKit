@@ -11,44 +11,6 @@ $vendors: "-moz-", "-webkit-", "";
 	-moz-osx-font-smoothing: grayscale;
 }
 
-@mixin clearfix {
-
-	&:before,
-	&:after {
-		content: " ";
-		display: table;
-	}
-
-	&:after {
-		clear: both;
-	}
-
-}
-
-@mixin display-inline {
-	display: inline-block;
-}
-
-@mixin background-resizable($url, $size...) {
-	background-image: url($url);
-	@if $size {
-		@each $vendor in $vendors {
-			#{$vendor}background-size: $size;
-		}
-		background-repeat: no-repeat;
-	}
-}
-
-@mixin full-background() {
-	@each $vendor in $vendors {
-		#{$vendor}background-size: 100%;
-	}
-}
-
-@mixin opacity($opacity) {
-	opacity: $opacity;
-}
-
 /* @end */
 
 /* @group CSS3 */
@@ -94,12 +56,6 @@ $vendors: "-moz-", "-webkit-", "";
 @mixin transform($value...) {
 	@each $vendor in $vendors {
 		#{$vendor}transform: $value;
-	}
-}
-
-@mixin backface-visibility($value) {
-	@each $vendor in $vendors {
-		#{$vendor}backface-visibility: $value;
 	}
 }
 
