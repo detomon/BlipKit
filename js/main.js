@@ -6,7 +6,7 @@
 		var button = player.querySelector('.button');
 		var audio = document.createElement('audio');
 
-		audio.preload = 'auto';
+		audio.preload = 'none';
 		audio.src = button.href;
 
 		button.addEventListener('click', function (e) {
