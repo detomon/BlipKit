@@ -162,14 +162,14 @@ void BKDispose (void * object)
 		return;
 	}
 
-	if (isa -> dispose) {
-		isa -> dispose (obj);
-	}
-
 	flags = obj -> flags;
 
-	if ((flags & BKObjectFlagInitialized) == 0) {
+	if (!(flags & BKObjectFlagInitialized)) {
 		return;
+	}
+
+	if (isa -> dispose) {
+		isa -> dispose (obj);
 	}
 
 	memset (obj, 0, isa -> instanceSize);
