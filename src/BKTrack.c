@@ -152,7 +152,7 @@ static void BKTrackUpdateUnitNote (BKTrack * track)
 
 	if (track -> waveform != BK_SAMPLE) {
 		period = BKTonePeriodLookup (note, track -> unit.ctx -> sampleRate);
-		period /= track -> unit.phase.count;
+		period /= BKMin (track -> unit.phase.count, BK_WAVE_MAX_LENGTH);
 		BKUnitSetAttr (& track -> unit, BK_PERIOD, period);
 	}
 	else {

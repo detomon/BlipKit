@@ -89,7 +89,7 @@ static BKInt BKUnitTrySetData (BKUnit * unit, BKData * data, BKEnum type, BKEnum
 			if (data && event != BK_DATA_STATE_EVENT_DISPOSE) {
 				if (data -> numFrames >= 2) {
 					unit -> waveform           = BK_CUSTOM;
-					unit -> phase.count        = data -> numFrames;
+					unit -> phase.count        = BKMin(data -> numFrames, BK_WAVE_MAX_LENGTH);
 					unit -> phase.phase        = 0;
 					unit -> sample.offset      = 0;
 					unit -> sample.end         = data -> numFrames;

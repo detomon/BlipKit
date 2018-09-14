@@ -96,6 +96,8 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 
 #define BK_MAX_GENERATE_SAMPLES ((1 << (BK_INT_SHIFT - BK_FINT20_SHIFT)) / 4)
 
+#define BK_WAVE_MAX_LENGTH 64
+
 /**
  * Wave phases.
  */
