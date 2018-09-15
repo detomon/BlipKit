@@ -1,3 +1,8 @@
+Changes in BlipKit 0.17.2:
+  Release date: 2018-09-15
+
+* Limit waveform length to 64 phases
+
 Changes in BlipKit 0.17.1:
   Release date: 2018-09-14
 
