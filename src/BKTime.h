@@ -31,7 +31,7 @@
  * Time is measured in fraction of samples
  */
 
-#if BK_USE_64_BIT
+#if BK_IS_64_BIT
 
 #define BK_TIME_ZERO 0
 #define BK_TIME_MAX INT64_MAX
@@ -111,7 +111,7 @@ BK_INLINE BKInt BKTimeIsLessEqual (BKTime a, BKTime b)
 	return a <= b;
 }
 
-#else /* ! BK_USE_64_BIT */
+#else /* ! BK_IS_64_BIT */
 
 #define BK_TIME_ZERO ((BKTime) {0, 0})
 #define BK_TIME_MAX ((BKTime) {BK_INT_MAX, BK_FINT20_FRAC})
@@ -230,6 +230,6 @@ BK_INLINE BKInt BKTimeIsLessEqual (BKTime a, BKTime b)
 	return (a.time < b.time) || ((a.time == b.time) && (a.frac <= b.frac));
 }
 
-#endif /* BK_USE_64_BIT */
+#endif /* BK_IS_64_BIT */
 
 #endif /* ! _BK_TIME_H_ */

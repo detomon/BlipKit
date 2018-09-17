@@ -45,10 +45,10 @@
 extern char const * const BKVersion;
 
 /**
- * Settings.
+ * Settings
  */
-#ifndef BK_USE_64_BIT
-#define BK_USE_64_BIT 1
+#if SIZEOF_SIZE_T == 8
+#define BK_IS_64_BIT 1
 #endif
 
 /**
@@ -171,7 +171,7 @@ typedef unsigned BKEnum;
 /**
  * Time struct
  */
-#if BK_USE_64_BIT
+#if BK_IS_64_BIT
 
 typedef int64_t BKTime;
 
@@ -183,7 +183,7 @@ typedef struct
 	BKFUInt20 frac;
 } BKTime;
 
-#endif
+#endif /* BK_IS_64_BIT */
 
 /**
  * Some global types

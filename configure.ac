@@ -35,11 +35,6 @@ CHECK_COMPILE_FLAG([-std=c11], [AM_CFLAGS])
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h math.h stdarg.h stddef.h stdint.h stdlib.h string.h unistd.h])
 
-AC_ARG_ENABLE([64-bit],
-	[  --disable-64-bit        use only 32 bit integers],
-	[with_64_bit=${enableval}],
-	[with_64_bit=yes])
-
 AC_ARG_WITH([sdl],
 	AS_HELP_STRING([--without-sdl], [do not link agains SDL library]))
 
@@ -54,14 +49,14 @@ AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
-AC_TYPE_UINT64_T
 AC_TYPE_SIZE_T
 
-if test "x${with_64_bit}" = xyes; then
+# Check sizes.
+AC_CHECK_SIZEOF(size_t)
+
+if test "x${ac_cv_sizeof_size_t}" = x8; then
 	AC_TYPE_INT64_T
-	AC_DEFINE(BK_USE_64_BIT, 1, [Define to 1 if configure had option --enable-64-bit])
-else
-	AC_DEFINE(BK_USE_64_BIT, 0, [Define to 1 if configure had option --enable-64-bit])
+	AC_TYPE_UINT64_T
 fi
 
 if test "x$with_sdl" = xyes; then

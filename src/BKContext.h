@@ -205,14 +205,14 @@ extern void BKContextReset (BKContext * ctx);
 extern BKInt BKContextAttachDivider (BKContext * ctx, BKDivider * divider, BKEnum type);
 
 
-#if BK_USE_64_BIT
+#if BK_IS_64_BIT
 
 BK_INLINE BKTime BKTimeFromSeconds (BKContext * ctx, double seconds)
 {
 	return (BKTime) ctx -> sampleRate * BK_FINT20_UNIT * seconds;
 }
 
-#else /* ! BK_USE_64_BIT */
+#else /* ! BK_IS_64_BIT */
 
 BK_INLINE BKTime BKTimeFromSeconds (BKContext * ctx, double seconds)
 {
@@ -225,6 +225,6 @@ BK_INLINE BKTime BKTimeFromSeconds (BKContext * ctx, double seconds)
 	return time;
 }
 
-#endif /* BK_USE_64_BIT */
+#endif /* BK_IS_64_BIT */
 
 #endif /* ! _BK_CONTEXT_H_ */
