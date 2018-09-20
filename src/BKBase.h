@@ -45,6 +45,13 @@
 extern char const * const BKVersion;
 
 /**
+ * Check availability.
+ */
+#ifndef SIZEOF_SIZE_T
+#error SIZEOF_SIZE_T must be defined
+#endif
+
+/**
  * Settings
  */
 #if SIZEOF_SIZE_T == 8
