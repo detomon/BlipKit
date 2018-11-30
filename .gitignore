@@ -5,6 +5,7 @@
 *.trs
 *~
 .deps
+.dirstamp
 .DS_Store
 .sass-cache
 .svn
