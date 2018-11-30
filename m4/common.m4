@@ -1,7 +1,8 @@
 # CHECK_COMPILE_FLAG(flags)
 # -------------------------------------
 # Checks if the compiler supports the given `flags`.
-# Append them to `CFLAGS` on success.
+# Append them to the given argument on success.
+# Abort with error if not supported.
 m4_define([CHECK_COMPILE_FLAG], [dnl
 _check_flags=$1
 _saved_flags="$CFLAGS"
@@ -11,6 +12,24 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
 	[AC_MSG_RESULT([yes])]
 	[$2="${$2} $_check_flags"],
 	[AC_MSG_FAILURE([C compiler seem not to support $_check_flags])]
+)
+CFLAGS="$_saved_flags"
+])
+
+# CHECK_COMPILE_FLAG_TRY(flags)
+# -------------------------------------
+# Check if the compiler supports the given `flags`.
+# Append them to the given argument on success.
+# Ignore error.
+m4_define([CHECK_COMPILE_FLAG_TRY], [dnl
+_check_flags=$1
+_saved_flags="$CFLAGS"
+CFLAGS="$_check_flags"
+AC_MSG_CHECKING([whether C compiler supports $_check_flags])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
+	[AC_MSG_RESULT([yes])]
+	[$2="${$2} $_check_flags"],
+	[AC_MSG_RESULT([no])]
 )
 CFLAGS="$_saved_flags"
 ])
