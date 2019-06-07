@@ -195,7 +195,7 @@ extern BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue) 
  * @param frames The frames used for replacing.
  * @param numFrames Number of frames per channel.
  * @param numChannels The number of channels.
- * @param Set to 1 if the frames should be copied.
+ * @param copy Set to 1 if the frames should be copied.
  * @return 0 on success.
  */
 extern BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy);

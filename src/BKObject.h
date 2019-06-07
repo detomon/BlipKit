@@ -130,7 +130,7 @@ extern BKInt BKGetAttr (void const * object, BKEnum attr, BKInt * outValue);
  * @param object The object to set the attribute to.
  * @param attr The attribute to set.
  * @param ptr The attribute value.
- * @param The size of the attribute in bytes.
+ * @param size The size of the attribute in bytes.
  * @return 0 on success.
  *   BK_INVALID_ATTRIBUTE if attribute is unknown by object
  *   BK_INVALID_VALUE if attribute value is invalid
