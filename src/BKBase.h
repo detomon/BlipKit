@@ -44,18 +44,20 @@
 #define BK_VERSION "0.17.2"
 extern char const * const BKVersion;
 
-/**
- * Check availability.
- */
-#ifndef SIZEOF_SIZE_T
-#error SIZEOF_SIZE_T must be defined
-#endif
+///**
+// * Check availability.
+// */
+//#ifndef SIZEOF_SIZE_T
+//#error SIZEOF_SIZE_T must be defined
+//#endif
 
 /**
  * Settings
  */
 #if SIZEOF_SIZE_T == 8
 #define BK_IS_64_BIT 1
+#else
+#define BK_IS_64_BIT 0
 #endif
 
 /**
