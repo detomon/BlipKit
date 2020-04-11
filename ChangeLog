@@ -1,3 +1,8 @@
+Changes in BlipKit 0.17.3:
+  Release date: 2020-04-11
+
+* Fix BKUnit reset
+
 Changes in BlipKit 0.17.2:
   Release date: 2018-09-15
 
