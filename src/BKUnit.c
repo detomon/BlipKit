@@ -1258,7 +1258,6 @@ void BKUnitReset (BKUnit * unit)
 {
 	BKUnitClear (unit);
 
-	unit -> period      = 0;
 	unit -> waveform    = 0;
 	unit -> phase.phase = 0;
 	unit -> time = 0;
