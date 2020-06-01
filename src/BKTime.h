@@ -203,7 +203,7 @@ BK_INLINE BKInt BKTimeIsGreater (BKTime a, BKTime b)
 
 BK_INLINE BKInt BKTimeIsGreaterFUInt20 (BKTime a, BKFUInt20 b)
 {
-	BKTime time = {b >> BK_FINT20_SHIFT, b & BK_FINT20_FRAC};
+	BKTime time = {(BKInt) (b >> BK_FINT20_SHIFT), b & BK_FINT20_FRAC};
 
 	return BKTimeIsGreater (a, time);
 }
@@ -220,7 +220,7 @@ BK_INLINE BKInt BKTimeIsLess (BKTime a, BKTime b)
 
 BK_INLINE BKInt BKTimeIsLessFUInt20 (BKTime a, BKFUInt20 b)
 {
-	BKTime time = {b >> BK_FINT20_SHIFT, b & BK_FINT20_FRAC};
+	BKTime time = {(BKInt) (b >> BK_FINT20_SHIFT), b & BK_FINT20_FRAC};
 
 	return BKTimeIsLess (a, time);
 }
