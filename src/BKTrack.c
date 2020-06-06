@@ -699,6 +699,8 @@ static BKInt BKTrackSetAttrInt (BKTrack * track, BKEnum attr, BKInt value)
 			if (ret == 0) {
 				BKUnitGetAttr (& track -> unit, BK_WAVEFORM, & track -> waveform);
 				BKTrackUpdateIgnoreVolume (track);
+				// in case waveform length has changed
+				BKTrackUpdateUnitNote (track);
 			}
 
 			break;
