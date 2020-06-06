@@ -983,14 +983,7 @@ static BKInt BKTrackSetPtrObj (BKTrack * track, BKEnum attr, void * ptr, BKSize 
 
 	switch (attr & BK_ATTR_TYPE_MASK) {
 		case BK_EFFECT_TYPE: {
-			BKInt effectValues [3];
-
-			memset (effectValues, 0, sizeof (effectValues));
-
-			if (ptr)
-				memcpy (effectValues, ptr, sizeof (BKInt [2]));
-
-			return BKTrackSetEffect (track, attr, effectValues, sizeof (BKInt [2]));
+			return BKTrackSetEffect (track, attr, ptr, size);
 			break;
 		}
 		default: {
@@ -1068,14 +1061,11 @@ static BKInt BKTrackGetPtrObj (BKTrack const * track, BKEnum attr, void * outPtr
 
 	switch (attr & BK_ATTR_TYPE_MASK) {
 		case BK_EFFECT_TYPE: {
-			BKInt effectValues [3];
-
-			res = BKTrackGetEffect (track, attr, effectValues, sizeof (BKInt [2]));
+			res = BKTrackGetEffect (track, attr, outPtr, size);
 
 			if (res != 0)
 				return res;
 
-			memcpy (outPtr, effectValues, sizeof (BKInt [2]));
 			break;
 		}
 		default: {
