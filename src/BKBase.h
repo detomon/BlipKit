@@ -47,7 +47,7 @@ extern char const * const BKVersion;
 /**
  * Settings
  */
-#if SIZEOF_SIZE_T == 8
+#if INTPTR_MAX == INT64_MAX
 #define BK_IS_64_BIT 1
 #else
 #define BK_IS_64_BIT 0
