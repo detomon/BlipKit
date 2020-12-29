@@ -1,3 +1,10 @@
+Changes in BlipKit 0.17.4:
+  Release date: 2020-12-29
+
+* Fix 64-bit detection without configure script
+* Fix effect setter and getter
+* Fix period when waveform changes
+
 Changes in BlipKit 0.17.3:
   Release date: 2020-04-11
 
