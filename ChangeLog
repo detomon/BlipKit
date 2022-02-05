@@ -1,3 +1,8 @@
+Changes in BlipKit 0.17.5:
+  Release date: 2022-02-05
+
+* Add fortify macro to catch some errors
+
 Changes in BlipKit 0.17.4:
   Release date: 2020-12-29
 
