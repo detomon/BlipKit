@@ -55,60 +55,22 @@ AC_RUN_IFELSE([AC_LANG_SOURCE([[
 # -----------
 # Search for installed SDL libraries or frameworks.
 # Choose the latest version if found.
-# Outputs SDL_CFLAGS, SDL_CONFIG_NAME, SDL_NAME and SDL_VERSION.
+# Outputs SDL_CFLAGS, SDL_CONFIG_NAME and SDL_VERSION.
 m4_define([CHECK_SDL], [dnl
 SDL_CFLAGS="$SDL_CFLAGS"
 SDL_CONFIG_NAME=
-SDL_NAME=
 SDL_VERSION=
 
 # Set platform specific values.
 AC_CANONICAL_HOST
 
 if test "x$SDL_CFLAGS" = x; then
-	# Set platform specific values.
-	AC_CANONICAL_HOST
+	AC_CHECK_PROG(SDL2_CONFIG_CHECK, sdl2-config, yes)
 
-	# Checks for SDL2.
-	AC_CHECK_LIB([SDL2], [SDL_Init], [
-		AC_CHECK_PROG(SDL2_CONFIG_CHECK, sdl2-config, yes)
-	])
-
-	# Checks for SDL.
-	AC_CHECK_LIB([SDL], [SDL_Init], [
-		AC_CHECK_PROG(SDL_CONFIG_CHECK, sdl-config, yes)
-	])
-
-	# Checks for SDL2 headers.
-	AC_CHECK_HEADERS([SDL2/SDL.h], [
-		SDL_VERSION=2
-		AC_DEFINE(BK_SDL_VERSION, 2, [Defines SDL version])
-	])
-
-	# Checks for SDL headers.
-	if test "x$SDL_VERSION" = x; then
-		AC_CHECK_HEADERS([SDL/SDL.h], [
-			SDL_VERSION=1
-			AC_DEFINE(BK_SDL_VERSION, 1, [Defines SDL version])
-		])
-	fi
-
-	# Set default version
-	if test "x$SDL_VERSION" = x; then
-		SDL_VERSION=2
-		AC_DEFINE(BK_SDL_VERSION, 2, [Defines SDL version])
-	fi
-
-	# Set SDL version if headers found.
-	if test "x$SDL_VERSION" != x; then
-		SDL_NAME="SDL$SDL_VERSION"
-	fi
-
-	# Search for sdl-config.
+	# Set SDL config version.
 	if test "x$SDL2_CONFIG_CHECK" = xyes; then
+		AC_DEFINE(BK_SDL_VERSION, 2, [Defines SDL version])
 		SDL_CONFIG_NAME="sdl2-config"
-	elif test "x$SDL_CONFIG_CHECK" = xyes; then
-		SDL_CONFIG_NAME="sdl-config"
 	fi
 
 	# Set SDL flags from sdl-config if found.
@@ -116,28 +78,15 @@ if test "x$SDL_CFLAGS" = x; then
 		SDL_CFLAGS="`${SDL_CONFIG_NAME} --cflags` `${SDL_CONFIG_NAME} --libs`"
 	fi
 
-	# Guess SDL flags from platform
-	if test "x$SDL_CFLAGS" = x; then
-		case $host_os in
-			darwin*)
-				SDL_CFLAGS="-F/Library/Frameworks -framework $SDL_NAME"
-				;;
-			*)
-				SDL_CFLAGS="-I/usr/local/include/SDL2 -D_THREAD_SAFE -L/usr/local/lib -lSDL2"
-				echo "using default linking flags for SDL"
-				;;
-		esac
-	fi
-
 	# Output SDL_CFLAGS.
 	if test "x$SDL_CFLAGS" != x; then
-		echo "using SDL version: $SDL_NAME"
 		echo "using SDL linking flags: $SDL_CFLAGS"
+	else
+		AC_MSG_ERROR([SDL was requested with --with-sdl, but SDL was not found. Use --without-sdl to disable usage of SDL])
 	fi
 
 	AC_SUBST(SDL_CFLAGS)
 	AC_SUBST(SDL_CONFIG_NAME)
-	AC_SUBST(SDL_NAME)
 	AC_SUBST(SDL_VERSION)
 else
 	echo "using user defined SDL linking flags: $SDL_CFLAGS"

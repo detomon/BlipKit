@@ -29,7 +29,7 @@ clang -Wall -O2 -I ../../src/ -o /tmp/`basename $0` $0 -lblipkit -lSDL2 && /tmp/
 #include <termios.h>
 #include <unistd.h>
 #include "BlipKit.h"
-#include <SDL/SDL.h>
+#include "SDL.h"
 
 typedef struct {
 	BKInt numChannels;
