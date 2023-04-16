@@ -2,7 +2,7 @@ name: C
 
 on:
   push:
-    branches-ignore: [master]
+    branches-ignore: []
   pull_request:
     branches: [master]
 

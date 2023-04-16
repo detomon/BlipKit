@@ -1,7 +1,7 @@
 BlipKit
 =======
 
-[![Build Status](https://api.travis-ci.org/detomon/BlipKit.svg?branch=master)](https://travis-ci.org/detomon/BlipKit)
+[![Build Status](https://github.com/detomon/BlipKit/actions/workflows/c.yml/badge.svg?branch=master)](https://github.com/detomon/BlipKit/actions/workflows/c.yml)
 
 BlipKit is a C library for creating the beautiful sound of old sound chips.
 
