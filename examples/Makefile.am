@@ -10,7 +10,9 @@ EXTRA_PROGRAMS = \
 	envelope \
 	sample \
 	arpeggio \
-	sample_sustain
+	sample_sustain \
+	clocks
+
 
 # LDFLAGS should be used for linking libraries not LDADD
 # But some newer GCC versions need to have the linkings at the end
@@ -41,3 +43,6 @@ arpeggio_LDADD = $(BK_LDADD)
 
 sample_sustain_SOURCES = sample_sustain.c
 sample_sustain_LDADD = $(BK_LDADD)
+
+clocks_SOURCES = clocks.c
+clocks_LDADD = $(BK_LDADD)
