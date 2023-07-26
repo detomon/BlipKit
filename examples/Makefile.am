@@ -1,5 +1,5 @@
-AM_CFLAGS = @AM_CFLAGS@ -I$(srcdir)/../src -L$(srcdir)/../src
-BK_LDADD = ../src/libblipkit.a @SDL_CFLAGS@
+AM_CFLAGS = @AM_CFLAGS@ -I$(srcdir)/../src -L$(srcdir)/../src @SDL_CFLAGS@
+BK_LDADD = ../src/libblipkit.a @SDL_CFLAGS@ -lm
 
 EXTRA_PROGRAMS = \
 	tone \

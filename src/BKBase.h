@@ -24,7 +24,9 @@
 #ifndef _BK_BASE_H_
 #define _BK_BASE_H_
 
+#ifndef __USE_POSIX
 #define __USE_POSIX
+#endif
 
 #ifdef HAVE_CONFIG_H
 #	include "config.h"
