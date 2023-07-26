@@ -97,7 +97,7 @@ static BKEnum clockCallback (BKCallbackInfo * info, TrackContext * trackCtx)
 	return BK_SUCCESS;
 }
 
-static void trackContextInit(TrackContext * trackCtx, BKContext * ctx, BKEnum waveform, BKUInt volume, BKTime clockPeriod)
+static void trackContextInit(TrackContext * trackCtx, BKContext * ctx, BKEnum waveform, BKUInt masterVolume, BKTime clockPeriod)
 {
 	BKTrack * track = & trackCtx -> track;
 	BKClock * clock = & trackCtx -> clock;
@@ -107,8 +107,8 @@ static void trackContextInit(TrackContext * trackCtx, BKContext * ctx, BKEnum wa
 
 	BKTrackInit (track, waveform);
 
-	BKSetAttr (track, BK_VOLUME, volume);
-	BKSetAttr (track, BK_MASTER_VOLUME, 1.0 * BK_MAX_VOLUME);
+	BKSetAttr (track, BK_MASTER_VOLUME, masterVolume);
+	BKSetAttr (track, BK_VOLUME, 1.0 * BK_MAX_VOLUME);
 	BKSetPtr (track, BK_INSTRUMENT, & instrument, sizeof (void *));
 
 	BKTrackAttach (track, ctx);
