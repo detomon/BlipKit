@@ -73,13 +73,12 @@ BKInt BKObjectAlloc(void** outObject, BKClass const* isa, BKSize extraSize) {
 
 BKInt BKSetAttr(void* object, BKEnum attr, BKInt value) {
 	BKObject* obj = object;
-	BKClass const* isa;
 
 	if (obj == 0) {
 		return BK_INVALID_STATE;
 	}
 
-	isa = obj->isa;
+	BKClass const* isa = obj->isa;
 
 	if (isa->setAttr == NULL) {
 		return BK_INVALID_STATE;
@@ -90,13 +89,12 @@ BKInt BKSetAttr(void* object, BKEnum attr, BKInt value) {
 
 BKInt BKGetAttr(void const* object, BKEnum attr, BKInt* outValue) {
 	BKObject const* obj = object;
-	BKClass const* isa;
 
 	if (obj == 0) {
 		return BK_INVALID_STATE;
 	}
 
-	isa = obj->isa;
+	BKClass const* isa = obj->isa;
 
 	if (isa->getAttr == NULL) {
 		return BK_INVALID_STATE;
@@ -107,13 +105,12 @@ BKInt BKGetAttr(void const* object, BKEnum attr, BKInt* outValue) {
 
 BKInt BKSetPtr(void* object, BKEnum attr, void* ptr, BKSize size) {
 	BKObject* obj = object;
-	BKClass const* isa;
 
 	if (obj == 0) {
 		return BK_INVALID_STATE;
 	}
 
-	isa = obj->isa;
+	BKClass const* isa = obj->isa;
 
 	if (isa->setPtr == NULL) {
 		return BK_INVALID_STATE;
@@ -124,13 +121,12 @@ BKInt BKSetPtr(void* object, BKEnum attr, void* ptr, BKSize size) {
 
 BKInt BKGetPtr(void const* object, BKEnum attr, void* outPtr, BKSize size) {
 	BKObject const* obj = object;
-	BKClass const* isa;
 
 	if (obj == 0) {
 		return BK_INVALID_STATE;
 	}
 
-	isa = obj->isa;
+	BKClass const* isa = obj->isa;
 
 	if (isa->getPtr == NULL) {
 		return BK_INVALID_STATE;
@@ -141,20 +137,18 @@ BKInt BKGetPtr(void const* object, BKEnum attr, void* outPtr, BKSize size) {
 
 void BKDispose(void* object) {
 	BKObject* obj = object;
-	BKClass const* isa;
-	BKUInt flags;
 
 	if (obj == NULL) {
 		return;
 	}
 
-	isa = obj->isa;
+	BKClass const* isa = obj->isa;
 
 	if (isa == NULL) {
 		return;
 	}
 
-	flags = obj->flags;
+	BKUInt flags = obj->flags;
 
 	if (!(flags & BKObjectFlagInitialized)) {
 		return;

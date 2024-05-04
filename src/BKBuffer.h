@@ -111,10 +111,8 @@ BK_INLINE BKInt BKBufferSize(BKBuffer const* buf);
 extern void BKBufferClear(BKBuffer* buf);
 
 BK_INLINE BKInt BKBufferEnd(BKBuffer* buf, BKFUInt20 time) {
-	BKUInt offset;
-
 	time = buf->time + time;
-	offset = time >> BK_FINT20_SHIFT;
+	BKUInt offset = time >> BK_FINT20_SHIFT;
 
 	if (offset > buf->capacity) {
 		buf->capacity = offset;
@@ -124,9 +122,7 @@ BK_INLINE BKInt BKBufferEnd(BKBuffer* buf, BKFUInt20 time) {
 }
 
 BK_INLINE BKInt BKBufferShift(BKBuffer* buf, BKFUInt20 time) {
-	BKFUInt20 maxShift;
-
-	maxShift = buf->capacity << BK_FINT20_SHIFT;
+	BKFUInt20 maxShift = buf->capacity << BK_FINT20_SHIFT;
 
 	if (buf->time + time > maxShift) {
 		time = maxShift - buf->time;
@@ -142,19 +138,14 @@ BK_INLINE BKInt BKBufferSize(BKBuffer const* buf) {
 }
 
 BK_INLINE BKInt BKBufferAddPulse(BKBuffer* buf, BKFUInt20 time, BKFrame pulse) {
-	BKUInt frac;
-	BKUInt offset;
-	BKInt* frames;
-	BKFrame const* phase;
-
 	time = buf->time + time;
-	offset = time >> BK_FINT20_SHIFT;
+	BKUInt offset = time >> BK_FINT20_SHIFT;
 
-	frac = time & BK_FINT20_FRAC;				// frame fraction
+	BKUInt frac = time & BK_FINT20_FRAC;		// frame fraction
 	frac >>= (BK_FINT20_SHIFT - BK_STEP_SHIFT); // step fraction
 
-	phase = buf->pulse->frames[frac];
-	frames = &buf->frames[offset];
+	BKFrame const* phase = buf->pulse->frames[frac];
+	BKInt* frames = &buf->frames[offset];
 
 	// add step
 	for (BKInt i = 0; i < BK_STEP_WIDTH; i++) {
@@ -165,10 +156,8 @@ BK_INLINE BKInt BKBufferAddPulse(BKBuffer* buf, BKFUInt20 time, BKFrame pulse) {
 }
 
 BK_INLINE BKInt BKBufferAddFrame(BKBuffer* buf, BKFUInt20 time, BKFrame frame) {
-	BKUInt offset;
-
 	time = buf->time + time;
-	offset = time >> BK_FINT20_SHIFT;
+	BKUInt offset = time >> BK_FINT20_SHIFT;
 
 	buf->frames[offset] += BK_MAX_VOLUME * frame;
 

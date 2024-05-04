@@ -79,31 +79,28 @@ static BKInt BKDividerStateTick(BKDividerState* dividerState) {
 }
 
 static void BKTrackUpdateUnitVolume(BKTrack* track) {
-	BKInt volume, volume0, volume1;
-	BKInt panning;
-	BKInt tremolo;
-	BKInt value;
-
-	volume = BKSlideStateGetValue(&track->volume);
+	BKInt volume = BKSlideStateGetValue(&track->volume);
 
 	// ignore volume except it is 0
-	if ((track->flags & BKIgnoreVolumeFlag) && volume != 0)
+	if ((track->flags & BKIgnoreVolumeFlag) && volume != 0) {
 		volume = BK_MAX_VOLUME;
+	}
 
-	panning = BKSlideStateGetValue(&track->panning);
+	BKInt panning = BKSlideStateGetValue(&track->panning);
 
 	if (track->flags & BKInstrumentFlag) {
-		value = track->instrState.states[BK_SEQUENCE_VOLUME].value;
+		BKInt value = track->instrState.states[BK_SEQUENCE_VOLUME].value;
 
-		if ((track->flags & BKIgnoreVolumeFlag) == 0 || value == 0)
+		if ((track->flags & BKIgnoreVolumeFlag) == 0 || value == 0) {
 			volume = (volume * value) >> BK_VOLUME_SHIFT;
+		}
 
 		panning += track->instrState.states[BK_SEQUENCE_PANNING].value;
 	}
 
 	if (track->flags & BKTremoloFlag) {
 		if ((track->flags & BKIgnoreVolumeFlag) == 0) {
-			tremolo = BKIntervalStateGetValue(&track->tremolo);
+			BKInt tremolo = BKIntervalStateGetValue(&track->tremolo);
 			// make absolute and invert interval value
 			tremolo = BK_MAX_VOLUME - BKAbs(tremolo);
 			volume = (volume * tremolo) >> BK_VOLUME_SHIFT;
@@ -115,8 +112,8 @@ static void BKTrackUpdateUnitVolume(BKTrack* track) {
 
 	if (panning && (track->flags & BKPanningEnabledFlag)) {
 		panning = BKClamp(panning, -BK_MAX_VOLUME, +BK_MAX_VOLUME);
-		volume0 = panning > 0 ? (((BK_MAX_VOLUME - panning) * volume) >> BK_VOLUME_SHIFT) : volume;
-		volume1 = panning < 0 ? (((BK_MAX_VOLUME + panning) * volume) >> BK_VOLUME_SHIFT) : volume;
+		BKInt volume0 = panning > 0 ? (((BK_MAX_VOLUME - panning) * volume) >> BK_VOLUME_SHIFT) : volume;
+		BKInt volume1 = panning < 0 ? (((BK_MAX_VOLUME + panning) * volume) >> BK_VOLUME_SHIFT) : volume;
 
 		BKUnitSetAttr(&track->unit, BK_VOLUME_0, volume0);
 		BKUnitSetAttr(&track->unit, BK_VOLUME_1, volume1);
@@ -127,33 +124,34 @@ static void BKTrackUpdateUnitVolume(BKTrack* track) {
 }
 
 static void BKTrackUpdateUnitNote(BKTrack* track) {
-	BKInt note;
-	BKInt period;
-
-	if (track->unit.ctx == NULL)
+	if (track->unit.ctx == NULL) {
 		return;
+	}
 
-	note = BKSlideStateGetValue(&track->note);
+	BKInt note = BKSlideStateGetValue(&track->note);
 
-	if (track->flags & BKArpeggioFlag)
+	if (track->flags & BKArpeggioFlag) {
 		note += track->arpeggio.delta;
+	}
 
-	if (track->flags & BKVibratoFlag)
+	if (track->flags & BKVibratoFlag) {
 		note += BKIntervalStateGetValue(&track->vibrato);
+	}
 
-	if (track->flags & BKInstrumentFlag)
+	if (track->flags & BKInstrumentFlag) {
 		note += track->instrState.states[BK_SEQUENCE_PITCH].value;
+	}
 
 	note += track->pitch;
 
 	if (track->waveform != BK_SAMPLE) {
-		period = BKTonePeriodLookup(note, track->unit.ctx->sampleRate);
+		BKInt period = BKTonePeriodLookup(note, track->unit.ctx->sampleRate);
 		period /= BKMin(track->unit.phase.count, BK_WAVE_MAX_LENGTH);
 		BKUnitSetAttr(&track->unit, BK_PERIOD, period);
 	}
 	else {
 		note += track->samplePitch;
-		period = BKLog2PeriodLookup(note);
+		BKInt period = BKLog2PeriodLookup(note);
 		BKUnitSetAttr(&track->unit, BK_SAMPLE_PERIOD, period);
 	}
 }
@@ -162,8 +160,9 @@ static void BKTrackUpdateUnitDutyCycle(BKTrack* track) {
 	BKInt dutyCycle = track->dutyCycle;
 
 	if (track->flags & BKInstrumentFlag) {
-		if (track->instrState.states[BK_SEQUENCE_DUTY_CYCLE].value)
+		if (track->instrState.states[BK_SEQUENCE_DUTY_CYCLE].value) {
 			dutyCycle = track->instrState.states[BK_SEQUENCE_DUTY_CYCLE].value;
+		}
 	}
 
 	BKUnitSetAttr(&track->unit, BK_DUTY_CYCLE, dutyCycle);
@@ -315,8 +314,6 @@ static void BKTrackEffectUpdateFlags(BKTrack* track) {
 }
 
 static BKEnum BKTrackTick(BKCallbackInfo* info, BKTrack* track) {
-	BKInt tick;
-
 	// 1. Update effect flags
 
 	BKTrackEffectUpdateFlags(track);
@@ -330,7 +327,7 @@ static BKEnum BKTrackTick(BKCallbackInfo* info, BKTrack* track) {
 	}
 
 	if (track->flags & BKInstrumentFlag) {
-		tick = BKDividerStateTick(&track->instrDivider);
+		BKInt tick = BKDividerStateTick(&track->instrDivider);
 		BKTrackInstrumentTick(track, tick ? 1 : 0);
 	}
 
@@ -341,29 +338,26 @@ static BKEnum BKTrackTick(BKCallbackInfo* info, BKTrack* track) {
 	// 4. Tick effects
 
 	if (track->flags & BKEffectMask) {
-		if (BKDividerStateTick(&track->effectDivider))
+		if (BKDividerStateTick(&track->effectDivider)) {
 			BKTrackEffectTick(track);
+		}
 	}
 
 	return 0;
 }
 
 static BKEnum BKTrackSampleDataStateCallback(BKEnum event, BKTrack* track) {
-	BKEnum res;
+	BKEnum res = BKUnitSampleDataStateCallback(event, &track->unit);
 
-	res = BKUnitSampleDataStateCallback(event, &track->unit);
-
-	if (res == 0)
+	if (res == 0) {
 		BKTrackUpdateUnitNote(track);
+	}
 
 	return res;
 }
 
 static BKInt BKTrackInitGeneric(BKTrack* track, BKEnum waveform) {
-	BKInt ret = 0;
-	BKCallback callback;
-
-	ret = BKUnitInit(&track->unit, waveform);
+	BKInt ret = BKUnitInit(&track->unit, waveform);
 
 	if (ret < 0) {
 		return ret;
@@ -382,8 +376,10 @@ static BKInt BKTrackInitGeneric(BKTrack* track, BKEnum waveform) {
 	track->unit.sample.dataState.callback = (void*)BKTrackSampleDataStateCallback;
 	track->unit.sample.dataState.callbackUserInfo = track;
 
-	callback.func = (BKCallbackFunc)BKTrackTick;
-	callback.userInfo = track;
+	BKCallback callback = {
+		.func = (BKCallbackFunc)BKTrackTick,
+		.userInfo = track,
+	};
 
 	BKDividerInit(&track->divider, 1, &callback);
 
@@ -403,13 +399,11 @@ BKInt BKTrackInit(BKTrack* track, BKEnum waveform) {
 }
 
 BKInt BKTrackAlloc(BKTrack** outTrack, BKEnum waveform) {
-	BKUInt flags;
-
 	if (BKObjectAlloc((void**)outTrack, &BKTrackClass, 0) < 0) {
 		return -1;
 	}
 
-	flags = (*outTrack)->unit.object.flags & BKObjectFlagMask;
+	BKUInt flags = (*outTrack)->unit.object.flags & BKObjectFlagMask;
 
 	if (BKTrackInitGeneric(*outTrack, waveform) < 0) {
 		return -1;
@@ -482,17 +476,16 @@ static void BKTrackDisposeObject(BKTrack* track) {
 }
 
 BKInt BKTrackAttach(BKTrack* track, BKContext* ctx) {
-	BKInt ret;
-
-	ret = BKUnitAttach(&track->unit, ctx);
+	BKInt ret = BKUnitAttach(&track->unit, ctx);
 
 	if (ret == 0) {
 		BKContextSetAttrInt(ctx, BK_CLOCK_TYPE_EFFECT, 1);
 
 		BKContextAttachDivider(ctx, &track->divider, BK_CLOCK_TYPE_EFFECT);
 
-		if (ctx->numChannels == 2)
+		if (ctx->numChannels == 2) {
 			track->flags |= (BKPanningEnabledFlag);
+		}
 
 		track->flags |= BKTrackAttrUpdateFlagVolume;
 		BKTrackUpdateUnit(track);
@@ -526,8 +519,9 @@ static void BKTrackSetPanning(BKTrack* track, BKInt panning) {
 
 static void BKTrackSetInstrumentInitValues(BKTrack* track) {
 	if (track->flags & BKInstrumentFlag) {
-		if (track->instrState.instrument->sequences[BK_SEQUENCE_DUTY_CYCLE])
+		if (track->instrState.instrument->sequences[BK_SEQUENCE_DUTY_CYCLE]) {
 			BKSequenceStateSetValue(&track->instrState.states[BK_SEQUENCE_DUTY_CYCLE], track->dutyCycle);
+		}
 	}
 }
 
@@ -560,8 +554,9 @@ static void BKTrackSetNote(BKTrack* track, BKInt note) {
 			// halt portamento
 			BKSlideStateHalt(&track->note, 1);
 
-			if (track->flags & BKInstrumentFlag)
+			if (track->flags & BKInstrumentFlag) {
 				BKTrackInstrumentAttack(track);
+			}
 
 			track->arpeggio.offset = 0;
 		}
@@ -599,8 +594,9 @@ static void BKTrackSetNote(BKTrack* track, BKInt note) {
 		// halt portamento
 		BKSlideStateHalt(&track->note, 1);
 
-		if (track->flags & BKInstrumentFlag)
+		if (track->flags & BKInstrumentFlag) {
 			BKTrackInstrumentMute(track);
+		}
 
 		BKUnitSetAttr(&track->unit, BK_MUTE, 1);
 		BKUnitSetAttr(&track->unit, BK_FLAG_RELEASE, 0);
@@ -629,8 +625,9 @@ static void BKTrackSetInstrument(BKTrack* track, BKInstrument* instrument) {
 		else {
 			track->flags &= ~BKInstrumentFlag;
 
-			if (track->curNote == -1)
+			if (track->curNote == -1) {
 				BKTrackSetNote(track, BK_NOTE_MUTE);
+			}
 		}
 	}
 
@@ -639,7 +636,6 @@ static void BKTrackSetInstrument(BKTrack* track, BKInstrument* instrument) {
 
 static BKInt BKTrackSetAttrInt(BKTrack* track, BKEnum attr, BKInt value) {
 	BKInt ret = 0;
-	BKInt values[2];
 
 	switch (attr) {
 		case BK_MASTER_VOLUME: {
@@ -671,8 +667,9 @@ static BKInt BKTrackSetAttrInt(BKTrack* track, BKEnum attr, BKInt value) {
 		case BK_DUTY_CYCLE: {
 			ret = BKUnitSetAttr(&track->unit, BK_DUTY_CYCLE, value);
 
-			if (ret == 0)
+			if (ret == 0) {
 				BKUnitGetAttr(&track->unit, BK_DUTY_CYCLE, &track->dutyCycle);
+			}
 
 			track->flags |= BKTrackAttrUpdateFlagDutyCycle;
 
@@ -714,8 +711,7 @@ static BKInt BKTrackSetAttrInt(BKTrack* track, BKEnum attr, BKInt value) {
 		case BK_EFFECT_VOLUME_SLIDE:
 		case BK_EFFECT_PANNING_SLIDE:
 		case BK_EFFECT_PORTAMENTO: {
-			values[0] = value;
-			values[1] = 0;
+			BKInt values[2] = { value, 0 };
 
 			return BKSetPtr(track, attr, values, sizeof(values));
 			break;
@@ -734,9 +730,7 @@ BKInt BKTrackSetAttr(BKTrack* track, BKEnum attr, BKInt value) {
 }
 
 static BKInt BKTrackGetAttrInt(BKTrack const* track, BKEnum attr, BKInt* outValue) {
-	BKInt ret = 0;
 	BKInt value = 0;
-	BKInt values[2];
 
 	switch (attr) {
 		case BK_MASTER_VOLUME: {
@@ -778,10 +772,12 @@ static BKInt BKTrackGetAttrInt(BKTrack const* track, BKEnum attr, BKInt* outValu
 		case BK_EFFECT_VOLUME_SLIDE:
 		case BK_EFFECT_PANNING_SLIDE:
 		case BK_EFFECT_PORTAMENTO: {
-			ret = BKGetPtr(track, attr, values, sizeof(values));
+			BKInt values[2];
+			BKInt ret = BKGetPtr(track, attr, values, sizeof(values));
 
-			if (ret != 0)
+			if (ret != 0) {
 				return ret;
+			}
 
 			value = values[0];
 			break;
@@ -802,24 +798,16 @@ BKInt BKTrackGetAttr(BKTrack const* track, BKEnum attr, BKInt* outValue) {
 }
 
 BKInt BKTrackSetEffect(BKTrack* track, BKEnum effect, void const* inValues, BKUInt size) {
-	BKInt flag;
-	BKInt steps, delta, slideSteps;
-	BKInt values[3];
+	BKInt values[3] = { 0 };
 
 	if (inValues) {
 		size = BKMin(size, sizeof(values));
 		memcpy(values, inValues, size);
 	}
-	else {
-		size = sizeof(values);
-		memset(values, 0, size);
-	}
-
-	memset((void*)values + size, 0, sizeof(values) - size);
 
 	switch (effect) {
 		case BK_EFFECT_VOLUME_SLIDE: {
-			steps = BKClamp(values[0], 0, BK_TRACK_EFFECT_MAX_STEPS);
+			BKInt steps = BKClamp(values[0], 0, BK_TRACK_EFFECT_MAX_STEPS);
 
 			BKSlideStateSetSteps(&track->volume, steps);
 
@@ -827,7 +815,7 @@ BKInt BKTrackSetEffect(BKTrack* track, BKEnum effect, void const* inValues, BKUI
 			break;
 		}
 		case BK_EFFECT_PORTAMENTO: {
-			steps = BKClamp(values[0], 0, BK_TRACK_EFFECT_MAX_STEPS);
+			BKInt steps = BKClamp(values[0], 0, BK_TRACK_EFFECT_MAX_STEPS);
 
 			BKSlideStateSetSteps(&track->note, steps);
 
@@ -835,7 +823,7 @@ BKInt BKTrackSetEffect(BKTrack* track, BKEnum effect, void const* inValues, BKUI
 			break;
 		}
 		case BK_EFFECT_PANNING_SLIDE: {
-			steps = BKClamp(values[0], 0, BK_TRACK_EFFECT_MAX_STEPS);
+			BKInt steps = BKClamp(values[0], 0, BK_TRACK_EFFECT_MAX_STEPS);
 
 			BKSlideStateSetSteps(&track->panning, steps);
 
@@ -843,29 +831,31 @@ BKInt BKTrackSetEffect(BKTrack* track, BKEnum effect, void const* inValues, BKUI
 			break;
 		}
 		case BK_EFFECT_TREMOLO: {
-			steps = BKClamp(values[0], 0, BK_TRACK_EFFECT_MAX_STEPS);
-			delta = BKClamp(values[1], 0, BK_MAX_VOLUME);
-			slideSteps = BKClamp(values[2], 0, BK_TRACK_EFFECT_MAX_STEPS);
+			BKInt steps = BKClamp(values[0], 0, BK_TRACK_EFFECT_MAX_STEPS);
+			BKInt delta = BKClamp(values[1], 0, BK_MAX_VOLUME);
+			BKInt slideSteps = BKClamp(values[2], 0, BK_TRACK_EFFECT_MAX_STEPS);
 
 			BKSlideStateSetValueAndSteps(&track->tremoloDelta, delta, slideSteps);
 			BKSlideStateSetValueAndSteps(&track->tremoloSteps, steps, slideSteps);
 
-			if (slideSteps == 0)
+			if (slideSteps == 0) {
 				BKIntervalStateSetDeltaAndSteps(&track->tremolo, delta, steps);
+			}
 
 			track->flags |= BKTrackAttrUpdateFlagVolume;
 			break;
 		}
 		case BK_EFFECT_VIBRATO: {
-			steps = BKClamp(values[0], 0, BK_TRACK_EFFECT_MAX_STEPS);
-			delta = values[1];
-			slideSteps = BKClamp(values[2], 0, BK_TRACK_EFFECT_MAX_STEPS);
+			BKInt steps = BKClamp(values[0], 0, BK_TRACK_EFFECT_MAX_STEPS);
+			BKInt delta = values[1];
+			BKInt slideSteps = BKClamp(values[2], 0, BK_TRACK_EFFECT_MAX_STEPS);
 
 			BKSlideStateSetValueAndSteps(&track->vibratoDelta, delta, slideSteps);
 			BKSlideStateSetValueAndSteps(&track->vibratoSteps, steps, slideSteps);
 
-			if (slideSteps == 0)
+			if (slideSteps == 0) {
 				BKIntervalStateSetDeltaAndSteps(&track->vibrato, delta, steps);
+			}
 
 			track->flags |= BKTrackAttrUpdateFlagNote;
 			break;
@@ -876,7 +866,7 @@ BKInt BKTrackSetEffect(BKTrack* track, BKEnum effect, void const* inValues, BKUI
 		}
 	}
 
-	flag = (1 << (effect + BK_EFFECT_FLAG_SHIFT));
+	BKUInt flag = (1 << (effect + BK_EFFECT_FLAG_SHIFT));
 
 	if (values[0]) {
 		track->flags |= flag;
@@ -889,10 +879,7 @@ BKInt BKTrackSetEffect(BKTrack* track, BKEnum effect, void const* inValues, BKUI
 }
 
 BKInt BKTrackGetEffect(BKTrack const* track, BKEnum effect, void* outValues, BKUInt size) {
-	BKInt outSize;
-	BKInt values[3];
-
-	memset(values, 0, sizeof(values));
+	BKInt values[3] = { 0 };
 
 	switch (effect) {
 		case BK_EFFECT_VOLUME_SLIDE: {
@@ -925,7 +912,7 @@ BKInt BKTrackGetEffect(BKTrack const* track, BKEnum effect, void* outValues, BKU
 		}
 	}
 
-	outSize = BKMin(size, sizeof(values));
+	BKInt outSize = BKMin(size, sizeof(values));
 	// copy values
 	memcpy(outValues, values, outSize);
 	// empty trailing data
@@ -935,9 +922,6 @@ BKInt BKTrackGetEffect(BKTrack const* track, BKEnum effect, void* outValues, BKU
 }
 
 static BKInt BKTrackSetPtrObj(BKTrack* track, BKEnum attr, void* ptr, BKSize size) {
-	BKInt res;
-	BKInt oldAttr;
-
 	switch (attr & BK_ATTR_TYPE_MASK) {
 		case BK_EFFECT_TYPE: {
 			return BKTrackSetEffect(track, attr, ptr, size);
@@ -947,7 +931,7 @@ static BKInt BKTrackSetPtrObj(BKTrack* track, BKEnum attr, void* ptr, BKSize siz
 			switch (attr) {
 				case BK_WAVEFORM:
 				case BK_SAMPLE: {
-					oldAttr = 0;
+					BKInt oldAttr = 0;
 					BKUnitGetAttr(&track->unit, BK_WAVEFORM, &oldAttr);
 
 					switch (oldAttr) {
@@ -961,10 +945,11 @@ static BKInt BKTrackSetPtrObj(BKTrack* track, BKEnum attr, void* ptr, BKSize siz
 
 					// set data again if changed
 					if (attr != oldAttr || ptr != track->unit.sample.dataState.data) {
-						res = BKUnitSetPtr(&track->unit, attr, ptr);
+						BKInt res = BKUnitSetPtr(&track->unit, attr, ptr);
 
-						if (res != 0)
+						if (res != 0) {
 							return res;
+						}
 					}
 
 					BKUnitGetAttr(&track->unit, BK_WAVEFORM, &track->waveform);
@@ -990,8 +975,9 @@ static BKInt BKTrackSetPtrObj(BKTrack* track, BKEnum attr, void* ptr, BKSize siz
 					BKInt* arpeggio = ptr;
 					BKUInt count = 0;
 
-					if (arpeggio && size)
+					if (arpeggio && size) {
 						count = BKMin(arpeggio[0], BK_MAX_ARPEGGIO);
+					}
 
 					BKTrackArpeggioSetNotes(track, &arpeggio[1], count);
 
@@ -1015,15 +1001,15 @@ BKInt BKTrackSetPtr(BKTrack* track, BKEnum attr, void* ptr) {
 }
 
 static BKInt BKTrackGetPtrObj(BKTrack const* track, BKEnum attr, void* outPtr, BKSize size) {
-	BKInt res = 0;
 	void** ptrRef = outPtr;
 
 	switch (attr & BK_ATTR_TYPE_MASK) {
 		case BK_EFFECT_TYPE: {
-			res = BKTrackGetEffect(track, attr, outPtr, size);
+			BKInt res = BKTrackGetEffect(track, attr, outPtr, size);
 
-			if (res != 0)
+			if (res != 0) {
 				return res;
+			}
 
 			break;
 		}

@@ -28,10 +28,10 @@
 
 /**
  */
-extern BKInt BKContextSetAttrInt (BKContext * ctx, BKEnum attr, BKInt value);
+extern BKInt BKContextSetAttrInt(BKContext* ctx, BKEnum attr, BKInt value);
 
 /**
  */
-extern BKInt BKContextGetAttrInt (BKContext const * ctx, BKEnum attr, BKInt * outValue);
+extern BKInt BKContextGetAttrInt(BKContext const* ctx, BKEnum attr, BKInt* outValue);
 
 #endif /* ! _BK_CONTEXT_INTERN_H_ */

@@ -129,8 +129,6 @@ void BKBufferDispose(BKBuffer* buf) {
 BKInt BKBufferRead(BKBuffer* buf, BKFrame outFrames[], BKUInt size, BKUInt interlace) {
 	BKInt* frames = &buf->frames[0];
 	BKInt accum = buf->accum;
-	BKUInt bufferSize;
-	BKInt amp;
 
 	interlace = BKMax(interlace, 1);   // step must be at least 1
 	size = BKMin(size, buf->capacity); // can only read available frames
@@ -139,18 +137,19 @@ BKInt BKBufferRead(BKBuffer* buf, BKFrame outFrames[], BKUInt size, BKUInt inter
 		accum -= (accum >> (BK_INT_SHIFT - BK_HIGH_PASS_SHIFT)); // apply high pass filter
 		accum += (*frames++);									 // accumulate
 
-		amp = accum >> (BK_INT_SHIFT - BK_FRAME_SHIFT - 2); // remove fraction
+		BKInt amp = accum >> (BK_INT_SHIFT - BK_FRAME_SHIFT - 2); // remove fraction
 
 		// clamp
-		if ((BKFrame)amp != amp)
+		if ((BKFrame)amp != amp) {
 			amp = (amp >> BK_FRAME_SHIFT) ^ BK_FRAME_MAX;
+		}
 
 		// write frame
 		(*outFrames) = amp;
 		outFrames += interlace;
 	}
 
-	bufferSize = buf->capacity + BK_STEP_WIDTH + 1;
+	BKUInt bufferSize = buf->capacity + BK_STEP_WIDTH + 1;
 
 	// move frames left
 	memmove(&buf->frames[0], &buf->frames[size], sizeof(BKInt) * (bufferSize - size));

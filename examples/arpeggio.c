@@ -76,8 +76,9 @@ static BKEnum dividerCallback(BKCallbackInfo* info, void* userData) {
 
 	info->divider = 20 /* + 40 * ((float) random() / INT_MAX)*/;
 
-	if (note >= 0)
+	if (note >= 0) {
 		note *= BK_FINT20_UNIT;
+	}
 
 	// Set track note
 	BKSetAttr(&sawtooth, BK_NOTE, note);
@@ -85,20 +86,11 @@ static BKEnum dividerCallback(BKCallbackInfo* info, void* userData) {
 	BKInt arp[] = { 2, 0, 24 * BK_FINT20_UNIT };
 	BKSetPtr(&sawtooth, BK_ARPEGGIO, arp, sizeof(arp));
 
-	/*if (note >= 0)
-		note += 7 * BK_FINT20_UNIT;
-
-	BKSetAttr (& triangle, BK_NOTE, note);
-
-	if (note2 >= 0)
-		note2 *= BK_FINT20_UNIT;
-
-	BKSetAttr (& square, BK_NOTE, note2);*/
-
 	i++;
 
-	if (i >= 16)
+	if (i >= 16) {
 		i = 0;
+	}
 
 	return 0;
 }
@@ -197,8 +189,9 @@ int main(int argc, char* argv[]) {
 		SDL_UnlockAudio ();
 		*/
 
-		if (c == 'q')
+		if (c == 'q') {
 			break;
+		}
 	}
 
 	printf("\n");

@@ -40,10 +40,8 @@ static void BKInstrumentStateAddToInstrument(BKInstrumentState* state, BKInstrum
 static void BKInstrumentStateRemoveFromInstrument(BKInstrumentState* state);
 
 static void BKInstrumentStateSetDefaultValues(BKInstrumentState* state) {
-	BKSequence* sequence;
-
 	for (BKInt i = 0; i < BK_MAX_SEQUENCES; i++) {
-		sequence = state->states[i].sequence;
+		BKSequence* sequence = state->states[i].sequence;
 
 		if (sequence) {
 			BKSequenceStateSetValue(&state->states[i], 0);
@@ -58,16 +56,18 @@ static void BKInstrumentStateSetDefaultValues(BKInstrumentState* state) {
  * Reset states in which this instrument is set
  */
 static void BKInstrumentResetStates(BKInstrument* instr, BKEnum event) {
-	BKInstrumentState *state, *nextState;
+	BKInstrumentState* nextState;
 
-	for (state = instr->stateList; state; state = nextState) {
+	for (BKInstrumentState* state = instr->stateList; state; state = nextState) {
 		nextState = state->nextState;
 
-		if (state->callback)
+		if (state->callback) {
 			state->callback(event, state->callbackUserInfo);
+		}
 
-		if (event == BK_INSTR_STATE_EVENT_DISPOSE)
+		if (event == BK_INSTR_STATE_EVENT_DISPOSE) {
 			BKInstrumentStateSetInstrument(state, NULL);
+		}
 	}
 }
 
@@ -88,15 +88,14 @@ BKInt BKInstrumentAlloc(BKInstrument** outInstr) {
 }
 
 static void BKInstrumentDisposeObject(BKInstrument* instr) {
-	BKSequence* sequence;
-
 	BKInstrumentDetach(instr);
 
 	for (BKInt i = 0; i < BK_MAX_SEQUENCES; i++) {
-		sequence = instr->sequences[i];
+		BKSequence* sequence = instr->sequences[i];
 
-		if (sequence)
+		if (sequence) {
 			BKSequenceDispose(sequence);
+		}
 	}
 }
 
@@ -105,22 +104,20 @@ void BKInstrumentDetach(BKInstrument* instr) {
 }
 
 BKInt BKInstrumentInitCopy(BKInstrument* copy, BKInstrument const* original) {
-	BKInt res = 0;
-	BKSequence* sequence;
-
-	memset(copy, 0, sizeof(sizeof(BKInstrument)));
+	memset(copy, 0, sizeof(BKInstrument));
 
 	copy->object.flags = (original->object.flags & BK_INSTR_FLAG_COPY_MASK);
 	copy->numSequences = original->numSequences;
 
 	for (BKInt i = 0; i < original->numSequences; i++) {
-		sequence = original->sequences[i];
+		BKSequence* sequence = original->sequences[i];
 
 		if (sequence) {
-			res = BKSequenceCopy(&copy->sequences[i], sequence);
+			BKInt res = BKSequenceCopy(&copy->sequences[i], sequence);
 
-			if (res < 0)
+			if (res < 0) {
 				return res;
+			}
 		}
 	}
 
@@ -128,20 +125,20 @@ BKInt BKInstrumentInitCopy(BKInstrument* copy, BKInstrument const* original) {
 }
 
 BKSequence const* BKInstrumentGetSequence(BKInstrument const* instr, BKEnum slot) {
-	BKSequence* sequence = NULL;
+	if (slot >= BK_MAX_SEQUENCES) {
+		return NULL;
+	}
 
-	if (slot < BK_MAX_SEQUENCES)
-		sequence = instr->sequences[slot];
-
-	return sequence;
+	return instr->sequences[slot];
 }
 
 static void BKInstrumentUpdateNumSequences(BKInstrument* instr) {
 	BKInt numSequences = 0;
 
 	for (BKInt i = 0; i < BK_MAX_SEQUENCES; i++) {
-		if (instr->sequences[i])
+		if (instr->sequences[i]) {
 			numSequences = BKMax(numSequences, i + 1);
+		}
 	}
 
 	instr->numSequences = numSequences;
@@ -150,26 +147,29 @@ static void BKInstrumentUpdateNumSequences(BKInstrument* instr) {
 static void BKInstrumentStateSetSequence(BKInstrument* instr, BKEnum slot, BKSequence* sequence) {
 	instr->sequences[slot] = sequence;
 
-	for (BKInstrumentState* state = instr->stateList; state; state = state->nextState)
+	for (BKInstrumentState* state = instr->stateList; state; state = state->nextState) {
 		state->states[slot].sequence = sequence;
+	}
 }
 
 static BKInt BKInstrumentSetSequenceValues(BKInstrument* instr, BKSequenceFuncs const* funcs, BKEnum slot, void const* values, BKUInt length, BKInt sustainOffset, BKInt sustainLength) {
 	BKInt error = 0;
-	BKSequence *sequence, *newSequence = NULL;
+	BKSequence* newSequence = NULL;
 
 	if (slot < BK_MAX_SEQUENCES) {
-		sequence = instr->sequences[slot];
+		BKSequence* sequence = instr->sequences[slot];
 
 		if (values && length) {
 			error = BKSequenceCreate(&newSequence, funcs, values, length, sustainOffset, sustainLength);
 
-			if (error != 0)
+			if (error != 0) {
 				return error;
+			}
 		}
 
-		if (sequence)
+		if (sequence) {
 			BKSequenceDispose(sequence);
+		}
 
 		sequence = newSequence;
 
@@ -219,8 +219,9 @@ static void BKInstrumentStateAddToInstrument(BKInstrumentState* state, BKInstrum
 		state->prevState = NULL;
 		state->nextState = instr->stateList;
 
-		if (instr->stateList)
+		if (instr->stateList) {
 			instr->stateList->prevState = state;
+		}
 
 		instr->stateList = state;
 
@@ -235,14 +236,17 @@ static void BKInstrumentStateRemoveFromInstrument(BKInstrumentState* state) {
 	BKInstrument* instr = state->instrument;
 
 	if (instr != NULL && (instr->object.flags & BKObjectFlagLocked) == 0) {
-		if (state->prevState)
+		if (state->prevState) {
 			state->prevState->nextState = state->nextState;
+		}
 
-		if (state->nextState)
+		if (state->nextState) {
 			state->nextState->prevState = state->prevState;
+		}
 
-		if (instr->stateList == state)
+		if (instr->stateList == state) {
 			instr->stateList = state->nextState;
+		}
 
 		state->instrument = NULL;
 		state->prevState = NULL;
@@ -263,15 +267,17 @@ BKInt BKInstrumentStateSetInstrument(BKInstrumentState* state, BKInstrument* ins
 	BKInstrumentStateAddToInstrument(state, instr);
 
 	if (instr) {
-		for (BKInt i = 0; i < BK_MAX_SEQUENCES; i++)
+		for (BKInt i = 0; i < BK_MAX_SEQUENCES; i++) {
 			state->states[i].sequence = state->instrument->sequences[i];
+		}
 
 		BKInstrumentStateSetDefaultValues(state);
 		BKInstrumentStateSetPhase(state, BK_SEQUENCE_PHASE_ATTACK);
 	}
 	else {
-		for (BKInt i = 0; i < BK_MAX_SEQUENCES; i++)
+		for (BKInt i = 0; i < BK_MAX_SEQUENCES; i++) {
 			state->states[i].sequence = NULL;
+		}
 	}
 
 	return 0;
@@ -279,10 +285,9 @@ BKInt BKInstrumentStateSetInstrument(BKInstrumentState* state, BKInstrument* ins
 
 BKInt BKInstrumentStateGetSequenceValueAtOffset(BKInstrumentState const* state, BKEnum slot, BKInt offset) {
 	BKInt value = 0;
-	BKSequenceState const* sequenceState;
 
 	if (slot < BK_MAX_SEQUENCES) {
-		sequenceState = &state->states[slot];
+		BKSequenceState const* sequenceState = &state->states[slot];
 
 		if (sequenceState->sequence) {
 			value = state->states[slot].value;
@@ -303,22 +308,24 @@ void BKInstrumentStateTick(BKInstrumentState* state, BKInt level) {
 		if (BKSequenceStateStep(sequenceState, level) == BK_SEQUENCE_RETURN_FINISH) {
 			state->numActiveSequences--;
 
-			if (state->numActiveSequences == 0)
+			if (state->numActiveSequences == 0) {
 				BKInstrumentStateSetPhase(state, BK_SEQUENCE_PHASE_MUTE);
+			}
 		}
 	}
 }
 
 void BKInstrumentStateSetPhase(BKInstrumentState* state, BKEnum phase) {
-	BKSequence* sequence;
 	BKInstrument* instr = state->instrument;
 
-	if (instr == NULL)
+	if (instr == NULL) {
 		return;
+	}
 
 	// do only release once
-	if (state->phase == BK_SEQUENCE_PHASE_RELEASE && phase == BK_SEQUENCE_PHASE_RELEASE)
+	if (state->phase == BK_SEQUENCE_PHASE_RELEASE && phase == BK_SEQUENCE_PHASE_RELEASE) {
 		return;
+	}
 
 	state->numActiveSequences = 0;
 
@@ -327,11 +334,12 @@ void BKInstrumentStateSetPhase(BKInstrumentState* state, BKEnum phase) {
 		case BK_SEQUENCE_PHASE_RELEASE:
 		case BK_SEQUENCE_PHASE_MUTE: {
 			for (BKInt i = 0; i < instr->numSequences; i++) {
-				sequence = instr->sequences[i];
+				BKSequence* sequence = instr->sequences[i];
 
 				if (sequence) {
-					if (BKSequenceStateSetPhase(&state->states[i], phase) != BK_SEQUENCE_RETURN_FINISH)
+					if (BKSequenceStateSetPhase(&state->states[i], phase) != BK_SEQUENCE_RETURN_FINISH) {
 						state->numActiveSequences++;
+					}
 				}
 			}
 
@@ -360,8 +368,9 @@ void BKInstrumentStateSetPhase(BKInstrumentState* state, BKEnum phase) {
 			if (state->phase != BK_SEQUENCE_PHASE_MUTE) {
 				state->phase = BK_SEQUENCE_PHASE_MUTE;
 
-				if (state->callback)
+				if (state->callback) {
 					state->callback(BK_INSTR_STATE_EVENT_MUTE, state->callbackUserInfo);
+				}
 			}
 		}
 	}

@@ -82,17 +82,20 @@ static BKEnum dividerCallback(BKCallbackInfo* info, void* userData) {
 
 	BKInt note = notes[i];
 
-	if (note >= 0)
+	if (note >= 0) {
 		note *= BK_FINT20_UNIT;
+	}
 
 	// Set track note
-	if (note != -3)
+	if (note != -3) {
 		BKSetAttr(&sampleTrack, BK_NOTE, note);
+	}
 
 	i++;
 
-	if (i >= 32)
+	if (i >= 32) {
 		i = 0;
+	}
 
 	return 0;
 }
@@ -139,8 +142,9 @@ int main(int argc, char* argv[]) {
 	BKInt volumeSequence[NUM_VOLUME_PHASES];
 
 	// Create descending sequence
-	for (BKInt i = 0; i < NUM_VOLUME_PHASES; i++)
+	for (BKInt i = 0; i < NUM_VOLUME_PHASES; i++) {
 		volumeSequence[i] = ((float)BK_MAX_VOLUME * (NUM_VOLUME_PHASES - i) / NUM_VOLUME_PHASES);
+	}
 
 	// Set volume sequence of instrument
 	BKInstrumentSetSequence(&instrument, BK_SEQUENCE_VOLUME, volumeSequence, NUM_VOLUME_PHASES, 0, 1);
@@ -204,8 +208,9 @@ int main(int argc, char* argv[]) {
 
 		// SDL_UnlockAudio ();
 
-		if (c == 'q')
+		if (c == 'q') {
 			break;
+		}
 	}
 
 	printf("\n");

@@ -48,8 +48,9 @@ static void BKCalcTonePeriods(void) {
 		// so it can be multiplied by the samplerate
 		period = 1.0 / freq * BK_FINT20_UNIT;
 
-		if (c && c % 12 == 0)
+		if (c && c % 12 == 0) {
 			printf("\n\t");
+		}
 
 		printf("%5d, ", period);
 	}
@@ -74,8 +75,9 @@ static void BKCalcLog2Periods(void) {
 	for (BKInt i = BK_MIN_SAMPLE_TONE, c = 0; i <= BK_MAX_SAMPLE_TONE; i++, c++) {
 		period = pow(2.0, ((double)i / 12.0)) * BK_FINT20_UNIT;
 
-		if (c && c % 12 == 0)
+		if (c && c % 12 == 0) {
 			printf("\n\t");
+		}
 
 		printf("%8d, ", period);
 	}

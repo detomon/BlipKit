@@ -4,8 +4,9 @@ static BKUInt BKGetMaxValueShift(BKInt maxValue) {
 	BKInt shift = 0;
 
 	if (maxValue) {
-		while ((1 << shift) < maxValue && shift < 30)
+		while ((1 << shift) < maxValue && shift < 30) {
 			shift++;
+		}
 
 		shift = 30 - shift;
 	}
@@ -20,7 +21,6 @@ void BKSlideStateInit(BKSlideState* state, BKInt maxValue) {
 }
 
 void BKSlideStateSetValueAndSteps(BKSlideState* state, BKInt endValue, BKInt steps) {
-	BKInt stepDelta, deltaValue;
 	BKInt roundBias = 0;
 	BKInt const stepShift = BK_STATE_STEP_FRAC_SHIFT;
 
@@ -28,8 +28,8 @@ void BKSlideStateSetValueAndSteps(BKSlideState* state, BKInt endValue, BKInt ste
 
 	if (steps) {
 		endValue <<= state->valueShift;
-		deltaValue = endValue - state->value;
-		stepDelta = deltaValue / steps;
+		BKInt deltaValue = endValue - state->value;
+		BKInt stepDelta = deltaValue / steps;
 
 		// prevent division by 0
 		if ((deltaValue >> state->valueShift)) {
@@ -53,11 +53,9 @@ void BKSlideStateSetValueAndSteps(BKSlideState* state, BKInt endValue, BKInt ste
 }
 
 void BKIntervalStateInit(BKIntervalState* state, BKInt maxValue) {
-	BKInt valueShift;
-
 	memset(state, 0, sizeof(*state));
 
-	valueShift = BKGetMaxValueShift(maxValue);
+	BKInt valueShift = BKGetMaxValueShift(maxValue);
 	// 1 additional bit is require for multiplication when recalculatating steps
 	// so remove this 1 bit from the shift. Otherwise the sign is inverted by
 	// bit overflow.
@@ -67,9 +65,6 @@ void BKIntervalStateInit(BKIntervalState* state, BKInt maxValue) {
 }
 
 void BKIntervalStateSetDeltaAndSteps(BKIntervalState* state, BKInt delta, BKInt steps) {
-	BKInt stepFrac, step;
-	BKInt stepDelta, value = 0;
-	BKInt roundBias = 0;
 	BKInt const stepShift = BK_STATE_STEP_FRAC_SHIFT;
 
 	steps = BKClamp(steps, 0, BK_STATE_MAX_STEPS);
@@ -78,7 +73,7 @@ void BKIntervalStateSetDeltaAndSteps(BKIntervalState* state, BKInt delta, BKInt 
 		delta <<= state->valueShift;
 
 		if (steps != state->steps || delta != state->delta) {
-			step = 0;
+			BKInt step = 0;
 
 			if (state->steps) {
 				step = state->step;
@@ -86,17 +81,20 @@ void BKIntervalStateSetDeltaAndSteps(BKIntervalState* state, BKInt delta, BKInt 
 				// round up division by adding half of step fraction
 				// this will make calculation with small values more accurate
 				step += (1 << (stepShift - 1));
-				stepFrac = step / state->steps;
+				BKInt stepFrac = step / state->steps;
 				step = (stepFrac * steps) >> stepShift;
 			}
 
-			stepDelta = delta / steps;
+			BKInt stepDelta = delta / steps;
+			BKInt roundBias = 0;
 
 			// prevent division by 0
 			if (delta >> state->valueShift) {
 				roundBias = ((steps << stepShift) / (delta >> state->valueShift) / 2);
 				roundBias = (roundBias * (stepDelta >> stepShift));
 			}
+
+			BKInt value = 0;
 
 			switch (state->phase) {
 				//  / ̅  raise from zero
@@ -142,16 +140,14 @@ void BKIntervalStateSetDeltaAndSteps(BKIntervalState* state, BKInt delta, BKInt 
 }
 
 void BKIntervalStateStep(BKIntervalState* state) {
-	BKInt value, stepDelta;
-
 	if (state->steps) {
 		if (state->step < state->steps - 1) {
 			state->value += state->stepDelta;
 			state->step++;
 		}
 		else {
-			value = state->value;
-			stepDelta = state->stepDelta;
+			BKInt value = state->value;
+			BKInt stepDelta = state->stepDelta;
 
 			// cycle phase from 0 to 3
 			state->phase = (state->phase + 1) & 0x3; // % 4

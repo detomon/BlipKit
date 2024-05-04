@@ -167,9 +167,7 @@ static BKInt BKUnitTrySetData(BKUnit* unit, BKData* data, BKEnum type, BKEnum ev
 }
 
 static BKInt BKUnitSetData(BKUnit* unit, BKEnum type, BKData* data) {
-	BKInt res;
-
-	res = BKUnitTrySetData(unit, data, type, BK_DATA_STATE_EVENT_RESET);
+	BKInt res = BKUnitTrySetData(unit, data, type, BK_DATA_STATE_EVENT_RESET);
 
 	if (res == 0) {
 		BKDataStateSetData(&unit->sample.dataState, data);
@@ -212,12 +210,12 @@ BKInt BKUnitSampleDataStateCallback(BKEnum event, BKUnit* unit) {
 
 static BKEnum BKUnitCallSampleCallback(BKUnit* unit, BKEnum event) {
 	BKEnum result = 0;
-	BKCallbackInfo info;
 
 	if (unit->sample.callback.func) {
-		memset(&info, 0, sizeof(BKCallbackInfo));
-		info.object = unit;
-		info.event = event;
+		BKCallbackInfo info = {
+			.object = unit,
+			.event = event,
+		};
 
 		unit->sample.callback.func(&info, unit->sample.callback.userInfo);
 	}
@@ -301,33 +299,31 @@ void BKUnitDetach(BKUnit* unit) {
 }
 
 static void BKUnitUpdateSampleRange(BKUnit* unit, BKInt offset, BKInt end) {
-	BKInt sampleLength;
-	BKInt oldOffset;
-	BKInt newOffset, newLength;
-	BKInt newPhase;
-
-	if (unit->sample.dataState.data == NULL)
+	if (unit->sample.dataState.data == NULL) {
 		return;
+	}
 
-	sampleLength = unit->sample.dataState.data->numFrames;
+	BKInt sampleLength = unit->sample.dataState.data->numFrames;
 
-	if (offset < 0)
+	if (offset < 0) {
 		offset += sampleLength + 1;
+	}
 	offset = BKClamp(offset, 0, sampleLength);
 
-	if (end < 0)
+	if (end < 0) {
 		end += sampleLength + 1;
+	}
 	end = BKClamp(end, 0, sampleLength);
 
-	oldOffset = BKMin(unit->sample.offset, unit->sample.end);
-	newOffset = BKMin(offset, end);
-	newLength = BKAbs(offset - end);
-
-	newPhase = unit->phase.phase + (oldOffset - newOffset);
+	BKInt oldOffset = BKMin(unit->sample.offset, unit->sample.end);
+	BKInt newOffset = BKMin(offset, end);
+	BKInt newLength = BKAbs(offset - end);
+	BKInt newPhase = unit->phase.phase + (oldOffset - newOffset);
 
 	// reset phase if it would overlap the new range
-	if (newPhase < 0 || newPhase >= newLength)
+	if (newPhase < 0 || newPhase >= newLength) {
 		newPhase = 0;
+	}
 
 	unit->sample.offset = offset;
 	unit->sample.end = end;
@@ -336,8 +332,9 @@ static void BKUnitUpdateSampleRange(BKUnit* unit, BKInt offset, BKInt end) {
 	unit->sample.period = BKAbs(unit->sample.period);
 
 	// reverse sample period
-	if (offset > end)
+	if (offset > end) {
 		unit->sample.period = -unit->sample.period;
+	}
 
 	// if not playing yet
 	if (unit->sample.repeatCount == 0) {
@@ -355,14 +352,11 @@ static void BKUnitUpdateSampleRange(BKUnit* unit, BKInt offset, BKInt end) {
 }
 
 static void BKUnitUpdateSampleSustainRange(BKUnit* unit, BKInt offset, BKInt end) {
-	BKInt tmp;
-	BKInt sampleLength;
-
 	if (unit->sample.dataState.data == NULL) {
 		return;
 	}
 
-	sampleLength = unit->sample.dataState.data->numFrames;
+	BKInt sampleLength = unit->sample.dataState.data->numFrames;
 
 	if (offset < 0) {
 		offset += sampleLength + 1;
@@ -376,7 +370,7 @@ static void BKUnitUpdateSampleSustainRange(BKUnit* unit, BKInt offset, BKInt end
 	end = BKClamp(end, 0, sampleLength);
 
 	if (end < offset) {
-		tmp = offset;
+		BKInt tmp = offset;
 		offset = end;
 		end = tmp;
 	}
@@ -395,8 +389,9 @@ BKInt BKUnitSetAttr(BKUnit* unit, BKEnum attr, BKInt value) {
 			if (unit->dutyCycle != value) {
 				if (unit->waveform == BK_SQUARE) {
 					// reduce clicking noise
-					if (value > unit->dutyCycle && unit->phase.phase < value)
+					if (value > unit->dutyCycle && unit->phase.phase < value) {
 						unit->phase.phase = 0;
+					}
 				}
 
 				unit->dutyCycle = value;
@@ -483,8 +478,9 @@ BKInt BKUnitSetAttr(BKUnit* unit, BKEnum attr, BKInt value) {
 		case BK_VOLUME: {
 			value = BKClamp(value, 0, BK_MAX_VOLUME);
 
-			for (BKInt i = 0; i < BK_MAX_CHANNELS; i++)
+			for (BKInt i = 0; i < BK_MAX_CHANNELS; i++) {
 				unit->volume[i] = value;
+			}
 
 			break;
 		}
@@ -636,9 +632,6 @@ BKInt BKUnitGetAttr(BKUnit const* unit, BKEnum attr, BKInt* outValue) {
 }
 
 BKInt BKUnitSetPtr(BKUnit* unit, BKEnum attr, void* ptr) {
-	BKInt res;
-	BKInt* values;
-
 	switch (attr) {
 		case BK_SAMPLE_CALLBACK: {
 			// set sample callback
@@ -654,20 +647,22 @@ BKInt BKUnitSetPtr(BKUnit* unit, BKEnum attr, void* ptr) {
 		}
 		case BK_WAVEFORM:
 		case BK_SAMPLE: {
-			res = BKUnitSetData(unit, attr, ptr);
+			BKInt res = BKUnitSetData(unit, attr, ptr);
 
-			if (res < 0)
+			if (res < 0) {
 				return res;
+			}
 
 			break;
 		}
 		case BK_SAMPLE_RANGE: {
 			BKInt range[2];
 
-			if (unit->waveform != BK_SAMPLE)
+			if (unit->waveform != BK_SAMPLE) {
 				return BK_INVALID_STATE;
+			}
 
-			values = ptr;
+			BKInt* values = ptr;
 
 			if (values == NULL) {
 				range[0] = 0;
@@ -683,10 +678,11 @@ BKInt BKUnitSetPtr(BKUnit* unit, BKEnum attr, void* ptr) {
 		case BK_SAMPLE_SUSTAIN_RANGE: {
 			BKInt range[2];
 
-			if (unit->waveform != BK_SAMPLE)
+			if (unit->waveform != BK_SAMPLE) {
 				return BK_INVALID_STATE;
+			}
 
-			values = ptr;
+			BKInt* values = ptr;
 
 			if (values == NULL || values[0] == values[1]) {
 				range[0] = 0;
@@ -751,20 +747,18 @@ BKInt BKUnitGetPtr(BKUnit const* unit, BKEnum attr, void* outPtr) {
 }
 
 static BKFUInt20 BKUnitRunWaveformSquare(BKUnit* unit, BKBuffer* channel, BKInt* lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime) {
-	BKInt pulse;
 	BKInt dutyCycle = unit->dutyCycle;
-	BKInt delta, chanDelta;
 	BKInt lastPulse = *lastPulseRef;
 	BKUInt phase = unit->phase.phase;
 
 	// run until time
 	for (; time < endTime; time += unit->period) {
-		pulse = squarePhases[dutyCycle][phase];
+		BKInt pulse = squarePhases[dutyCycle][phase];
 		phase = (phase + 1) & (BK_SQUARE_PHASES - 1);
 
-		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+		BKInt delta = (pulse * volume) >> BK_VOLUME_SHIFT;
 
-		chanDelta = delta - lastPulse;
+		BKInt chanDelta = delta - lastPulse;
 		lastPulse = delta;
 
 		BKBufferAddPulse(channel, time, chanDelta);
@@ -777,19 +771,17 @@ static BKFUInt20 BKUnitRunWaveformSquare(BKUnit* unit, BKBuffer* channel, BKInt*
 }
 
 static BKFUInt20 BKUnitRunWaveformTriangle(BKUnit* unit, BKBuffer* channel, BKInt* lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime) {
-	BKInt pulse;
-	BKInt delta, chanDelta;
 	BKInt lastPulse = *lastPulseRef;
 	BKUInt phase = unit->phase.phase;
 
 	// run until time
 	for (; time < endTime; time += unit->period) {
-		pulse = trianglePhases[phase];
+		BKInt pulse = trianglePhases[phase];
 		phase = (phase + 1) & (BK_TRIANGLE_PHASES - 1);
 
-		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+		BKInt delta = (pulse * volume) >> BK_VOLUME_SHIFT;
 
-		chanDelta = delta - lastPulse;
+		BKInt chanDelta = delta - lastPulse;
 		lastPulse = delta;
 
 		BKBufferAddPulse(channel, time, chanDelta);
@@ -802,8 +794,6 @@ static BKFUInt20 BKUnitRunWaveformTriangle(BKUnit* unit, BKBuffer* channel, BKIn
 }
 
 static BKFUInt20 BKUnitRunWaveformNoise(BKUnit* unit, BKBuffer* channel, BKInt* lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime) {
-	BKInt pulse;
-	BKInt delta, chanDelta;
 	BKInt lastPulse = *lastPulseRef;
 	BKUInt phase = unit->phase.phase;
 	BKUInt wrap = unit->phase.wrap;
@@ -823,13 +813,13 @@ static BKFUInt20 BKUnitRunWaveformNoise(BKUnit* unit, BKBuffer* channel, BKInt* 
 			}
 		}
 
-		pulse = ((phase >> 0) ^ (phase >> 2) ^ (phase >> 3) ^ (phase >> 5)) & 1;
+		BKInt pulse = ((phase >> 0) ^ (phase >> 2) ^ (phase >> 3) ^ (phase >> 5)) & 1;
 		phase = (phase >> 1) | (pulse << 15);
 		pulse = pulse ? BK_MAX_VOLUME / 2 : -BK_MAX_VOLUME / 2;
 
-		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+		BKInt delta = (pulse * volume) >> BK_VOLUME_SHIFT;
 
-		chanDelta = delta - lastPulse;
+		BKInt chanDelta = delta - lastPulse;
 		lastPulse = delta;
 
 		BKBufferAddPulse(channel, time, chanDelta);
@@ -843,22 +833,20 @@ static BKFUInt20 BKUnitRunWaveformNoise(BKUnit* unit, BKBuffer* channel, BKInt* 
 }
 
 static BKFUInt20 BKUnitRunWaveformSawtooth(BKUnit* unit, BKBuffer* channel, BKInt* lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime) {
-	BKInt pulse;
-	BKInt delta, chanDelta;
 	BKInt lastPulse = *lastPulseRef;
 	BKUInt phase = unit->phase.phase;
 
 	// run until time
 	for (; time < endTime; time += unit->period) {
-		pulse = sawtoothPhases[phase];
+		BKInt pulse = sawtoothPhases[phase];
 
 		if (++phase >= BK_SAWTOOTH_PHASES) {
 			phase = 0;
 		}
 
-		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+		BKInt delta = (pulse * volume) >> BK_VOLUME_SHIFT;
 
-		chanDelta = delta - lastPulse;
+		BKInt chanDelta = delta - lastPulse;
 		lastPulse = delta;
 
 		BKBufferAddPulse(channel, time, chanDelta);
@@ -871,8 +859,6 @@ static BKFUInt20 BKUnitRunWaveformSawtooth(BKUnit* unit, BKBuffer* channel, BKIn
 }
 
 static BKFUInt20 BKUnitRunWaveformSine(BKUnit* unit, BKBuffer* channel, BKInt* lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime) {
-	BKInt pulse;
-	BKInt delta, chanDelta;
 	BKInt lastPulse = *lastPulseRef;
 	BKUInt phase = unit->phase.phase;
 
@@ -881,9 +867,9 @@ static BKFUInt20 BKUnitRunWaveformSine(BKUnit* unit, BKBuffer* channel, BKInt* l
 		BKInt pulse = sinePhases[phase] / 2;
 		phase = (phase + 1) & (BK_SINE_PHASES - 1);
 
-		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+		BKInt delta = (pulse * volume) >> BK_VOLUME_SHIFT;
 
-		chanDelta = delta - lastPulse;
+		BKInt chanDelta = delta - lastPulse;
 		lastPulse = delta;
 
 		BKBufferAddPulse(channel, time, chanDelta);
@@ -896,8 +882,6 @@ static BKFUInt20 BKUnitRunWaveformSine(BKUnit* unit, BKBuffer* channel, BKInt* l
 }
 
 static BKFUInt20 BKUnitRunWaveformCustom(BKUnit* unit, BKBuffer* channel, BKInt* lastPulseRef, BKInt volume, BKFUInt20 time, BKFUInt20 endTime) {
-	BKInt pulse;
-	BKInt delta, chanDelta;
 	BKInt lastPulse = *lastPulseRef;
 	BKUInt phase = unit->phase.phase;
 	BKUInt wrap = unit->phase.wrap;
@@ -912,15 +896,15 @@ static BKFUInt20 BKUnitRunWaveformCustom(BKUnit* unit, BKBuffer* channel, BKInt*
 			}
 		}
 
-		pulse = unit->sample.frames[phase];
+		BKInt pulse = unit->sample.frames[phase];
 
 		if (++phase >= unit->phase.count) {
 			phase = 0;
 		}
 
-		delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+		BKInt delta = (pulse * volume) >> BK_VOLUME_SHIFT;
 
-		chanDelta = delta - lastPulse;
+		BKInt chanDelta = delta - lastPulse;
 		lastPulse = delta;
 
 		BKBufferAddPulse(channel, time, chanDelta);
@@ -938,13 +922,8 @@ static BKFUInt20 BKUnitRunWaveformCustom(BKUnit* unit, BKBuffer* channel, BKInt*
  */
 static BKFUInt20 BKUnitRunWaveform(BKUnit* unit, BKFUInt20 endTime) {
 	BKFUInt20 time = 0;
-	BKInt volume;
-	BKBuffer* channel;
-	BKInt lastPulse;
-	BKInt origPhase, origWrapCount;
-
-	origPhase = unit->phase.phase;
-	origWrapCount = unit->phase.wrapCount;
+	BKInt origPhase = unit->phase.phase;
+	BKInt origWrapCount = unit->phase.wrapCount;
 
 	if (unit->mute) {
 		return time;
@@ -952,14 +931,14 @@ static BKFUInt20 BKUnitRunWaveform(BKUnit* unit, BKFUInt20 endTime) {
 
 	// update each channel
 	for (BKInt i = 0; i < unit->ctx->numChannels; i++) {
-		volume = unit->volume[i];
+		BKInt volume = unit->volume[i];
 
 		if (!volume) {
 			continue;
 		}
 
-		channel = &unit->ctx->channels[i];
-		lastPulse = unit->lastPulse[i];
+		BKBuffer* channel = &unit->ctx->channels[i];
+		BKInt lastPulse = unit->lastPulse[i];
 		time = unit->time;
 
 		unit->phase.phase = origPhase;
@@ -1028,17 +1007,16 @@ static BKInt BKUnitWrapSamplePhase(BKUnit* unit, BKInt min, BKInt max) {
 }
 
 static BKInt BKUnitResetSample(BKUnit* unit) {
-	BKInt repeatMode, resetDir;
 	BKInt mode = 0;
 	BKInt halt = 0;
 
-	repeatMode = unit->sample.repeatMode;
+	BKInt repeatMode = unit->sample.repeatMode;
 
 	if (unit->sample.callback.func) {
 		repeatMode = BKUnitCallSampleCallback(unit, BK_EVENT_SAMPLE_RESET);
 	}
 
-	resetDir = BKUnitWrapSamplePhase(unit, 0, unit->sample.length);
+	BKInt resetDir = BKUnitWrapSamplePhase(unit, 0, unit->sample.length);
 
 	switch (repeatMode) {
 		default:
@@ -1090,12 +1068,7 @@ static BKInt BKUnitResetSample(BKUnit* unit) {
  * Calls sample callback if sample has ended and asks if it should be repeated
  */
 static BKFUInt20 BKUnitRunSample(BKUnit* unit, BKFUInt20 endTime) {
-	BKFInt20 time, lastTime;
-	BKInt volume;
-	BKBuffer* channel;
-	BKInt pulse, delta, chanDelta;
-	BKInt checkBounds;
-	BKFrame* frames;
+	BKFInt20 time;
 
 	// muted
 	if (unit->mute) {
@@ -1107,26 +1080,26 @@ static BKFUInt20 BKUnitRunSample(BKUnit* unit, BKFUInt20 endTime) {
 		return endTime;
 	}
 
-	checkBounds = (unit->object.flags & BKUnitFlagSampleSustainRange) && !(unit->object.flags & BKUnitFlagRelease);
+	BKInt checkBounds = (unit->object.flags & BKUnitFlagSampleSustainRange) && !(unit->object.flags & BKUnitFlagRelease);
 
 	for (time = unit->time; time < endTime; time += BK_FINT20_UNIT) {
-		frames = &unit->sample.frames[unit->phase.phase * unit->sample.numChannels];
+		BKFrame* frames = &unit->sample.frames[unit->phase.phase * unit->sample.numChannels];
 
 		// update each channel
 		for (BKInt i = 0; i < unit->ctx->numChannels; i++) {
-			channel = &unit->ctx->channels[i];
-			volume = unit->volume[i];
-			pulse = frames[unit->sample.numChannels == 1 ? 0 : i];
-			delta = (pulse * volume) >> BK_VOLUME_SHIFT;
+			BKBuffer* channel = &unit->ctx->channels[i];
+			BKInt volume = unit->volume[i];
+			BKInt pulse = frames[unit->sample.numChannels == 1 ? 0 : i];
+			BKInt delta = (pulse * volume) >> BK_VOLUME_SHIFT;
 
-			chanDelta = delta - unit->lastPulse[i];
+			BKInt chanDelta = delta - unit->lastPulse[i];
 			unit->lastPulse[i] = delta;
 
 			BKBufferAddPulse(channel, time + unit->sample.timeFrac, chanDelta);
 		}
 
 		// advance phase
-		lastTime = unit->sample.timeFrac;
+		BKFInt20 lastTime = unit->sample.timeFrac;
 		unit->sample.timeFrac += unit->sample.period; // may be negative
 		unit->phase.phase += (unit->sample.timeFrac >> BK_FINT20_SHIFT) - (lastTime >> BK_FINT20_SHIFT);
 		unit->sample.timeFrac &= BK_FINT20_FRAC;
@@ -1159,7 +1132,6 @@ static BKFUInt20 BKUnitRunSample(BKUnit* unit, BKFUInt20 endTime) {
 BKInt BKUnitRun(BKUnit* unit, BKFUInt20 endTime) {
 	BKContext* ctx = unit->ctx;
 	BKFUInt20 time = unit->time;
-	BKBuffer* channel;
 
 	if (unit->period) {
 		switch (unit->waveform) {
@@ -1180,12 +1152,13 @@ BKInt BKUnitRun(BKUnit* unit, BKFUInt20 endTime) {
 	}
 
 	// advance time in case less data was written
-	if (time < endTime)
+	if (time < endTime) {
 		time = endTime;
+	}
 
 	// advance buffer capacity
 	for (BKInt i = 0; i < ctx->numChannels; i++) {
-		channel = &ctx->channels[i];
+		BKBuffer* channel = &ctx->channels[i];
 		BKBufferEnd(channel, time);
 	}
 
@@ -1221,12 +1194,14 @@ void BKUnitClear(BKUnit* unit) {
 	unit->sample.dataState.callbackUserInfo = unit;
 
 	// reset sample range
-	if (unit->sample.dataState.data)
+	if (unit->sample.dataState.data) {
 		unit->sample.end = unit->sample.dataState.data->numFrames;
+	}
 
 	// reverse period if needed
-	if (unit->sample.offset > unit->sample.end)
+	if (unit->sample.offset > unit->sample.end) {
 		unit->sample.period = -BKAbs(unit->sample.period);
+	}
 }
 
 void BKUnitReset(BKUnit* unit) {
@@ -1236,8 +1211,9 @@ void BKUnitReset(BKUnit* unit) {
 	unit->phase.phase = 0;
 	unit->time = 0;
 
-	for (BKInt i = 0; i < BK_MAX_CHANNELS; i++)
+	for (BKInt i = 0; i < BK_MAX_CHANNELS; i++) {
 		unit->lastPulse[i] = 0;
+	}
 }
 
 static BKInt BKUnitSetPtrSize(BKUnit* unit, BKEnum attr, void* ptr, BKSize size) {

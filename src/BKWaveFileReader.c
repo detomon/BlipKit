@@ -28,14 +28,12 @@
 extern BKClass BKWaveFileReaderClass;
 
 static BKInt BKCheckFile(FILE* file) {
-	int fd, mode;
-
 	if (fseek(file, 0, SEEK_CUR)) {
 		return BK_FILE_NOT_SEEKABLE_ERROR;
 	}
 
-	fd = fileno(file);
-	mode = fcntl(fd, F_GETFL) & O_ACCMODE;
+	int fd = fileno(file);
+	int mode = fcntl(fd, F_GETFL) & O_ACCMODE;
 
 	if (mode < 0) {
 		return BK_FILE_ERROR;
@@ -49,9 +47,9 @@ static BKInt BKCheckFile(FILE* file) {
 }
 
 BKInt BKWaveFileReaderInit(BKWaveFileReader* reader, FILE* file) {
-	BKInt res;
+	BKInt res = BKCheckFile(file);
 
-	if ((res = BKCheckFile(file)) != 0) {
+	if (res != 0) {
 		return res;
 	}
 
@@ -86,14 +84,9 @@ static void BKWaveFileHeaderDataRead(BKWaveFileHeaderData* headerData) {
 }
 
 BKInt BKWaveFileReaderReadHeader(BKWaveFileReader* reader, BKInt* outNumChannels, BKInt* outSampleRate, BKInt* outNumFrames) {
-	BKSize size;
-	BKSize frameSize;
-	BKWaveFileHeader header;
-	BKWaveFileHeaderFmt headerFmt;
-	BKWaveFileHeaderData headerData;
-
 	if (reader->sampleRate == 0) {
-		size = fread(&header, 1, sizeof(header), reader->file);
+		BKWaveFileHeader header;
+		BKSize size = fread(&header, 1, sizeof(header), reader->file);
 
 		if (size < sizeof(header)) {
 			return -1;
@@ -106,6 +99,9 @@ BKInt BKWaveFileReaderReadHeader(BKWaveFileReader* reader, BKInt* outNumChannels
 		if (memcmp(header.format, "WAVE", 4) != 0) {
 			return -1;
 		}
+
+		BKWaveFileHeaderFmt headerFmt;
+		BKWaveFileHeaderData headerData;
 
 		size = fread(&headerFmt, 1, sizeof(headerFmt), reader->file);
 
@@ -149,6 +145,8 @@ BKInt BKWaveFileReaderReadHeader(BKWaveFileReader* reader, BKInt* outNumChannels
 		reader->numChannels = headerFmt.numChannels;
 		reader->numBits = headerFmt.bitsPerSample;
 
+		BKSize frameSize;
+
 		switch (reader->numBits) {
 			case 8: {
 				frameSize = 1;
@@ -189,13 +187,8 @@ BKInt BKWaveFileReaderReadHeader(BKWaveFileReader* reader, BKInt* outNumChannels
 
 BKInt BKWaveFileReaderReadFrames(BKWaveFileReader* reader, BKFrame outFrames[]) {
 	char buffer[1024];
-	char* bufferPtr;
-	BKSize readSize, writeSize;
-	BKSize remainingSize;
 	BKSize frameSize;
-	BKInt reverseEndian;
 	BKUInt readMask;
-	BKFrame frame;
 
 	switch (reader->numBits) {
 		case 8: {
@@ -211,13 +204,13 @@ BKInt BKWaveFileReaderReadFrames(BKWaveFileReader* reader, BKFrame outFrames[]) 
 		}
 	}
 
-	writeSize = 0;
-	reverseEndian = BKSystemIsBigEndian();
-	remainingSize = reader->dataSize;
+	BKSize writeSize = 0;
+	BKInt reverseEndian = BKSystemIsBigEndian();
+	BKSize remainingSize = reader->dataSize;
 	readMask = ~readMask;
 
 	while (remainingSize) {
-		readSize = BKMin(remainingSize, sizeof(buffer));
+		BKSize readSize = BKMin(remainingSize, sizeof(buffer));
 		readSize = readSize & readMask;
 		readSize = fread(buffer, 1, readSize, reader->file);
 		readSize = readSize & readMask;
@@ -227,7 +220,7 @@ BKInt BKWaveFileReaderReadFrames(BKWaveFileReader* reader, BKFrame outFrames[]) 
 			break;
 		}
 
-		bufferPtr = buffer;
+		char* bufferPtr = buffer;
 
 		remainingSize -= readSize;
 		writeSize += readSize;
@@ -235,7 +228,7 @@ BKInt BKWaveFileReaderReadFrames(BKWaveFileReader* reader, BKFrame outFrames[]) 
 		switch (frameSize) {
 			case 1: {
 				while (readSize) {
-					frame = (((BKFrame)(*(uint8_t*)bufferPtr)) - 128) << 8;
+					BKFrame frame = (((BKFrame)(*(uint8_t*)bufferPtr)) - 128) << 8;
 					(*outFrames++) = frame;
 
 					bufferPtr += frameSize;
@@ -245,7 +238,7 @@ BKInt BKWaveFileReaderReadFrames(BKWaveFileReader* reader, BKFrame outFrames[]) 
 			}
 			case 2: {
 				while (readSize) {
-					frame = (*(BKFrame*)bufferPtr);
+					BKFrame frame = (*(BKFrame*)bufferPtr);
 
 					if (reverseEndian) {
 						frame = BKInt16Reverse(frame);

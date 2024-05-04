@@ -39,12 +39,13 @@ enum {
  * Add state to data state list
  */
 static void BKDataStateAddToData(BKDataState* state, BKData* data) {
-	BKDataState* lastState;
-
 	if (state->data == NULL && data && (data->object.flags & BKObjectFlagLocked) == 0) {
+		BKDataState* lastState;
+
 		// search for last state in  list
-		for (lastState = data->stateList; lastState && lastState->nextState;)
+		for (lastState = data->stateList; lastState && lastState->nextState;) {
 			lastState = lastState->nextState;
+		}
 
 		// has last state
 		if (lastState) {
@@ -65,13 +66,15 @@ static void BKDataStateAddToData(BKDataState* state, BKData* data) {
  */
 static void BKDataStateRemoveFromData(BKDataState* state) {
 	BKData* data = state->data;
-	BKDataState *searchState, *prevState = NULL;
 
 	if (data != NULL && (data->object.flags & BKObjectFlagLocked) == 0) {
+		BKDataState* prevState = NULL;
+
 		// search for state and previous state
-		for (searchState = data->stateList; searchState; searchState = searchState->nextState) {
-			if (searchState == state)
+		for (BKDataState* searchState = data->stateList; searchState; searchState = searchState->nextState) {
+			if (searchState == state) {
 				break;
+			}
 
 			prevState = searchState;
 		}
@@ -94,34 +97,36 @@ static void BKDataStateRemoveFromData(BKDataState* state) {
  * Reset states which has set this data
  */
 static void BKDataResetStates(BKData* data, BKEnum event) {
-	BKInt res;
-	BKInt dispose;
-	BKDataState* state;
-	BKDataState *nextState, *prevState = NULL;
+	BKDataState* nextState;
+	BKDataState* prevState = NULL;
 
 	data->object.flags |= BKObjectFlagLocked;
 
-	for (state = data->stateList; state; state = nextState) {
-		dispose = 0;
+	for (BKDataState* state = data->stateList; state; state = nextState) {
+		BKInt dispose = 0;
 		nextState = state->nextState;
 
 		if (state->callback) {
-			res = state->callback(event, state->callbackUserInfo);
+			BKInt res = state->callback(event, state->callbackUserInfo);
 
 			// remove from list if failed
-			if (res < 0)
+			if (res < 0) {
 				dispose = 1;
+			}
 		}
 
-		if (event == BK_DATA_STATE_EVENT_DISPOSE)
+		if (event == BK_DATA_STATE_EVENT_DISPOSE) {
 			dispose = 1;
+		}
 
 		if (dispose) {
-			if (prevState)
+			if (prevState) {
 				prevState->nextState = nextState;
+			}
 
-			if (data->stateList == state)
+			if (data->stateList == state) {
 				data->stateList = state->nextState;
+			}
 
 			state->nextState = NULL;
 			state->data = NULL;
@@ -135,15 +140,13 @@ static void BKDataResetStates(BKData* data, BKEnum event) {
 }
 
 static BKInt BKDataPromoteToCopy(BKData* data) {
-	BKSize size;
-	BKFrame* frames;
-
 	if ((data->object.flags & BK_DATA_FLAG_COPY) == 0) {
-		size = data->numFrames * data->numChannels * sizeof(BKFrame);
-		frames = malloc(size);
+		BKSize size = data->numFrames * data->numChannels * sizeof(BKFrame);
+		BKFrame* frames = malloc(size);
 
-		if (frames == NULL)
+		if (frames == NULL) {
 			return BK_ALLOCATION_ERROR;
+		}
 
 		memcpy(frames, data->frames, size);
 
@@ -171,8 +174,9 @@ static void BKDataDisposeObject(BKData* data) {
 }
 
 void BKDataDetach(BKData* data) {
-	if (data == NULL)
+	if (data == NULL) {
 		return;
+	}
 
 	BKDataResetStates(data, BK_DATA_STATE_EVENT_DISPOSE);
 }
@@ -186,11 +190,13 @@ BKInt BKDataInitCopy(BKData* copy, BKData const* original) {
 	copy->stateList = NULL;
 	copy->frames = NULL;
 
-	if (original->frames)
+	if (original->frames) {
 		res = BKDataSetFrames(copy, original->frames, original->numFrames, original->numChannels, 1);
+	}
 
-	if (res < 0)
+	if (res < 0) {
 		return res;
+	}
 
 	return 0;
 }
@@ -316,17 +322,18 @@ static BKInt BKDataGetPtr(BKData const* data, BKEnum attr, void* outPtr) {
 }
 
 BKInt BKDataSetFrames(BKData* data, BKFrame const* frames, BKUInt numFrames, BKUInt numChannels, BKInt copy) {
-	BKUInt size;
 	BKFrame* newFrames;
 
 	// need at least 2 phases
-	if (numFrames < 2)
+	if (numFrames < 2) {
 		return BK_INVALID_NUM_FRAMES;
+	}
 
-	if (numChannels < 1 || numChannels > BK_MAX_CHANNELS)
+	if (numChannels < 1 || numChannels > BK_MAX_CHANNELS) {
 		return BK_INVALID_NUM_CHANNELS;
+	}
 
-	size = numFrames * numChannels * sizeof(BKFrame);
+	BKUInt size = numFrames * numChannels * sizeof(BKFrame);
 
 	if (copy) {
 		if (data->object.flags & BK_DATA_FLAG_COPY) {
@@ -336,8 +343,9 @@ BKInt BKDataSetFrames(BKData* data, BKFrame const* frames, BKUInt numFrames, BKU
 			newFrames = malloc(size);
 		}
 
-		if (newFrames == NULL)
+		if (newFrames == NULL) {
 			return -1;
+		}
 
 		data->object.flags |= BK_DATA_FLAG_COPY;
 
@@ -423,9 +431,7 @@ static BKInt BKDataNumBitsFromParam(BKEnum param, BKUInt* outNumBits, BKInt* out
 }
 
 static BKInt BKDataCalculateNumFramesFromNumBits(BKUInt dataSize, BKUInt numBits, BKUInt numChannels) {
-	BKInt numFrames = 0;
 	BKInt packetSize;
-	BKInt dataSizeBits = dataSize * 8;
 
 	if (numBits <= 8) {
 		packetSize = (numBits * numChannels);
@@ -435,7 +441,8 @@ static BKInt BKDataCalculateNumFramesFromNumBits(BKUInt dataSize, BKUInt numBits
 		packetSize = (numBits + 3) / 4 * 4 * numChannels;
 	}
 
-	numFrames = dataSizeBits / packetSize * numChannels;
+	BKInt dataSizeBits = dataSize * 8;
+	BKInt numFrames = dataSizeBits / packetSize * numChannels;
 
 	return numFrames;
 }
@@ -537,23 +544,28 @@ BKInt BKDataSetData(BKData* data, void const* frameData, BKUInt dataSize, BKUInt
 	BKUInt endian = (params & BK_ENDIAN_MASK);
 	BKUInt bits = (params & BK_DATA_BITS_MASK);
 	BKUInt numBits;
-	BKInt isSigned, reverseEndian = 0;
-	BKInt numFrames;
-	BKFrame* frames;
+	BKInt isSigned;
+	BKInt reverseEndian = 0;
 
-	if (numChannels < 1 || numChannels > BK_MAX_CHANNELS)
+	if (numChannels < 1 || numChannels > BK_MAX_CHANNELS) {
 		return BK_INVALID_NUM_CHANNELS;
+	}
 
-	if (endian)
+	if (endian) {
 		reverseEndian = BKSystemIsBigEndian() != (endian == BK_BIG_ENDIAN);
+	}
 
-	if (BKDataNumBitsFromParam(bits, &numBits, &isSigned) < 0)
+	if (BKDataNumBitsFromParam(bits, &numBits, &isSigned) < 0) {
 		return BK_INVALID_NUM_BITS;
+	}
 
-	numFrames = BKDataCalculateNumFramesFromNumBits(dataSize, numBits, numChannels);
+	BKInt numFrames = BKDataCalculateNumFramesFromNumBits(dataSize, numBits, numChannels);
 
-	if (numFrames < 0)
+	if (numFrames < 0) {
 		return BK_INVALID_NUM_BITS;
+	}
+
+	BKFrame* frames;
 
 	if (data->object.flags & BK_DATA_FLAG_COPY) {
 		frames = realloc(data->frames, numFrames * sizeof(BKFrame));
@@ -562,11 +574,13 @@ BKInt BKDataSetData(BKData* data, void const* frameData, BKUInt dataSize, BKUInt
 		frames = malloc(numFrames * sizeof(BKFrame));
 	}
 
-	if (frames == NULL)
+	if (frames == NULL) {
 		return BK_ALLOCATION_ERROR;
+	}
 
-	if (BKDataConvertFromBits(frames, frameData, dataSize, numBits, isSigned, reverseEndian, numChannels) < 0)
+	if (BKDataConvertFromBits(frames, frameData, dataSize, numBits, isSigned, reverseEndian, numChannels) < 0) {
 		return -1;
+	}
 
 	data->frames = frames;
 	data->numFrames = numFrames / numChannels;
@@ -577,25 +591,21 @@ BKInt BKDataSetData(BKData* data, void const* frameData, BKUInt dataSize, BKUInt
 }
 
 BKInt BKDataLoadRaw(BKData* data, FILE* file, BKUInt numChannels, BKEnum params) {
-	BKSize offset, size;
-	void* frames;
-	BKInt ret = 0;
-
-	offset = ftell(file);
+	BKSize offset = ftell(file);
 
 	if (offset < 0) {
 		return BK_FILE_ERROR;
 	}
 
 	fseek(file, 0, SEEK_END);
-	size = ftell(file);
+	BKSize size = ftell(file);
 
 	if (size < 0) {
 		return BK_FILE_ERROR;
 	}
 
 	size -= offset;
-	frames = malloc(size);
+	void* frames = malloc(size);
 
 	if (frames == NULL) {
 		return BK_ALLOCATION_ERROR;
@@ -604,7 +614,7 @@ BKInt BKDataLoadRaw(BKData* data, FILE* file, BKUInt numChannels, BKEnum params)
 	fseek(file, offset, SEEK_SET);
 	fread(frames, sizeof(char), size, file);
 
-	ret = BKDataSetData(data, frames, (BKUInt)size, numChannels, params);
+	BKInt ret = BKDataSetData(data, frames, (BKUInt)size, numChannels, params);
 
 	free(frames);
 
@@ -613,9 +623,9 @@ BKInt BKDataLoadRaw(BKData* data, FILE* file, BKUInt numChannels, BKEnum params)
 
 BKInt BKDataLoadWAVE(BKData* data, FILE* file) {
 	BKWaveFileReader reader;
-	BKInt numChannels, sampleRate, numFrames;
-	BKFrame* frames;
-	BKSize size;
+	BKInt numChannels;
+	BKInt sampleRate;
+	BKInt numFrames;
 
 	if (BKWaveFileReaderInit(&reader, file) < 0) {
 		return BK_INVALID_RETURN_VALUE;
@@ -625,8 +635,8 @@ BKInt BKDataLoadWAVE(BKData* data, FILE* file) {
 		return BK_INVALID_RETURN_VALUE;
 	}
 
-	size = numFrames * numChannels * sizeof(BKFrame);
-	frames = malloc(size);
+	BKSize size = numFrames * numChannels * sizeof(BKFrame);
+	BKFrame* frames = malloc(size);
 
 	if (frames == NULL) {
 		BKDispose(&reader);
@@ -651,27 +661,27 @@ BKInt BKDataLoadWAVE(BKData* data, FILE* file) {
 }
 
 BKInt BKDataNormalize(BKData* data) {
-	BKInt res = 0;
-	BKInt value, maxValue = 0;
-	BKInt factor;
+	BKInt maxValue = 0;
+	BKInt res = BKDataPromoteToCopy(data);
 
-	res = BKDataPromoteToCopy(data);
-
-	if (res != 0)
+	if (res != 0) {
 		return res;
+	}
 
 	for (BKInt i = 0; i < data->numFrames * data->numChannels; i++) {
-		value = BKAbs(data->frames[i]);
+		BKInt value = BKAbs(data->frames[i]);
 
-		if (value > maxValue)
+		if (value > maxValue) {
 			maxValue = value;
+		}
 	}
 
 	if (maxValue) {
-		factor = (BK_MAX_VOLUME << 16) / maxValue;
+		BKInt factor = (BK_MAX_VOLUME << 16) / maxValue;
 
-		for (BKInt i = 0; i < data->numFrames * data->numChannels; i++)
+		for (BKInt i = 0; i < data->numFrames * data->numChannels; i++) {
 			data->frames[i] = (data->frames[i] * factor) >> 16;
+		}
 	}
 
 	return 0;
@@ -685,8 +695,6 @@ BKInt BKDataStateSetData(BKDataState* state, BKData* data) {
 }
 
 static void BKDataReduceBits(BKFrame* outFrames, BKFrame* frames, BKSize length, BKDataConvertInfo* info) {
-	BKInt maxValue;
-
 	BKInt const maximize = 1;
 	BKInt const shiftUp = 1;
 
@@ -695,36 +703,34 @@ static void BKDataReduceBits(BKFrame* outFrames, BKFrame* frames, BKSize length,
 	float ditherSlope = info->ditherSlope;
 	float ditherCurve = info->ditherCurve;
 
-	maxValue = (1 << 15) - 1;
+	BKInt maxValue = (1 << 15) - 1;
 
-	BKInt frame;
-	BKInt frame32;
-	BKInt dither, deltaDither = 0;
+	BKInt deltaDither = 0;
 	BKInt threshold = info->threshold * maxValue;
 	float sum = 0.0;
 	float lastFrame = 0.0;
 	int downsample = 15 - bits + 1;
-	float ditherFactor;
 
-	if (bits <= 8)
+	if (bits <= 8) {
 		deltaDither = (1 << (downsample)) - 1;
+	}
 
 	for (int i = 0; i < length; i++) {
-		frame = frames[i];
+		BKInt frame = frames[i];
 
 		sum -= lastFrame;
 		sum += frame;
 		lastFrame = frame;
 
-		frame32 = (BKInt)frame;
+		BKInt frame32 = (BKInt)frame;
 
 		if (BKAbs(frame) >= threshold) {
 			if (deltaDither) {
-				dither = rand();
+				BKInt dither = rand();
 				dither = (dither & 1) ? -deltaDither : deltaDither;
 
 				// smooth dither
-				ditherFactor = pow(BKAbs((sum / ditherSmoothLength)) / maxValue, ditherCurve);
+				float ditherFactor = pow(BKAbs((sum / ditherSmoothLength)) / maxValue, ditherCurve);
 				ditherFactor = (1.0 - ditherSlope) + (ditherFactor * ditherSlope);
 				dither *= ditherFactor;
 
@@ -751,8 +757,9 @@ static void BKDataReduceBits(BKFrame* outFrames, BKFrame* frames, BKSize length,
 			frame32 = -frame32;
 		}
 
-		if (maximize)
+		if (maximize) {
 			frame32 = frame32 * maxValue / (1 << (15 - tmpDownsample));
+		}
 
 		outFrames[i] = frame32;
 	}
@@ -760,33 +767,35 @@ static void BKDataReduceBits(BKFrame* outFrames, BKFrame* frames, BKSize length,
 
 BKInt BKDataConvert(BKData* data, BKDataConvertInfo* info) {
 	BKFrame* convertedFrames;
-	BKSize length;
-	BKDataConvertInfo validatedInfo;
+	BKSize length = data->numFrames * data->numChannels;
+	BKDataConvertInfo validatedInfo = (*info);
 
-	length = data->numFrames * data->numChannels;
-
-	validatedInfo = (*info);
-
-	if (validatedInfo.ditherSmoothLength == 0)
+	if (validatedInfo.ditherSmoothLength == 0) {
 		validatedInfo.ditherSmoothLength = 64;
+	}
 
-	if (validatedInfo.ditherSlope == 0)
+	if (validatedInfo.ditherSlope == 0) {
 		validatedInfo.ditherSlope = 1.0;
+	}
 
-	if (validatedInfo.ditherCurve == 0)
+	if (validatedInfo.ditherCurve == 0) {
 		validatedInfo.ditherCurve = 1.0;
+	}
 
-	if (validatedInfo.threshold == 0)
+	if (validatedInfo.threshold == 0) {
 		validatedInfo.threshold = 0.02;
+	}
 
-	if (validatedInfo.targetNumBits > 15)
+	if (validatedInfo.targetNumBits > 15) {
 		validatedInfo.targetNumBits = 15;
+	}
 
 	if ((data->object.flags & BK_DATA_FLAG_COPY) == 0) {
 		convertedFrames = malloc(length * sizeof(BKFrame));
 
-		if (convertedFrames == NULL)
+		if (convertedFrames == NULL) {
 			return -1;
+		}
 	}
 	else {
 		convertedFrames = data->frames;

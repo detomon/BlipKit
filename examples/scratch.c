@@ -107,11 +107,13 @@ static BKEnum dividerCallback(BKCallbackInfo* info, void* userData) {
 		BKSetAttr(&noise, BK_PHASE_WRAP, 64);
 	}
 
-	if (note >= 0)
+	if (note >= 0) {
 		note *= BK_FINT20_UNIT;
+	}
 
-	if (note2 >= 0)
+	if (note2 >= 0) {
 		note2 *= BK_FINT20_UNIT;
+	}
 
 	// Set track note
 	BKSetAttr(&noise, BK_NOTE, note);
@@ -121,8 +123,9 @@ static BKEnum dividerCallback(BKCallbackInfo* info, void* userData) {
 
 	i++;
 
-	if (i >= 32)
+	if (i >= 32) {
 		i = 0;
+	}
 
 	return 0;
 }
@@ -199,8 +202,9 @@ int main(int argc, char* argv[]) {
 
 		SDL_UnlockAudio();
 
-		if (c == 'q')
+		if (c == 'q') {
 			break;
+		}
 	}
 
 	printf("\n");

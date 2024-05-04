@@ -84,8 +84,9 @@ BKInt BKClockAttach(BKClock* clock, BKContext* ctx, BKClock* beforeClock) {
 		clock->ctx = ctx;
 		BKClockReset(clock);
 
-		if (beforeClock == BK_FIRST_ELEMENT_PTR)
+		if (beforeClock == BK_FIRST_ELEMENT_PTR) {
 			beforeClock = ctx->firstClock;
+		}
 
 		if (beforeClock == NULL) {
 			clock->prevClock = ctx->lastClock;
@@ -158,11 +159,13 @@ void BKClockSetPeriod(BKClock* clock, BKTime period) {
 void BKClockReset(BKClock* clock) {
 	BKContext* ctx = clock->ctx;
 
-	if (ctx)
+	if (ctx) {
 		ctx->flags |= BK_CONTEXT_FLAG_CLOCK_RESET;
+	}
 
-	for (BKDivider* divider = clock->dividers.firstDivider; divider; divider = divider->nextDivider)
+	for (BKDivider* divider = clock->dividers.firstDivider; divider; divider = divider->nextDivider) {
 		BKDividerReset(divider);
+	}
 
 	clock->object.flags &= ~BK_CLOCK_FLAG_RESET; // clear reset flag
 	clock->counter = 0;
@@ -210,8 +213,9 @@ BKInt BKClockTick(BKClock* clock) {
 		info.event = BK_EVENT_CLOCK;
 		info.nextTime = clock->time;
 
-		if (clock->callback.func)
+		if (clock->callback.func) {
 			result = clock->callback.func(&info, clock->callback.userInfo);
+		}
 
 		BKDividerTick(clock->dividers.firstDivider, &info);
 

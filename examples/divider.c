@@ -82,33 +82,36 @@ static BKEnum dividerCallback(BKCallbackInfo* info, void* userData) {
 	BKInt note = notes [i];
 	BKInt note2 = notes2 [i];
 
-	if (note >= 0)
+	if (note >= 0) {
 		note *= BK_FINT20_UNIT;
+	}
 
 	// Set track note
 	BKSetAttr (& sawtooth, BK_NOTE, note);
 
-	if (note >= 0)
+	if (note >= 0) {
 		note += 7 * BK_FINT20_UNIT;
+	}
 
 	BKSetAttr (& triangle, BK_NOTE, note);
 
-	if (note2 >= 0)
+	if (note2 >= 0) {
 		note2 *= BK_FINT20_UNIT;
+	}
 
 	BKSetAttr (& square, BK_NOTE, note2);
 
 
 	i ++;
 
-	if (i >= 16)
+	if (i >= 16) {
 		i = 0;
+	}
 
 	return 0;
 }
 
-int main (int argc, char * argv [])
-{
+int main (int argc, char * argv []) {
 	BKContextInit (& ctx, userData.numChannels, userData.sampleRate);
 
 	BKTrackInit (& square, BK_SQUARE);
@@ -200,8 +203,9 @@ int main (int argc, char * argv [])
 		SDL_UnlockAudio ();
 		*/
 
-		if (c == 'q')
+		if (c == 'q') {
 			break;
+		}
 	}
 
 	printf ("\n");

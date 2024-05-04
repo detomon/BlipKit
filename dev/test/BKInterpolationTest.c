@@ -35,8 +35,9 @@ static void BKIntervalStateTest(void) {
 		if (i >= 0) {
 			BKIntervalStateSetDelta(&state, si);
 
-			if (si > 0)
+			if (si > 0) {
 				si -= 1;
+			}
 		}
 
 		BKIntervalStateStep(&state);

@@ -75,17 +75,20 @@ static BKEnum dividerCallback(BKCallbackInfo* info, void* userData) {
 
 	BKInt note = notes[i];
 
-	if (note >= 0)
+	if (note >= 0) {
 		note *= BK_FINT20_UNIT;
+	}
 
 	// Set track note
-	if (note != -3)
+	if (note != -3) {
 		BKSetAttr(&track, BK_NOTE, note);
+	}
 
 	i++;
 
-	if (i >= 16)
+	if (i >= 16) {
 		i = 0;
+	}
 
 	return 0;
 }
@@ -172,8 +175,9 @@ int main(int argc, char* argv[]) {
 
 		SDL_UnlockAudio();
 
-		if (c == 'q')
+		if (c == 'q') {
 			break;
+		}
 	}
 
 	printf("\n");

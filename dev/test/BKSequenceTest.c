@@ -71,11 +71,13 @@ int main(int argc, char const* argv[]) {
 	for (BKInt i = 0;; i++) {
 		printf("%d\n", state.value);
 
-		if (BKSequenceStateStep(&state, 1) == BK_SEQUENCE_RETURN_FINISH)
+		if (BKSequenceStateStep(&state, 1) == BK_SEQUENCE_RETURN_FINISH) {
 			break;
+		}
 
-		if (i == 30)
+		if (i == 30) {
 			BKSequenceStateSetPhase(&state, BK_SEQUENCE_PHASE_RELEASE);
+		}
 	}
 
 	BKSequenceDispose(sequence);

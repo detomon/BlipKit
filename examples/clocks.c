@@ -163,8 +163,9 @@ int main(int argc, char* argv[]) {
 	while (1) {
 		int c = getchar_nocanon(0);
 
-		if (c == 'q')
+		if (c == 'q') {
 			break;
+		}
 	}
 
 	printf("\n");
