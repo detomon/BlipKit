@@ -24,6 +24,7 @@
 #include "BKWaveFileWriter.h"
 #include "BKWaveFile_internal.h"
 #include <fcntl.h>
+#include <stdio.h>
 
 enum {
 	BKWaveFileFlagHeaderWritten = 1 << 0,

@@ -28,6 +28,7 @@ AM_CFLAGS="$AM_CFLAGS -Wall \
 	-Wstrict-prototypes \
 	-Wformat-security \
 	-Winline \
+	-Wno-shift-negative-value \
 	-D_FORTIFY_SOURCE=1"
 
 # Use C11 standard.
@@ -74,6 +75,8 @@ AC_CONFIG_FILES([
 	src/Makefile
 	examples/Makefile
 	test/Makefile
+	dev/step_phases/Makefile
+	dev/tone_periods/Makefile
 ])
 
 # Run tests.

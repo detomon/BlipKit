@@ -1,7 +1,5 @@
-doc: Doxyfile doc/html
-	doxygen
-
-SUBDIRS = src examples test
+DOCS_DIR = docs
+SUBDIRS = src examples test dev/step_phases dev/tone_periods
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
@@ -9,4 +7,14 @@ EXTRA_DIST = \
 	LICENSE \
 	VERSION \
 	LOGO \
-	autogen.sh
+	autogen.sh \
+	Doxygen \
+	ChangeLog \
+	CMakeLists.txt \
+	docs
+
+docs: Doxyfile
+	doxygen
+
+clean-local:
+	-rm -rf $(DOCS_DIR)

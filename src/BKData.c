@@ -473,7 +473,7 @@ static BKInt BKDataConvertFromBits(BKFrame* outFrames, void const* data, BKUInt 
 
 	dataSize -= (dataSize % (mask * numChannels));
 
-	for (charData = data; (void*)charData < data + dataSize;) {
+	for (charData = data; charData < (unsigned char*)data + dataSize;) {
 		switch (numBits) {
 			case 1: {
 				c = charData[0];
@@ -521,7 +521,7 @@ static BKInt BKDataConvertFromBits(BKFrame* outFrames, void const* data, BKUInt 
 			}
 			case 16: {
 				if (reverseEndian) {
-					outFrames[0] = (charData[0] << 8) | (charData[1] >> 8);
+					outFrames[0] = ((BKFrame)charData[0] << 8) | ((BKFrame)charData[1] >> 8);
 				}
 				else {
 					outFrames[0] = (*(BKFrame*)charData);

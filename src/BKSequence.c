@@ -10,7 +10,7 @@ static BKInt BKSequenceFuncSimpleCreate(BKSequence** outSequence, BKSequenceFunc
 	if (sequence) {
 		memset(sequence, 0, sizeof(*sequence));
 
-		sequence->values = (void*)sequence + sizeof(*sequence);
+		sequence->values = (char*)sequence + sizeof(*sequence);
 
 		memcpy(sequence->values, values, size);
 
@@ -112,7 +112,7 @@ static BKInt BKSequenceFuncSimpleCopy(BKSequence** outCopy, BKSequence const* se
 	BKSequence* copy = malloc(sizeof(*copy) + size);
 
 	if (copy) {
-		values = (void*)copy + sizeof(*copy);
+		values = (BKInt*)((char*)copy + sizeof(*copy));
 		copy->values = values;
 
 		memcpy(copy, sequence, sizeof(*copy));
@@ -202,7 +202,7 @@ static BKInt BKSequenceFuncEnvelopeCreate(BKSequence** outSequence, BKSequenceFu
 	if (sequence) {
 		memset(sequence, 0, sizeof(*sequence));
 
-		sequence->values = (void*)sequence + sizeof(*sequence);
+		sequence->values = (char*)sequence + sizeof(*sequence);
 
 		memcpy(sequence->values, values, size);
 
@@ -355,7 +355,7 @@ static BKInt BKSequenceFuncEnvelopeCopy(BKSequence** outCopy, BKSequence const* 
 	copy = malloc(sizeof(*copy) + size);
 
 	if (copy) {
-		values = (void*)copy + sizeof(*copy);
+		values = (BKSequencePhase*)((char*)copy + sizeof(*copy));
 		copy->values = values;
 
 		memcpy(copy, sequence, sizeof(*copy));

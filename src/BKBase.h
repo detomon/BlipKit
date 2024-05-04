@@ -38,6 +38,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _MSC_VER
+#define alloca _alloca
+#endif
+
 #define BK_INLINE static inline
 
 /**
@@ -345,7 +349,7 @@ enum {
  */
 enum {
 	BK_SUCCESS = 0,
-	BK_RETURN_TYPE = (-7 << BK_ATTR_TYPE_SHIFT),
+	BK_RETURN_TYPE = (BKInt)(((BKUInt)-7) << BK_ATTR_TYPE_SHIFT),
 	BK_ALLOCATION_ERROR,
 	BK_INVALID_ATTRIBUTE,
 	BK_INVALID_VALUE,
@@ -369,7 +373,7 @@ extern char const* BKStatusGetName(BKEnum status);
 #if __GNUC__
 #define BK_DEPRECATED_FUNC(msg) __attribute__((deprecated(msg)))
 #else
-#define BK_DEPRECATED_FUNC
+#define BK_DEPRECATED_FUNC(msg)
 #endif
 
 #endif /* !_BK_BASE_H_  */

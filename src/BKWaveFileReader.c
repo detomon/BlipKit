@@ -24,6 +24,7 @@
 #include "BKWaveFileReader.h"
 #include "BKWaveFile_internal.h"
 #include <fcntl.h>
+#include <stdio.h>
 
 extern BKClass BKWaveFileReaderClass;
 

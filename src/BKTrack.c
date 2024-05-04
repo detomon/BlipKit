@@ -916,7 +916,7 @@ BKInt BKTrackGetEffect(BKTrack const* track, BKEnum effect, void* outValues, BKU
 	// copy values
 	memcpy(outValues, values, outSize);
 	// empty trailing data
-	memset((void*)outValues + outSize, 0, BKMax(0, (BKInt)size - outSize));
+	memset((char*)outValues + outSize, 0, BKMax(0, (BKInt)size - outSize));
 
 	return 0;
 }

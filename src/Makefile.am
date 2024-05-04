@@ -1,5 +1,3 @@
-AM_CFLAGS = @AM_CFLAGS@ -lm
-
 lib_LIBRARIES = libblipkit.a
 
 libblipkit_a_SOURCES = \

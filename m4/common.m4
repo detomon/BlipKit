@@ -55,9 +55,10 @@ AC_RUN_IFELSE([AC_LANG_SOURCE([[
 # -----------
 # Search for installed SDL libraries or frameworks.
 # Choose the latest version if found.
-# Outputs SDL_CFLAGS, SDL_CONFIG_NAME and SDL_VERSION.
+# Outputs SDL_CFLAGS, SDL_LDADD, SDL_CONFIG_NAME and SDL_VERSION.
 m4_define([CHECK_SDL], [dnl
 SDL_CFLAGS="$SDL_CFLAGS"
+SDL_LDADD="$SDL_LDADD"
 SDL_CONFIG_NAME=
 SDL_VERSION=
 
@@ -75,18 +76,19 @@ if test "x$SDL_CFLAGS" = x; then
 
 	# Set SDL flags from sdl-config if found.
 	if test "x$SDL_CONFIG_NAME" != x; then
-		SDL_CFLAGS="`${SDL_CONFIG_NAME} --cflags` `${SDL_CONFIG_NAME} --libs`"
+		SDL_CFLAGS="`${SDL_CONFIG_NAME} --cflags`"
+		SDL_LDADD="`${SDL_CONFIG_NAME} --libs`"
 	fi
 
 	# Output SDL_CFLAGS.
 	if test "x$SDL_CFLAGS" != x; then
-		echo "using SDL linking flags: $SDL_CFLAGS"
+		echo "using SDL linking flags: $SDL_CFLAGS $SDL_LDADD"
 	else
 		AC_MSG_ERROR([SDL was requested with --with-sdl, but SDL was not found. Use --without-sdl to disable usage of SDL])
 	fi
 
 	AC_SUBST(SDL_CFLAGS)
-	AC_SUBST(SDL_CONFIG_NAME)
+	AC_SUBST(SDL_LDADD)
 	AC_SUBST(SDL_VERSION)
 else
 	echo "using user defined SDL linking flags: $SDL_CFLAGS"
