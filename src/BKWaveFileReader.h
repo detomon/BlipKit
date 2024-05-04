@@ -52,15 +52,14 @@ typedef struct BKWaveFileReader BKWaveFileReader;
 /**
  * The WAVE file reader struct.
  */
-struct BKWaveFileReader
-{
-	BKObject object;      ///< The general object.
-	FILE   * file;        ///< The file to be read from.
-	BKInt    sampleRate;  ///< The sample rate.
-	BKInt    numChannels; ///< Number of channels.
-	BKInt    numBits;     ///< Number of bits.
-	BKInt    numFrames;   ///< Number of frames.
-	BKSize   dataSize;    ///< Size if data chunk.
+struct BKWaveFileReader {
+	BKObject object;   ///< The general object.
+	FILE* file;		   ///< The file to be read from.
+	BKInt sampleRate;  ///< The sample rate.
+	BKInt numChannels; ///< Number of channels.
+	BKInt numBits;	   ///< Number of bits.
+	BKInt numFrames;   ///< Number of frames.
+	BKSize dataSize;   ///< Size if data chunk.
 };
 
 /**
@@ -73,7 +72,7 @@ struct BKWaveFileReader
  * @param file The file to write to.
  * @return 0 on success.
  */
-extern BKInt BKWaveFileReaderInit (BKWaveFileReader * reader, FILE * file);
+extern BKInt BKWaveFileReaderInit(BKWaveFileReader* reader, FILE* file);
 
 /**
  * Read header of WAVE file.
@@ -88,7 +87,7 @@ extern BKInt BKWaveFileReaderInit (BKWaveFileReader * reader, FILE * file);
  * @param outNumFrames Outputs number of frames.
  * @return 0 on success.
  */
-extern BKInt BKWaveFileReaderReadHeader (BKWaveFileReader * reader, BKInt * outNumChannels, BKInt * outSampleRate, BKInt * outNumFrames);
+extern BKInt BKWaveFileReaderReadHeader(BKWaveFileReader* reader, BKInt* outNumChannels, BKInt* outSampleRate, BKInt* outNumFrames);
 
 /**
  * Read frames of WAVE file.
@@ -101,6 +100,6 @@ extern BKInt BKWaveFileReaderReadHeader (BKWaveFileReader * reader, BKInt * outN
  * @param outFrames The frame buffer to read into.
  * @return 0 on success
  */
-extern BKInt BKWaveFileReaderReadFrames (BKWaveFileReader * reader, BKFrame outFrames []);
+extern BKInt BKWaveFileReaderReadFrames(BKWaveFileReader* reader, BKFrame outFrames[]);
 
 #endif /* ! _BK_WAVE_FILE_READER_H_ */

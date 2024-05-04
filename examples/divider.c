@@ -28,55 +28,56 @@ typedef struct {
 	BKInt sampleRate;
 } BKSDLUserData;
 
-BKContext     ctx;
-BKTrack       square, sawtooth, triangle;
+BKContext ctx;
+BKTrack square, sawtooth, triangle;
 BKSDLUserData userData = {
 	.numChannels = 2,
-	.sampleRate  = 44100,
+	.sampleRate = 44100,
 };
-BKDivider     divider;
-BKInt         i = 0;
+BKDivider divider;
+BKInt i = 0;
 
-static int getchar_nocanon (unsigned tcflags)
-{
+static int getchar_nocanon(unsigned tcflags) {
 	int c;
 	struct termios oldtc, newtc;
 
-	tcgetattr (STDIN_FILENO, & oldtc);
+	tcgetattr(STDIN_FILENO, &oldtc);
 
 	newtc = oldtc;
 	newtc.c_lflag &= ~(ICANON | ECHO | tcflags);
 
-	tcsetattr (STDIN_FILENO, TCSANOW, & newtc);
-	c = getchar ();
-	tcsetattr (STDIN_FILENO, TCSANOW, & oldtc);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newtc);
+	c = getchar();
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldtc);
 
 	return c;
 }
 
-static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
-{
+static void fill_audio(BKSDLUserData* info, Uint8* stream, int len) {
 	// calculate needed frames for one channel
-	BKUInt numFrames = len / sizeof (BKFrame) / info -> numChannels;
+	BKUInt numFrames = len / sizeof(BKFrame) / info->numChannels;
 
-	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
+	BKContextGenerate(&ctx, (BKFrame*)stream, numFrames);
 }
 
-static BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
-{
-	static BKInt notes [16] = {
+static BKEnum dividerCallback(BKCallbackInfo* info, void* userData) {
+	// clang-format off
+
+	static BKInt notes[16] = {
 		BK_A_1, -1, BK_F_1, -1,
 		BK_E_1, -1, BK_G_SH_1, -1,
 		BK_A_1, -1, BK_D_1, -1,
 		BK_F_1, -1, BK_G_SH_1, -1,
 	};
 
-	static BKInt notes2 [16] = {
+	static BKInt notes2[16] = {
 		-1, BK_A_3, -1, -1,
 		BK_G_3, BK_G_3, -1, -1,
 		-1, BK_D_3, -1, -1,
 		BK_D_4, BK_D_4, BK_E_4, -1,
 	};
+
+	// clang-format om
 
 	BKInt note = notes [i];
 	BKInt note2 = notes2 [i];

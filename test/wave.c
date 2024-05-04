@@ -1,13 +1,12 @@
-#include <unistd.h>
-#include <errno.h>
-#include "test.h"
 #include "BKWaveFileReader.h"
 #include "BKWaveFileWriter.h"
+#include "test.h"
+#include <errno.h>
+#include <unistd.h>
 
-int main (int argc, char const * argv [])
-{
+int main(int argc, char const* argv[]) {
 	BKInt res;
-	char const * filename = "bk_test_wave.wav";
+	char const* filename = "bk_test_wave.wav";
 	BKInt numChannels = 2, readNumChannels;
 	BKInt sampleRate = 44100, readSampleRate;
 	BKWaveFileReader reader;
@@ -15,87 +14,87 @@ int main (int argc, char const * argv [])
 
 	BKContext ctx;
 
-	res = BKContextInit (& ctx, numChannels, sampleRate);
+	res = BKContextInit(&ctx, numChannels, sampleRate);
 
-	assert (res == 0);
+	assert(res == 0);
 
 	BKTrack track;
 
-	res = BKTrackInit (& track, BK_SAWTOOTH);
+	res = BKTrackInit(&track, BK_SAWTOOTH);
 
-	assert (res == 0);
+	assert(res == 0);
 
-	res = BKTrackAttach (& track, & ctx);
+	res = BKTrackAttach(&track, &ctx);
 
-	assert (res == 0);
+	assert(res == 0);
 
-	BKSetAttr (& track, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
-	BKSetAttr (& track, BK_VOLUME, BK_MAX_VOLUME);
-	BKSetAttr (& track, BK_NOTE, BK_F_2 * BK_FINT20_UNIT);
+	BKSetAttr(&track, BK_MASTER_VOLUME, 0.2 * BK_MAX_VOLUME);
+	BKSetAttr(&track, BK_VOLUME, BK_MAX_VOLUME);
+	BKSetAttr(&track, BK_NOTE, BK_F_2 * BK_FINT20_UNIT);
 
 	BKInt numFrames = 481, readNumFrames;
-	BKFrame * frames = malloc (numChannels * numFrames * sizeof (BKFrame));
+	BKFrame* frames = malloc(numChannels * numFrames * sizeof(BKFrame));
 
-	assert (frames != 0);
+	assert(frames != 0);
 
-	FILE * file = fopen (filename, "w+");
+	FILE* file = fopen(filename, "w+");
 
-	assert (file != NULL);
+	assert(file != NULL);
 
-	res = BKWaveFileWriterInit (& writer, file, numChannels, sampleRate, 0);
+	res = BKWaveFileWriterInit(&writer, file, numChannels, sampleRate, 0);
 
-	assert (res == 0);
+	assert(res == 0);
 
-	for (int i = 0; i < 100; i ++) {
-		res = BKContextGenerate (& ctx, frames, numFrames);
+	for (int i = 0; i < 100; i++) {
+		res = BKContextGenerate(&ctx, frames, numFrames);
 
-		assert (res == numFrames);
+		assert(res == numFrames);
 
-		res = BKWaveFileWriterAppendFrames (& writer, frames, numChannels * numFrames);
+		res = BKWaveFileWriterAppendFrames(&writer, frames, numChannels * numFrames);
 
-		assert (res == 0);
+		assert(res == 0);
 	}
 
-	res = BKWaveFileWriterTerminate (& writer);
+	res = BKWaveFileWriterTerminate(&writer);
 
-	assert (res == 0);
+	assert(res == 0);
 
-	BKDispose (& writer);
+	BKDispose(&writer);
 
-	fclose (file);
-	file = fopen (filename, "r");
+	fclose(file);
+	file = fopen(filename, "r");
 
-	assert (file != NULL);
+	assert(file != NULL);
 
-	res = BKWaveFileReaderInit (& reader, file);
+	res = BKWaveFileReaderInit(&reader, file);
 
-	assert (res == 0);
+	assert(res == 0);
 
-	res = BKWaveFileReaderReadHeader (& reader, & readNumChannels, & readSampleRate, & readNumFrames);
+	res = BKWaveFileReaderReadHeader(&reader, &readNumChannels, &readSampleRate, &readNumFrames);
 
-	assert (res == 0);
+	assert(res == 0);
 
-	assert (numChannels == readNumChannels);
-	assert (sampleRate == readSampleRate);
-	assert (numFrames * 100 == readNumFrames);
+	assert(numChannels == readNumChannels);
+	assert(sampleRate == readSampleRate);
+	assert(numFrames * 100 == readNumFrames);
 
-	frames = realloc (frames, readNumChannels * readNumFrames * sizeof (BKFrame));
+	frames = realloc(frames, readNumChannels * readNumFrames * sizeof(BKFrame));
 
-	assert (frames != NULL);
+	assert(frames != NULL);
 
-	res = BKWaveFileReaderReadFrames (& reader, frames);
+	res = BKWaveFileReaderReadFrames(&reader, frames);
 
-	assert (res == 0);
+	assert(res == 0);
 
-	BKDispose (& reader);
+	BKDispose(&reader);
 
-	fclose (file);
-	unlink (filename);
+	fclose(file);
+	unlink(filename);
 
-	free (frames);
+	free(frames);
 
-	BKDispose (& ctx);
-	BKDispose (& track);
+	BKDispose(&ctx);
+	BKDispose(&track);
 
 	return 0;
 }

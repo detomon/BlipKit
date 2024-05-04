@@ -23,13 +23,14 @@
 
 #include "BKTone.h"
 
+// clang-format off
+
 /**
  * Frational periods
  * Multiplied by the sample rate gives the wave length of a tone
  * Generated with `tone_periods.c`
  */
-static BKUInt const tonePeriods [(BK_MAX_PIANO_TONE - BK_MIN_PIANO_TONE) + 1] =
-{
+static BKUInt const tonePeriods[(BK_MAX_PIANO_TONE - BK_MIN_PIANO_TONE) + 1] = {
 	32063, 30263, 28565, 26962, 25448, 24020, 22672, 21399, 20198, 19065, 17994, 16985,
 	16031, 15131, 14282, 13481, 12724, 12010, 11336, 10699, 10099,  9532,  8997,  8492,
 	 8015,  7565,  7141,  6740,  6362,  6005,  5668,  5349,  5049,  4766,  4498,  4246,
@@ -47,8 +48,7 @@ static BKUInt const tonePeriods [(BK_MAX_PIANO_TONE - BK_MIN_PIANO_TONE) + 1] =
  * index 36 represent factor 0.5, index 60 represents factor 2.0, and so on
  * Generated with `tone_periods.c`
  */
-static BKUInt const log2Periods [(BK_MAX_SAMPLE_TONE - BK_MIN_SAMPLE_TONE) + 1] =
-{
+static BKUInt const log2Periods[(BK_MAX_SAMPLE_TONE - BK_MIN_SAMPLE_TONE) + 1] = {
 	   65536,    69432,    73561,    77935,    82570,    87480,    92681,    98193,   104031,   110217,   116771,   123715,
 	  131072,   138865,   147123,   155871,   165140,   174960,   185363,   196386,   208063,   220435,   233543,   247430,
 	  262144,   277731,   294246,   311743,   330280,   349920,   370727,   392772,   416127,   440871,   467087,   494861,
@@ -60,20 +60,21 @@ static BKUInt const log2Periods [(BK_MAX_SAMPLE_TONE - BK_MIN_SAMPLE_TONE) + 1] 
 	16777216,
 };
 
-BKFUInt20 BKTonePeriodLookup (BKFInt20 tone, BKUInt sampleRate)
-{
-	BKUInt    frac;
-	BKUInt    period1, period2;
+// clang-format on
+
+BKFUInt20 BKTonePeriodLookup(BKFInt20 tone, BKUInt sampleRate) {
+	BKUInt frac;
+	BKUInt period1, period2;
 	BKFUInt20 period;
 
-	tone = BKClamp (tone, BK_MIN_NOTE << BK_FINT20_SHIFT, BK_MAX_NOTE << BK_FINT20_SHIFT);
+	tone = BKClamp(tone, BK_MIN_NOTE << BK_FINT20_SHIFT, BK_MAX_NOTE << BK_FINT20_SHIFT);
 	frac = ((tone & BK_FINT20_FRAC) >> (BK_FINT20_SHIFT - BK_TONE_SHIFT));
 	tone = tone >> BK_FINT20_SHIFT;
 
-	sampleRate = BKClamp (sampleRate, BK_MIN_SAMPLE_RATE, BK_MAX_SAMPLE_RATE);
+	sampleRate = BKClamp(sampleRate, BK_MIN_SAMPLE_RATE, BK_MAX_SAMPLE_RATE);
 
-	period1 = tonePeriods [tone];
-	period2 = tonePeriods [BKMin (tone + 1, BK_MAX_NOTE)];
+	period1 = tonePeriods[tone];
+	period2 = tonePeriods[BKMin(tone + 1, BK_MAX_NOTE)];
 
 	period = period1 * (BK_TONE_UNIT - frac) + period2 * frac;
 	period = ((period >> BK_TONE_SAMPLE_RATE_SHIFT) * sampleRate) << (BK_TONE_SAMPLE_RATE_SHIFT - BK_TONE_SHIFT);
@@ -81,18 +82,17 @@ BKFUInt20 BKTonePeriodLookup (BKFInt20 tone, BKUInt sampleRate)
 	return period;
 }
 
-BKFUInt20 BKLog2PeriodLookup (BKFInt20 tone)
-{
-	BKUInt    frac;
-	BKUInt    period1, period2;
+BKFUInt20 BKLog2PeriodLookup(BKFInt20 tone) {
+	BKUInt frac;
+	BKUInt period1, period2;
 	BKFUInt20 period;
 
-	tone = BKClamp (tone, BK_MIN_NOTE << BK_FINT20_SHIFT, BK_MAX_NOTE << BK_FINT20_SHIFT);
+	tone = BKClamp(tone, BK_MIN_NOTE << BK_FINT20_SHIFT, BK_MAX_NOTE << BK_FINT20_SHIFT);
 	frac = (tone & BK_FINT20_FRAC) >> 12;
 	tone = tone >> BK_FINT20_SHIFT;
 
-	period1 = log2Periods [tone] >> 2;
-	period2 = log2Periods [BKMin (tone + 1, BK_MAX_NOTE)] >> 2;
+	period1 = log2Periods[tone] >> 2;
+	period2 = log2Periods[BKMin(tone + 1, BK_MAX_NOTE)] >> 2;
 
 	period = period1 * ((BK_FINT20_UNIT >> 12) - frac) + period2 * frac;
 	period >>= 6;

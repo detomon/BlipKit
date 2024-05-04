@@ -28,61 +28,62 @@ typedef struct {
 	BKInt sampleRate;
 } BKSDLUserData;
 
-BKContext     ctx;
-BKTrack       square, sawtooth, triangle;
+BKContext ctx;
+BKTrack square, sawtooth, triangle;
 BKSDLUserData userData = {
 	.numChannels = 2,
-	.sampleRate  = 44100,
+	.sampleRate = 44100,
 };
-BKDivider     divider;
-BKInt         i = 0;
+BKDivider divider;
+BKInt i = 0;
 
-static int getchar_nocanon (unsigned tcflags)
-{
+static int getchar_nocanon(unsigned tcflags) {
 	int c;
 	struct termios oldtc, newtc;
 
-	tcgetattr (STDIN_FILENO, & oldtc);
+	tcgetattr(STDIN_FILENO, &oldtc);
 
 	newtc = oldtc;
 	newtc.c_lflag &= ~(ICANON | ECHO | tcflags);
 
-	tcsetattr (STDIN_FILENO, TCSANOW, & newtc);
-	c = getchar ();
-	tcsetattr (STDIN_FILENO, TCSANOW, & oldtc);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newtc);
+	c = getchar();
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldtc);
 
 	return c;
 }
 
-static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
-{
+static void fill_audio(BKSDLUserData* info, Uint8* stream, int len) {
 	// calculate needed frames for one channel
-	BKUInt numFrames = len / sizeof (BKFrame) / info -> numChannels;
+	BKUInt numFrames = len / sizeof(BKFrame) / info->numChannels;
 
-	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
+	BKContextGenerate(&ctx, (BKFrame*)stream, numFrames);
 }
 
-static BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
-{
-	static BKInt notes [16] = {
+static BKEnum dividerCallback(BKCallbackInfo* info, void* userData) {
+	// clang-format off
+
+	static BKInt notes[16] = {
 		BK_A_1, -1, BK_F_1, -1,
 		BK_E_1, -1, BK_G_SH_1, -1,
 		BK_A_1, -1, BK_D_1, -1,
 		BK_F_1, -1, BK_G_SH_1, -1,
 	};
 
-	BKInt note = notes [i];
+	// clang-format on
 
-	info -> divider = 20/* + 40 * ((float) random() / INT_MAX)*/;
+	BKInt note = notes[i];
+
+	info->divider = 20 /* + 40 * ((float) random() / INT_MAX)*/;
 
 	if (note >= 0)
 		note *= BK_FINT20_UNIT;
 
 	// Set track note
-	BKSetAttr (& sawtooth, BK_NOTE, note);
+	BKSetAttr(&sawtooth, BK_NOTE, note);
 
-	BKInt arp [] = {2, 0, 24 * BK_FINT20_UNIT};
-	BKSetPtr (& sawtooth, BK_ARPEGGIO, arp, sizeof (arp));
+	BKInt arp[] = { 2, 0, 24 * BK_FINT20_UNIT };
+	BKSetPtr(&sawtooth, BK_ARPEGGIO, arp, sizeof(arp));
 
 	/*if (note >= 0)
 		note += 7 * BK_FINT20_UNIT;
@@ -94,8 +95,7 @@ static BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 
 	BKSetAttr (& square, BK_NOTE, note2);*/
 
-
-	i ++;
+	i++;
 
 	if (i >= 16)
 		i = 0;
@@ -103,47 +103,49 @@ static BKEnum dividerCallback (BKCallbackInfo * info, void * userData)
 	return 0;
 }
 
-int main (int argc, char * argv [])
-{
-	BKContextInit (& ctx, userData.numChannels, userData.sampleRate);
+int main(int argc, char* argv[]) {
+	BKContextInit(&ctx, userData.numChannels, userData.sampleRate);
 
-	BKTrackInit (& square, BK_SQUARE);
+	BKTrackInit(&square, BK_SQUARE);
 
-	BKSetAttr (& square, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
-	BKSetAttr (& square, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKSetAttr (& square, BK_DUTY_CYCLE,    2);
+	BKSetAttr(&square, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
+	BKSetAttr(&square, BK_VOLUME, 1.0 * BK_MAX_VOLUME);
+	BKSetAttr(&square, BK_DUTY_CYCLE, 2);
 
-	BKTrackInit (& sawtooth, BK_SAWTOOTH);
+	BKTrackInit(&sawtooth, BK_SAWTOOTH);
 
-	BKSetAttr (& sawtooth, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
-	BKSetAttr (& sawtooth, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr(&sawtooth, BK_MASTER_VOLUME, 0.15 * BK_MAX_VOLUME);
+	BKSetAttr(&sawtooth, BK_VOLUME, 1.0 * BK_MAX_VOLUME);
 
-	BKTrackInit (& triangle, BK_TRIANGLE);
+	BKTrackInit(&triangle, BK_TRIANGLE);
 
-	BKSetAttr (& triangle, BK_MASTER_VOLUME, 0.3 * BK_MAX_VOLUME);
-	BKSetAttr (& triangle, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
+	BKSetAttr(&triangle, BK_MASTER_VOLUME, 0.3 * BK_MAX_VOLUME);
+	BKSetAttr(&triangle, BK_VOLUME, 1.0 * BK_MAX_VOLUME);
 
 	BKInstrument instrument;
 
-	BKInstrumentInit (& instrument);
+	BKInstrumentInit(&instrument);
 
-	BKInt sequence [6] = {
-		1.0 * BK_MAX_VOLUME, 0.8 * BK_MAX_VOLUME, 0.4 * BK_MAX_VOLUME,
-		0.4 * BK_MAX_VOLUME, 0.2 * BK_MAX_VOLUME, 0.0 * BK_MAX_VOLUME,
+	BKInt sequence[6] = {
+		1.0 * BK_MAX_VOLUME,
+		0.8 * BK_MAX_VOLUME,
+		0.4 * BK_MAX_VOLUME,
+		0.4 * BK_MAX_VOLUME,
+		0.2 * BK_MAX_VOLUME,
+		0.0 * BK_MAX_VOLUME,
 	};
 
-	BKInstrumentSetSequence (& instrument, BK_SEQUENCE_VOLUME, sequence, 6, 0, 1);
+	BKInstrumentSetSequence(&instrument, BK_SEQUENCE_VOLUME, sequence, 6, 0, 1);
 
-	BKInt vibrato [2] = {12, 0.25 * BK_FINT20_UNIT};
-	BKSetPtr (& square, BK_EFFECT_VIBRATO, vibrato, sizeof (vibrato));
+	BKInt vibrato[2] = { 12, 0.25 * BK_FINT20_UNIT };
+	BKSetPtr(&square, BK_EFFECT_VIBRATO, vibrato, sizeof(vibrato));
 
+	BKTrackAttach(&square, &ctx);
+	BKTrackAttach(&sawtooth, &ctx);
+	BKTrackAttach(&triangle, &ctx);
 
-	BKTrackAttach (& square, & ctx);
-	BKTrackAttach (& sawtooth, & ctx);
-	BKTrackAttach (& triangle, & ctx);
-
-	BKSetPtr (& square, BK_INSTRUMENT, & instrument, sizeof (void *));
-	BKSetPtr (& sawtooth, BK_INSTRUMENT, & instrument, sizeof (void *));
+	BKSetPtr(&square, BK_INSTRUMENT, &instrument, sizeof(void*));
+	BKSetPtr(&sawtooth, BK_INSTRUMENT, &instrument, sizeof(void*));
 
 	// We want 150 BPM
 	// The master clock ticks at 240 Hz
@@ -153,38 +155,37 @@ int main (int argc, char * argv [])
 	BKInt dividerValue = (60.0 / 150.0 / 4) * 240;
 
 	// Initialize divider with divider value and callback
-	BKDividerInit (& divider, dividerValue, &(BKCallback) {
-		.func = dividerCallback,
-		.userInfo = NULL,
-	});
+	BKDividerInit(&divider, dividerValue, &(BKCallback){
+											  .func = dividerCallback,
+											  .userInfo = NULL,
+										  });
 
 	// Attach the divider to the master clock
 	// When samples are generated the callback is called at the defined interval
-	BKContextAttachDivider (& ctx, & divider, BK_CLOCK_TYPE_BEAT);
+	BKContextAttachDivider(&ctx, &divider, BK_CLOCK_TYPE_BEAT);
 
-
-	SDL_Init (SDL_INIT_AUDIO);
+	SDL_Init(SDL_INIT_AUDIO);
 
 	SDL_AudioSpec wanted = {
-		.freq     = userData.sampleRate,
-		.format   = AUDIO_S16SYS,
+		.freq = userData.sampleRate,
+		.format = AUDIO_S16SYS,
 		.channels = userData.numChannels,
-		.samples  = 512,
-		.callback = (void *) fill_audio,
-		.userdata = & userData,
+		.samples = 512,
+		.callback = (void*)fill_audio,
+		.userdata = &userData,
 	};
 
-	if (SDL_OpenAudio (& wanted, NULL) < 0) {
-		fprintf (stderr, "Couldn't open audio: %s\n", SDL_GetError ());
+	if (SDL_OpenAudio(&wanted, NULL) < 0) {
+		fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
 		return 1;
 	}
 
-	SDL_PauseAudio (0);
+	SDL_PauseAudio(0);
 
-	printf ("Press [q] to stop\n");
+	printf("Press [q] to stop\n");
 
 	while (1) {
-		int c = getchar_nocanon (0);
+		int c = getchar_nocanon(0);
 
 		/*
 		// Use lock when setting attributes outside of divider callbacks
@@ -200,10 +201,10 @@ int main (int argc, char * argv [])
 			break;
 	}
 
-	printf ("\n");
+	printf("\n");
 
-	SDL_PauseAudio (1);
-	SDL_CloseAudio ();
+	SDL_PauseAudio(1);
+	SDL_CloseAudio();
 
-    return 0;
+	return 0;
 }

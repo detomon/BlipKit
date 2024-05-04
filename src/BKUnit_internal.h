@@ -28,28 +28,28 @@
 
 /*
  */
-extern BKInt BKUnitRun (BKUnit * unit, BKFUInt20 endTime);
+extern BKInt BKUnitRun(BKUnit* unit, BKFUInt20 endTime);
 
 /*
  */
-extern void BKUnitEnd (BKUnit * unit, BKFUInt20 time);
+extern void BKUnitEnd(BKUnit* unit, BKFUInt20 time);
 
 /**
  * Reset unit values and buffer state
  */
-extern void BKUnitReset (BKUnit * unit);
+extern void BKUnitReset(BKUnit* unit);
 
 /**
  * Reset unit values
  */
-extern void BKUnitClear (BKUnit * unit);
+extern void BKUnitClear(BKUnit* unit);
 
 /*
  */
-extern BKInt BKUnitSampleDataStateCallback (BKEnum event, BKUnit * unit);
+extern BKInt BKUnitSampleDataStateCallback(BKEnum event, BKUnit* unit);
 
 /*
  */
-extern void BKUnitDisposeObject (BKUnit * unit);
+extern void BKUnitDisposeObject(BKUnit* unit);
 
 #endif /* ! _BK_UNIT_INTERN_H_ */

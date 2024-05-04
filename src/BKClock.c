@@ -24,102 +24,96 @@
 #include "BKClock.h"
 #include "BKContext.h"
 
-enum
-{
-	BK_CLOCK_FLAG_RESET     = 1 << 0,
+enum {
+	BK_CLOCK_FLAG_RESET = 1 << 0,
 	BK_CLOCK_FLAG_COPY_MASK = 0,
 };
 
 extern BKClass BKClockClass;
 extern BKClass BKDividerClass;
 
-static BKInt BKClockInitGeneric (BKClock * clock, BKTime period, BKCallback * callback)
-{
+static BKInt BKClockInitGeneric(BKClock* clock, BKTime period, BKCallback* callback) {
 	if (callback) {
-		clock -> callback = (* callback);
+		clock->callback = (*callback);
 	}
 
-	clock -> time     = BK_TIME_ZERO;
-	clock -> nextTime = BK_TIME_ZERO;
-	clock -> period   = period;
+	clock->time = BK_TIME_ZERO;
+	clock->nextTime = BK_TIME_ZERO;
+	clock->period = period;
 
 	return 0;
 }
 
-BKInt BKClockInit (BKClock * clock, BKTime period, BKCallback * callback)
-{
-	if (BKObjectInit (clock, & BKClockClass, sizeof (*clock)) < 0) {
+BKInt BKClockInit(BKClock* clock, BKTime period, BKCallback* callback) {
+	if (BKObjectInit(clock, &BKClockClass, sizeof(*clock)) < 0) {
 		return -1;
 	}
 
-	if (BKClockInitGeneric (clock, period, callback) < 0) {
-		return -1;
-	}
-
-	return 0;
-}
-
-BKInt BKClockAlloc (BKClock ** outClock, BKTime period, BKCallback * callback)
-{
-	if (BKObjectAlloc ((void **) outClock, & BKClockClass, 0) < 0) {
-		return -1;
-	}
-
-	if (BKClockInitGeneric (*outClock, period, callback) < 0) {
+	if (BKClockInitGeneric(clock, period, callback) < 0) {
 		return -1;
 	}
 
 	return 0;
 }
 
-static void BKClockDisposeObject (BKClock * clock)
-{
-	BKDivider * nextDivider;
+BKInt BKClockAlloc(BKClock** outClock, BKTime period, BKCallback* callback) {
+	if (BKObjectAlloc((void**)outClock, &BKClockClass, 0) < 0) {
+		return -1;
+	}
 
-	BKClockDetach (clock);
+	if (BKClockInitGeneric(*outClock, period, callback) < 0) {
+		return -1;
+	}
 
-	for (BKDivider * divider = clock -> dividers.firstDivider; divider; divider = nextDivider) {
+	return 0;
+}
+
+static void BKClockDisposeObject(BKClock* clock) {
+	BKDivider* nextDivider;
+
+	BKClockDetach(clock);
+
+	for (BKDivider* divider = clock->dividers.firstDivider; divider; divider = nextDivider) {
 		nextDivider = divider;
-		BKDividerDetach (divider);
+		BKDividerDetach(divider);
 	}
 }
 
-BKInt BKClockAttach (BKClock * clock, BKContext * ctx, BKClock * beforeClock)
-{
-	if (clock -> ctx == NULL) {
-		clock -> ctx = ctx;
-		BKClockReset (clock);
+BKInt BKClockAttach(BKClock* clock, BKContext* ctx, BKClock* beforeClock) {
+	if (clock->ctx == NULL) {
+		clock->ctx = ctx;
+		BKClockReset(clock);
 
 		if (beforeClock == BK_FIRST_ELEMENT_PTR)
-			beforeClock = ctx -> firstClock;
+			beforeClock = ctx->firstClock;
 
 		if (beforeClock == NULL) {
-			clock -> prevClock = ctx -> lastClock;
-			clock -> nextClock = NULL;
+			clock->prevClock = ctx->lastClock;
+			clock->nextClock = NULL;
 
-			if (ctx -> lastClock) {
-				ctx -> lastClock -> nextClock = clock;
-				ctx -> lastClock = clock;
+			if (ctx->lastClock) {
+				ctx->lastClock->nextClock = clock;
+				ctx->lastClock = clock;
 			}
 			// is first clock
 			else {
-				ctx -> firstClock = clock;
-				ctx -> lastClock  = clock;
+				ctx->firstClock = clock;
+				ctx->lastClock = clock;
 			}
 		}
 		// previous clock must be in same context
-		else if (beforeClock -> ctx == ctx) {
-			clock -> prevClock = beforeClock -> prevClock;
-			clock -> nextClock = beforeClock;
+		else if (beforeClock->ctx == ctx) {
+			clock->prevClock = beforeClock->prevClock;
+			clock->nextClock = beforeClock;
 
-			if (beforeClock == ctx -> firstClock) {
-				ctx -> firstClock = clock;
+			if (beforeClock == ctx->firstClock) {
+				ctx->firstClock = clock;
 			}
 			else {
-				beforeClock -> prevClock -> nextClock = clock;
+				beforeClock->prevClock->nextClock = clock;
 			}
 
-			beforeClock -> prevClock = clock;
+			beforeClock->prevClock = clock;
 		}
 		else {
 			return BK_INVALID_VALUE;
@@ -132,202 +126,190 @@ BKInt BKClockAttach (BKClock * clock, BKContext * ctx, BKClock * beforeClock)
 	return 0;
 }
 
-void BKClockDetach (BKClock * clock)
-{
-	BKContext * ctx = clock -> ctx;
+void BKClockDetach(BKClock* clock) {
+	BKContext* ctx = clock->ctx;
 
 	if (ctx) {
-		if (clock -> prevClock) {
-			clock -> prevClock -> nextClock = clock -> nextClock;
+		if (clock->prevClock) {
+			clock->prevClock->nextClock = clock->nextClock;
 		}
 		// is first clock
 		else {
-			ctx -> firstClock = clock -> nextClock;
+			ctx->firstClock = clock->nextClock;
 		}
 
-		if (clock -> nextClock) {
-			clock -> nextClock -> prevClock = clock -> prevClock;
+		if (clock->nextClock) {
+			clock->nextClock->prevClock = clock->prevClock;
 		}
 		// is last clock
 		else {
-			ctx -> lastClock = clock -> prevClock;
+			ctx->lastClock = clock->prevClock;
 		}
 
-		clock -> ctx = NULL;
-		BKClockReset (clock);
+		clock->ctx = NULL;
+		BKClockReset(clock);
 	}
 }
 
-void BKClockSetPeriod (BKClock * clock, BKTime period)
-{
-	clock -> period = period;
+void BKClockSetPeriod(BKClock* clock, BKTime period) {
+	clock->period = period;
 }
 
-void BKClockReset (BKClock * clock)
-{
-	BKContext * ctx = clock -> ctx;
+void BKClockReset(BKClock* clock) {
+	BKContext* ctx = clock->ctx;
 
 	if (ctx)
-		ctx -> flags |= BK_CONTEXT_FLAG_CLOCK_RESET;
+		ctx->flags |= BK_CONTEXT_FLAG_CLOCK_RESET;
 
-	for (BKDivider * divider = clock -> dividers.firstDivider; divider; divider = divider -> nextDivider)
-		BKDividerReset (divider);
+	for (BKDivider* divider = clock->dividers.firstDivider; divider; divider = divider->nextDivider)
+		BKDividerReset(divider);
 
-	clock -> object.flags &= ~BK_CLOCK_FLAG_RESET; // clear reset flag
-	clock -> counter  = 0;
-	clock -> time     = BK_TIME_ZERO;
-	clock -> nextTime = BK_TIME_ZERO;
+	clock->object.flags &= ~BK_CLOCK_FLAG_RESET; // clear reset flag
+	clock->counter = 0;
+	clock->time = BK_TIME_ZERO;
+	clock->nextTime = BK_TIME_ZERO;
 }
 
-void BKClockAdvance (BKClock * clock, BKFUInt20 period)
-{
-	clock -> time = BKTimeAddFUInt20 (clock -> time, period);
+void BKClockAdvance(BKClock* clock, BKFUInt20 period) {
+	clock->time = BKTimeAddFUInt20(clock->time, period);
 }
 
-BKInt BKDividerTick (BKDivider * divider, BKCallbackInfo * info)
-{
+BKInt BKDividerTick(BKDivider* divider, BKCallbackInfo* info) {
 	BKInt reset = 0;
 
 	// tick each attached divider
-	for (; divider; divider = divider -> nextDivider) {
-		if (divider -> counter <= 0) {
+	for (; divider; divider = divider->nextDivider) {
+		if (divider->counter <= 0) {
 			reset = 1;
 
-			if (divider -> callback.func) {
-				info -> event   = BK_EVENT_DIVIDER;
-				info -> divider = divider -> divider;
+			if (divider->callback.func) {
+				info->event = BK_EVENT_DIVIDER;
+				info->divider = divider->divider;
 
-				divider -> callback.func (info, divider -> callback.userInfo);
+				divider->callback.func(info, divider->callback.userInfo);
 
-				divider -> divider = BKMax (1, info -> divider);
+				divider->divider = BKMax(1, info->divider);
 			}
 
-			divider -> counter = divider -> divider;
+			divider->counter = divider->divider;
 		}
 
-		divider -> counter --;
+		divider->counter--;
 	}
 
 	return reset;
 }
 
-BKInt BKClockTick (BKClock * clock)
-{
+BKInt BKClockTick(BKClock* clock) {
 	BKInt result = 0;
 	BKCallbackInfo info;
 
-	if (BKTimeIsEqual (clock -> time, clock -> nextTime)) {
-		memset (& info, 0, sizeof (BKCallbackInfo));
-		info.object   = clock;
-		info.event    = BK_EVENT_CLOCK;
-		info.nextTime = clock -> time;
+	if (BKTimeIsEqual(clock->time, clock->nextTime)) {
+		memset(&info, 0, sizeof(BKCallbackInfo));
+		info.object = clock;
+		info.event = BK_EVENT_CLOCK;
+		info.nextTime = clock->time;
 
-		if (clock -> callback.func)
-			result = clock -> callback.func (& info, clock -> callback.userInfo);
+		if (clock->callback.func)
+			result = clock->callback.func(&info, clock->callback.userInfo);
 
-		BKDividerTick (clock -> dividers.firstDivider, & info);
+		BKDividerTick(clock->dividers.firstDivider, &info);
 
-		clock -> counter ++;
+		clock->counter++;
 
 		// set next time and new period from callback
-		if (BKTimeIsGreater (info.nextTime, clock -> time)) {
-			clock -> period   = BKTimeSub (info.nextTime, clock -> time);
-			clock -> nextTime = info.nextTime;
+		if (BKTimeIsGreater(info.nextTime, clock->time)) {
+			clock->period = BKTimeSub(info.nextTime, clock->time);
+			clock->nextTime = info.nextTime;
 		}
 		// set next period
 		else {
-			clock -> nextTime = BKTimeAdd (clock -> time, clock -> period);
+			clock->nextTime = BKTimeAdd(clock->time, clock->period);
 		}
 	}
 
 	return result;
 }
 
-static BKInt BKDividerInitGeneric (BKDivider * divider, BKUInt count, BKCallback * callback)
-{
-	divider -> divider = BKMax (1, count);
-	divider -> counter = 0;
+static BKInt BKDividerInitGeneric(BKDivider* divider, BKUInt count, BKCallback* callback) {
+	divider->divider = BKMax(1, count);
+	divider->counter = 0;
 
 	if (callback) {
-		divider -> callback = * callback;
+		divider->callback = *callback;
 	}
 
 	return 0;
 }
 
-BKInt BKDividerInit (BKDivider * divider, BKUInt count, BKCallback * callback)
-{
-	if (BKObjectInit (divider, & BKDividerClass, sizeof (*divider)) < 0) {
+BKInt BKDividerInit(BKDivider* divider, BKUInt count, BKCallback* callback) {
+	if (BKObjectInit(divider, &BKDividerClass, sizeof(*divider)) < 0) {
 		return -1;
 	}
 
-	if (BKDividerInitGeneric (divider, count, callback) < 0) {
-		return -1;
-	}
-
-	return 0;
-}
-
-BKInt BKDividerAlloc (BKDivider ** outDivider, BKUInt count, BKCallback * callback)
-{
-	if (BKObjectAlloc ((void **) outDivider, & BKDividerClass, 0) < 0) {
-		return -1;
-	}
-
-	if (BKDividerInitGeneric (*outDivider, count, callback) < 0) {
+	if (BKDividerInitGeneric(divider, count, callback) < 0) {
 		return -1;
 	}
 
 	return 0;
 }
 
-static void BKDividerDisposeObject (BKDivider * divider)
-{
-	BKDividerGroup * group = divider -> group;
+BKInt BKDividerAlloc(BKDivider** outDivider, BKUInt count, BKCallback* callback) {
+	if (BKObjectAlloc((void**)outDivider, &BKDividerClass, 0) < 0) {
+		return -1;
+	}
 
-	if (divider -> group) {
-		if (divider -> prevDivider) {
-			divider -> prevDivider -> nextDivider = divider -> nextDivider;
+	if (BKDividerInitGeneric(*outDivider, count, callback) < 0) {
+		return -1;
+	}
+
+	return 0;
+}
+
+static void BKDividerDisposeObject(BKDivider* divider) {
+	BKDividerGroup* group = divider->group;
+
+	if (divider->group) {
+		if (divider->prevDivider) {
+			divider->prevDivider->nextDivider = divider->nextDivider;
 		}
 		// is first clock
 		else {
-			group -> firstDivider = divider -> nextDivider;
+			group->firstDivider = divider->nextDivider;
 		}
 
-		if (divider -> nextDivider) {
-			divider -> nextDivider -> prevDivider = divider -> prevDivider;
+		if (divider->nextDivider) {
+			divider->nextDivider->prevDivider = divider->prevDivider;
 		}
 		// is last clock
 		else {
-			group -> lastDivider = divider -> prevDivider;
+			group->lastDivider = divider->prevDivider;
 		}
 
-		divider -> group = NULL;
+		divider->group = NULL;
 	}
 }
 
-BKInt BKDividerAttachToClock (BKDivider * divider, BKClock * clock)
-{
-	return BKDividerAttachToGroup (divider, & clock -> dividers);
+BKInt BKDividerAttachToClock(BKDivider* divider, BKClock* clock) {
+	return BKDividerAttachToGroup(divider, &clock->dividers);
 }
 
-BKInt BKDividerAttachToGroup (BKDivider * divider, BKDividerGroup * group)
-{
-	if (divider -> group == NULL) {
-		divider -> prevDivider = group -> lastDivider;
-		divider -> nextDivider = NULL;
+BKInt BKDividerAttachToGroup(BKDivider* divider, BKDividerGroup* group) {
+	if (divider->group == NULL) {
+		divider->prevDivider = group->lastDivider;
+		divider->nextDivider = NULL;
 
-		if (group -> lastDivider) {
-			group -> lastDivider -> nextDivider = divider;
+		if (group->lastDivider) {
+			group->lastDivider->nextDivider = divider;
 		}
 		// is first clock
 		else {
-			group -> firstDivider = divider;
+			group->firstDivider = divider;
 		}
 
-		group -> lastDivider = divider;
+		group->lastDivider = divider;
 
-		divider -> group = group;
+		divider->group = group;
 	}
 	else {
 		return BK_INVALID_STATE;
@@ -336,44 +318,40 @@ BKInt BKDividerAttachToGroup (BKDivider * divider, BKDividerGroup * group)
 	return 0;
 }
 
-void BKDividerDetach (BKDivider * divider)
-{
-	BKDividerGroup * group = divider -> group;
+void BKDividerDetach(BKDivider* divider) {
+	BKDividerGroup* group = divider->group;
 
 	if (group) {
-		if (divider -> prevDivider) {
-			divider -> prevDivider -> nextDivider = divider -> nextDivider;
+		if (divider->prevDivider) {
+			divider->prevDivider->nextDivider = divider->nextDivider;
 		}
 		// is first divider
 		else {
-			group -> firstDivider = divider -> nextDivider;
+			group->firstDivider = divider->nextDivider;
 		}
 
-		if (divider -> nextDivider) {
-			divider -> nextDivider -> prevDivider = divider -> prevDivider;
+		if (divider->nextDivider) {
+			divider->nextDivider->prevDivider = divider->prevDivider;
 		}
 		// is last divider
 		else {
-			group -> lastDivider = divider -> prevDivider;
+			group->lastDivider = divider->prevDivider;
 		}
 
-		divider -> group = NULL;
+		divider->group = NULL;
 	}
 }
 
-void BKDividerReset (BKDivider * divider)
-{
-	divider -> counter = 0;
+void BKDividerReset(BKDivider* divider) {
+	divider->counter = 0;
 }
 
-BKClass BKClockClass =
-{
-	.instanceSize = sizeof (BKClock),
-	.dispose      = (BKDisposeFunc) BKClockDisposeObject,
+BKClass BKClockClass = {
+	.instanceSize = sizeof(BKClock),
+	.dispose = (BKDisposeFunc)BKClockDisposeObject,
 };
 
-BKClass BKDividerClass =
-{
-	.instanceSize = sizeof (BKDivider),
-	.dispose      = (BKDisposeFunc) BKDividerDisposeObject,
+BKClass BKDividerClass = {
+	.instanceSize = sizeof(BKDivider),
+	.dispose = (BKDisposeFunc)BKDividerDisposeObject,
 };

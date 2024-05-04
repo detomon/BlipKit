@@ -21,18 +21,17 @@
  * IN THE SOFTWARE.
  */
 
+#include "BKTone.h"
+#include "BlipKit.h"
 #include <math.h>
 #include <stdio.h>
-#include "BlipKit.h"
-#include "BKTone.h"
 
-static void BKCalcTonePeriods (void)
-{
+static void BKCalcTonePeriods(void) {
 	BKUInt const baseFreq = 440;
 	double freq;
 	BKFUInt20 period;
 
-	printf (
+	printf(
 		"/**\n"
 		" * Frational periods\n"
 		" * Multiplied by the sample rate gives the wave length of a tone\n"
@@ -40,30 +39,28 @@ static void BKCalcTonePeriods (void)
 		" */\n"
 		"static BKUInt const tonePeriods [(BK_MAX_PIANO_TONE - BK_MIN_PIANO_TONE) + 1] =\n"
 		"{\n\t",
-		__FILE__
-	);
+		__FILE__);
 
-	for (BKInt i = BK_MIN_PIANO_TONE, c = 0; i <= BK_MAX_PIANO_TONE; i ++, c ++) {
-		freq = baseFreq * pow (2.0, ((double) i / 12.0));
+	for (BKInt i = BK_MIN_PIANO_TONE, c = 0; i <= BK_MAX_PIANO_TONE; i++, c++) {
+		freq = baseFreq * pow(2.0, ((double)i / 12.0));
 
 		// frequency in seconds
 		// so it can be multiplied by the samplerate
 		period = 1.0 / freq * BK_FINT20_UNIT;
 
 		if (c && c % 12 == 0)
-			printf ("\n\t");
+			printf("\n\t");
 
-		printf ("%5d, ", period);
+		printf("%5d, ", period);
 	}
 
-	printf ("\n};\n\n");
+	printf("\n};\n\n");
 }
 
-static void BKCalcLog2Periods (void)
-{
+static void BKCalcLog2Periods(void) {
 	BKUInt period;
 
-	printf (
+	printf(
 		"/**\n"
 		" * Logarithmic `BKFUInt20` values with base 2 (n / 12)\n"
 		" * where index 48 (`BK_C_4`) represents factor 1.0\n"
@@ -72,25 +69,23 @@ static void BKCalcLog2Periods (void)
 		" */\n"
 		"static BKUInt const log2Periods [(BK_MAX_SAMPLE_TONE - BK_MIN_SAMPLE_TONE) + 1] =\n"
 		"{\n\t",
-		__FILE__
-	);
+		__FILE__);
 
-	for (BKInt i = BK_MIN_SAMPLE_TONE, c = 0; i <= BK_MAX_SAMPLE_TONE; i ++, c ++) {
-		period = pow (2.0, ((double) i / 12.0)) * BK_FINT20_UNIT;
+	for (BKInt i = BK_MIN_SAMPLE_TONE, c = 0; i <= BK_MAX_SAMPLE_TONE; i++, c++) {
+		period = pow(2.0, ((double)i / 12.0)) * BK_FINT20_UNIT;
 
 		if (c && c % 12 == 0)
-			printf ("\n\t");
+			printf("\n\t");
 
-		printf ("%8d, ", period);
+		printf("%8d, ", period);
 	}
 
-	printf ("\n};\n\n");
+	printf("\n};\n\n");
 }
 
-int main (int argc, char const * argv [])
-{
-	BKCalcTonePeriods ();
-	BKCalcLog2Periods ();
+int main(int argc, char const* argv[]) {
+	BKCalcTonePeriods();
+	BKCalcLog2Periods();
 
 	return 0;
 }

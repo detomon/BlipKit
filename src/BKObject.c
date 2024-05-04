@@ -23,29 +23,27 @@
 
 #include "BKObject.h"
 
-BKInt BKObjectInit (void * object, BKClass const * isa, BKSize guardSize)
-{
-	BKObject * obj = object;
+BKInt BKObjectInit(void* object, BKClass const* isa, BKSize guardSize) {
+	BKObject* obj = object;
 
 	if (obj == NULL || isa == NULL) {
 		return BK_ALLOCATION_ERROR;
 	}
 
-	if (isa -> instanceSize != guardSize) {
+	if (isa->instanceSize != guardSize) {
 		return BK_ALLOCATION_ERROR;
 	}
 
-	memset (obj, 0, isa -> instanceSize);
+	memset(obj, 0, isa->instanceSize);
 
-	obj -> flags = BKObjectFlagInitialized;
-	obj -> isa   = isa;
+	obj->flags = BKObjectFlagInitialized;
+	obj->isa = isa;
 
 	return 0;
 }
 
-BKInt BKObjectAlloc (void ** outObject, BKClass const * isa, BKSize extraSize)
-{
-	BKObject * obj;
+BKInt BKObjectAlloc(void** outObject, BKClass const* isa, BKSize extraSize) {
+	BKObject* obj;
 
 	if (outObject == NULL) {
 		return BK_ALLOCATION_ERROR;
@@ -53,128 +51,122 @@ BKInt BKObjectAlloc (void ** outObject, BKClass const * isa, BKSize extraSize)
 
 	*outObject = NULL;
 
-	if (isa == NULL || isa -> instanceSize == 0) {
+	if (isa == NULL || isa->instanceSize == 0) {
 		return BK_ALLOCATION_ERROR;
 	}
 
-	obj = malloc (isa -> instanceSize + extraSize);
+	obj = malloc(isa->instanceSize + extraSize);
 
 	if (obj == NULL) {
 		return BK_ALLOCATION_ERROR;
 	}
 
-	memset (obj, 0, isa -> instanceSize);
+	memset(obj, 0, isa->instanceSize);
 
-	obj -> flags = BKObjectFlagInitialized | BKObjectFlagAllocated;
-	obj -> isa   = isa;
+	obj->flags = BKObjectFlagInitialized | BKObjectFlagAllocated;
+	obj->isa = isa;
 
 	*outObject = obj;
 
 	return 0;
 }
 
-BKInt BKSetAttr (void * object, BKEnum attr, BKInt value)
-{
-	BKObject * obj = object;
-	BKClass const * isa;
+BKInt BKSetAttr(void* object, BKEnum attr, BKInt value) {
+	BKObject* obj = object;
+	BKClass const* isa;
 
 	if (obj == 0) {
 		return BK_INVALID_STATE;
 	}
 
-	isa = obj -> isa;
+	isa = obj->isa;
 
-	if (isa -> setAttr == NULL) {
+	if (isa->setAttr == NULL) {
 		return BK_INVALID_STATE;
 	}
 
-	return isa -> setAttr (obj, attr, value);
+	return isa->setAttr(obj, attr, value);
 }
 
-BKInt BKGetAttr (void const * object, BKEnum attr, BKInt * outValue)
-{
-	BKObject const * obj = object;
-	BKClass const * isa;
+BKInt BKGetAttr(void const* object, BKEnum attr, BKInt* outValue) {
+	BKObject const* obj = object;
+	BKClass const* isa;
 
 	if (obj == 0) {
 		return BK_INVALID_STATE;
 	}
 
-	isa = obj -> isa;
+	isa = obj->isa;
 
-	if (isa -> getAttr == NULL) {
+	if (isa->getAttr == NULL) {
 		return BK_INVALID_STATE;
 	}
 
-	return isa -> getAttr (obj, attr, outValue);
-
+	return isa->getAttr(obj, attr, outValue);
 }
 
-BKInt BKSetPtr (void * object, BKEnum attr, void * ptr, BKSize size)
-{
-	BKObject * obj = object;
-	BKClass const * isa;
+BKInt BKSetPtr(void* object, BKEnum attr, void* ptr, BKSize size) {
+	BKObject* obj = object;
+	BKClass const* isa;
 
 	if (obj == 0) {
 		return BK_INVALID_STATE;
 	}
 
-	isa = obj -> isa;
+	isa = obj->isa;
 
-	if (isa -> setPtr == NULL) {
+	if (isa->setPtr == NULL) {
 		return BK_INVALID_STATE;
 	}
 
-	return isa -> setPtr (obj, attr, ptr, size);
+	return isa->setPtr(obj, attr, ptr, size);
 }
 
-BKInt BKGetPtr (void const * object, BKEnum attr, void * outPtr, BKSize size)
-{
-	BKObject const * obj = object;
-	BKClass const * isa;
+BKInt BKGetPtr(void const* object, BKEnum attr, void* outPtr, BKSize size) {
+	BKObject const* obj = object;
+	BKClass const* isa;
 
 	if (obj == 0) {
 		return BK_INVALID_STATE;
 	}
 
-	isa = obj -> isa;
+	isa = obj->isa;
 
-	if (isa -> getPtr == NULL) {
+	if (isa->getPtr == NULL) {
 		return BK_INVALID_STATE;
 	}
 
-	return isa -> getPtr (obj, attr, outPtr, size);
+	return isa->getPtr(obj, attr, outPtr, size);
 }
 
-void BKDispose (void * object)
-{
-	BKObject * obj = object;
-	BKClass const * isa;
+void BKDispose(void* object) {
+	BKObject* obj = object;
+	BKClass const* isa;
 	BKUInt flags;
 
 	if (obj == NULL) {
 		return;
 	}
 
-	isa = obj -> isa;
+	isa = obj->isa;
 
 	if (isa == NULL) {
 		return;
 	}
 
-	flags = obj -> flags;
+	flags = obj->flags;
 
 	if (!(flags & BKObjectFlagInitialized)) {
 		return;
 	}
 
-	if (isa -> dispose) {
-		isa -> dispose (obj);
+	if (isa->dispose) {
+		isa->dispose(obj);
 	}
 
-	memset (obj, 0, isa -> instanceSize);
+	memset(obj, 0, isa->instanceSize);
 
 	if (flags & BKObjectFlagAllocated) {
-		free (obj);
+		free(obj);
 	}
 }

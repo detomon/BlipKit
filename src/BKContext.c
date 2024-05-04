@@ -24,14 +24,13 @@
 #include "BKContext.h"
 #include "BKUnit.h"
 
-extern BKInt BKContextSetAttrInt (BKContext * ctx, BKEnum attr, BKInt value);
+extern BKInt BKContextSetAttrInt(BKContext* ctx, BKEnum attr, BKInt value);
 
 extern BKClass BKContextClass;
 
-static BKEnum BKContextTick (BKCallbackInfo * info, BKContext * ctx)
-{
-	BKDividerTick (ctx -> beatDividers.firstDivider, info);
-	BKDividerTick (ctx -> effectDividers.firstDivider, info);
+static BKEnum BKContextTick(BKCallbackInfo* info, BKContext* ctx) {
+	BKDividerTick(ctx->beatDividers.firstDivider, info);
+	BKDividerTick(ctx->effectDividers.firstDivider, info);
 
 	return 0;
 }
@@ -39,102 +38,96 @@ static BKEnum BKContextTick (BKCallbackInfo * info, BKContext * ctx)
 /**
  * Update effect and beat clock period dependant of sample rate
  */
-static void BKContextUpdateMasterClocks (BKContext * ctx)
-{
+static void BKContextUpdateMasterClocks(BKContext* ctx) {
 	BKTime clockPeriod;
 	BKCallback callback;
 
-	clockPeriod = BKTimeFromSeconds (ctx, 1.0 / BK_DEFAULT_CLOCK_RATE);
+	clockPeriod = BKTimeFromSeconds(ctx, 1.0 / BK_DEFAULT_CLOCK_RATE);
 
-	callback.func     = (BKCallbackFunc) BKContextTick;
+	callback.func = (BKCallbackFunc)BKContextTick;
 	callback.userInfo = ctx;
 
-	BKClockInit (& ctx -> masterClock, clockPeriod, & callback);  // then advance effects
+	BKClockInit(&ctx->masterClock, clockPeriod, &callback); // then advance effects
 }
 
-static BKInt BKContextInitGeneric (BKContext * ctx, BKUInt numChannels, BKUInt sampleRate)
-{
-	BKBuffer * channel;
+static BKInt BKContextInitGeneric(BKContext* ctx, BKUInt numChannels, BKUInt sampleRate) {
+	BKBuffer* channel;
 
-	ctx -> sampleRate  = BKClamp (sampleRate, BK_MIN_SAMPLE_RATE, BK_MAX_SAMPLE_RATE);
-	ctx -> numChannels = BKClamp (numChannels, 1, BK_MAX_CHANNELS);
-	ctx -> channels    = malloc (sizeof (BKBuffer) * ctx -> numChannels);
+	ctx->sampleRate = BKClamp(sampleRate, BK_MIN_SAMPLE_RATE, BK_MAX_SAMPLE_RATE);
+	ctx->numChannels = BKClamp(numChannels, 1, BK_MAX_CHANNELS);
+	ctx->channels = malloc(sizeof(BKBuffer) * ctx->numChannels);
 
-	BKContextUpdateMasterClocks (ctx);
+	BKContextUpdateMasterClocks(ctx);
 
-	if (ctx -> channels == NULL)
+	if (ctx->channels == NULL)
 		return BK_ALLOCATION_ERROR;
 
-	for (BKInt i = 0; i < ctx -> numChannels; i ++) {
-		channel = & ctx -> channels [i];
+	for (BKInt i = 0; i < ctx->numChannels; i++) {
+		channel = &ctx->channels[i];
 
-		if (BKBufferInit (channel) < 0)
+		if (BKBufferInit(channel) < 0)
 			return BK_ALLOCATION_ERROR;
 	}
 
 	return 0;
 }
 
-BKInt BKContextInit (BKContext * ctx, BKUInt numChannels, BKUInt sampleRate)
-{
-	if (BKObjectInit (ctx, & BKContextClass, sizeof (*ctx)) < 0) {
+BKInt BKContextInit(BKContext* ctx, BKUInt numChannels, BKUInt sampleRate) {
+	if (BKObjectInit(ctx, &BKContextClass, sizeof(*ctx)) < 0) {
 		return -1;
 	}
 
-	if (BKContextInitGeneric (ctx, numChannels, sampleRate) < 0) {
-		return -1;
-	}
-
-	return 0;
-}
-
-extern BKInt BKContextAlloc (BKContext ** outCtx, BKUInt numChannels, BKUInt sampleRate)
-{
-	if (BKObjectAlloc ((void **) outCtx, & BKContextClass, 0) < 0) {
-		return -1;
-	}
-
-	if (BKContextInitGeneric (*outCtx, numChannels, sampleRate) < 0) {
+	if (BKContextInitGeneric(ctx, numChannels, sampleRate) < 0) {
 		return -1;
 	}
 
 	return 0;
 }
 
-static void BKContextDisposeObject (BKContext * ctx)
-{
-	BKUnit   * nextUnit;
-	BKClock  * nextClock;
-	BKBuffer * channel;
-
-	for (BKUnit * unit = ctx -> firstUnit; unit; unit = nextUnit) {
-		nextUnit = unit -> nextUnit;
-		BKUnitDetach (unit);
+extern BKInt BKContextAlloc(BKContext** outCtx, BKUInt numChannels, BKUInt sampleRate) {
+	if (BKObjectAlloc((void**)outCtx, &BKContextClass, 0) < 0) {
+		return -1;
 	}
 
-	for (BKClock * clock = ctx -> firstClock; clock; clock = nextClock) {
-		nextClock = clock -> nextClock;
-		BKClockDetach (clock);
+	if (BKContextInitGeneric(*outCtx, numChannels, sampleRate) < 0) {
+		return -1;
 	}
 
-	for (BKInt i = 0; i < ctx -> numChannels; i ++) {
-		channel = & ctx -> channels [i];
-		BKBufferDispose (channel);
-	}
-
-	free (ctx -> channels);
-	BKDispose (& ctx -> masterClock);
+	return 0;
 }
 
-BKInt BKContextSetAttrInt (BKContext * ctx, BKEnum attr, BKInt value)
-{
+static void BKContextDisposeObject(BKContext* ctx) {
+	BKUnit* nextUnit;
+	BKClock* nextClock;
+	BKBuffer* channel;
+
+	for (BKUnit* unit = ctx->firstUnit; unit; unit = nextUnit) {
+		nextUnit = unit->nextUnit;
+		BKUnitDetach(unit);
+	}
+
+	for (BKClock* clock = ctx->firstClock; clock; clock = nextClock) {
+		nextClock = clock->nextClock;
+		BKClockDetach(clock);
+	}
+
+	for (BKInt i = 0; i < ctx->numChannels; i++) {
+		channel = &ctx->channels[i];
+		BKBufferDispose(channel);
+	}
+
+	free(ctx->channels);
+	BKDispose(&ctx->masterClock);
+}
+
+BKInt BKContextSetAttrInt(BKContext* ctx, BKEnum attr, BKInt value) {
 	switch (attr) {
 		case BK_ARPEGGIO_DIVIDER:
 		case BK_EFFECT_DIVIDER:
 		case BK_INSTRUMENT_DIVIDER: {
-			/*for (BKUnit * unit = ctx -> firstUnit; unit; unit = unit -> nextUnit) {
-				if (unit -> funcs -> setAttr)
-					unit -> funcs -> setAttr (unit, attr, value);
+			/*for (BKUnit* unit = ctx->firstUnit; unit; unit = unit->nextUnit) {
+				if (unit->funcs->setAttr)
+					unit->funcs->setAttr(unit, attr, value);
 			}*/
 		}
 		default: {
@@ -146,22 +139,20 @@ BKInt BKContextSetAttrInt (BKContext * ctx, BKEnum attr, BKInt value)
 	return 0;
 }
 
-BKInt BKContextSetAttr (BKContext * ctx, BKEnum attr, BKInt value)
-{
-	return BKContextSetAttrInt (ctx, attr, value);
+BKInt BKContextSetAttr(BKContext* ctx, BKEnum attr, BKInt value) {
+	return BKContextSetAttrInt(ctx, attr, value);
 }
 
-static BKInt BKContextGetAttrInt (BKContext const * ctx, BKEnum attr, BKInt * outValue)
-{
+static BKInt BKContextGetAttrInt(BKContext const* ctx, BKEnum attr, BKInt* outValue) {
 	BKInt value = 0;
 
 	switch (attr) {
 		case BK_NUM_CHANNELS: {
-			value = ctx -> numChannels;
+			value = ctx->numChannels;
 			break;
 		}
 		case BK_SAMPLE_RATE: {
-			value = ctx -> sampleRate;
+			value = ctx->sampleRate;
 			break;
 		}
 		default: {
@@ -170,24 +161,22 @@ static BKInt BKContextGetAttrInt (BKContext const * ctx, BKEnum attr, BKInt * ou
 		}
 	}
 
-	* outValue = value;
+	*outValue = value;
 
 	return 0;
 }
 
-BKInt BKContextGetAttr (BKContext const * ctx, BKEnum attr, BKInt * outValue)
-{
-	return BKContextGetAttrInt (ctx, attr, outValue);
+BKInt BKContextGetAttr(BKContext const* ctx, BKEnum attr, BKInt* outValue) {
+	return BKContextGetAttrInt(ctx, attr, outValue);
 }
 
-static BKInt BKContextSetPtrObj (BKContext * ctx, BKEnum attr, void * ptr, BKSize size)
-{
+static BKInt BKContextSetPtrObj(BKContext* ctx, BKEnum attr, void* ptr, BKSize size) {
 	switch (attr) {
 		case BK_CLOCK_PERIOD: {
-			BKTime time = * (BKTime *) ptr;
+			BKTime time = *(BKTime*)ptr;
 
-			if (BKTimeIsGreater (time, BK_TIME_ZERO)) {
-				BKClockSetPeriod (& ctx -> masterClock, time);
+			if (BKTimeIsGreater(time, BK_TIME_ZERO)) {
+				BKClockSetPeriod(&ctx->masterClock, time);
 			}
 			else {
 				return BK_INVALID_VALUE;
@@ -196,16 +185,16 @@ static BKInt BKContextSetPtrObj (BKContext * ctx, BKEnum attr, void * ptr, BKSiz
 			break;
 		}
 		case BK_PULSE_KERNEL: {
-			BKBuffer * channel;
-			BKBufferPulse const * pulse = ptr;
+			BKBuffer* channel;
+			BKBufferPulse const* pulse = ptr;
 
 			if (!pulse) {
-				pulse = BKBufferPulseKernels [BK_PULSE_KERNEL_HARM];
+				pulse = BKBufferPulseKernels[BK_PULSE_KERNEL_HARM];
 			}
 
-			for (BKInt i = 0; i < ctx -> numChannels; i ++) {
-				channel = &ctx -> channels [i];
-				channel -> pulse = pulse;
+			for (BKInt i = 0; i < ctx->numChannels; i++) {
+				channel = &ctx->channels[i];
+				channel->pulse = pulse;
 			}
 
 			break;
@@ -219,30 +208,28 @@ static BKInt BKContextSetPtrObj (BKContext * ctx, BKEnum attr, void * ptr, BKSiz
 	return 0;
 }
 
-BKInt BKContextSetPtr (BKContext * ctx, BKEnum attr, void * ptr)
-{
-	return BKContextSetPtrObj (ctx, attr, ptr, 0);
+BKInt BKContextSetPtr(BKContext* ctx, BKEnum attr, void* ptr) {
+	return BKContextSetPtrObj(ctx, attr, ptr, 0);
 }
 
-static BKInt BKContextGetPtrObj (BKContext const * ctx, BKEnum attr, void * outPtr, BKSize size)
-{
+static BKInt BKContextGetPtrObj(BKContext const* ctx, BKEnum attr, void* outPtr, BKSize size) {
 	switch (attr) {
 		case BK_CLOCK_PERIOD: {
-			BKTime * timeRef = outPtr;
+			BKTime* timeRef = outPtr;
 
-			* timeRef = ctx -> masterClock.period;
+			*timeRef = ctx->masterClock.period;
 			break;
 		}
 		case BK_TIME: {
-			BKTime * timeRef = outPtr;
+			BKTime* timeRef = outPtr;
 
-			* timeRef = ctx -> currentTime;
+			*timeRef = ctx->currentTime;
 			break;
 		}
 		case BK_PULSE_KERNEL: {
-			BKBufferPulse const ** pulseRef = outPtr;
+			BKBufferPulse const** pulseRef = outPtr;
 
-			* pulseRef = ctx -> channels [0].pulse;
+			*pulseRef = ctx->channels[0].pulse;
 			break;
 		}
 		default: {
@@ -254,21 +241,19 @@ static BKInt BKContextGetPtrObj (BKContext const * ctx, BKEnum attr, void * outP
 	return 0;
 }
 
-BKInt BKContextGetPtr (BKContext const * ctx, BKEnum attr, void * outPtr)
-{
-	return BKContextGetPtrObj (ctx, attr, outPtr, 0);
+BKInt BKContextGetPtr(BKContext const* ctx, BKEnum attr, void* outPtr) {
+	return BKContextGetPtrObj(ctx, attr, outPtr, 0);
 }
 
-BKInt BKContextGenerate (BKContext * ctx, BKFrame outFrames [], BKUInt size)
-{
+BKInt BKContextGenerate(BKContext* ctx, BKFrame outFrames[], BKUInt size) {
 	BKUInt endTime;
 	BKUInt chunkSize;
 	BKUInt remainingSize;
 	BKUInt writeSize;
-	BKInt  result;
+	BKInt result;
 
 	remainingSize = size;
-	writeSize     = 0;
+	writeSize = 0;
 
 	do {
 		chunkSize = remainingSize;
@@ -277,12 +262,12 @@ BKInt BKContextGenerate (BKContext * ctx, BKFrame outFrames [], BKUInt size)
 			chunkSize = BK_MAX_GENERATE_SAMPLES;
 
 		endTime = chunkSize << BK_FINT20_SHIFT;
-		result = BKContextEnd (ctx, endTime);
+		result = BKContextEnd(ctx, endTime);
 
 		if (result < 0)
 			return result;
 
-		chunkSize = BKContextRead (ctx, outFrames, chunkSize);
+		chunkSize = BKContextRead(ctx, outFrames, chunkSize);
 
 		writeSize += chunkSize;
 
@@ -291,40 +276,39 @@ BKInt BKContextGenerate (BKContext * ctx, BKFrame outFrames [], BKUInt size)
 			chunkSize = remainingSize;
 
 		remainingSize -= chunkSize;
-		outFrames += chunkSize * ctx -> numChannels;
+		outFrames += chunkSize * ctx->numChannels;
 	}
 	while (remainingSize);
 
 	return writeSize;
 }
 
-BKInt BKContextGenerateToTime (BKContext * ctx, BKTime endTime, BKInt (* write) (BKFrame inFrames [], BKUInt size, void * info), void * info)
-{
+BKInt BKContextGenerateToTime(BKContext* ctx, BKTime endTime, BKInt (*write)(BKFrame inFrames[], BKUInt size, void* info), void* info) {
 	BKInt numFrames = 0;
 	BKTime deltaTime;
 	BKFUInt20 period;
 
-	while (BKTimeIsLess (ctx -> currentTime, endTime)) {
-		deltaTime = BKTimeSub (endTime, ctx -> currentTime);
+	while (BKTimeIsLess(ctx->currentTime, endTime)) {
+		deltaTime = BKTimeSub(endTime, ctx->currentTime);
 
-		if (BKTimeIsLessFUInt20 (deltaTime, BK_INT_MAX / 3)) {
-			period = BKTimeGetFUInt20 (deltaTime);
+		if (BKTimeIsLessFUInt20(deltaTime, BK_INT_MAX / 3)) {
+			period = BKTimeGetFUInt20(deltaTime);
 		}
 		else {
 			period = BK_INT_MAX / 3;
 		}
 
-		BKContextEnd (ctx, period);
+		BKContextEnd(ctx, period);
 
 		// write frames if buffer filled or end time is reached
-		if (BKBufferSize (& ctx -> channels [0]) >= BK_MAX_GENERATE_SAMPLES || BKTimeIsGreaterEqual (ctx -> currentTime, endTime)) {
+		if (BKBufferSize(&ctx->channels[0]) >= BK_MAX_GENERATE_SAMPLES || BKTimeIsGreaterEqual(ctx->currentTime, endTime)) {
 			BKInt size;
-			BKFrame frames [ctx -> numChannels * BK_MAX_GENERATE_SAMPLES];
+			BKFrame frames[ctx->numChannels * BK_MAX_GENERATE_SAMPLES];
 
-			size = BKContextRead (ctx, frames, BK_MAX_GENERATE_SAMPLES);
+			size = BKContextRead(ctx, frames, BK_MAX_GENERATE_SAMPLES);
 			numFrames += size;
 
-			if (write (frames, size, info) != 0)
+			if (write(frames, size, info) != 0)
 				return BK_INVALID_RETURN_VALUE;
 		}
 	}
@@ -336,55 +320,53 @@ BKInt BKContextGenerateToTime (BKContext * ctx, BKTime endTime, BKInt (* write) 
  * Get next clock tick period of all clocks
  * Increment clock times by that period and set new time if some clock ticks
  */
-static BKFUInt20 BKClocksAdvance (BKContext * ctx, BKClock * clocks, BKInt * error)
-{
-	BKClock * clock;
-	BKTime    nextTime;
-	BKTime    deltaTime;
+static BKFUInt20 BKClocksAdvance(BKContext* ctx, BKClock* clocks, BKInt* error) {
+	BKClock* clock;
+	BKTime nextTime;
+	BKTime deltaTime;
 	BKFUInt20 period;
 
 	do {
 		nextTime = BK_TIME_MAX;
-		ctx -> flags &= ~BK_CONTEXT_FLAG_CLOCK_RESET; // clear clock reset flag
+		ctx->flags &= ~BK_CONTEXT_FLAG_CLOCK_RESET; // clear clock reset flag
 
-		for (clock = clocks; clock; clock = clock -> nextClock) {
-			BKClockTick (clock);
+		for (clock = clocks; clock; clock = clock->nextClock) {
+			BKClockTick(clock);
 
 			// get next time to tick
-			if (BKTimeIsLess (clock -> nextTime, nextTime))
-				nextTime = clock -> nextTime;
+			if (BKTimeIsLess(clock->nextTime, nextTime))
+				nextTime = clock->nextTime;
 		}
 	}
-	while (ctx -> flags & BK_CONTEXT_FLAG_CLOCK_RESET);
+	while (ctx->flags & BK_CONTEXT_FLAG_CLOCK_RESET);
 
-	deltaTime = BKTimeSub (nextTime, ctx -> currentTime);
+	deltaTime = BKTimeSub(nextTime, ctx->currentTime);
 
-	if (BKTimeIsLessFUInt20 (deltaTime, BK_INT_MAX / 3)) {
-		period = BKTimeGetFUInt20 (deltaTime);
+	if (BKTimeIsLessFUInt20(deltaTime, BK_INT_MAX / 3)) {
+		period = BKTimeGetFUInt20(deltaTime);
 	}
 	else {
 		period = BK_INT_MAX / 3;
 	}
 
 	// advance
-	for (clock = clocks; clock; clock = clock -> nextClock)
-		BKClockAdvance (clock, period);
+	for (clock = clocks; clock; clock = clock->nextClock)
+		BKClockAdvance(clock, period);
 
-	ctx -> currentTime = BKTimeAddFUInt20 (ctx -> currentTime, period);
+	ctx->currentTime = BKTimeAddFUInt20(ctx->currentTime, period);
 
 	return period;
 }
 
-BKInt BKContextRun (BKContext * ctx, BKFUInt20 endTime)
-{
+BKInt BKContextRun(BKContext* ctx, BKFUInt20 endTime) {
 	BKFUInt20 time, clockDelta;
-	BKUnit  * unit;
-	BKInt     result;
+	BKUnit* unit;
+	BKInt result;
 
-	if (ctx -> firstClock) {
-		for (time = ctx -> deltaTime; time < endTime;) {
+	if (ctx->firstClock) {
+		for (time = ctx->deltaTime; time < endTime;) {
 			result = 0;
-			clockDelta = BKClocksAdvance (ctx, ctx -> firstClock, & result);
+			clockDelta = BKClocksAdvance(ctx, ctx->firstClock, &result);
 
 			if (result < 0)
 				return result;
@@ -393,103 +375,98 @@ BKInt BKContextRun (BKContext * ctx, BKFUInt20 endTime)
 			time += clockDelta;
 
 			// run units
-			for (unit = ctx -> firstUnit; unit; unit = unit -> nextUnit)
-				unit -> run (unit, time);
+			for (unit = ctx->firstUnit; unit; unit = unit->nextUnit)
+				unit->run(unit, time);
 		}
 
-		ctx -> deltaTime = time;
+		ctx->deltaTime = time;
 	}
 	else {
 		// run units
-		for (unit = ctx -> firstUnit; unit; unit = unit -> nextUnit)
-			unit -> run (unit, endTime);
+		for (unit = ctx->firstUnit; unit; unit = unit->nextUnit)
+			unit->run(unit, endTime);
 	}
 
 	return endTime;
 }
 
-BKInt BKContextEnd (BKContext * ctx, BKFUInt20 endTime)
-{
-	BKUnit   * unit;
-	BKBuffer * channel;
-	BKInt      result;
+BKInt BKContextEnd(BKContext* ctx, BKFUInt20 endTime) {
+	BKUnit* unit;
+	BKBuffer* channel;
+	BKInt result;
 
-	result = BKContextRun (ctx, endTime);
+	result = BKContextRun(ctx, endTime);
 
 	if (result < 0)
 		return result;
 
 	// end clock time
-	ctx -> deltaTime -= endTime;
+	ctx->deltaTime -= endTime;
 
 	// end units
-	for (unit = ctx -> firstUnit; unit; unit = unit -> nextUnit)
-		unit -> end (unit, endTime);
+	for (unit = ctx->firstUnit; unit; unit = unit->nextUnit)
+		unit->end(unit, endTime);
 
 	// shift channel buffers
-	for (BKInt i = 0; i < ctx -> numChannels; i ++) {
-		channel = & ctx -> channels [i];
-		BKBufferShift (channel, endTime);
+	for (BKInt i = 0; i < ctx->numChannels; i++) {
+		channel = &ctx->channels[i];
+		BKBufferShift(channel, endTime);
 	}
 
 	return endTime;
 }
 
-BKInt BKContextSize (BKContext const * ctx)
-{
+BKInt BKContextSize(BKContext const* ctx) {
 	// assuming every buffer has the same size
-	return BKBufferSize (& ctx -> channels [0]);
+	return BKBufferSize(&ctx->channels[0]);
 }
 
-BKInt BKContextRead (BKContext * ctx, BKFrame outFrames [], BKUInt size)
-{
-	BKBuffer * channel;
+BKInt BKContextRead(BKContext* ctx, BKFrame outFrames[], BKUInt size) {
+	BKBuffer* channel;
 
 	// read channels
-	for (BKInt i = 0; i < ctx -> numChannels; i ++) {
-		channel = & ctx -> channels [i];
+	for (BKInt i = 0; i < ctx->numChannels; i++) {
+		channel = &ctx->channels[i];
 		// interlace into `outFrames`
-		size = BKBufferRead (channel, & outFrames [i], size, ctx -> numChannels);
+		size = BKBufferRead(channel, &outFrames[i], size, ctx->numChannels);
 	}
 
 	return size;
 }
 
-void BKContextReset (BKContext * ctx)
-{
-	BKUnit   * unit;
-	BKBuffer * channel;
-	BKClock  * clock;
+void BKContextReset(BKContext* ctx) {
+	BKUnit* unit;
+	BKBuffer* channel;
+	BKClock* clock;
 
-	ctx -> deltaTime   = 0;
-	ctx -> currentTime = BK_TIME_ZERO;
+	ctx->deltaTime = 0;
+	ctx->currentTime = BK_TIME_ZERO;
 
-	for (unit = ctx -> firstUnit; unit; unit = unit -> nextUnit) {
-		if (unit -> reset)
-			unit -> reset (unit);
+	for (unit = ctx->firstUnit; unit; unit = unit->nextUnit) {
+		if (unit->reset)
+			unit->reset(unit);
 	}
 
-	for (clock = ctx -> firstClock; clock; clock = clock -> nextClock)
-		BKClockReset (clock);
+	for (clock = ctx->firstClock; clock; clock = clock->nextClock)
+		BKClockReset(clock);
 
-	for (BKInt i = 0; i < ctx -> numChannels; i ++) {
-		channel = & ctx -> channels [i];
-		BKBufferClear (channel);
+	for (BKInt i = 0; i < ctx->numChannels; i++) {
+		channel = &ctx->channels[i];
+		BKBufferClear(channel);
 	}
 }
 
-BKInt BKContextAttachDivider (BKContext * ctx, BKDivider * divider, BKEnum type)
-{
-	BKClock        * clock = & ctx -> masterClock;
-	BKDividerGroup * group = NULL;
+BKInt BKContextAttachDivider(BKContext* ctx, BKDivider* divider, BKEnum type) {
+	BKClock* clock = &ctx->masterClock;
+	BKDividerGroup* group = NULL;
 
 	switch (type) {
 		case BK_CLOCK_TYPE_EFFECT: {
-			group = & ctx -> effectDividers;
+			group = &ctx->effectDividers;
 			break;
 		}
 		case BK_CLOCK_TYPE_BEAT: {
-			group = & ctx -> beatDividers;
+			group = &ctx->beatDividers;
 			break;
 		}
 		default: {
@@ -500,9 +477,9 @@ BKInt BKContextAttachDivider (BKContext * ctx, BKDivider * divider, BKEnum type)
 
 	if (group) {
 		// Check if required values set
-		if (BKTimeIsGreater (clock -> period, BK_TIME_ZERO)) {
-			BKDividerAttachToGroup (divider, group);
-			BKClockAttach (clock, ctx, ctx -> firstClock);
+		if (BKTimeIsGreater(clock->period, BK_TIME_ZERO)) {
+			BKDividerAttachToGroup(divider, group);
+			BKClockAttach(clock, ctx, ctx->firstClock);
 		}
 		else {
 			return BK_INVALID_VALUE;
@@ -515,12 +492,11 @@ BKInt BKContextAttachDivider (BKContext * ctx, BKDivider * divider, BKEnum type)
 	return 0;
 }
 
-BKClass BKContextClass =
-{
-	.instanceSize = sizeof (BKContext),
-	.dispose      = (BKDisposeFunc) BKContextDisposeObject,
-	.setAttr      = (BKSetAttrFunc) BKContextSetAttrInt,
-	.getAttr      = (BKGetAttrFunc) BKContextGetAttrInt,
-	.setPtr       = (BKSetPtrFunc)  BKContextSetPtrObj,
-	.getPtr       = (BKGetPtrFunc)  BKContextGetPtrObj,
+BKClass BKContextClass = {
+	.instanceSize = sizeof(BKContext),
+	.dispose = (BKDisposeFunc)BKContextDisposeObject,
+	.setAttr = (BKSetAttrFunc)BKContextSetAttrInt,
+	.getAttr = (BKGetAttrFunc)BKContextGetAttrInt,
+	.setPtr = (BKSetPtrFunc)BKContextSetPtrObj,
+	.getPtr = (BKGetPtrFunc)BKContextGetPtrObj,
 };

@@ -21,41 +21,39 @@
  * IN THE SOFTWARE.
  */
 
+#include "BKBase.h"
+#include "BKBuffer.h"
 #include <math.h>
 #include <stdio.h>
-#include "BKBuffer.h"
-#include "BKBase.h"
 
-static BKInt stepPhases [BK_STEP_UNIT][BK_STEP_WIDTH];
+static BKInt stepPhases[BK_STEP_UNIT][BK_STEP_WIDTH];
 
-int main (int argc, char const * argv [])
-{
+int main(int argc, char const* argv[]) {
 	int const size = BK_STEP_WIDTH;
 
-	printf (
+	printf(
 		"/**\n"
 		" * Bandlimited step phases\n"
 		" * Generated with `%s`\n"
 		" */\n"
 		"BKInt const BKBufferStepPhases [BK_STEP_UNIT][BK_STEP_WIDTH] =\n{\n",
-		__FILE__
-	);
+		__FILE__);
 
 	// step phase
-	for (int phase = 0; phase < BK_STEP_UNIT; phase ++) {
+	for (int phase = 0; phase < BK_STEP_UNIT; phase++) {
 		double wave[BK_STEP_UNIT + 1];
-		double shift = -((double) phase / BK_STEP_UNIT);
+		double shift = -((double)phase / BK_STEP_UNIT);
 
 		memset(wave, 0, sizeof(wave));
 
-		printf ("\t{");
+		printf("\t{");
 
 		// phase offset
 		for (double n = 1; n <= 31; n += 2) {
 			for (double x = -size / 2; x <= size / 2; x++) {
 				double a = (x + shift) * M_PI / 31;
 
-				wave[(int) x + size / 2] += sin(n * a) / n;
+				wave[(int)x + size / 2] += sin(n * a) / n;
 			}
 		}
 
@@ -84,16 +82,16 @@ int main (int argc, char const * argv [])
 		}
 
 		// correct round-off error
-		stepPhases [phase][size / 2] += (BK_FRAME_MAX - sum);
+		stepPhases[phase][size / 2] += (BK_FRAME_MAX - sum);
 
-		for (BKInt i = 0; i < size; i ++) {
-			printf ("%6d, ", stepPhases [phase][i]);
+		for (BKInt i = 0; i < size; i++) {
+			printf("%6d, ", stepPhases[phase][i]);
 		}
 
-		printf ("},\n");
+		printf("},\n");
 	}
 
-	printf ("};\n\n");
+	printf("};\n\n");
 
 	return 0;
 }

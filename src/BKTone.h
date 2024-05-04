@@ -36,25 +36,26 @@
 #define BK_MAX_NOTE BK_C_8 ///< The maximum note.
 
 #define BK_NOTE_RELEASE -1 ///< The attribute value for releasing the note.
-#define BK_NOTE_MUTE    -2 ///< The attribute value for muting the note.
+#define BK_NOTE_MUTE -2	   ///< The attribute value for muting the note.
 
-#define BK_MIN_PIANO_TONE (3 - 4 * 12 + BK_C_0)        ///< Minimum note offset for table generator script.
+#define BK_MIN_PIANO_TONE (3 - 4 * 12 + BK_C_0)		   ///< Minimum note offset for table generator script.
 #define BK_MAX_PIANO_TONE (BK_MIN_PIANO_TONE + BK_C_8) ///< Maximum note offset for table generator script.
 
-#define BK_MIN_SAMPLE_TONE (-4 * 12 + BK_C_0)            ///< Minimum sample pitch.
+#define BK_MIN_SAMPLE_TONE (-4 * 12 + BK_C_0)			 ///< Minimum sample pitch.
 #define BK_MAX_SAMPLE_TONE (BK_MIN_SAMPLE_TONE + BK_C_8) ///< Maximum sample pitch.
 
-#define BK_TONE_SHIFT 16                  ///< Bit shift used for calculating note.
+#define BK_TONE_SHIFT 16				  ///< Bit shift used for calculating note.
 #define BK_TONE_UNIT (1 << BK_TONE_SHIFT) ///< Unit factor used for calculating note.
-#define BK_TONE_FRAC (BK_TONE_UNIT - 1)   ///< Fraction mask used for calculating note.
+#define BK_TONE_FRAC (BK_TONE_UNIT - 1)	  ///< Fraction mask used for calculating note.
 
 #define BK_TONE_SAMPLE_RATE_SHIFT 18 ///< Bit shift used for calculating sample pitch.
+
+// clang-format off
 
 /**
  * Defines named notes.
  */
-enum
-{
+enum {
 	BK_C_0, BK_C_SH_0, BK_D_0, BK_D_SH_0, BK_E_0, BK_F_0, BK_F_SH_0,
 	BK_G_0, BK_G_SH_0, BK_A_0, BK_A_SH_0, BK_B_0,
 	BK_C_1, BK_C_SH_1, BK_D_1, BK_D_SH_1, BK_E_1, BK_F_1, BK_F_SH_1,
@@ -74,14 +75,16 @@ enum
 	BK_C_8,
 };
 
+// clang-format on
+
 /**
  * Calculate sample period from a note using the sample rate.
  */
-extern BKFUInt20 BKTonePeriodLookup (BKFInt20 tone, BKUInt sampleRate);
+extern BKFUInt20 BKTonePeriodLookup(BKFInt20 tone, BKUInt sampleRate);
 
 /**
  * Calculate log2 of a note used for sample pitches.
  */
-extern BKFUInt20 BKLog2PeriodLookup (BKFInt20 tone);
+extern BKFUInt20 BKLog2PeriodLookup(BKFInt20 tone);
 
 #endif /* ! _BK_NOTE_H_ */

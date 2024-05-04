@@ -30,91 +30,85 @@
 #ifndef _BK_DATA_H_
 #define _BK_DATA_H_
 
-#include <stdio.h>
 #include "BKObject.h"
+#include <stdio.h>
 
-typedef struct BKData      BKData;
+typedef struct BKData BKData;
 typedef struct BKDataState BKDataState;
 
-typedef struct BKDataInfo        BKDataInfo;
+typedef struct BKDataInfo BKDataInfo;
 typedef struct BKDataConvertInfo BKDataConvertInfo;
-typedef struct BKDataExportInfo  BKDataExportInfo;
+typedef struct BKDataExportInfo BKDataExportInfo;
 
-typedef BKInt (* BKDataStateCallback) (BKEnum event, void * userInfo);
+typedef BKInt (*BKDataStateCallback)(BKEnum event, void* userInfo);
 
 /**
  * Endian types.
  */
-enum
-{
-	BK_BIG_ENDIAN    = 1 << 16, ///< Big endian flag.
+enum {
+	BK_BIG_ENDIAN = 1 << 16,	///< Big endian flag.
 	BK_LITTLE_ENDIAN = 2 << 16, ///< Little endian flag.
-	BK_ENDIAN_MASK   = 3 << 16, ///< Mask matching endians.
+	BK_ENDIAN_MASK = 3 << 16,	///< Mask matching endians.
 };
 
 /**
  * Sizes and sign.
  */
-enum
-{
-	BK_1_BIT_UNSIGNED  = 1,  ///< 1 bit unsigned.
-	BK_2_BIT_UNSIGNED  = 2,  ///< 2 bit unsigned.
-	BK_4_BIT_UNSIGNED  = 3,  ///< 4 bit unsigned.
-	BK_8_BIT_SIGNED    = 4,  ///< 8 bit signed.
-	BK_8_BIT_UNSIGNED  = 5,  ///< 8 bit unsigned.
-	BK_16_BIT_SIGNED   = 6,  ///< 16 bit signed.
-	BK_DATA_BITS_MASK  = 15, ///< Mask matching the bit type.
+enum {
+	BK_1_BIT_UNSIGNED = 1,	///< 1 bit unsigned.
+	BK_2_BIT_UNSIGNED = 2,	///< 2 bit unsigned.
+	BK_4_BIT_UNSIGNED = 3,	///< 4 bit unsigned.
+	BK_8_BIT_SIGNED = 4,	///< 8 bit signed.
+	BK_8_BIT_UNSIGNED = 5,	///< 8 bit unsigned.
+	BK_16_BIT_SIGNED = 6,	///< 16 bit signed.
+	BK_DATA_BITS_MASK = 15, ///< Mask matching the bit type.
 };
 
 /**
  * Data object events.
  */
-enum
-{
-	BK_DATA_STATE_EVENT_RESET,   ///< Event after changing object attributes.
+enum {
+	BK_DATA_STATE_EVENT_RESET,	 ///< Event after changing object attributes.
 	BK_DATA_STATE_EVENT_DISPOSE, ///< Event fired before disposing data object.
 };
 
 /**
  * The data struct.
  */
-struct BKData
-{
-	BKObject      object;        ///< The parent object.
-	BKEnum        numBits;       ///< Number of bits.
-	BKInt         sampleRate;    ///< Sample rate.
-	BKUInt        numFrames;     ///< Number of frames per channel.
-	BKUInt        numChannels;   ///< Number of channels.
-	BKFInt20      samplePitch;   ///< Sample pitch.
-	BKUInt        sustainOffset; ///< Sustain range offset,
-	BKUInt        sustainEnd;    ///< Sustain range end.
-	BKFrame     * frames;        ///< The frames.
-	BKDataState * stateList;     ///< The states.
+struct BKData {
+	BKObject object;		///< The parent object.
+	BKEnum numBits;			///< Number of bits.
+	BKInt sampleRate;		///< Sample rate.
+	BKUInt numFrames;		///< Number of frames per channel.
+	BKUInt numChannels;		///< Number of channels.
+	BKFInt20 samplePitch;	///< Sample pitch.
+	BKUInt sustainOffset;	///< Sustain range offset,
+	BKUInt sustainEnd;		///< Sustain range end.
+	BKFrame* frames;		///< The frames.
+	BKDataState* stateList; ///< The states.
 };
 
 /**
  * The data state.
  */
-struct BKDataState
-{
-	BKData            * data;             ///< The data object.
-	BKDataStateCallback callback;         ///< Called for every data event.
-	void              * callbackUserInfo; ///< The callback context.
-	BKDataState       * nextState;        ///< The next state.
+struct BKDataState {
+	BKData* data;				  ///< The data object.
+	BKDataStateCallback callback; ///< Called for every data event.
+	void* callbackUserInfo;		  ///< The callback context.
+	BKDataState* nextState;		  ///< The next state.
 };
 
 /**
  * Struct containing hints for converting data.
  */
-struct BKDataConvertInfo
-{
-	BKInt  sourceSampleRate;   ///< Sample rate of source.
-	BKInt  targetSampleRate;   ///< Sample rate of target.
-	BKEnum targetNumBits;      ///< Target number of bits.
-	BKInt  ditherSmoothLength; ///< Used for downsampling. Number of samples to smooth out dithering.
-	float  ditherSlope;        ///< Used for downsampling. Curve slope used for dithering.
-	float  ditherCurve;        ///< Used for downsampling. Curve power used for dithering.
-	float  threshold;          ///< Used for downsampling. Dithering threshold.
+struct BKDataConvertInfo {
+	BKInt sourceSampleRate;	  ///< Sample rate of source.
+	BKInt targetSampleRate;	  ///< Sample rate of target.
+	BKEnum targetNumBits;	  ///< Target number of bits.
+	BKInt ditherSmoothLength; ///< Used for downsampling. Number of samples to smooth out dithering.
+	float ditherSlope;		  ///< Used for downsampling. Curve slope used for dithering.
+	float ditherCurve;		  ///< Used for downsampling. Curve power used for dithering.
+	float threshold;		  ///< Used for downsampling. Dithering threshold.
 };
 
 /**
@@ -123,7 +117,7 @@ struct BKDataConvertInfo
  * @param data The data object to initialize.
  * @return 0 on success.
  */
-extern BKInt BKDataInit (BKData * data);
+extern BKInt BKDataInit(BKData* data);
 
 /**
  * Allocate data object and initialize.
@@ -131,14 +125,14 @@ extern BKInt BKDataInit (BKData * data);
  * @param outData Reference to object pointer.
  * @return 0 on success.
  */
-extern BKInt BKDataAlloc (BKData ** outData);
+extern BKInt BKDataAlloc(BKData** outData);
 
 /**
  * Detaches the object from all state.
  *
  * @param data The data object to detach.
  */
-extern void BKDataDetach (BKData * data);
+extern void BKDataDetach(BKData* data);
 
 /**
  * Initialize data object and copy from other object.
@@ -147,7 +141,7 @@ extern void BKDataDetach (BKData * data);
  * @param original The data object to copy.
  * @return 0 on success.
  */
-extern BKInt BKDataInitCopy (BKData * copy, BKData const * original);
+extern BKInt BKDataInitCopy(BKData* copy, BKData const* original);
 
 /**
  * Set object attributes.
@@ -169,7 +163,7 @@ extern BKInt BKDataInitCopy (BKData * copy, BKData const * original);
  * @param value The attribute value.
  * @return 0 on success.
  */
-extern BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value) BK_DEPRECATED_FUNC ("Use 'BKSetAttr' instead");
+extern BKInt BKDataSetAttr(BKData* data, BKEnum attr, BKInt value) BK_DEPRECATED_FUNC("Use 'BKSetAttr' instead");
 
 /**
  * Get object attribute.
@@ -186,7 +180,7 @@ extern BKInt BKDataSetAttr (BKData * data, BKEnum attr, BKInt value) BK_DEPRECAT
  * @param outValue A reference to be set to the attribute value.
  * @return 0 on success.
  */
-extern BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue) BK_DEPRECATED_FUNC ("Use 'BKGetAttr' instead");
+extern BKInt BKDataGetAttr(BKData const* data, BKEnum attr, BKInt* outValue) BK_DEPRECATED_FUNC("Use 'BKGetAttr' instead");
 
 /**
  * Replace frames.
@@ -198,7 +192,7 @@ extern BKInt BKDataGetAttr (BKData const * data, BKEnum attr, BKInt * outValue) 
  * @param copy Set to 1 if the frames should be copied.
  * @return 0 on success.
  */
-extern BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numFrames, BKUInt numChannels, BKInt copy);
+extern BKInt BKDataSetFrames(BKData* data, BKFrame const* frames, BKUInt numFrames, BKUInt numChannels, BKInt copy);
 
 /**
  * Replace frames data and convert to internal format.
@@ -212,7 +206,7 @@ extern BKInt BKDataSetFrames (BKData * data, BKFrame const * frames, BKUInt numF
  *   Endianness only affects data with more than 8 bits per frame.
  * @return 0 on success.
  */
-extern BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params);
+extern BKInt BKDataSetData(BKData* data, void const* frameData, BKUInt dataSize, BKUInt numChannels, BKEnum params);
 
 /**
  * Load frames from raw audio file. Calls BKDataSetData with the data of the file.
@@ -225,7 +219,7 @@ extern BKInt BKDataSetData (BKData * data, void const * frameData, BKUInt dataSi
  *   Endianness only affects data with more than 8 bits per frame.
  * @return 0 on success.
  */
-extern BKInt BKDataLoadRaw (BKData * data, FILE * file, BKUInt numChannels, BKEnum params);
+extern BKInt BKDataLoadRaw(BKData* data, FILE* file, BKUInt numChannels, BKEnum params);
 
 /**
  * Load frames from WAVE audio file. Only 16 and 8 bit PCM format is supported.
@@ -234,7 +228,7 @@ extern BKInt BKDataLoadRaw (BKData * data, FILE * file, BKUInt numChannels, BKEn
  * @param file The file to read from. Will not be closed.
  * @return 0 on success.
  */
-extern BKInt BKDataLoadWAVE (BKData * data, FILE * file);
+extern BKInt BKDataLoadWAVE(BKData* data, FILE* file);
 
 /**
  * Normalize frames to their maximum possible value. If BKData was initialized
@@ -243,11 +237,11 @@ extern BKInt BKDataLoadWAVE (BKData * data, FILE * file);
  * @param data The data object to normalize.
  * @return 0 on success.
  */
-extern BKInt BKDataNormalize (BKData * data);
+extern BKInt BKDataNormalize(BKData* data);
 
 /**
  * TODO
  */
-extern BKInt BKDataConvert (BKData * data, BKDataConvertInfo * info);
+extern BKInt BKDataConvert(BKData* data, BKDataConvertInfo* info);
 
 #endif /* ! _BK_DATA_H_ */

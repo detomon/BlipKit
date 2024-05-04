@@ -27,12 +27,11 @@
 #include "BKContext.h"
 #include "BKData.h"
 
-enum
-{
+enum {
 	BKUnitFlagSampleSustainRange = 1 << 0, // has `BK_SAMPLE_SUSTAIN_RANGE` set
-	BKUnitFlagSampleSustainJump  = 1 << 1, // should jump immediately to release phase
-	BKUnitFlagRelease            = 1 << 2, // set release phase
-	BKUnitFlagsClearMask         = ~7,
+	BKUnitFlagSampleSustainJump = 1 << 1,  // should jump immediately to release phase
+	BKUnitFlagRelease = 1 << 2,			   // set release phase
+	BKUnitFlagsClearMask = ~7,
 };
 
 typedef struct BKUnitFuncs BKUnitFuncs;
@@ -44,60 +43,59 @@ typedef struct BKUnitFuncs BKUnitFuncs;
  * All functions return 0 on success and values < 0 on error
  */
 
-typedef BKInt (* BKUnitRunFunc)   (void * unit, BKFUInt20 endTime);
-typedef void (* BKUnitEndFunc)    (void * unit, BKFUInt20 time);
-typedef void  (* BKUnitResetFunc) (void * unit);
+typedef BKInt (*BKUnitRunFunc)(void* unit, BKFUInt20 endTime);
+typedef void (*BKUnitEndFunc)(void* unit, BKFUInt20 time);
+typedef void (*BKUnitResetFunc)(void* unit);
 
-struct BKUnit
-{
+struct BKUnit {
 	BKObject object;
 
 	// context
-	BKContext     * ctx;
-	BKUnitRunFunc   run;
-	BKUnitEndFunc   end;
+	BKContext* ctx;
+	BKUnitRunFunc run;
+	BKUnitEndFunc end;
 	BKUnitResetFunc reset;
 
 	// linking
-	BKUnit * prevUnit;
-	BKUnit * nextUnit;
+	BKUnit* prevUnit;
+	BKUnit* nextUnit;
 
 	// time
 	BKFUInt20 time;
 	BKFUInt20 period;
-	BKInt     lastPulse [BK_MAX_CHANNELS];
+	BKInt lastPulse[BK_MAX_CHANNELS];
 
 	// waveform
 	BKEnum waveform;
 	BKUInt dutyCycle;
 
 	// volume
-	BKInt volume [BK_MAX_CHANNELS];
+	BKInt volume[BK_MAX_CHANNELS];
 	BKInt mute;
 
 	// phase
 	struct {
-		BKUInt phase;  // contains noise seed and sample offset
+		BKUInt phase; // contains noise seed and sample offset
 		BKUInt wrap;
-		BKInt  wrapCount;
+		BKInt wrapCount;
 		BKUInt count;
 	} phase;
 
 	// samples
 	struct {
 		BKDataState dataState;
-		BKUInt      numChannels;
-		BKUInt      length;
-		BKUInt      offset;
-		BKUInt      end;
-		BKUInt      repeatMode;
-		BKUInt      repeatCount;
-		BKUInt      sustainOffset; // relative to `offset`
-		BKUInt      sustainEnd;    // relative to `offset`
-		BKFInt20    timeFrac;
-		BKFInt20    period;
-		BKCallback  callback;
-		BKFrame   * frames;
+		BKUInt numChannels;
+		BKUInt length;
+		BKUInt offset;
+		BKUInt end;
+		BKUInt repeatMode;
+		BKUInt repeatCount;
+		BKUInt sustainOffset; // relative to `offset`
+		BKUInt sustainEnd;	  // relative to `offset`
+		BKFInt20 timeFrac;
+		BKFInt20 period;
+		BKCallback callback;
+		BKFrame* frames;
 	} sample;
 };
 
@@ -109,7 +107,7 @@ struct BKUnit
  * Errors:
  * -1
  */
-extern BKInt BKUnitInit (BKUnit * unit, BKEnum waveform);
+extern BKInt BKUnitInit(BKUnit* unit, BKEnum waveform);
 
 /**
  * Attach to context
@@ -117,12 +115,12 @@ extern BKInt BKUnitInit (BKUnit * unit, BKEnum waveform);
  * Errors:
  * BK_INVALID_STATE if already attached to a context
  */
-extern BKInt BKUnitAttach (BKUnit * unit, BKContext * ctx);
+extern BKInt BKUnitAttach(BKUnit* unit, BKContext* ctx);
 
 /**
  * Detach from context
  */
-extern void BKUnitDetach (BKUnit * unit);
+extern void BKUnitDetach(BKUnit* unit);
 
 /**
  * Set attribute
@@ -186,7 +184,7 @@ extern void BKUnitDetach (BKUnit * unit);
  *   This happens when trying to set BK_SAMPLE_OFFSET or BK_SAMPLE_END when no
  *   sample is set
  */
-extern BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value);
+extern BKInt BKUnitSetAttr(BKUnit* unit, BKEnum attr, BKInt value);
 
 /**
  * Get attribute
@@ -204,7 +202,7 @@ extern BKInt BKUnitSetAttr (BKUnit * unit, BKEnum attr, BKInt value);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue);
+extern BKInt BKUnitGetAttr(BKUnit const* unit, BKEnum attr, BKInt* outValue);
 
 /**
  * Set pointer
@@ -230,7 +228,7 @@ extern BKInt BKUnitGetAttr (BKUnit const * unit, BKEnum attr, BKInt * outValue);
  * BK_INVALID_VALUE if pointer is invalid for this attribute
  * BK_INVALID_NUM_CHANNELS if the sample's number of channels does not match that of the context
  */
-extern BKInt BKUnitSetPtr (BKUnit * unit, BKEnum attr, void * ptr);
+extern BKInt BKUnitSetPtr(BKUnit* unit, BKEnum attr, void* ptr);
 
 /**
  * Get pointer
@@ -245,6 +243,6 @@ extern BKInt BKUnitSetPtr (BKUnit * unit, BKEnum attr, void * ptr);
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKUnitGetPtr (BKUnit const * unit, BKEnum attr, void * outPtr);
+extern BKInt BKUnitGetPtr(BKUnit const* unit, BKEnum attr, void* outPtr);
 
 #endif /* ! _BK_UNIT_H_ */

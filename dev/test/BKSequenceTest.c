@@ -25,12 +25,10 @@ clang -Wall -O2 -I ../../src/ -o /tmp/`basename $0` $0 -lblipkit -lSDL2 && /tmp/
  * IN THE SOFTWARE.
  */
 
-
-#include <stdio.h>
 #include "BKSequence.h"
+#include <stdio.h>
 
-int main (int argc, char const * argv [])
-{
+int main(int argc, char const* argv[]) {
 	/*BKInt max = 100;
 	BKInt attack = 10;
 	BKInt decay = 10;
@@ -44,6 +42,8 @@ int main (int argc, char const * argv [])
 		{release, 0},
 	};*/
 
+	// clang-format off
+
 	BKSequencePhase const phases [4] = {
 		{5, 0},
 		{10, -100},
@@ -51,33 +51,34 @@ int main (int argc, char const * argv [])
 		{5, 0},
 	};
 
-
-	BKInt values [] = {
+	BKInt values[] = {
 		24, 32, 64, 48, 32, 24, 16, 8,
 	};
 
-	BKSequence * sequence;
+	// clang-format on
+
+	BKSequence* sequence;
 	BKSequenceState state;
 
-	BKSequenceCreate (& sequence, & BKSequenceFuncsEnvelope, phases, 4, 1, 2);
+	BKSequenceCreate(&sequence, &BKSequenceFuncsEnvelope, phases, 4, 1, 2);
 
-	memset (& state, 0, sizeof (state));
+	memset(&state, 0, sizeof(state));
 
-	BKSequenceStateSetSequence (& state, sequence);
+	BKSequenceStateSetSequence(&state, sequence);
 
-	BKSequenceStateSetPhase (& state, BK_SEQUENCE_PHASE_ATTACK);
+	BKSequenceStateSetPhase(&state, BK_SEQUENCE_PHASE_ATTACK);
 
-	for (BKInt i = 0; ; i ++) {
-		printf ("%d\n", state.value);
+	for (BKInt i = 0;; i++) {
+		printf("%d\n", state.value);
 
-		if (BKSequenceStateStep (& state, 1) == BK_SEQUENCE_RETURN_FINISH)
+		if (BKSequenceStateStep(&state, 1) == BK_SEQUENCE_RETURN_FINISH)
 			break;
 
 		if (i == 30)
-			BKSequenceStateSetPhase (& state, BK_SEQUENCE_PHASE_RELEASE);
+			BKSequenceStateSetPhase(&state, BK_SEQUENCE_PHASE_RELEASE);
 	}
 
-	BKSequenceDispose (sequence);
+	BKSequenceDispose(sequence);
 
 	return 0;
 }

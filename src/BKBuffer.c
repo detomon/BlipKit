@@ -26,13 +26,13 @@
 extern BKBufferPulse const BKBufferStepPhasesSinc;
 extern BKBufferPulse const BKBufferStepPhasesHarm;
 
+// clang-format off
 
 /**
  * Bandlimited step phases
  * Generated with `sinc_phases.c`
  */
-BKBufferPulse const BKBufferStepPhasesSinc = { .frames =
-{
+BKBufferPulse const BKBufferStepPhasesSinc = { .frames = {
 	{     0,      0,      0,      1,     -3,      6,    -10,     16,    -25,     36,    -52,     74,   -105,    155,   -249,    519,  32746,   -488,    230,   -140,     92,    -62,     42,    -28,     18,    -11,      7,     -4,      2,      0,      0,      0, },
 	{     0,      0,      0,     -1,      3,     -6,     10,    -16,     25,    -36,     52,    -73,    105,   -154,    246,   -504,  32762,    503,   -234,    141,    -93,     63,    -42,     28,    -18,     11,     -7,      4,     -2,      0,      0,      0, },
 	{     0,      0,      2,     -5,     11,    -19,     31,    -49,     74,   -108,    155,   -219,    312,   -456,    724,  -1463,  32672,   1556,   -712,    428,   -280,    189,   -128,     86,    -56,     35,    -21,     12,     -6,      2,      0,      0, },
@@ -71,8 +71,7 @@ BKBufferPulse const BKBufferStepPhasesSinc = { .frames =
  * Bandlimited step phases
  * Generated with `harm_phases.c`
  */
-BKBufferPulse const BKBufferStepPhasesHarm = { .frames =
-{
+BKBufferPulse const BKBufferStepPhasesHarm = { .frames = {
 	{     0,      0,     -3,     10,    -25,     52,    -97,    168,   -276,    433,   -660,    991,  -1498,   2369,  -4328,  19208,  19287,  -4328,   2369,  -1498,    991,   -660,    433,   -276,    168,    -97,     52,    -25,     10,     -3,      0,      0, },
 	{     0,      0,     -1,      7,    -19,     42,    -83,    148,   -249,    398,   -616,    939,  -1436,   2297,  -4242,  18108,  20352,  -4368,   2416,  -1545,   1034,   -697,    464,   -300,    187,   -110,     61,    -30,     13,     -4,      1,      0, },
 	{     0,      0,      0,      3,    -13,     32,    -68,    127,   -219,    359,   -567,    877,  -1361,   2204,  -4113,  16983,  21387,  -4360,   2439,  -1576,   1066,   -727,    490,   -322,    204,   -122,     69,    -36,     16,     -6,      1,      0, },
@@ -107,71 +106,68 @@ BKBufferPulse const BKBufferStepPhasesHarm = { .frames =
 	{     0,      0,      3,    -10,     24,    -49,     91,   -155,    250,   -384,    570,   -825,   1180,  -1705,   2581,  -4518,  20808,  17580,  -3988,   2090,  -1263,    797,   -504,    312,   -187,    106,    -56,     26,    -10,      3,      0,      0, },
 }};
 
-BKBufferPulse const * const BKBufferPulseKernels [] =
-{
+// clang-format on
+
+BKBufferPulse const* const BKBufferPulseKernels[] = {
 	[BK_PULSE_KERNEL_SINC] = &BKBufferStepPhasesSinc,
 	[BK_PULSE_KERNEL_HARM] = &BKBufferStepPhasesHarm,
 };
 
-BKInt BKBufferInit (BKBuffer * buf)
-{
-	memset (buf, 0, sizeof (BKBuffer));
-	BKBufferClear (buf);
+BKInt BKBufferInit(BKBuffer* buf) {
+	memset(buf, 0, sizeof(BKBuffer));
+	BKBufferClear(buf);
 
-	buf -> pulse = &BKBufferStepPhasesHarm;
+	buf->pulse = &BKBufferStepPhasesHarm;
 
 	return 0;
 }
 
-void BKBufferDispose (BKBuffer * buf)
-{
-	BKBufferClear (buf);
+void BKBufferDispose(BKBuffer* buf) {
+	BKBufferClear(buf);
 }
 
-BKInt BKBufferRead (BKBuffer * buf, BKFrame outFrames [], BKUInt size, BKUInt interlace)
-{
-	BKInt * frames = & buf -> frames [0];
-	BKInt   accum  = buf -> accum;
-	BKUInt  bufferSize;
-	BKInt   amp;
+BKInt BKBufferRead(BKBuffer* buf, BKFrame outFrames[], BKUInt size, BKUInt interlace) {
+	BKInt* frames = &buf->frames[0];
+	BKInt accum = buf->accum;
+	BKUInt bufferSize;
+	BKInt amp;
 
-	interlace = BKMax (interlace, 1);          // step must be at least 1
-	size      = BKMin (size, buf -> capacity); // can only read available frames
+	interlace = BKMax(interlace, 1);   // step must be at least 1
+	size = BKMin(size, buf->capacity); // can only read available frames
 
-	while (frames < & buf -> frames [size]) {
-		accum -= (accum >> (BK_INT_SHIFT - BK_HIGH_PASS_SHIFT));  // apply high pass filter
-		accum += (* frames ++);                                   // accumulate
+	while (frames < &buf->frames[size]) {
+		accum -= (accum >> (BK_INT_SHIFT - BK_HIGH_PASS_SHIFT)); // apply high pass filter
+		accum += (*frames++);									 // accumulate
 
-		amp = accum >> (BK_INT_SHIFT - BK_FRAME_SHIFT - 2);  // remove fraction
+		amp = accum >> (BK_INT_SHIFT - BK_FRAME_SHIFT - 2); // remove fraction
 
 		// clamp
-		if ((BKFrame) amp != amp)
+		if ((BKFrame)amp != amp)
 			amp = (amp >> BK_FRAME_SHIFT) ^ BK_FRAME_MAX;
 
 		// write frame
-		(* outFrames) = amp;
+		(*outFrames) = amp;
 		outFrames += interlace;
 	}
 
-	bufferSize = buf -> capacity + BK_STEP_WIDTH + 1;
+	bufferSize = buf->capacity + BK_STEP_WIDTH + 1;
 
 	// move frames left
-	memmove (& buf -> frames [0], & buf -> frames [size], sizeof (BKInt) * (bufferSize - size));
+	memmove(&buf->frames[0], &buf->frames[size], sizeof(BKInt) * (bufferSize - size));
 	// zero right gap
-	memset (& buf -> frames [bufferSize - size], 0, sizeof (BKInt) * size);
+	memset(&buf->frames[bufferSize - size], 0, sizeof(BKInt) * size);
 	// reduce remaining capacity
-	buf -> capacity -= size;
+	buf->capacity -= size;
 
-	buf -> accum = accum;
-	buf -> time -= size << BK_FINT20_SHIFT;
+	buf->accum = accum;
+	buf->time -= size << BK_FINT20_SHIFT;
 
 	return size;
 }
 
-void BKBufferClear (BKBuffer * buf)
-{
-	void const * pulse = buf -> pulse;
+void BKBufferClear(BKBuffer* buf) {
+	void const* pulse = buf->pulse;
 
-	memset (buf, 0, sizeof (BKBuffer));
-	buf -> pulse = pulse;
+	memset(buf, 0, sizeof(BKBuffer));
+	buf->pulse = pulse;
 }

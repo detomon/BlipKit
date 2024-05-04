@@ -28,105 +28,101 @@ typedef struct {
 	BKInt sampleRate;
 } BKSDLUserData;
 
-BKContext     ctx;
-BKTrack       square;
+BKContext ctx;
+BKTrack square;
 BKSDLUserData userData = {
 	.numChannels = 2,
-	.sampleRate  = 44100,
+	.sampleRate = 44100,
 };
 
-static int getchar_nocanon (unsigned tcflags)
-{
+static int getchar_nocanon(unsigned tcflags) {
 	int c;
 	struct termios oldtc, newtc;
 
-	tcgetattr (STDIN_FILENO, & oldtc);
+	tcgetattr(STDIN_FILENO, &oldtc);
 
 	newtc = oldtc;
 	newtc.c_lflag &= ~(ICANON | ECHO | tcflags);
 
-	tcsetattr (STDIN_FILENO, TCSANOW, & newtc);
-	c = getchar ();
-	tcsetattr (STDIN_FILENO, TCSANOW, & oldtc);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newtc);
+	c = getchar();
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldtc);
 
 	return c;
 }
 
-static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
-{
+static void fill_audio(BKSDLUserData* info, Uint8* stream, int len) {
 	// calculate needed frames for one channel
-	BKUInt numFrames = len / sizeof (BKFrame) / info -> numChannels;
+	BKUInt numFrames = len / sizeof(BKFrame) / info->numChannels;
 
-	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
+	BKContextGenerate(&ctx, (BKFrame*)stream, numFrames);
 }
 
-int main (int argc, char * argv [])
-{
-	BKContextInit (& ctx, userData.numChannels, userData.sampleRate);
+int main(int argc, char* argv[]) {
+	BKContextInit(&ctx, userData.numChannels, userData.sampleRate);
 
-	BKTrackInit (& square, BK_SQUARE);
+	BKTrackInit(&square, BK_SQUARE);
 
-	BKSetAttr (& square, BK_MASTER_VOLUME, 0.1 * BK_MAX_VOLUME);
-	BKSetAttr (& square, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKSetAttr (& square, BK_DUTY_CYCLE,    8);
-	BKSetAttr (& square, BK_NOTE,          BK_C_4 * BK_FINT20_UNIT);
+	BKSetAttr(&square, BK_MASTER_VOLUME, 0.1 * BK_MAX_VOLUME);
+	BKSetAttr(&square, BK_VOLUME, 1.0 * BK_MAX_VOLUME);
+	BKSetAttr(&square, BK_DUTY_CYCLE, 8);
+	BKSetAttr(&square, BK_NOTE, BK_C_4 * BK_FINT20_UNIT);
 
 	// set tremolo effect
-	BKInt tremolo [2] = {18, 0.5 * BK_FINT20_UNIT};
-	BKSetPtr (& square, BK_EFFECT_VIBRATO, tremolo, sizeof (tremolo));
+	BKInt tremolo[2] = { 18, 0.5 * BK_FINT20_UNIT };
+	BKSetPtr(&square, BK_EFFECT_VIBRATO, tremolo, sizeof(tremolo));
 
 	BKInstrument instr;
 
-	BKInstrumentInit (&instr);
+	BKInstrumentInit(&instr);
 
-	BKInt dutyCycle [9] = {4, 6, 4, 2, 2, 1, 7, 8, 7};
-	BKInt arpeggio [4] = {0, 4 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT, -12 * BK_FINT20_UNIT};
-	BKInt panning [4] = {0, BK_MAX_VOLUME * 0.5, 0, -BK_MAX_VOLUME * 0.5};
+	BKInt dutyCycle[9] = { 4, 6, 4, 2, 2, 1, 7, 8, 7 };
+	BKInt arpeggio[4] = { 0, 4 * BK_FINT20_UNIT, 7 * BK_FINT20_UNIT, -12 * BK_FINT20_UNIT };
+	BKInt panning[4] = { 0, BK_MAX_VOLUME * 0.5, 0, -BK_MAX_VOLUME * 0.5 };
 
-	BKInstrumentSetSequence (&instr, BK_SEQUENCE_DUTY_CYCLE, dutyCycle, 9, 0, 9);
-	BKInstrumentSetSequence (&instr, BK_SEQUENCE_PITCH, arpeggio, 4, 0, 4);
-	BKInstrumentSetSequence (&instr, BK_SEQUENCE_PANNING, panning, 4, 0, 4);
+	BKInstrumentSetSequence(&instr, BK_SEQUENCE_DUTY_CYCLE, dutyCycle, 9, 0, 9);
+	BKInstrumentSetSequence(&instr, BK_SEQUENCE_PITCH, arpeggio, 4, 0, 4);
+	BKInstrumentSetSequence(&instr, BK_SEQUENCE_PANNING, panning, 4, 0, 4);
 
 	// attach to context
-	BKTrackAttach (& square, & ctx);
+	BKTrackAttach(&square, &ctx);
 
-	BKSetPtr (& square, BK_INSTRUMENT, & instr, sizeof (& instr));
+	BKSetPtr(&square, BK_INSTRUMENT, &instr, sizeof(&instr));
 
-	SDL_Init (SDL_INIT_AUDIO);
+	SDL_Init(SDL_INIT_AUDIO);
 
 	SDL_AudioSpec wanted = {
-		.freq     = userData.sampleRate,
-		.format   = AUDIO_S16SYS,
+		.freq = userData.sampleRate,
+		.format = AUDIO_S16SYS,
 		.channels = userData.numChannels,
-		.samples  = 512,
-		.callback = (void *) fill_audio,
-		.userdata = & userData,
+		.samples = 512,
+		.callback = (void*)fill_audio,
+		.userdata = &userData,
 	};
 
-	if (SDL_OpenAudio (& wanted, NULL) < 0) {
-		fprintf (stderr, "Couldn't open audio: %s\n", SDL_GetError ());
+	if (SDL_OpenAudio(&wanted, NULL) < 0) {
+		fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
 		return 1;
 	}
 
-	SDL_PauseAudio (0);
+	SDL_PauseAudio(0);
 
-	printf ("Press [q] to stop\n");
+	printf("Press [q] to stop\n");
 
 	while (1) {
-		int c = getchar_nocanon (0);
+		int c = getchar_nocanon(0);
 
 		if (c == 'q')
 			break;
 	}
 
-	printf ("\n");
+	printf("\n");
 
-	SDL_PauseAudio (1);
-	SDL_CloseAudio ();
+	SDL_PauseAudio(1);
+	SDL_CloseAudio();
 
+	BKDispose(&square);
+	BKDispose(&ctx);
 
-	BKDispose (& square);
-	BKDispose (& ctx);
-
-    return 0;
+	return 0;
 }

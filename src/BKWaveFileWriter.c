@@ -21,14 +21,13 @@
  * IN THE SOFTWARE.
  */
 
-#include <fcntl.h>
 #include "BKWaveFileWriter.h"
 #include "BKWaveFile_internal.h"
+#include <fcntl.h>
 
-enum
-{
+enum {
 	BKWaveFileFlagHeaderWritten = 1 << 0,
-	BKWaveFileFlagTerminated    = 1 << 1,
+	BKWaveFileFlagTerminated = 1 << 1,
 };
 
 /**
@@ -37,41 +36,37 @@ enum
 
 extern BKClass BKWaveFileWriterClass;
 
-static BKWaveFileHeader const waveFileHeader =
-{
-	.chunkID   = "RIFF",
+static BKWaveFileHeader const waveFileHeader = {
+	.chunkID = "RIFF",
 	.chunkSize = 0,
-	.format    = "WAVE",
+	.format = "WAVE",
 };
 
-static BKWaveFileHeaderFmt const waveFileHeaderFmt =
-{
-	.subchunkID    = "fmt ",
-	.subchunkSize  = 16,
-	.audioFormat   = 1,
-	.numChannels   = 2,
-	.sampleRate    = 44100,
-	.byteRate      = 44100 * 2 * 16/8,
-	.blockAlign    = 2 * 16/8,
+static BKWaveFileHeaderFmt const waveFileHeaderFmt = {
+	.subchunkID = "fmt ",
+	.subchunkSize = 16,
+	.audioFormat = 1,
+	.numChannels = 2,
+	.sampleRate = 44100,
+	.byteRate = 44100 * 2 * 16 / 8,
+	.blockAlign = 2 * 16 / 8,
 	.bitsPerSample = 16,
 };
 
-static BKWaveFileHeaderData const waveFileHeaderData =
-{
-	.subchunkID   = "data",
+static BKWaveFileHeaderData const waveFileHeaderData = {
+	.subchunkID = "data",
 	.subchunkSize = 0,
 };
 
-static BKInt BKCheckFile (FILE * file)
-{
+static BKInt BKCheckFile(FILE* file) {
 	int fd, mode;
 
-	if (fseek (file, 0, SEEK_CUR)) {
+	if (fseek(file, 0, SEEK_CUR)) {
 		return BK_FILE_NOT_SEEKABLE_ERROR;
 	}
 
-	fd   = fileno (file);
-	mode = fcntl (fd, F_GETFL) & O_ACCMODE;
+	fd = fileno(file);
+	mode = fcntl(fd, F_GETFL) & O_ACCMODE;
 
 	if (mode < 0) {
 		return BK_FILE_ERROR;
@@ -84,15 +79,14 @@ static BKInt BKCheckFile (FILE * file)
 	return 0;
 }
 
-BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numChannels, BKInt sampleRate, BKInt numBits)
-{
+BKInt BKWaveFileWriterInit(BKWaveFileWriter* writer, FILE* file, BKInt numChannels, BKInt sampleRate, BKInt numBits) {
 	BKInt res;
 
-	if ((res = BKCheckFile (file)) != 0) {
+	if ((res = BKCheckFile(file)) != 0) {
 		return res;
 	}
 
-	if ((res = BKObjectInit (writer, & BKWaveFileWriterClass, sizeof (*writer))) != 0) {
+	if ((res = BKObjectInit(writer, &BKWaveFileWriterClass, sizeof(*writer))) != 0) {
 		return res;
 	}
 
@@ -103,170 +97,163 @@ BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numCha
 		return BK_INVALID_VALUE;
 	}
 
-	writer -> file          = file;
-	writer -> initOffset    = ftell (file);
-	writer -> sampleRate    = sampleRate;
-	writer -> numChannels   = numChannels;
-	writer -> numBits       = numBits;
-	writer -> reverseEndian = BKSystemIsBigEndian ();
+	writer->file = file;
+	writer->initOffset = ftell(file);
+	writer->sampleRate = sampleRate;
+	writer->numChannels = numChannels;
+	writer->numBits = numBits;
+	writer->reverseEndian = BKSystemIsBigEndian();
 
 	return 0;
 }
 
-static void BKWaveFileWriterDispose (BKWaveFileWriter * writer)
-{
-	if (!(writer -> object.flags & BKWaveFileFlagTerminated)) {
-		BKWaveFileWriterTerminate (writer);
+static void BKWaveFileWriterDispose(BKWaveFileWriter* writer) {
+	if (!(writer->object.flags & BKWaveFileFlagTerminated)) {
+		BKWaveFileWriterTerminate(writer);
 	}
 }
 
-static BKInt BKWaveFileWriterWriteHeader (BKWaveFileWriter * writer)
-{
-	BKInt                numChannels, sampleRate, numBits;
-	BKWaveFileHeader     header;
-	BKWaveFileHeaderFmt  fmtHeader;
+static BKInt BKWaveFileWriterWriteHeader(BKWaveFileWriter* writer) {
+	BKInt numChannels, sampleRate, numBits;
+	BKWaveFileHeader header;
+	BKWaveFileHeaderFmt fmtHeader;
 	BKWaveFileHeaderData dataHeader;
 
-	header     = waveFileHeader;
-	fmtHeader  = waveFileHeaderFmt;
+	header = waveFileHeader;
+	fmtHeader = waveFileHeaderFmt;
 	dataHeader = waveFileHeaderData;
 
-	numChannels = writer -> numChannels;
-	sampleRate  = writer -> sampleRate;
-	numBits     = writer -> numBits;
+	numChannels = writer->numChannels;
+	sampleRate = writer->sampleRate;
+	numBits = writer->numBits;
 
-	fmtHeader.numChannels   = numChannels;
-	fmtHeader.sampleRate    = sampleRate;
-	fmtHeader.byteRate      = sampleRate * numChannels * numBits / 8;
+	fmtHeader.numChannels = numChannels;
+	fmtHeader.sampleRate = sampleRate;
+	fmtHeader.byteRate = sampleRate * numChannels * numBits / 8;
 	fmtHeader.bitsPerSample = numBits;
-	fmtHeader.blockAlign    = numChannels * numBits / 8;
-	fmtHeader.byteRate      = sampleRate * fmtHeader.blockAlign;
+	fmtHeader.blockAlign = numChannels * numBits / 8;
+	fmtHeader.byteRate = sampleRate * fmtHeader.blockAlign;
 
-	if (writer -> reverseEndian) {
-		fmtHeader.subchunkSize  = BKInt32Reverse (fmtHeader.subchunkSize);
-		fmtHeader.numChannels   = BKInt16Reverse (fmtHeader.numChannels);
-		fmtHeader.sampleRate    = BKInt32Reverse (fmtHeader.sampleRate);
-		fmtHeader.bitsPerSample = BKInt16Reverse (fmtHeader.bitsPerSample);
-		fmtHeader.blockAlign    = BKInt16Reverse (fmtHeader.blockAlign);
-		fmtHeader.byteRate      = BKInt32Reverse (fmtHeader.byteRate);
+	if (writer->reverseEndian) {
+		fmtHeader.subchunkSize = BKInt32Reverse(fmtHeader.subchunkSize);
+		fmtHeader.numChannels = BKInt16Reverse(fmtHeader.numChannels);
+		fmtHeader.sampleRate = BKInt32Reverse(fmtHeader.sampleRate);
+		fmtHeader.bitsPerSample = BKInt16Reverse(fmtHeader.bitsPerSample);
+		fmtHeader.blockAlign = BKInt16Reverse(fmtHeader.blockAlign);
+		fmtHeader.byteRate = BKInt32Reverse(fmtHeader.byteRate);
 	}
 
-	fwrite (& header, sizeof (header), 1, writer -> file);
-	fwrite (& fmtHeader, sizeof (fmtHeader), 1, writer -> file);
-	fwrite (& dataHeader, sizeof (dataHeader), 1, writer -> file);
+	fwrite(&header, sizeof(header), 1, writer->file);
+	fwrite(&fmtHeader, sizeof(fmtHeader), 1, writer->file);
+	fwrite(&dataHeader, sizeof(dataHeader), 1, writer->file);
 
-	writer -> fileSize += ftell (writer -> file) - 8;
+	writer->fileSize += ftell(writer->file) - 8;
 
-	writer -> object.flags |= BKWaveFileFlagHeaderWritten;
+	writer->object.flags |= BKWaveFileFlagHeaderWritten;
 
 	return 0;
 }
 
-BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * frames, BKInt numFrames)
-{
-	BKSize  dataSize;
-	BKSize  writeSize;
-	BKInt   numBits = writer -> numBits;
-	BKSize  bufferSize = 1024;
-	BKFrame buffer [bufferSize];
+BKInt BKWaveFileWriterAppendFrames(BKWaveFileWriter* writer, BKFrame const* frames, BKInt numFrames) {
+	BKSize dataSize;
+	BKSize writeSize;
+	BKInt numBits = writer->numBits;
+	BKSize bufferSize = 1024;
+	BKFrame buffer[bufferSize];
 
-	if (!(writer -> object.flags & BKWaveFileFlagHeaderWritten)) {
-		if (BKWaveFileWriterWriteHeader (writer) < 0) {
+	if (!(writer->object.flags & BKWaveFileFlagHeaderWritten)) {
+		if (BKWaveFileWriterWriteHeader(writer) < 0) {
 			return -1;
 		}
 	}
 
 	dataSize = (numBits / 8) * numFrames;
 
-	//float f = 0.0;
+	// float f = 0.0;
 
-	if (writer -> reverseEndian || numBits != 16) {
+	if (writer->reverseEndian || numBits != 16) {
 		while (numFrames) {
-			writeSize = BKMin (bufferSize, numFrames);
+			writeSize = BKMin(bufferSize, numFrames);
 
 			if (numBits == 8) {
-				for (BKInt i = 0; i < writeSize; i ++) {
-					((uint8_t *) buffer) [i] = (frames [i] >> 8) + 128;
+				for (BKInt i = 0; i < writeSize; i++) {
+					((uint8_t*)buffer)[i] = (frames[i] >> 8) + 128;
 				}
-
 			}
 			else {
-				for (BKInt i = 0; i < writeSize; i ++) {
-					buffer [i] = BKInt16Reverse (frames [i]);
+				for (BKInt i = 0; i < writeSize; i++) {
+					buffer[i] = BKInt16Reverse(frames[i]);
 				}
 			}
 
 			frames += writeSize;
 			numFrames -= writeSize;
 
-			fwrite (buffer, numBits / 8, writeSize, writer -> file);
+			fwrite(buffer, numBits / 8, writeSize, writer->file);
 		}
 	}
 	else {
-		fwrite (frames, sizeof (BKFrame), numFrames, writer -> file);
+		fwrite(frames, sizeof(BKFrame), numFrames, writer->file);
 	}
 
-	writer -> fileSize += dataSize;
-	writer -> dataSize += dataSize;
+	writer->fileSize += dataSize;
+	writer->dataSize += dataSize;
 
-	writer -> object.flags &= ~BKWaveFileFlagTerminated;
+	writer->object.flags &= ~BKWaveFileFlagTerminated;
 
 	return 0;
 }
 
-BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer)
-{
-	BKSize   offset;
+BKInt BKWaveFileWriterTerminate(BKWaveFileWriter* writer) {
+	BKSize offset;
 	uint32_t chunkSize;
 
-	offset = writer -> initOffset + offsetof (BKWaveFileHeader, chunkSize);
-	chunkSize = (uint32_t) writer -> fileSize;
+	offset = writer->initOffset + offsetof(BKWaveFileHeader, chunkSize);
+	chunkSize = (uint32_t)writer->fileSize;
 
-	if (writer -> reverseEndian) {
-		chunkSize = BKInt32Reverse (chunkSize);
+	if (writer->reverseEndian) {
+		chunkSize = BKInt32Reverse(chunkSize);
 	}
 
-	fseek (writer -> file, offset, SEEK_SET);
-	fwrite (& chunkSize, sizeof (chunkSize), 1, writer -> file);
+	fseek(writer->file, offset, SEEK_SET);
+	fwrite(&chunkSize, sizeof(chunkSize), 1, writer->file);
 
-	offset = writer -> initOffset + sizeof (BKWaveFileHeader) + sizeof (BKWaveFileHeaderFmt);
-	offset += offsetof (BKWaveFileHeaderData, subchunkSize);
+	offset = writer->initOffset + sizeof(BKWaveFileHeader) + sizeof(BKWaveFileHeaderFmt);
+	offset += offsetof(BKWaveFileHeaderData, subchunkSize);
 
-	chunkSize = (uint32_t) writer -> dataSize;
+	chunkSize = (uint32_t)writer->dataSize;
 
-	if (writer -> reverseEndian) {
-		chunkSize = BKInt32Reverse (chunkSize);
+	if (writer->reverseEndian) {
+		chunkSize = BKInt32Reverse(chunkSize);
 	}
 
-	fseek (writer -> file, offset, SEEK_SET);
-	fwrite (& chunkSize, sizeof (chunkSize), 1, writer -> file);
+	fseek(writer->file, offset, SEEK_SET);
+	fwrite(&chunkSize, sizeof(chunkSize), 1, writer->file);
 
-	fseek (writer -> file, 0, SEEK_END);
-	fflush (writer -> file);
+	fseek(writer->file, 0, SEEK_END);
+	fflush(writer->file);
 
-	writer -> object.flags |= BKWaveFileFlagTerminated;
+	writer->object.flags |= BKWaveFileFlagTerminated;
 
 	return 0;
 }
 
-BKInt BKWaveFileWriteData (FILE * file, BKData const * data, BKInt sampleRate, BKInt numBits)
-{
+BKInt BKWaveFileWriteData(FILE* file, BKData const* data, BKInt sampleRate, BKInt numBits) {
 	BKWaveFileWriter writer;
 
-	if (BKWaveFileWriterInit (& writer, file, sampleRate, data -> numChannels, numBits) < 0) {
+	if (BKWaveFileWriterInit(&writer, file, sampleRate, data->numChannels, numBits) < 0) {
 		return -1;
 	}
 
-	BKWaveFileWriterAppendFrames (& writer, data -> frames, data -> numFrames * data -> numChannels);
-	BKWaveFileWriterTerminate (& writer);
+	BKWaveFileWriterAppendFrames(&writer, data->frames, data->numFrames * data->numChannels);
+	BKWaveFileWriterTerminate(&writer);
 
-	BKDispose (& writer);
+	BKDispose(&writer);
 
 	return 0;
 }
 
-BKClass BKWaveFileWriterClass =
-{
-	.instanceSize = sizeof (BKWaveFileWriter),
-	.dispose      = (BKDisposeFunc) BKWaveFileWriterDispose,
+BKClass BKWaveFileWriterClass = {
+	.instanceSize = sizeof(BKWaveFileWriter),
+	.dispose = (BKDisposeFunc)BKWaveFileWriterDispose,
 };

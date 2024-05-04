@@ -29,7 +29,7 @@
 #endif
 
 #ifdef HAVE_CONFIG_H
-#	include "config.h"
+#include "config.h"
 #endif
 
 #include <stddef.h>
@@ -44,7 +44,7 @@
  * Version.
  */
 #define BK_VERSION "0.17.6"
-extern char const * const BKVersion;
+extern char const* const BKVersion;
 
 /**
  * Settings
@@ -58,23 +58,23 @@ extern char const * const BKVersion;
 /**
  * Integers and fixed point numbers.
  */
-#define BK_INT_SHIFT    32
-#define BK_FRAME_SHIFT  16
+#define BK_INT_SHIFT 32
+#define BK_FRAME_SHIFT 16
 #define BK_VOLUME_SHIFT 15
 
-typedef int32_t  BKInt;
+typedef int32_t BKInt;
 typedef uint32_t BKUInt;
-typedef int16_t  BKFrame;
+typedef int16_t BKFrame;
 
-typedef intptr_t  BKSize;
+typedef intptr_t BKSize;
 typedef uintptr_t BKUSize;
 
 #define BK_FINT20_SHIFT 20
 #define BK_FINT20_UNIT (1 << BK_FINT20_SHIFT)
 #define BK_FINT20_FRAC (BK_FINT20_UNIT - 1)
 
-typedef int32_t  BKFInt20;   // 12.20 fixed point signed
-typedef uint32_t BKFUInt20;  // 12.20 fixed point
+typedef int32_t BKFInt20;	// 12.20 fixed point signed
+typedef uint32_t BKFUInt20; // 12.20 fixed point
 
 /**
  * Limits.
@@ -105,26 +105,26 @@ typedef uint32_t BKFUInt20;  // 12.20 fixed point
 /**
  * Wave phases.
  */
-#define BK_SQUARE_PHASES   16
+#define BK_SQUARE_PHASES 16
 #define BK_TRIANGLE_PHASES 32
-#define BK_NOISE_PHASES     8
-#define BK_SAWTOOTH_PHASES  7
-#define BK_SINE_PHASES     32
+#define BK_NOISE_PHASES 8
+#define BK_SAWTOOTH_PHASES 7
+#define BK_SINE_PHASES 32
 
 /**
  * Default values.
  */
-#define BK_DEFAULT_SAMPLE_RATE    44100
-#define BK_DEFAULT_CLOCK_RATE       240
-#define BK_DEFAULT_ARPEGGIO_DIVIDER   4
-#define BK_DEFAULT_INSTR_DIVIDER      4
-#define BK_DEFAULT_EFFECT_DIVIDER     1
-#define BK_DEFAULT_DUTY_CYCLE         2
+#define BK_DEFAULT_SAMPLE_RATE 44100
+#define BK_DEFAULT_CLOCK_RATE 240
+#define BK_DEFAULT_ARPEGGIO_DIVIDER 4
+#define BK_DEFAULT_INSTR_DIVIDER 4
+#define BK_DEFAULT_EFFECT_DIVIDER 1
+#define BK_DEFAULT_DUTY_CYCLE 2
 
 /**
  * Misc.
  */
-#define BK_FIRST_ELEMENT_PTR ((void *) -1)
+#define BK_FIRST_ELEMENT_PTR ((void*)-1)
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -169,7 +169,7 @@ typedef unsigned BKEnum;
  * Define offsetof if not defined.
  */
 #ifndef offsetof
-#define offsetof(s, f) ((BKSize) & ((s *) NULL) -> f)
+#define offsetof(s, f) ((BKSize) & ((s*)NULL)->f)
 #endif
 
 /**
@@ -181,9 +181,8 @@ typedef int64_t BKTime;
 
 #else
 
-typedef struct
-{
-	BKInt     time;
+typedef struct {
+	BKInt time;
 	BKFUInt20 frac;
 } BKTime;
 
@@ -195,19 +194,17 @@ typedef struct
 typedef struct BKContext BKContext;
 
 typedef struct BKCallbackInfo BKCallbackInfo;
-typedef struct BKCallback     BKCallback;
+typedef struct BKCallback BKCallback;
 
-typedef BKEnum (* BKCallbackFunc) (BKCallbackInfo * info, void * userInfo);
+typedef BKEnum (*BKCallbackFunc)(BKCallbackInfo* info, void* userInfo);
 
-struct BKCallback
-{
+struct BKCallback {
 	BKCallbackFunc func;
-	void         * userInfo;
+	void* userInfo;
 };
 
-struct BKCallbackInfo
-{
-	void * object;
+struct BKCallbackInfo {
+	void* object;
 	BKEnum event;
 	BKTime nextTime;
 	BKUInt divider;
@@ -222,8 +219,7 @@ struct BKCallbackInfo
 /**
  * Context attributes
  */
-enum
-{
+enum {
 	BK_CONTEXT_ATTR_TYPE = (1 << BK_ATTR_TYPE_SHIFT),
 	BK_NUM_CHANNELS,
 	BK_SAMPLE_RATE,
@@ -234,8 +230,7 @@ enum
 /**
  * Track attributes
  */
-enum
-{
+enum {
 	BK_TRACK_ATTR_TYPE = (2 << BK_ATTR_TYPE_SHIFT),
 	BK_WAVEFORM,
 	BK_DUTY_CYCLE,
@@ -255,14 +250,14 @@ enum
 	BK_VOLUME_7,
 	BK_MUTE,
 	BK_PITCH,
-	BK_SAMPLE_RANGE,         // full range to play
-	BK_SAMPLE_REPEAT,        // repeat mode BK_NO_REPEAT, BK_REPEAT, BK_PALINDROME
+	BK_SAMPLE_RANGE,		 // full range to play
+	BK_SAMPLE_REPEAT,		 // repeat mode BK_NO_REPEAT, BK_REPEAT, BK_PALINDROME
 	BK_SAMPLE_SUSTAIN_RANGE, // sustain repeat range
 	BK_SAMPLE_IMMED_RELEASE, // should immediately jump to sustain end when releasing
 	BK_SAMPLE_PERIOD,
 	BK_SAMPLE_PITCH,
 	BK_SAMPLE_CALLBACK,
-	BK_FLAG_RELEASE,         // Set release phase
+	BK_FLAG_RELEASE, // Set release phase
 	BK_NOTE,
 	BK_ARPEGGIO,
 	BK_PANNING,
@@ -277,8 +272,7 @@ enum
 /**
  * Data attributes
  */
-enum
-{
+enum {
 	BK_DATA_ATTR_TYPE = (3 << BK_ATTR_TYPE_SHIFT),
 	BK_NUM_FRAMES,
 };
@@ -286,8 +280,7 @@ enum
 /**
  * Waveforms
  */
-enum
-{
+enum {
 	BK_WAVEFORM_TYPE = (4 << BK_ATTR_TYPE_SHIFT),
 	BK_SQUARE,
 	BK_TRIANGLE,
@@ -301,8 +294,7 @@ enum
 /**
  * Effects
  */
-enum
-{
+enum {
 	BK_EFFECT_TYPE = (5 << BK_ATTR_TYPE_SHIFT),
 	BK_EFFECT_VOLUME_SLIDE,
 	BK_EFFECT_PANNING_SLIDE,
@@ -314,8 +306,7 @@ enum
 /**
  * Events in callback info
  */
-enum
-{
+enum {
 	BK_EVENT_TYPE = (6 << BK_ATTR_TYPE_SHIFT),
 	BK_EVENT_CLOCK,
 	BK_EVENT_DIVIDER,
@@ -326,8 +317,7 @@ enum
 /**
  * Repeat options
  */
-enum
-{
+enum {
 	BK_NO_REPEAT,
 	BK_REPEAT,
 	BK_PALINDROME,
@@ -336,8 +326,7 @@ enum
 /**
  * Pulse kernels
  */
-enum
-{
+enum {
 	/**
 	 * Sinc based pulse kernel.
 	 * Tends to have more high frequencies.
@@ -354,8 +343,7 @@ enum
 /**
  * Return codes
  */
-enum
-{
+enum {
 	BK_SUCCESS = 0,
 	BK_RETURN_TYPE = (-7 << BK_ATTR_TYPE_SHIFT),
 	BK_ALLOCATION_ERROR,
@@ -376,7 +364,7 @@ enum
 /**
  * Get name of error
  */
-extern char const * BKStatusGetName (BKEnum status);
+extern char const* BKStatusGetName(BKEnum status);
 
 #if __GNUC__
 #define BK_DEPRECATED_FUNC(msg) __attribute__((deprecated(msg)))

@@ -36,50 +36,47 @@
  * If it reaches 0 the callback is fired and the counter is reset.
  */
 
-typedef struct BKDivider      BKDivider;
+typedef struct BKDivider BKDivider;
 typedef struct BKDividerGroup BKDividerGroup;
-typedef struct BKClock        BKClock;
+typedef struct BKClock BKClock;
 
-struct BKDivider
-{
-	BKObject         object;
-	BKDividerGroup * group;
-	BKDivider      * prevDivider;
-	BKDivider      * nextDivider;
-	BKCallback       callback;
-	BKInt            divider;
-	BKInt            counter;
+struct BKDivider {
+	BKObject object;
+	BKDividerGroup* group;
+	BKDivider* prevDivider;
+	BKDivider* nextDivider;
+	BKCallback callback;
+	BKInt divider;
+	BKInt counter;
 };
 
-struct BKDividerGroup
-{
-	BKDivider * firstDivider;
-	BKDivider * lastDivider;
+struct BKDividerGroup {
+	BKDivider* firstDivider;
+	BKDivider* lastDivider;
 };
 
-struct BKClock
-{
-	BKObject       object;
-	void         * ctx;
-	BKClock      * prevClock;
-	BKClock      * nextClock;
-	BKTime         period;
-	BKTime         time;
-	BKTime         nextTime;
-	BKUInt         counter;
-	BKCallback     callback;
+struct BKClock {
+	BKObject object;
+	void* ctx;
+	BKClock* prevClock;
+	BKClock* nextClock;
+	BKTime period;
+	BKTime time;
+	BKTime nextTime;
+	BKUInt counter;
+	BKCallback callback;
 	BKDividerGroup dividers;
 };
 
 /**
  * Initialize clock
  */
-extern BKInt BKClockInit (BKClock * clock, BKTime period, BKCallback * callback);
+extern BKInt BKClockInit(BKClock* clock, BKTime period, BKCallback* callback);
 
 /**
  * Allocate clock
  */
-extern BKInt BKClockAlloc (BKClock ** outClock, BKTime period, BKCallback * callback);
+extern BKInt BKClockAlloc(BKClock** outClock, BKTime period, BKCallback* callback);
 
 /**
  * Attach clock
@@ -89,67 +86,67 @@ extern BKInt BKClockAlloc (BKClock ** outClock, BKTime period, BKCallback * call
  * Errors:
  * BK_INVALID_STATE if clock is already attached to a context
  */
-extern BKInt BKClockAttach (BKClock * clock, BKContext * ctx, BKClock * beforeClock);
+extern BKInt BKClockAttach(BKClock* clock, BKContext* ctx, BKClock* beforeClock);
 
 /**
  * Detach clock
  */
-extern void BKClockDetach (BKClock * clock);
+extern void BKClockDetach(BKClock* clock);
 
 /**
  * Set period
  */
-extern void BKClockSetPeriod (BKClock * clock, BKTime period);
+extern void BKClockSetPeriod(BKClock* clock, BKTime period);
 
 /**
  * Reset clock
  */
-extern void BKClockReset (BKClock * clock);
+extern void BKClockReset(BKClock* clock);
 
 /**
  * Advance clock by time
  */
-extern void BKClockAdvance (BKClock * clock, BKFUInt20 period);
+extern void BKClockAdvance(BKClock* clock, BKFUInt20 period);
 
 /**
  * Tick clock and attached dividers
  */
-extern BKInt BKClockTick (BKClock * clock);
+extern BKInt BKClockTick(BKClock* clock);
 
 /**
  * Initialize divider
  */
-extern BKInt BKDividerInit (BKDivider * divider, BKUInt count, BKCallback * callback);
+extern BKInt BKDividerInit(BKDivider* divider, BKUInt count, BKCallback* callback);
 
 /**
  * Allocate divider
  */
-extern BKInt BKDividerAlloc (BKDivider ** outDivider, BKUInt count, BKCallback * callback);
+extern BKInt BKDividerAlloc(BKDivider** outDivider, BKUInt count, BKCallback* callback);
 
 /**
  * Add divider to clock
  */
-extern BKInt BKDividerAttachToClock (BKDivider * divider, BKClock * clock);
+extern BKInt BKDividerAttachToClock(BKDivider* divider, BKClock* clock);
 
 /**
  * Add divider to group
  */
-extern BKInt BKDividerAttachToGroup (BKDivider * divider, BKDividerGroup * group);
+extern BKInt BKDividerAttachToGroup(BKDivider* divider, BKDividerGroup* group);
 
 /**
  * Detach divider from clock
  */
-extern void BKDividerDetach (BKDivider * divider);
+extern void BKDividerDetach(BKDivider* divider);
 
 /**
  * Decrement divider counter of divider list by 1
  * If 0 is reached call callback function and reset counter
  */
-extern BKInt BKDividerTick (BKDivider * divider, BKCallbackInfo * info);
+extern BKInt BKDividerTick(BKDivider* divider, BKCallbackInfo* info);
 
 /**
  * Reset divider counter
  */
-extern void BKDividerReset (BKDivider * divider);
+extern void BKDividerReset(BKDivider* divider);
 
 #endif /* !_BK_CLOCK_H_ */

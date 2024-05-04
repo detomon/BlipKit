@@ -28,143 +28,133 @@ typedef struct {
 	BKInt sampleRate;
 } BKSDLUserData;
 
-BKContext     ctx;
-BKTrack       left, right, square1, square2;
+BKContext ctx;
+BKTrack left, right, square1, square2;
 BKSDLUserData userData = {
 	.numChannels = 2,
-	.sampleRate  = 44100,
+	.sampleRate = 44100,
 };
 
-static int getchar_nocanon (unsigned tcflags)
-{
+static int getchar_nocanon(unsigned tcflags) {
 	int c;
 	struct termios oldtc, newtc;
 
-	tcgetattr (STDIN_FILENO, & oldtc);
+	tcgetattr(STDIN_FILENO, &oldtc);
 
 	newtc = oldtc;
 	newtc.c_lflag &= ~(ICANON | ECHO | tcflags);
 
-	tcsetattr (STDIN_FILENO, TCSANOW, & newtc);
-	c = getchar ();
-	tcsetattr (STDIN_FILENO, TCSANOW, & oldtc);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newtc);
+	c = getchar();
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldtc);
 
 	return c;
 }
 
-static void fill_audio (BKSDLUserData * info, Uint8 * stream, int len)
-{
+static void fill_audio(BKSDLUserData* info, Uint8* stream, int len) {
 	// calculate needed frames for one channel
-	BKUInt numFrames = len / sizeof (BKFrame) / info -> numChannels;
+	BKUInt numFrames = len / sizeof(BKFrame) / info->numChannels;
 
-	BKContextGenerate (& ctx, (BKFrame *) stream, numFrames);
+	BKContextGenerate(&ctx, (BKFrame*)stream, numFrames);
 }
 
-int main (int argc, char * argv [])
-{
-	BKContextInit (& ctx, userData.numChannels, userData.sampleRate);
+int main(int argc, char* argv[]) {
+	BKContextInit(&ctx, userData.numChannels, userData.sampleRate);
 
-	BKTrackInit (& left, BK_NOISE);
+	BKTrackInit(&left, BK_NOISE);
 
-	BKSetAttr (& left, BK_MASTER_VOLUME, 0.03 * BK_MAX_VOLUME);
-	BKSetAttr (& left, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKSetAttr (& left, BK_PANNING,      -BK_MAX_VOLUME);
-	BKSetAttr (& left, BK_NOTE,          BK_A_1 * BK_FINT20_UNIT);
+	BKSetAttr(&left, BK_MASTER_VOLUME, 0.03 * BK_MAX_VOLUME);
+	BKSetAttr(&left, BK_VOLUME, 1.0 * BK_MAX_VOLUME);
+	BKSetAttr(&left, BK_PANNING, -BK_MAX_VOLUME);
+	BKSetAttr(&left, BK_NOTE, BK_A_1 * BK_FINT20_UNIT);
 
-	BKTrackAttach (& left, & ctx);
+	BKTrackAttach(&left, &ctx);
 
+	BKTrackInit(&right, BK_NOISE);
 
-	BKTrackInit (& right, BK_NOISE);
+	BKSetAttr(&right, BK_MASTER_VOLUME, 0.03 * BK_MAX_VOLUME);
+	BKSetAttr(&right, BK_VOLUME, 1.0 * BK_MAX_VOLUME);
+	BKSetAttr(&right, BK_PANNING, +BK_MAX_VOLUME);
+	BKSetAttr(&right, BK_NOTE, BK_A_1 * BK_FINT20_UNIT);
+	BKSetAttr(&right, BK_PHASE, 16000);
 
-	BKSetAttr (& right, BK_MASTER_VOLUME, 0.03 * BK_MAX_VOLUME);
-	BKSetAttr (& right, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKSetAttr (& right, BK_PANNING,      +BK_MAX_VOLUME);
-	BKSetAttr (& right, BK_NOTE,          BK_A_1 * BK_FINT20_UNIT);
-	BKSetAttr (& right, BK_PHASE,         16000);
+	BKTrackAttach(&right, &ctx);
 
-	BKTrackAttach (& right, & ctx);
+	BKTrackInit(&square1, BK_SQUARE);
 
+	BKSetAttr(&square1, BK_MASTER_VOLUME, 0.025 * BK_MAX_VOLUME);
+	BKSetAttr(&square1, BK_VOLUME, 1.0 * BK_MAX_VOLUME);
+	BKSetAttr(&square1, BK_DUTY_CYCLE, 5);
+	BKSetAttr(&square1, BK_PANNING, -0.5 * BK_MAX_VOLUME);
+	BKSetAttr(&square1, BK_NOTE, BK_A_3 * BK_FINT20_UNIT);
 
-	BKTrackInit (& square1, BK_SQUARE);
+	BKTrackAttach(&square1, &ctx);
 
-	BKSetAttr (& square1, BK_MASTER_VOLUME, 0.025 * BK_MAX_VOLUME);
-	BKSetAttr (& square1, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKSetAttr (& square1, BK_DUTY_CYCLE,    5);
-	BKSetAttr (& square1, BK_PANNING,      -0.5 * BK_MAX_VOLUME);
-	BKSetAttr (& square1, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
+	BKTrackInit(&square2, BK_SQUARE);
 
-	BKTrackAttach (& square1, & ctx);
+	BKSetAttr(&square2, BK_MASTER_VOLUME, 0.025 * BK_MAX_VOLUME);
+	BKSetAttr(&square2, BK_VOLUME, 1.0 * BK_MAX_VOLUME);
+	BKSetAttr(&square2, BK_DUTY_CYCLE, 7);
+	BKSetAttr(&square2, BK_PANNING, +0.5 * BK_MAX_VOLUME);
+	BKSetAttr(&square2, BK_NOTE, BK_A_3 * BK_FINT20_UNIT);
 
+	BKTrackAttach(&square2, &ctx);
 
-	BKTrackInit (& square2, BK_SQUARE);
+	BKInt vibrato[2] = { 1300, 12 * BK_FINT20_UNIT };
+	BKSetPtr(&left, BK_EFFECT_VIBRATO, vibrato, sizeof(vibrato));
 
-	BKSetAttr (& square2, BK_MASTER_VOLUME, 0.025 * BK_MAX_VOLUME);
-	BKSetAttr (& square2, BK_VOLUME,        1.0 * BK_MAX_VOLUME);
-	BKSetAttr (& square2, BK_DUTY_CYCLE,    7);
-	BKSetAttr (& square2, BK_PANNING,      +0.5 * BK_MAX_VOLUME);
-	BKSetAttr (& square2, BK_NOTE,          BK_A_3 * BK_FINT20_UNIT);
+	BKInt vibrato2[2] = { 1700, 12 * BK_FINT20_UNIT };
+	BKSetPtr(&right, BK_EFFECT_VIBRATO, vibrato2, sizeof(vibrato2));
 
-	BKTrackAttach (& square2, & ctx);
+	BKInt tremolo[2] = { 400, 0.8 * BK_MAX_VOLUME };
+	BKSetPtr(&square1, BK_EFFECT_TREMOLO, tremolo, sizeof(tremolo));
 
+	BKInt vibrato3[2] = { 700, 3 * BK_FINT20_UNIT };
+	BKSetPtr(&square1, BK_EFFECT_VIBRATO, vibrato3, sizeof(vibrato3));
 
-	BKInt vibrato [2] = {1300, 12 * BK_FINT20_UNIT};
-	BKSetPtr (& left, BK_EFFECT_VIBRATO, vibrato, sizeof (vibrato));
+	BKInt tremolo2[2] = { 800, 0.8 * BK_MAX_VOLUME };
+	BKSetPtr(&square2, BK_EFFECT_TREMOLO, tremolo2, sizeof(tremolo2));
 
-	BKInt vibrato2 [2] = {1700, 12 * BK_FINT20_UNIT};
-	BKSetPtr (& right, BK_EFFECT_VIBRATO, vibrato2, sizeof (vibrato2));
+	BKInt vibrato4[2] = { 200, 3 * BK_FINT20_UNIT };
+	BKSetPtr(&square2, BK_EFFECT_VIBRATO, vibrato4, sizeof(vibrato4));
 
-	BKInt tremolo [2] = {400, 0.8 * BK_MAX_VOLUME};
-	BKSetPtr (& square1, BK_EFFECT_TREMOLO, tremolo, sizeof (tremolo));
-
-	BKInt vibrato3 [2] = {700, 3 * BK_FINT20_UNIT};
-	BKSetPtr (& square1, BK_EFFECT_VIBRATO, vibrato3, sizeof (vibrato3));
-
-	BKInt tremolo2 [2] = {800, 0.8 * BK_MAX_VOLUME};
-	BKSetPtr (& square2, BK_EFFECT_TREMOLO, tremolo2, sizeof (tremolo2));
-
-	BKInt vibrato4 [2] = {200, 3 * BK_FINT20_UNIT};
-	BKSetPtr (& square2, BK_EFFECT_VIBRATO, vibrato4, sizeof (vibrato4));
-
-
-
-	SDL_Init (SDL_INIT_AUDIO);
+	SDL_Init(SDL_INIT_AUDIO);
 
 	SDL_AudioSpec wanted = {
-		.freq     = userData.sampleRate,
-		.format   = AUDIO_S16SYS,
+		.freq = userData.sampleRate,
+		.format = AUDIO_S16SYS,
 		.channels = userData.numChannels,
-		.samples  = 512,
-		.callback = (void *) fill_audio,
-		.userdata = & userData,
+		.samples = 512,
+		.callback = (void*)fill_audio,
+		.userdata = &userData,
 	};
 
-	if (SDL_OpenAudio (& wanted, NULL) < 0) {
-		fprintf (stderr, "Couldn't open audio: %s\n", SDL_GetError ());
+	if (SDL_OpenAudio(&wanted, NULL) < 0) {
+		fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
 		return 1;
 	}
 
-	SDL_PauseAudio (0);
+	SDL_PauseAudio(0);
 
-	printf ("Press [q] to stop\n");
+	printf("Press [q] to stop\n");
 
 	while (1) {
-		int c = getchar_nocanon (0);
+		int c = getchar_nocanon(0);
 
 		if (c == 'q')
 			break;
 	}
 
-	printf ("\n");
+	printf("\n");
 
-	SDL_PauseAudio (1);
-	SDL_CloseAudio ();
+	SDL_PauseAudio(1);
+	SDL_CloseAudio();
 
+	BKDispose(&left);
+	BKDispose(&right);
+	BKDispose(&square1);
+	BKDispose(&square2);
+	BKDispose(&ctx);
 
-	BKDispose (& left);
-	BKDispose (& right);
-	BKDispose (& square1);
-	BKDispose (& square2);
-	BKDispose (& ctx);
-
-    return 0;
+	return 0;
 }

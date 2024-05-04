@@ -47,19 +47,18 @@ typedef struct BKWaveFileWriter BKWaveFileWriter;
 /**
  * The WAVE file writer struct.
  */
-struct BKWaveFileWriter
-{
-	BKObject object;        ///< The general object.
-	FILE   * file;          ///< The file to be written to.
-	BKSize   initOffset;    ///< The initial file cursor offset. Used to update the header when terminating.
-	BKInt    sampleRate;    ///< The sample rate to be written to the header.
-	BKInt    numChannels;   ///< Number of channels to be written to the header.
-	BKInt    numBits;       ///< Number of bits to be used to write the frames.
-	BKSize   fileSize;      ///< The number of bytes of the data chunk.
-	BKSize   dataSize;      ///< The number of data bytes written to the data chunk.
-	BKInt    reverseEndian; ///< Whether the endian order should be reversed.
-	                        ///< 16 bit frames are written in little-endian order.
-	                        ///< If the system uses big-endian order, the given frame bytes has to be reversed.
+struct BKWaveFileWriter {
+	BKObject object;	 ///< The general object.
+	FILE* file;			 ///< The file to be written to.
+	BKSize initOffset;	 ///< The initial file cursor offset. Used to update the header when terminating.
+	BKInt sampleRate;	 ///< The sample rate to be written to the header.
+	BKInt numChannels;	 ///< Number of channels to be written to the header.
+	BKInt numBits;		 ///< Number of bits to be used to write the frames.
+	BKSize fileSize;	 ///< The number of bytes of the data chunk.
+	BKSize dataSize;	 ///< The number of data bytes written to the data chunk.
+	BKInt reverseEndian; ///< Whether the endian order should be reversed.
+						 ///< 16 bit frames are written in little-endian order.
+						 ///< If the system uses big-endian order, the given frame bytes has to be reversed.
 };
 
 /**
@@ -79,7 +78,7 @@ struct BKWaveFileWriter
  * @param numBits The number of bits to write. Can be 8 or 16.
  * @return 0 on success.
  */
-extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt numChannels, BKInt sampleRate, BKInt numBits);
+extern BKInt BKWaveFileWriterInit(BKWaveFileWriter* writer, FILE* file, BKInt numChannels, BKInt sampleRate, BKInt numBits);
 
 /**
  * Append frames to WAVE file.
@@ -92,7 +91,7 @@ extern BKInt BKWaveFileWriterInit (BKWaveFileWriter * writer, FILE * file, BKInt
  * @param numFrames The number of frames to append.
  * @return 0 on success.
  */
-extern BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame const * frames, BKInt numFrames);
+extern BKInt BKWaveFileWriterAppendFrames(BKWaveFileWriter* writer, BKFrame const* frames, BKInt numFrames);
 
 /**
  * Terminate WAVE file.
@@ -103,7 +102,7 @@ extern BKInt BKWaveFileWriterAppendFrames (BKWaveFileWriter * writer, BKFrame co
  * @param writer The writer to terminate.
  * @return 0 on success.
  */
-extern BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer);
+extern BKInt BKWaveFileWriterTerminate(BKWaveFileWriter* writer);
 
 /**
  * Write data object to WAVE file.
@@ -119,6 +118,6 @@ extern BKInt BKWaveFileWriterTerminate (BKWaveFileWriter * writer);
  * @param numBits The number of bits to write.
  * @return 0 on success. Can be 8 or 16.
  */
-extern BKInt BKWaveFileWriteData (FILE * file, BKData const * data, BKInt sampleRate, BKInt numBits);
+extern BKInt BKWaveFileWriteData(FILE* file, BKData const* data, BKInt sampleRate, BKInt numBits);
 
 #endif /* ! _BK_WAVE_FILE_WRITER_H_ */

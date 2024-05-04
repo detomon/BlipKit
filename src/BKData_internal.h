@@ -28,6 +28,6 @@
 
 /*
  */
-extern BKInt BKDataStateSetData (BKDataState * state, BKData * data);
+extern BKInt BKDataStateSetData(BKDataState* state, BKData* data);
 
 #endif /* ! _BK_DATA_INTERN_H_ */

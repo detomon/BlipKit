@@ -32,7 +32,7 @@
  * @param state The instrument to initialize.
  * @retval BK_SUCCESS
  */
-extern BKInt BKInstrumentStateInit (BKInstrumentState * state);
+extern BKInt BKInstrumentStateInit(BKInstrumentState* state);
 
 /**
  * Set instrument to state.
@@ -41,7 +41,7 @@ extern BKInt BKInstrumentStateInit (BKInstrumentState * state);
  * @param instr The instrument to set.
  * @retval BK_SUCCESS
  */
-extern BKInt BKInstrumentStateSetInstrument (BKInstrumentState * state, BKInstrument * instr);
+extern BKInt BKInstrumentStateSetInstrument(BKInstrumentState* state, BKInstrument* instr);
 
 /**
  * Get sequence value at offset.
@@ -51,7 +51,7 @@ extern BKInt BKInstrumentStateSetInstrument (BKInstrumentState * state, BKInstru
  * @param offset The sequence offset.
  * @return The value at the given sequence offset.
  */
-extern BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState const * state, BKEnum slot, BKInt offset);
+extern BKInt BKInstrumentStateGetSequenceValueAtOffset(BKInstrumentState const* state, BKEnum slot, BKInt offset);
 
 /**
  * Advance state to the next sequence values.
@@ -59,7 +59,7 @@ extern BKInt BKInstrumentStateGetSequenceValueAtOffset (BKInstrumentState const 
  * @param state The state to advance.
  * @param level 0 for ticks; 1 for instrument steps.
  */
-extern void BKInstrumentStateTick (BKInstrumentState * state, BKInt level);
+extern void BKInstrumentStateTick(BKInstrumentState* state, BKInt level);
 
 /**
  * Set sequence phase.
@@ -67,6 +67,6 @@ extern void BKInstrumentStateTick (BKInstrumentState * state, BKInt level);
  * @param state The state to set the sequence phase.
  * @param phase BK_SEQUENCE_PHASE_ATTACK, BK_SEQUENCE_PHASE_RELEASE or BK_SEQUENCE_PHASE_MUTE
  */
-void BKInstrumentStateSetPhase (BKInstrumentState * state, BKEnum phase);
+void BKInstrumentStateSetPhase(BKInstrumentState* state, BKEnum phase);
 
 #endif /* ! _BK_INSTRUMENT_INTERNAL_H_ */

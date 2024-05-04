@@ -29,51 +29,48 @@
 /**
  * Object types.
  */
-typedef struct BKClass  BKClass;
+typedef struct BKClass BKClass;
 typedef struct BKObject BKObject;
 
 /**
  * Instance functions.
  */
-typedef BKInt (* BKSetAttrFunc) (void * object, BKEnum attr, BKInt value);
-typedef BKInt (* BKGetAttrFunc) (void const * object, BKEnum attr, BKInt * outValue);
-typedef BKInt (* BKSetPtrFunc)  (void * object, BKEnum attr, void * ptr, BKSize size);
-typedef BKInt (* BKGetPtrFunc)  (void const * object, BKEnum attr, void * outPtr, BKSize size);
-typedef void  (* BKDisposeFunc) (void * object);
+typedef BKInt (*BKSetAttrFunc)(void* object, BKEnum attr, BKInt value);
+typedef BKInt (*BKGetAttrFunc)(void const* object, BKEnum attr, BKInt* outValue);
+typedef BKInt (*BKSetPtrFunc)(void* object, BKEnum attr, void* ptr, BKSize size);
+typedef BKInt (*BKGetPtrFunc)(void const* object, BKEnum attr, void* outPtr, BKSize size);
+typedef void (*BKDisposeFunc)(void* object);
 
 /**
  * Object flags.
  */
-enum BKObjectFlag
-{
-	BKObjectFlagInitialized = 1 << 24,          ///< Set if object was initialized.
-	BKObjectFlagAllocated   = 1 << 25,          ///< Set if object was allocated.
-	BKObjectFlagLocked      = 1 << 26,          ///< Used to prevent recursion.
-	BKObjectFlagMask        = ~((1 << 24) - 1), ///< Mask matching object flags
-	BKObjectFlagUsableMask  = (1 << 24) - 1,    ///< Mask matching private usable flags.
+enum BKObjectFlag {
+	BKObjectFlagInitialized = 1 << 24,		///< Set if object was initialized.
+	BKObjectFlagAllocated = 1 << 25,		///< Set if object was allocated.
+	BKObjectFlagLocked = 1 << 26,			///< Used to prevent recursion.
+	BKObjectFlagMask = ~((1 << 24) - 1),	///< Mask matching object flags
+	BKObjectFlagUsableMask = (1 << 24) - 1, ///< Mask matching private usable flags.
 };
 
 /**
  * The class.
  */
-struct BKClass
-{
-	BKUInt        flags;        ///< Class flags.
-	BKSize        instanceSize; ///< Size of object instance.
-	BKDisposeFunc dispose;      ///< Dispose function.
-	BKSetAttrFunc setAttr;      ///< Set attribute function.
-	BKGetAttrFunc getAttr;      ///< Get attribute function.
-	BKSetPtrFunc  setPtr;       ///< Set pointer function.
-	BKGetPtrFunc  getPtr;       ///< Get pointer function.
+struct BKClass {
+	BKUInt flags;		   ///< Class flags.
+	BKSize instanceSize;   ///< Size of object instance.
+	BKDisposeFunc dispose; ///< Dispose function.
+	BKSetAttrFunc setAttr; ///< Set attribute function.
+	BKGetAttrFunc getAttr; ///< Get attribute function.
+	BKSetPtrFunc setPtr;   ///< Set pointer function.
+	BKGetPtrFunc getPtr;   ///< Get pointer function.
 };
 
 /**
  * The object.
  */
-struct BKObject
-{
-	BKUInt flags;        ///< The object flags.
-	BKClass const * isa; ///< The object class.
+struct BKObject {
+	BKUInt flags;		///< The object flags.
+	BKClass const* isa; ///< The object class.
 };
 
 /**
@@ -85,7 +82,7 @@ struct BKObject
  * @param guardSize Has to match the instance size given in @p isa.
  * @return 0 on success.
  */
-extern BKInt BKObjectInit (void * object, BKClass const * isa, BKSize guardSize);
+extern BKInt BKObjectInit(void* object, BKClass const* isa, BKSize guardSize);
 
 /**
  * Allocate and a new object with class. Optionally @p extraSize bytes are
@@ -97,7 +94,7 @@ extern BKInt BKObjectInit (void * object, BKClass const * isa, BKSize guardSize)
  * @return 0 on success.
  *   BK_ALLOCATION_ERROR if @p guardSize differs from instance size given by class.
  */
-extern BKInt BKObjectAlloc (void ** outObject, BKClass const * isa, BKSize extraSize);
+extern BKInt BKObjectAlloc(void** outObject, BKClass const* isa, BKSize extraSize);
 
 /**
  * Set an integer attribute.
@@ -110,7 +107,7 @@ extern BKInt BKObjectAlloc (void ** outObject, BKClass const * isa, BKSize extra
  *   BK_INVALID_VALUE if attribute value is invalid.
  *   BK_INVALID_STATE if object does not support setting attributes or is NULL.
  */
-extern BKInt BKSetAttr (void * object, BKEnum attr, BKInt value);
+extern BKInt BKSetAttr(void* object, BKEnum attr, BKInt value);
 
 /**
  * Get an integer attribute.
@@ -122,7 +119,7 @@ extern BKInt BKSetAttr (void * object, BKEnum attr, BKInt value);
  *   BK_INVALID_ATTRIBUTE if attribute is unknown by object.
  *   BK_INVALID_STATE if object does not support setting attributes or is NULL.
  */
-extern BKInt BKGetAttr (void const * object, BKEnum attr, BKInt * outValue);
+extern BKInt BKGetAttr(void const* object, BKEnum attr, BKInt* outValue);
 
 /**
  * Set a pointer attribute.
@@ -136,7 +133,7 @@ extern BKInt BKGetAttr (void const * object, BKEnum attr, BKInt * outValue);
  *   BK_INVALID_VALUE if attribute value is invalid
  *   BK_INVALID_STATE if object does not support setting pointers or is NULL
  */
-extern BKInt BKSetPtr (void * object, BKEnum attr, void * ptr, BKSize size);
+extern BKInt BKSetPtr(void* object, BKEnum attr, void* ptr, BKSize size);
 
 /**
  * Get a pointer attribute.
@@ -149,7 +146,7 @@ extern BKInt BKSetPtr (void * object, BKEnum attr, void * ptr, BKSize size);
  *   BK_INVALID_ATTRIBUTE if attribute is unknown by object
  *   BK_INVALID_STATE if object does not support getting pointers or is NULL
  */
-extern BKInt BKGetPtr (void const * object, BKEnum attr, void * outPtr, BKSize size);
+extern BKInt BKGetPtr(void const* object, BKEnum attr, void* outPtr, BKSize size);
 
 /**
  * Dispose object. Calls the class' dispose function. If the object was
@@ -158,6 +155,6 @@ extern BKInt BKGetPtr (void const * object, BKEnum attr, void * outPtr, BKSize s
  *
  * @param object The object to dispose.
  */
-extern void BKDispose (void * object);
+extern void BKDispose(void* object);
 
 #endif /* ! _BK_OBJECT_H_ */

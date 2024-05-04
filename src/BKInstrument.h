@@ -29,44 +29,40 @@
 #include "BKSequence.h"
 
 typedef struct BKInstrumentState BKInstrumentState;
-typedef struct BKInstrument      BKInstrument;
+typedef struct BKInstrument BKInstrument;
 
-typedef BKInt (* BKInstrumentStateCallback) (BKEnum event, void * userInfo);
+typedef BKInt (*BKInstrumentStateCallback)(BKEnum event, void* userInfo);
 
-enum
-{
-	BK_SEQUENCE_VOLUME,     ///< The volume sequence.
-	BK_SEQUENCE_PANNING,    ///< The panning sequence.
-	BK_SEQUENCE_PITCH,      ///< The pitch sequence.
+enum {
+	BK_SEQUENCE_VOLUME,		///< The volume sequence.
+	BK_SEQUENCE_PANNING,	///< The panning sequence.
+	BK_SEQUENCE_PITCH,		///< The pitch sequence.
 	BK_SEQUENCE_DUTY_CYCLE, ///< The duty cycle sequence.
-	BK_MAX_SEQUENCES,       ///< Used internally.
+	BK_MAX_SEQUENCES,		///< Used internally.
 };
 
-enum
-{
+enum {
 	BK_INSTR_STATE_EVENT_RESET,
 	BK_INSTR_STATE_EVENT_DISPOSE,
 	BK_INSTR_STATE_EVENT_MUTE,
 };
 
-struct BKInstrumentState
-{
-	BKInstrument            * instrument;
-	BKInstrumentState       * prevState;
-	BKInstrumentState       * nextState;
-	BKUInt                    phase;
-	BKInt                     numActiveSequences;
-	BKInstrumentStateCallback callback;  // called when disposing
-	void                    * callbackUserInfo;
-	BKSequenceState           states [BK_MAX_SEQUENCES];
+struct BKInstrumentState {
+	BKInstrument* instrument;
+	BKInstrumentState* prevState;
+	BKInstrumentState* nextState;
+	BKUInt phase;
+	BKInt numActiveSequences;
+	BKInstrumentStateCallback callback; // called when disposing
+	void* callbackUserInfo;
+	BKSequenceState states[BK_MAX_SEQUENCES];
 };
 
-struct BKInstrument
-{
-	BKObject            object;
-	BKUInt              numSequences;
-	BKInstrumentState * stateList;
-	BKSequence        * sequences [BK_MAX_SEQUENCES];
+struct BKInstrument {
+	BKObject object;
+	BKUInt numSequences;
+	BKInstrumentState* stateList;
+	BKSequence* sequences[BK_MAX_SEQUENCES];
 };
 
 /**
@@ -78,7 +74,7 @@ struct BKInstrument
  * @retval BK_SUCCESS
  * @retval BK_ALLOCATION_ERROR
  */
-extern BKInt BKInstrumentInit (BKInstrument * instr);
+extern BKInt BKInstrumentInit(BKInstrument* instr);
 
 /**
  * Allocate instrument and store in given pointer.
@@ -87,14 +83,14 @@ extern BKInt BKInstrumentInit (BKInstrument * instr);
  * @retval BK_SUCCESS
  * @retval BK_ALLOCATION_ERROR
  */
-extern BKInt BKInstrumentAlloc (BKInstrument ** outInstr);
+extern BKInt BKInstrumentAlloc(BKInstrument** outInstr);
 
 /**
  * Detach instrument from all tracks.
  *
  * @param instr The instrument to detach.
  */
-extern void BKInstrumentDetach (BKInstrument * instr);
+extern void BKInstrumentDetach(BKInstrument* instr);
 
 /**
  * Copy an instrument. The copy will not be attached to any track.
@@ -104,7 +100,7 @@ extern void BKInstrumentDetach (BKInstrument * instr);
  * @retval BK_SUCCESS
  * @retval BK_ALLOCATION_ERROR
  */
-extern BKInt BKInstrumentInitCopy (BKInstrument * copy, BKInstrument const * original);
+extern BKInt BKInstrumentInitCopy(BKInstrument* copy, BKInstrument const* original);
 
 /**
  * Set sequence values.
@@ -119,7 +115,7 @@ extern BKInt BKInstrumentInitCopy (BKInstrument * copy, BKInstrument const * ori
  * @retval BK_INVALID_ATTRIBUTE If the sequence type is invalid.
  * @retval BK_ALLOCATION_ERROR
  */
-extern BKInt BKInstrumentSetSequence (BKInstrument * instr, BKEnum sequence, BKInt const * values, BKUInt length, BKInt sustainOffset, BKInt sustainLength);
+extern BKInt BKInstrumentSetSequence(BKInstrument* instr, BKEnum sequence, BKInt const* values, BKUInt length, BKInt sustainOffset, BKInt sustainLength);
 
 /**
  * Set envelope values.
@@ -134,7 +130,7 @@ extern BKInt BKInstrumentSetSequence (BKInstrument * instr, BKEnum sequence, BKI
  * @retval BK_INVALID_ATTRIBUTE If the envelope type is invalid.
  * @retval BK_ALLOCATION_ERROR
  */
-extern BKInt BKInstrumentSetEnvelope (BKInstrument * instr, BKEnum sequence, BKSequencePhase const * phases, BKUInt length, BKInt sustainOffset, BKInt sustainLength);
+extern BKInt BKInstrumentSetEnvelope(BKInstrument* instr, BKEnum sequence, BKSequencePhase const* phases, BKUInt length, BKInt sustainOffset, BKInt sustainLength);
 
 /**
  * Set ADSR envelope sequence in BK_SEQUENCE_VOLUME slot.
@@ -148,7 +144,7 @@ extern BKInt BKInstrumentSetEnvelope (BKInstrument * instr, BKEnum sequence, BKS
  * @retval BK_INVALID_ATTRIBUTE If the envelope type is invalid.
  * @retval BK_ALLOCATION_ERROR
  */
-extern BKInt BKInstrumentSetEnvelopeADSR (BKInstrument * instr, BKUInt attack, BKUInt decay, BKInt sustain, BKUInt release);
+extern BKInt BKInstrumentSetEnvelopeADSR(BKInstrument* instr, BKUInt attack, BKUInt decay, BKInt sustain, BKUInt release);
 
 /**
  * Get sequence for given sequence type.
@@ -157,6 +153,6 @@ extern BKInt BKInstrumentSetEnvelopeADSR (BKInstrument * instr, BKUInt attack, B
  * @param sequence The sequence type.
  * @return A pointer to the sequence or NULL if no sequence is defined.
  */
-extern BKSequence const * BKInstrumentGetSequence (BKInstrument const * instr, BKEnum sequence);
+extern BKSequence const* BKInstrumentGetSequence(BKInstrument const* instr, BKEnum sequence);
 
 #endif /* ! _BK_INSTRUMENT_H_ */

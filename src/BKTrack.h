@@ -24,77 +24,72 @@
 #ifndef _BK_TRACK_H_
 #define _BK_TRACK_H_
 
-#include "BKUnit.h"
 #include "BKInstrument.h"
 #include "BKInterpolation.h"
+#include "BKUnit.h"
 
 #define BK_EFFECT_FLAG_SHIFT (16 - BK_EFFECT_TYPE - 1)
 
-typedef struct BKTrack         BKTrack;
-typedef struct BKDividerState  BKDividerState;
+typedef struct BKTrack BKTrack;
+typedef struct BKDividerState BKDividerState;
 typedef struct BKArpeggioState BKArpeggioState;
 
-enum
-{
-	BKVolumeSlideFlag              = 1 << (BK_EFFECT_VOLUME_SLIDE  + BK_EFFECT_FLAG_SHIFT),
-	BKPanningSlideFlag             = 1 << (BK_EFFECT_PANNING_SLIDE + BK_EFFECT_FLAG_SHIFT),
-	BKPortamentoFlag               = 1 << (BK_EFFECT_PORTAMENTO    + BK_EFFECT_FLAG_SHIFT),
-	BKTremoloFlag                  = 1 << (BK_EFFECT_TREMOLO       + BK_EFFECT_FLAG_SHIFT),
-	BKVibratoFlag                  = 1 << (BK_EFFECT_VIBRATO       + BK_EFFECT_FLAG_SHIFT),
+enum {
+	BKVolumeSlideFlag = 1 << (BK_EFFECT_VOLUME_SLIDE + BK_EFFECT_FLAG_SHIFT),
+	BKPanningSlideFlag = 1 << (BK_EFFECT_PANNING_SLIDE + BK_EFFECT_FLAG_SHIFT),
+	BKPortamentoFlag = 1 << (BK_EFFECT_PORTAMENTO + BK_EFFECT_FLAG_SHIFT),
+	BKTremoloFlag = 1 << (BK_EFFECT_TREMOLO + BK_EFFECT_FLAG_SHIFT),
+	BKVibratoFlag = 1 << (BK_EFFECT_VIBRATO + BK_EFFECT_FLAG_SHIFT),
 
-	BKInstrumentFlag               = 1 << 0,
-	BKArpeggioFlag                 = 1 << 1,
-	BKPanningEnabledFlag           = 1 << 2,
-	BKTriangleIgnoresVolumeFlag    = 1 << 3,
-	BKIgnoreVolumeFlag             = 1 << 4,
+	BKInstrumentFlag = 1 << 0,
+	BKArpeggioFlag = 1 << 1,
+	BKPanningEnabledFlag = 1 << 2,
+	BKTriangleIgnoresVolumeFlag = 1 << 3,
+	BKIgnoreVolumeFlag = 1 << 4,
 
-	BKTrackAttrUpdateFlagVolume    = 1 << 5,
-	BKTrackAttrUpdateFlagNote      = 1 << 6,
+	BKTrackAttrUpdateFlagVolume = 1 << 5,
+	BKTrackAttrUpdateFlagNote = 1 << 6,
 	BKTrackAttrUpdateFlagDutyCycle = 1 << 7,
 
-	BKEffectMask                   = BKPortamentoFlag | BKVolumeSlideFlag
-	| BKPanningSlideFlag | BKTremoloFlag | BKVibratoFlag,
+	BKEffectMask = BKPortamentoFlag | BKVolumeSlideFlag | BKPanningSlideFlag | BKTremoloFlag | BKVibratoFlag,
 };
 
-struct BKDividerState
-{
+struct BKDividerState {
 	BKInt divider;
 	BKInt counter;
 };
 
-struct BKArpeggioState
-{
+struct BKArpeggioState {
 	BKInt offset;
 	BKInt delta;
 	BKInt count;
-	BKInt notes [BK_MAX_ARPEGGIO];
+	BKInt notes[BK_MAX_ARPEGGIO];
 };
 
-struct BKTrack
-{
-	BKUnit            unit;
-	BKUInt            flags;
-	BKDivider         divider;
-	BKDividerState    arpeggioDivider;
-	BKDividerState    instrDivider;
-	BKDividerState    effectDivider;
-	BKInt             waveform;
-	BKInt             dutyCycle;
-	BKData          * sample;
-	BKFInt20          samplePitch;
-	BKInt             masterVolume;
-	BKSlideState      volume;
-	BKSlideState      panning;
-	BKInt             curNote;
-	BKSlideState      note;
-	BKFInt20          pitch;
-	BKIntervalState   tremolo;
-	BKSlideState      tremoloDelta;
-	BKSlideState      tremoloSteps;
-	BKIntervalState   vibrato;
-	BKSlideState      vibratoDelta;
-	BKSlideState      vibratoSteps;
-	BKArpeggioState   arpeggio;
+struct BKTrack {
+	BKUnit unit;
+	BKUInt flags;
+	BKDivider divider;
+	BKDividerState arpeggioDivider;
+	BKDividerState instrDivider;
+	BKDividerState effectDivider;
+	BKInt waveform;
+	BKInt dutyCycle;
+	BKData* sample;
+	BKFInt20 samplePitch;
+	BKInt masterVolume;
+	BKSlideState volume;
+	BKSlideState panning;
+	BKInt curNote;
+	BKSlideState note;
+	BKFInt20 pitch;
+	BKIntervalState tremolo;
+	BKSlideState tremoloDelta;
+	BKSlideState tremoloSteps;
+	BKIntervalState vibrato;
+	BKSlideState vibratoDelta;
+	BKSlideState vibratoSteps;
+	BKArpeggioState arpeggio;
 	BKInstrumentState instrState;
 };
 
@@ -103,22 +98,22 @@ struct BKTrack
  *
  * Disposing with `BKDispose` detaches the object from the context
  */
-extern BKInt BKTrackInit (BKTrack * track, BKEnum waveform);
+extern BKInt BKTrackInit(BKTrack* track, BKEnum waveform);
 
 /**
  * Allocate track
  */
-extern BKInt BKTrackAlloc (BKTrack ** outTrack, BKEnum waveform);
+extern BKInt BKTrackAlloc(BKTrack** outTrack, BKEnum waveform);
 
 /**
  * Reset track values and buffer state
  */
-extern void BKTrackReset (BKTrack * track);
+extern void BKTrackReset(BKTrack* track);
 
 /**
  * Reset track values
  */
-extern void BKTrackClear (BKTrack * track);
+extern void BKTrackClear(BKTrack* track);
 
 /**
  * Attach to context
@@ -126,12 +121,12 @@ extern void BKTrackClear (BKTrack * track);
  * Errors:
  * BK_INVALID_STATE if already attached to a context
  */
-extern BKInt BKTrackAttach (BKTrack * track, BKContext * ctx);
+extern BKInt BKTrackAttach(BKTrack* track, BKContext* ctx);
 
 /**
  * Detach from context
  */
-extern void BKTrackDetach (BKTrack * track);
+extern void BKTrackDetach(BKTrack* track);
 
 /**
  * Set attribute
@@ -173,7 +168,7 @@ extern void BKTrackDetach (BKTrack * track);
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  * BK_INVALID_VALUE if value is invalid for this attribute
  */
-extern BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value) BK_DEPRECATED_FUNC ("Use 'BKSetAttr' instead");
+extern BKInt BKTrackSetAttr(BKTrack* track, BKEnum attr, BKInt value) BK_DEPRECATED_FUNC("Use 'BKSetAttr' instead");
 
 /**
  * Get attribute
@@ -195,7 +190,7 @@ extern BKInt BKTrackSetAttr (BKTrack * track, BKEnum attr, BKInt value) BK_DEPRE
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValue) BK_DEPRECATED_FUNC ("Use 'BKGetAttr' instead");
+extern BKInt BKTrackGetAttr(BKTrack const* track, BKEnum attr, BKInt* outValue) BK_DEPRECATED_FUNC("Use 'BKGetAttr' instead");
 
 /**
  * Set pointer
@@ -240,7 +235,7 @@ extern BKInt BKTrackGetAttr (BKTrack const * track, BKEnum attr, BKInt * outValu
  * BK_INVALID_VALUE if pointer is invalid for this attribute
  * BK_INVALID_NUM_CHANNELS if number of channels of sample does not match that of context
  */
-extern BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr) BK_DEPRECATED_FUNC ("Use 'BKSetPtr' instead");
+extern BKInt BKTrackSetPtr(BKTrack* track, BKEnum attr, void* ptr) BK_DEPRECATED_FUNC("Use 'BKSetPtr' instead");
 
 /**
  * Get pointer
@@ -266,7 +261,7 @@ extern BKInt BKTrackSetPtr (BKTrack * track, BKEnum attr, void * ptr) BK_DEPRECA
  * Errors:
  * BK_INVALID_ATTRIBUTE if attribute is unknown
  */
-extern BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr) BK_DEPRECATED_FUNC ("Use 'BKGetPtr' instead");
+extern BKInt BKTrackGetPtr(BKTrack const* track, BKEnum attr, void* outPtr) BK_DEPRECATED_FUNC("Use 'BKGetPtr' instead");
 
 /**
  * Enable or disable effects
@@ -290,7 +285,7 @@ extern BKInt BKTrackGetPtr (BKTrack const * track, BKEnum attr, void * outPtr) B
  *   values [1] sets delta note
  *   values [2] sets the number of ticks to slide to the new values (optional)
  */
-extern BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, void const * ptr, BKUInt size);
+extern BKInt BKTrackSetEffect(BKTrack* track, BKEnum effect, void const* ptr, BKUInt size);
 
 /**
  * Get effect parameters
@@ -301,6 +296,6 @@ extern BKInt BKTrackSetEffect (BKTrack * track, BKEnum effect, void const * ptr,
  * BK_EFFECT_TREMOLO
  * BK_EFFECT_VIBRATO
  */
-extern BKInt BKTrackGetEffect (BKTrack const * track, BKEnum effect, void * outValues, BKUInt size);
+extern BKInt BKTrackGetEffect(BKTrack const* track, BKEnum effect, void* outValues, BKUInt size);
 
 #endif /* ! _BK_TRACK_H_ */
