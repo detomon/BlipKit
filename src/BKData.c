@@ -21,6 +21,7 @@
  * IN THE SOFTWARE.
  */
 
+#include "BKBase.h"
 #include "BKData_internal.h"
 #include "BKTone.h"
 #include "BKWaveFileReader.h"
@@ -360,7 +361,7 @@ BKInt BKDataSetFrames(BKData* data, BKFrame const* frames, BKUInt numFrames, BKU
 	}
 
 	if (newFrames == NULL) {
-		return -1;
+		return BK_ALLOCATION_ERROR;
 	}
 
 	data->frames = newFrames;
@@ -592,6 +593,7 @@ BKInt BKDataSetData(BKData* data, void const* frameData, BKUInt dataSize, BKUInt
 
 BKInt BKDataLoadRaw(BKData* data, FILE* file, BKUInt numChannels, BKEnum params) {
 	BKSize offset = ftell(file);
+	BKInt ret = BK_SUCCESS;
 
 	if (offset < 0) {
 		return BK_FILE_ERROR;
@@ -607,16 +609,25 @@ BKInt BKDataLoadRaw(BKData* data, FILE* file, BKUInt numChannels, BKEnum params)
 	size -= offset;
 	void* frames = malloc(size);
 
-	if (frames == NULL) {
-		return BK_ALLOCATION_ERROR;
+	if (!frames) {
+		ret = BK_ALLOCATION_ERROR;
+		goto error;
 	}
 
 	fseek(file, offset, SEEK_SET);
-	fread(frames, sizeof(char), size, file);
 
-	BKInt ret = BKDataSetData(data, frames, (BKUInt)size, numChannels, params);
+	if (fread(frames, sizeof(char), size, file) < size) {
+		ret = BK_FILE_ERROR;
+		goto error;
+	}
 
-	free(frames);
+	ret = BKDataSetData(data, frames, (BKUInt)size, numChannels, params);
+
+	error: {
+		if (frames) {
+			free(frames);
+		}
+	}
 
 	return ret;
 }
@@ -730,7 +741,7 @@ static void BKDataReduceBits(BKFrame* outFrames, BKFrame* frames, BKSize length,
 				dither = (dither & 1) ? -deltaDither : deltaDither;
 
 				// smooth dither
-				float ditherFactor = pow(BKAbs((sum / ditherSmoothLength)) / maxValue, ditherCurve);
+				float ditherFactor = powf(BKAbs((sum / ditherSmoothLength)) / maxValue, ditherCurve);
 				ditherFactor = (1.0 - ditherSlope) + (ditherFactor * ditherSlope);
 				dither *= ditherFactor;
 
