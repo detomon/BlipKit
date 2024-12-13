@@ -23,6 +23,11 @@
 
 #include "BKContext.h"
 #include "BKUnit.h"
+#ifdef HAVE_ALLOCA_H // Assume GNU.
+#include <alloca.h>
+#elif HAVE_MALLOC_H // Assume MSVC.
+#include <malloc.h>
+#endif
 
 extern BKInt BKContextSetAttrInt(BKContext* ctx, BKEnum attr, BKInt value);
 
@@ -276,6 +281,7 @@ BKInt BKContextGenerate(BKContext* ctx, BKFrame outFrames[], BKUInt size) {
 
 BKInt BKContextGenerateToTime(BKContext* ctx, BKTime endTime, BKInt (*write)(BKFrame inFrames[], BKUInt size, void* info), void* info) {
 	BKInt numFrames = 0;
+	BKFrame* frames = (BKFrame*)alloca(sizeof(BKFrame) * ctx->numChannels * BK_MAX_GENERATE_SAMPLES);
 
 	while (BKTimeIsLess(ctx->currentTime, endTime)) {
 		BKTime deltaTime = BKTimeSub(endTime, ctx->currentTime);
@@ -293,7 +299,6 @@ BKInt BKContextGenerateToTime(BKContext* ctx, BKTime endTime, BKInt (*write)(BKF
 		// write frames if buffer filled or end time is reached
 		if (BKBufferSize(&ctx->channels[0]) >= BK_MAX_GENERATE_SAMPLES || BKTimeIsGreaterEqual(ctx->currentTime, endTime)) {
 			BKInt size;
-			BKFrame frames[ctx->numChannels * BK_MAX_GENERATE_SAMPLES];
 
 			size = BKContextRead(ctx, frames, BK_MAX_GENERATE_SAMPLES);
 			numFrames += size;

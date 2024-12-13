@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT([BlipKit],[0.17.6],[simon@monoxid.net],[blipkit],[https://blipkit.audio])
+AC_INIT([BlipKit], [0.17.6], [simon@monoxid.net], [blipkit], [https://blipkit.audio])
 
 AC_CONFIG_SRCDIR([src/BKBase.c])
 AC_CONFIG_HEADER([config.h])
@@ -35,7 +35,7 @@ AM_CFLAGS="$AM_CFLAGS -Wall \
 CHECK_COMPILE_FLAG([-std=c11], [AM_CFLAGS])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h math.h stdarg.h stddef.h stdint.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([alloca.h fcntl.h malloc.h math.h stdarg.h stddef.h stdint.h stdlib.h string.h unistd.h])
 
 AC_ARG_WITH([sdl],
 	AS_HELP_STRING([--without-sdl], [do not link agains SDL library]))
