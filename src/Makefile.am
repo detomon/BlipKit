@@ -1,5 +1,15 @@
 lib_LIBRARIES = libblipkit.a
 
+if ENABLE_WAV
+extra_src = \
+	BKWaveFileReader.c \
+	BKWaveFileWriter.c
+extra_hdr = \
+	BKWaveFile_internal.h \
+	BKWaveFileReader.h \
+	BKWaveFileWriter.h
+endif
+
 libblipkit_a_SOURCES = \
 	BKBase.c \
 	BKBuffer.c \
@@ -13,8 +23,7 @@ libblipkit_a_SOURCES = \
 	BKTone.c \
 	BKTrack.c \
 	BKUnit.c \
-	BKWaveFileReader.c \
-	BKWaveFileWriter.c
+	$(extra_src)
 
 HEADER_LIST = \
 	BKBase.h \
@@ -34,10 +43,8 @@ HEADER_LIST = \
 	BKTrack.h \
 	BKUnit.h \
 	BKUnit_internal.h \
-	BKWaveFile_internal.h \
-	BKWaveFileReader.h \
-	BKWaveFileWriter.h \
-	BlipKit.h
+	BlipKit.h \
+	$(extra_hdr)
 
 pkginclude_HEADERS = $(HEADER_LIST)
 

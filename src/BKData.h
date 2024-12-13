@@ -228,7 +228,9 @@ extern BKInt BKDataLoadRaw(BKData* data, FILE* file, BKUInt numChannels, BKEnum 
  * @param file The file to read from. Will not be closed.
  * @return 0 on success.
  */
+#ifdef BK_ENABLE_WAV
 extern BKInt BKDataLoadWAVE(BKData* data, FILE* file);
+#endif // BK_ENABLE_WAV
 
 /**
  * Normalize frames to their maximum possible value. If BKData was initialized

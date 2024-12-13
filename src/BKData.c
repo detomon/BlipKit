@@ -24,10 +24,10 @@
 #include "BKBase.h"
 #include "BKData_internal.h"
 #include "BKTone.h"
+#ifdef BK_ENABLE_WAV
 #include "BKWaveFileReader.h"
-#include <fcntl.h>
+#endif // BK_ENABLE_WAV
 #include <math.h>
-#include <unistd.h>
 
 extern BKClass const BKDataClass;
 
@@ -632,6 +632,7 @@ BKInt BKDataLoadRaw(BKData* data, FILE* file, BKUInt numChannels, BKEnum params)
 	return ret;
 }
 
+#ifdef BK_ENABLE_WAV
 BKInt BKDataLoadWAVE(BKData* data, FILE* file) {
 	BKWaveFileReader reader;
 	BKInt numChannels;
@@ -670,6 +671,7 @@ BKInt BKDataLoadWAVE(BKData* data, FILE* file) {
 
 	return 0;
 }
+#endif // BK_ENABLE_WAV
 
 BKInt BKDataNormalize(BKData* data) {
 	BKInt maxValue = 0;

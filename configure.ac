@@ -39,11 +39,25 @@ AC_CHECK_HEADERS([fcntl.h math.h stdarg.h stddef.h stdint.h stdlib.h string.h un
 
 AC_ARG_WITH([sdl],
 	AS_HELP_STRING([--without-sdl], [do not link agains SDL library]))
+AC_ARG_WITH([wav],
+	AS_HELP_STRING([--without-wav], [do not include WAV functions]))
 
 # Set default of with_sdl to yes.
 AS_IF([test "x$with_sdl" = "x"],
 	[with_sdl=yes],
 	[])
+
+# Set default of with_wave to yes.
+AS_IF([test "x$with_wav" = "x"],
+	[with_wav=yes],
+	[])
+
+# Enable WAV reader.
+if test "x$with_wav" = xyes; then
+	BK_ENABLE_WAV=1
+	AC_SUBST(BK_ENABLE_WAV)
+fi
+AM_CONDITIONAL([ENABLE_WAV], [test x$with_wav = xyes])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT8_T
