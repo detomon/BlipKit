@@ -1,3 +1,10 @@
+Changes in BlipKit 0.17.7:
+  Release date: 2024-12-15
+
+* Enforce code style with .clang-format
+* Add option --without-wav to disable WAV functions
+* Fix compiler warnings and errors
+
 Changes in BlipKit 0.17.6:
   Release date: 2023-04-13
 
