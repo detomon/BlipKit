@@ -1113,14 +1113,28 @@ static BKFUInt20 BKUnitRunSample(BKUnit* unit, BKFUInt20 endTime) {
 
 		// check for sustain range boundary
 		if (checkBounds) {
+			BKInt reverse = unit->sample.repeatMode == BK_PALINDROME;
+
 			if (unit->sample.period > 0) {
 				if ((BKInt)unit->phase.phase >= (BKInt)unit->sample.sustainEnd) {
-					unit->phase.phase = unit->sample.sustainOffset;
+					if (reverse) {
+						unit->phase.phase = unit->sample.sustainEnd - 1;
+						unit->sample.period = -unit->sample.period;
+					}
+					else {
+						unit->phase.phase = unit->sample.sustainOffset;
+					}
 				}
 			}
 			else {
 				if ((BKInt)unit->phase.phase < (BKInt)unit->sample.sustainOffset) {
-					unit->phase.phase = unit->sample.sustainEnd - 1;
+					if (reverse) {
+						unit->phase.phase = unit->sample.sustainOffset;
+						unit->sample.period = -unit->sample.period;
+					}
+					else {
+						unit->phase.phase = unit->sample.sustainEnd - 1;
+					}
 				}
 			}
 		}
