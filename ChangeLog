@@ -1,3 +1,8 @@
+Changes in BlipKit 0.17.8:
+  Release date: 2025-05-07
+
+* Allow BK_PALINDROME in sample sustain range
+
 Changes in BlipKit 0.17.7:
   Release date: 2024-12-15
 
