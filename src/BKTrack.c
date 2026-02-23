@@ -749,6 +749,10 @@ static BKInt BKTrackGetAttrInt(BKTrack const* track, BKEnum attr, BKInt* outValu
 			value = track->curNote;
 			break;
 		}
+		case BK_PITCH: {
+			value = track->pitch;
+			break;
+		}
 		case BK_SAMPLE_PITCH: {
 			value = track->samplePitch;
 			break;
